@@ -1,0 +1,37 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "invalid-matcher-encodings",
+  "epoch": 1,
+  "strategy": {
+    "kind": "rendezvous"
+  },
+  "nodes": [
+    {
+      "id": "n1"
+    },
+    {
+      "id": "n2"
+    }
+  ],
+  "overrides": [
+    {
+      "match": {
+        "kind": "exact",
+        "value": "AB"
+      },
+      "pin": [
+        "n1"
+      ]
+    },
+    {
+      "match": {
+        "kind": "exact",
+        "value": "4142",
+        "encoding": "base16"
+      },
+      "pin": [
+        "n2"
+      ]
+    }
+  ]
+}

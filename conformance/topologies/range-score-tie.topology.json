@@ -1,0 +1,38 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "range-score-tie",
+  "epoch": 1,
+  "replication": {
+    "factor": 2
+  },
+  "strategy": {
+    "kind": "range",
+    "assignment": "derived",
+    "ranges": [
+      {
+        "shardId": "r0",
+        "start": null,
+        "end": "80"
+      },
+      {
+        "shardId": "r1",
+        "start": "80",
+        "end": null
+      }
+    ]
+  },
+  "nodes": [
+    {
+      "id": "b8f74fd98df56571"
+    },
+    {
+      "id": "4e04bedabc32ed9e"
+    },
+    {
+      "id": "zz-third"
+    }
+  ],
+  "metadata": {
+    "note": "the first two identities score identically for shard r0"
+  }
+}

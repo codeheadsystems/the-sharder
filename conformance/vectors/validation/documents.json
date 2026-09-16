@@ -1,0 +1,1206 @@
+{
+  "vectorSet": "validation-documents",
+  "kind": "validation",
+  "description": "Documents that fail a load-time rule, each with the rules it breaks, and every valid document in the suite as a negative control.  A port reports every error rather than the first, under `ERR-030`.",
+  "requirements": [
+    "ERR-030",
+    "OVR-015",
+    "OVR-028",
+    "PLACE-067",
+    "REPL-004",
+    "TOPO-001",
+    "TOPO-011",
+    "TOPO-191"
+  ],
+  "cases": [
+    {
+      "name": "constrain-undeclared-level",
+      "requirements": [
+        "TOPO-001",
+        "TOPO-011",
+        "TOPO-191",
+        "ERR-030"
+      ],
+      "document": "topologies/invalid/constrain-undeclared-level.topology.json",
+      "stage": "semantic",
+      "note": "rejected at stage 3, the semantic rules of TOPO-001",
+      "expect": {
+        "valid": false,
+        "condition": {
+          "code": 201,
+          "name": "invalidTopology"
+        },
+        "rules": [
+          "undeclaredLevel"
+        ],
+        "errors": [
+          {
+            "path": "overrides[0].constrain.domains",
+            "rule": "undeclaredLevel",
+            "detail": "region"
+          }
+        ]
+      }
+    },
+    {
+      "name": "directory-unknown-node",
+      "requirements": [
+        "TOPO-001",
+        "TOPO-011",
+        "TOPO-191",
+        "ERR-030"
+      ],
+      "document": "topologies/invalid/directory-unknown-node.topology.json",
+      "stage": "semantic",
+      "note": "rejected at stage 3, the semantic rules of TOPO-001",
+      "expect": {
+        "valid": false,
+        "condition": {
+          "code": 201,
+          "name": "invalidTopology"
+        },
+        "rules": [
+          "unknownNodeId"
+        ],
+        "errors": [
+          {
+            "path": "strategy.entries[0].nodes",
+            "rule": "unknownNodeId",
+            "detail": "ghost"
+          }
+        ]
+      }
+    },
+    {
+      "name": "duplicate-matcher-across-encodings",
+      "requirements": [
+        "TOPO-001",
+        "TOPO-011",
+        "TOPO-191",
+        "ERR-030"
+      ],
+      "document": "topologies/invalid/duplicate-matcher-across-encodings.topology.json",
+      "stage": "semantic",
+      "note": "rejected at stage 3, the semantic rules of TOPO-001",
+      "expect": {
+        "valid": false,
+        "condition": {
+          "code": 201,
+          "name": "invalidTopology"
+        },
+        "rules": [
+          "duplicateMatcher"
+        ],
+        "errors": [
+          {
+            "path": "overrides[1].match",
+            "rule": "duplicateMatcher",
+            "detail": "4142"
+          }
+        ]
+      }
+    },
+    {
+      "name": "duplicate-node-id",
+      "requirements": [
+        "TOPO-001",
+        "TOPO-011",
+        "TOPO-191",
+        "ERR-030"
+      ],
+      "document": "topologies/invalid/duplicate-node-id.topology.json",
+      "stage": "semantic",
+      "note": "rejected at stage 3, the semantic rules of TOPO-001",
+      "expect": {
+        "valid": false,
+        "condition": {
+          "code": 201,
+          "name": "invalidTopology"
+        },
+        "rules": [
+          "duplicateNodeId"
+        ],
+        "errors": [
+          {
+            "path": "nodes[2].id",
+            "rule": "duplicateNodeId",
+            "detail": "dup"
+          }
+        ]
+      }
+    },
+    {
+      "name": "duplicate-override-matcher",
+      "requirements": [
+        "TOPO-001",
+        "TOPO-011",
+        "TOPO-191",
+        "ERR-030"
+      ],
+      "document": "topologies/invalid/duplicate-override-matcher.topology.json",
+      "stage": "semantic",
+      "note": "rejected at stage 3, the semantic rules of TOPO-001",
+      "expect": {
+        "valid": false,
+        "condition": {
+          "code": 201,
+          "name": "invalidTopology"
+        },
+        "rules": [
+          "duplicateMatcher"
+        ],
+        "errors": [
+          {
+            "path": "overrides[1].match",
+            "rule": "duplicateMatcher",
+            "detail": "same"
+          }
+        ]
+      }
+    },
+    {
+      "name": "malformed-seed",
+      "requirements": [
+        "TOPO-001",
+        "TOPO-011",
+        "TOPO-191",
+        "ERR-030"
+      ],
+      "document": "topologies/invalid/malformed-seed.topology.json",
+      "stage": "schema",
+      "note": "rejected at stage 2, schema validation of TOPO-001",
+      "expect": {
+        "valid": false,
+        "condition": {
+          "code": 201,
+          "name": "invalidTopology"
+        },
+        "rules": [
+          "malformedSeed"
+        ],
+        "errors": [
+          {
+            "path": "hash.seed",
+            "rule": "malformedSeed",
+            "detail": "ABCD"
+          }
+        ]
+      }
+    },
+    {
+      "name": "node-missing-domain-level",
+      "requirements": [
+        "TOPO-001",
+        "TOPO-011",
+        "TOPO-191",
+        "ERR-030"
+      ],
+      "document": "topologies/invalid/node-missing-domain-level.topology.json",
+      "stage": "semantic",
+      "note": "rejected at stage 3, the semantic rules of TOPO-001",
+      "expect": {
+        "valid": false,
+        "condition": {
+          "code": 201,
+          "name": "invalidTopology"
+        },
+        "rules": [
+          "missingLevel"
+        ],
+        "errors": [
+          {
+            "path": "nodes[0].domains",
+            "rule": "missingLevel",
+            "detail": "rack"
+          }
+        ]
+      }
+    },
+    {
+      "name": "node-undeclared-domain-level",
+      "requirements": [
+        "TOPO-001",
+        "TOPO-011",
+        "TOPO-191",
+        "ERR-030"
+      ],
+      "document": "topologies/invalid/node-undeclared-domain-level.topology.json",
+      "stage": "semantic",
+      "note": "rejected at stage 3, the semantic rules of TOPO-001",
+      "expect": {
+        "valid": false,
+        "condition": {
+          "code": 201,
+          "name": "invalidTopology"
+        },
+        "rules": [
+          "undeclaredLevel"
+        ],
+        "errors": [
+          {
+            "path": "nodes[0].domains",
+            "rule": "undeclaredLevel",
+            "detail": "rack"
+          }
+        ]
+      }
+    },
+    {
+      "name": "pin-names-absent-node",
+      "requirements": [
+        "TOPO-001",
+        "TOPO-011",
+        "TOPO-191",
+        "ERR-030"
+      ],
+      "document": "topologies/invalid/pin-names-absent-node.topology.json",
+      "stage": "semantic",
+      "note": "rejected at stage 3, the semantic rules of TOPO-001",
+      "expect": {
+        "valid": false,
+        "condition": {
+          "code": 201,
+          "name": "invalidTopology"
+        },
+        "rules": [
+          "unknownNodeId"
+        ],
+        "errors": [
+          {
+            "path": "overrides[0].pin",
+            "rule": "unknownNodeId",
+            "detail": "ghost"
+          }
+        ]
+      }
+    },
+    {
+      "name": "range-duplicate-shard-id",
+      "requirements": [
+        "TOPO-001",
+        "TOPO-011",
+        "TOPO-191",
+        "ERR-030"
+      ],
+      "document": "topologies/invalid/range-duplicate-shard-id.topology.json",
+      "stage": "semantic",
+      "note": "rejected at stage 3, the semantic rules of TOPO-001",
+      "expect": {
+        "valid": false,
+        "condition": {
+          "code": 201,
+          "name": "invalidTopology"
+        },
+        "rules": [
+          "duplicateShardId"
+        ],
+        "errors": [
+          {
+            "path": "strategy.ranges[1].shardId",
+            "rule": "duplicateShardId",
+            "detail": "r0"
+          }
+        ]
+      }
+    },
+    {
+      "name": "range-first-start-not-null",
+      "requirements": [
+        "TOPO-001",
+        "TOPO-011",
+        "TOPO-191",
+        "ERR-030"
+      ],
+      "document": "topologies/invalid/range-first-start-not-null.topology.json",
+      "stage": "semantic",
+      "note": "rejected at stage 3, the semantic rules of TOPO-001",
+      "expect": {
+        "valid": false,
+        "condition": {
+          "code": 201,
+          "name": "invalidTopology"
+        },
+        "rules": [
+          "firstStartNotNull"
+        ],
+        "errors": [
+          {
+            "path": "strategy.ranges[0].start",
+            "rule": "firstStartNotNull",
+            "detail": "00"
+          }
+        ]
+      }
+    },
+    {
+      "name": "range-gap",
+      "requirements": [
+        "TOPO-001",
+        "TOPO-011",
+        "TOPO-191",
+        "ERR-030"
+      ],
+      "document": "topologies/invalid/range-gap.topology.json",
+      "stage": "semantic",
+      "note": "rejected at stage 3, the semantic rules of TOPO-001",
+      "expect": {
+        "valid": false,
+        "condition": {
+          "code": 201,
+          "name": "invalidTopology"
+        },
+        "rules": [
+          "rangeGapOrOverlap"
+        ],
+        "errors": [
+          {
+            "path": "strategy.ranges[1].start",
+            "rule": "rangeGapOrOverlap",
+            "detail": "50"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ring-derived-carries-tokens",
+      "requirements": [
+        "TOPO-001",
+        "TOPO-011",
+        "TOPO-191",
+        "ERR-030"
+      ],
+      "document": "topologies/invalid/ring-derived-carries-tokens.topology.json",
+      "stage": "semantic",
+      "note": "rejected at stage 3, the semantic rules of TOPO-001",
+      "expect": {
+        "valid": false,
+        "condition": {
+          "code": 201,
+          "name": "invalidTopology"
+        },
+        "rules": [
+          "tokensUnderDerived"
+        ],
+        "errors": [
+          {
+            "path": "nodes[0].tokens",
+            "rule": "tokensUnderDerived",
+            "detail": "n1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ring-explicit-duplicate-token",
+      "requirements": [
+        "TOPO-001",
+        "TOPO-011",
+        "TOPO-191",
+        "ERR-030"
+      ],
+      "document": "topologies/invalid/ring-explicit-duplicate-token.topology.json",
+      "stage": "semantic",
+      "note": "rejected at stage 3, the semantic rules of TOPO-001",
+      "expect": {
+        "valid": false,
+        "condition": {
+          "code": 201,
+          "name": "invalidTopology"
+        },
+        "rules": [
+          "duplicateToken"
+        ],
+        "errors": [
+          {
+            "path": "nodes[1].tokens",
+            "rule": "duplicateToken",
+            "detail": "0000000000000001"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ring-explicit-missing-tokens",
+      "requirements": [
+        "TOPO-001",
+        "TOPO-011",
+        "TOPO-191",
+        "ERR-030"
+      ],
+      "document": "topologies/invalid/ring-explicit-missing-tokens.topology.json",
+      "stage": "semantic",
+      "note": "rejected at stage 3, the semantic rules of TOPO-001",
+      "expect": {
+        "valid": false,
+        "condition": {
+          "code": 201,
+          "name": "invalidTopology"
+        },
+        "rules": [
+          "missingTokens"
+        ],
+        "errors": [
+          {
+            "path": "nodes[1].tokens",
+            "rule": "missingTokens",
+            "detail": "n2"
+          }
+        ]
+      }
+    },
+    {
+      "name": "slot-covered-twice",
+      "requirements": [
+        "TOPO-001",
+        "TOPO-011",
+        "TOPO-191",
+        "ERR-030"
+      ],
+      "document": "topologies/invalid/slot-covered-twice.topology.json",
+      "stage": "semantic",
+      "note": "rejected at stage 3, the semantic rules of TOPO-001",
+      "expect": {
+        "valid": false,
+        "condition": {
+          "code": 201,
+          "name": "invalidTopology"
+        },
+        "rules": [
+          "slotCoveredTwice"
+        ],
+        "errors": [
+          {
+            "path": "strategy.assignments[1].slots",
+            "rule": "slotCoveredTwice",
+            "detail": "4"
+          },
+          {
+            "path": "strategy.assignments[1].slots",
+            "rule": "slotCoveredTwice",
+            "detail": "5"
+          }
+        ]
+      }
+    },
+    {
+      "name": "slot-not-covered",
+      "requirements": [
+        "TOPO-001",
+        "TOPO-011",
+        "TOPO-191",
+        "ERR-030"
+      ],
+      "document": "topologies/invalid/slot-not-covered.topology.json",
+      "stage": "semantic",
+      "note": "rejected at stage 3, the semantic rules of TOPO-001",
+      "expect": {
+        "valid": false,
+        "condition": {
+          "code": 201,
+          "name": "invalidTopology"
+        },
+        "rules": [
+          "slotNotCovered"
+        ],
+        "errors": [
+          {
+            "path": "strategy.assignments",
+            "rule": "slotNotCovered",
+            "detail": "2 slots, first 6"
+          }
+        ]
+      }
+    },
+    {
+      "name": "spread-level-order",
+      "requirements": [
+        "TOPO-001",
+        "TOPO-011",
+        "TOPO-191",
+        "ERR-030"
+      ],
+      "document": "topologies/invalid/spread-level-order.topology.json",
+      "stage": "semantic",
+      "note": "rejected at stage 3, the semantic rules of TOPO-001",
+      "expect": {
+        "valid": false,
+        "condition": {
+          "code": 201,
+          "name": "invalidTopology"
+        },
+        "rules": [
+          "levelOrder"
+        ],
+        "errors": [
+          {
+            "path": "replication.spread",
+            "rule": "levelOrder",
+            "detail": "zone,region"
+          }
+        ]
+      }
+    },
+    {
+      "name": "spread-undeclared-level",
+      "requirements": [
+        "TOPO-001",
+        "TOPO-011",
+        "TOPO-191",
+        "ERR-030"
+      ],
+      "document": "topologies/invalid/spread-undeclared-level.topology.json",
+      "stage": "semantic",
+      "note": "rejected at stage 3, the semantic rules of TOPO-001",
+      "expect": {
+        "valid": false,
+        "condition": {
+          "code": 201,
+          "name": "invalidTopology"
+        },
+        "rules": [
+          "undeclaredLevel"
+        ],
+        "errors": [
+          {
+            "path": "replication.spread",
+            "rule": "undeclaredLevel",
+            "detail": "rack"
+          }
+        ]
+      }
+    },
+    {
+      "name": "unsupported-format-version",
+      "requirements": [
+        "TOPO-001",
+        "TOPO-011",
+        "TOPO-191",
+        "ERR-030"
+      ],
+      "document": "topologies/invalid/unsupported-format-version.topology.json",
+      "stage": "semantic",
+      "note": "rejected at stage 3, the semantic rules of TOPO-001",
+      "expect": {
+        "valid": false,
+        "condition": {
+          "code": 201,
+          "name": "invalidTopology"
+        },
+        "rules": [
+          "unsupportedVersion"
+        ],
+        "errors": [
+          {
+            "path": "formatVersion",
+            "rule": "unsupportedVersion",
+            "detail": "2.0"
+          }
+        ]
+      }
+    },
+    {
+      "name": "unsupported-hash-algorithm",
+      "requirements": [
+        "TOPO-001",
+        "TOPO-011",
+        "TOPO-191",
+        "ERR-030"
+      ],
+      "document": "topologies/invalid/unsupported-hash-algorithm.topology.json",
+      "stage": "schema",
+      "note": "rejected at stage 2, schema validation of TOPO-001",
+      "expect": {
+        "valid": false,
+        "condition": {
+          "code": 201,
+          "name": "invalidTopology"
+        },
+        "rules": [
+          "unsupportedAlgorithm"
+        ],
+        "errors": [
+          {
+            "path": "hash.algorithm",
+            "rule": "unsupportedAlgorithm",
+            "detail": "xxhash64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "unsupported-minor-version",
+      "requirements": [
+        "TOPO-001",
+        "TOPO-011",
+        "TOPO-191",
+        "ERR-030"
+      ],
+      "document": "topologies/invalid/unsupported-minor-version.topology.json",
+      "stage": "semantic",
+      "note": "rejected at stage 3, the semantic rules of TOPO-001",
+      "expect": {
+        "valid": false,
+        "condition": {
+          "code": 201,
+          "name": "invalidTopology"
+        },
+        "rules": [
+          "unsupportedVersion"
+        ],
+        "errors": [
+          {
+            "path": "formatVersion",
+            "rule": "unsupportedVersion",
+            "detail": "1.7"
+          }
+        ]
+      }
+    },
+    {
+      "name": "valid/directory-sparse",
+      "requirements": [
+        "TOPO-001"
+      ],
+      "document": "topologies/directory-sparse.topology.json",
+      "stage": "none",
+      "expect": {
+        "valid": true,
+        "rules": [],
+        "errors": []
+      }
+    },
+    {
+      "name": "valid/directory-tenants",
+      "requirements": [
+        "TOPO-001"
+      ],
+      "document": "topologies/directory-tenants.topology.json",
+      "stage": "none",
+      "expect": {
+        "valid": true,
+        "rules": [],
+        "errors": []
+      }
+    },
+    {
+      "name": "valid/empty-nodes",
+      "requirements": [
+        "TOPO-001"
+      ],
+      "document": "topologies/empty-nodes.topology.json",
+      "stage": "none",
+      "expect": {
+        "valid": true,
+        "rules": [],
+        "errors": []
+      }
+    },
+    {
+      "name": "valid/empty-nodes-ring",
+      "requirements": [
+        "TOPO-001"
+      ],
+      "document": "topologies/empty-nodes-ring.topology.json",
+      "stage": "none",
+      "expect": {
+        "valid": true,
+        "rules": [],
+        "errors": []
+      }
+    },
+    {
+      "name": "valid/factor-exceeds-nodes",
+      "requirements": [
+        "TOPO-001"
+      ],
+      "document": "topologies/factor-exceeds-nodes.topology.json",
+      "stage": "none",
+      "expect": {
+        "valid": true,
+        "rules": [],
+        "errors": []
+      }
+    },
+    {
+      "name": "valid/kt-brace",
+      "requirements": [
+        "TOPO-001"
+      ],
+      "document": "topologies/kt-brace.topology.json",
+      "stage": "none",
+      "expect": {
+        "valid": true,
+        "rules": [],
+        "errors": []
+      }
+    },
+    {
+      "name": "valid/kt-brace-same",
+      "requirements": [
+        "TOPO-001"
+      ],
+      "document": "topologies/kt-brace-same.topology.json",
+      "stage": "none",
+      "expect": {
+        "valid": true,
+        "rules": [],
+        "errors": []
+      }
+    },
+    {
+      "name": "valid/kt-continuation",
+      "requirements": [
+        "TOPO-001"
+      ],
+      "document": "topologies/kt-continuation.topology.json",
+      "stage": "none",
+      "expect": {
+        "valid": true,
+        "rules": [],
+        "errors": []
+      }
+    },
+    {
+      "name": "valid/kt-none",
+      "requirements": [
+        "TOPO-001"
+      ],
+      "document": "topologies/kt-none.topology.json",
+      "stage": "none",
+      "expect": {
+        "valid": true,
+        "rules": [],
+        "errors": []
+      }
+    },
+    {
+      "name": "valid/kt-prefix-1",
+      "requirements": [
+        "TOPO-001"
+      ],
+      "document": "topologies/kt-prefix-1.topology.json",
+      "stage": "none",
+      "expect": {
+        "valid": true,
+        "rules": [],
+        "errors": []
+      }
+    },
+    {
+      "name": "valid/kt-prefix-2",
+      "requirements": [
+        "TOPO-001"
+      ],
+      "document": "topologies/kt-prefix-2.topology.json",
+      "stage": "none",
+      "expect": {
+        "valid": true,
+        "rules": [],
+        "errors": []
+      }
+    },
+    {
+      "name": "valid/movement-range-after",
+      "requirements": [
+        "TOPO-001"
+      ],
+      "document": "topologies/movement-range-after.topology.json",
+      "stage": "none",
+      "expect": {
+        "valid": true,
+        "rules": [],
+        "errors": []
+      }
+    },
+    {
+      "name": "valid/movement-range-before",
+      "requirements": [
+        "TOPO-001"
+      ],
+      "document": "topologies/movement-range-before.topology.json",
+      "stage": "none",
+      "expect": {
+        "valid": true,
+        "rules": [],
+        "errors": []
+      }
+    },
+    {
+      "name": "valid/movement-ring-after",
+      "requirements": [
+        "TOPO-001"
+      ],
+      "document": "topologies/movement-ring-after.topology.json",
+      "stage": "none",
+      "expect": {
+        "valid": true,
+        "rules": [],
+        "errors": []
+      }
+    },
+    {
+      "name": "valid/movement-ring-before",
+      "requirements": [
+        "TOPO-001"
+      ],
+      "document": "topologies/movement-ring-before.topology.json",
+      "stage": "none",
+      "expect": {
+        "valid": true,
+        "rules": [],
+        "errors": []
+      }
+    },
+    {
+      "name": "valid/movement-rv-after",
+      "requirements": [
+        "TOPO-001"
+      ],
+      "document": "topologies/movement-rv-after.topology.json",
+      "stage": "none",
+      "expect": {
+        "valid": true,
+        "rules": [],
+        "errors": []
+      }
+    },
+    {
+      "name": "valid/movement-rv-before",
+      "requirements": [
+        "TOPO-001"
+      ],
+      "document": "topologies/movement-rv-before.topology.json",
+      "stage": "none",
+      "expect": {
+        "valid": true,
+        "rules": [],
+        "errors": []
+      }
+    },
+    {
+      "name": "valid/movement-slot-after",
+      "requirements": [
+        "TOPO-001"
+      ],
+      "document": "topologies/movement-slot-after.topology.json",
+      "stage": "none",
+      "expect": {
+        "valid": true,
+        "rules": [],
+        "errors": []
+      }
+    },
+    {
+      "name": "valid/movement-slot-before",
+      "requirements": [
+        "TOPO-001"
+      ],
+      "document": "topologies/movement-slot-before.topology.json",
+      "stage": "none",
+      "expect": {
+        "valid": true,
+        "rules": [],
+        "errors": []
+      }
+    },
+    {
+      "name": "valid/one-domain-relaxed",
+      "requirements": [
+        "TOPO-001"
+      ],
+      "document": "topologies/one-domain-relaxed.topology.json",
+      "stage": "none",
+      "expect": {
+        "valid": true,
+        "rules": [],
+        "errors": []
+      }
+    },
+    {
+      "name": "valid/one-domain-strict",
+      "requirements": [
+        "TOPO-001"
+      ],
+      "document": "topologies/one-domain-strict.topology.json",
+      "stage": "none",
+      "expect": {
+        "valid": true,
+        "rules": [],
+        "errors": []
+      }
+    },
+    {
+      "name": "valid/overrides-precedence",
+      "requirements": [
+        "TOPO-001"
+      ],
+      "document": "topologies/overrides-precedence.topology.json",
+      "stage": "none",
+      "expect": {
+        "valid": true,
+        "rules": [],
+        "errors": []
+      }
+    },
+    {
+      "name": "valid/range-derived",
+      "requirements": [
+        "TOPO-001"
+      ],
+      "document": "topologies/range-derived.topology.json",
+      "stage": "none",
+      "expect": {
+        "valid": true,
+        "rules": [],
+        "errors": []
+      }
+    },
+    {
+      "name": "valid/range-explicit",
+      "requirements": [
+        "TOPO-001"
+      ],
+      "document": "topologies/range-explicit.topology.json",
+      "stage": "none",
+      "expect": {
+        "valid": true,
+        "rules": [],
+        "errors": []
+      }
+    },
+    {
+      "name": "valid/read-affinity",
+      "requirements": [
+        "TOPO-001"
+      ],
+      "document": "topologies/read-affinity.topology.json",
+      "stage": "none",
+      "expect": {
+        "valid": true,
+        "rules": [],
+        "errors": []
+      }
+    },
+    {
+      "name": "valid/rendezvous-cache",
+      "requirements": [
+        "TOPO-001"
+      ],
+      "document": "topologies/rendezvous-cache.topology.json",
+      "stage": "none",
+      "expect": {
+        "valid": true,
+        "rules": [],
+        "errors": []
+      }
+    },
+    {
+      "name": "valid/rendezvous-capped",
+      "requirements": [
+        "TOPO-001"
+      ],
+      "document": "topologies/rendezvous-capped.topology.json",
+      "stage": "none",
+      "expect": {
+        "valid": true,
+        "rules": [],
+        "errors": []
+      }
+    },
+    {
+      "name": "valid/rendezvous-plain",
+      "requirements": [
+        "TOPO-001"
+      ],
+      "document": "topologies/rendezvous-plain.topology.json",
+      "stage": "none",
+      "expect": {
+        "valid": true,
+        "rules": [],
+        "errors": []
+      }
+    },
+    {
+      "name": "valid/rendezvous-tenant",
+      "requirements": [
+        "TOPO-001"
+      ],
+      "document": "topologies/rendezvous-tenant.topology.json",
+      "stage": "none",
+      "expect": {
+        "valid": true,
+        "rules": [],
+        "errors": []
+      }
+    },
+    {
+      "name": "valid/ring-admin-states",
+      "requirements": [
+        "TOPO-001"
+      ],
+      "document": "topologies/ring-admin-states.topology.json",
+      "stage": "none",
+      "expect": {
+        "valid": true,
+        "rules": [],
+        "errors": []
+      }
+    },
+    {
+      "name": "valid/ring-explicit",
+      "requirements": [
+        "TOPO-001"
+      ],
+      "document": "topologies/ring-explicit.topology.json",
+      "stage": "none",
+      "expect": {
+        "valid": true,
+        "rules": [],
+        "errors": []
+      }
+    },
+    {
+      "name": "valid/ring-plain",
+      "requirements": [
+        "TOPO-001"
+      ],
+      "document": "topologies/ring-plain.topology.json",
+      "stage": "none",
+      "expect": {
+        "valid": true,
+        "rules": [],
+        "errors": []
+      }
+    },
+    {
+      "name": "valid/ring-seeded",
+      "requirements": [
+        "TOPO-001"
+      ],
+      "document": "topologies/ring-seeded.topology.json",
+      "stage": "none",
+      "expect": {
+        "valid": true,
+        "rules": [],
+        "errors": []
+      }
+    },
+    {
+      "name": "valid/ring-zoned",
+      "requirements": [
+        "TOPO-001"
+      ],
+      "document": "topologies/ring-zoned.topology.json",
+      "stage": "none",
+      "expect": {
+        "valid": true,
+        "rules": [],
+        "errors": []
+      }
+    },
+    {
+      "name": "valid/single-node",
+      "requirements": [
+        "TOPO-001"
+      ],
+      "document": "topologies/single-node.topology.json",
+      "stage": "none",
+      "expect": {
+        "valid": true,
+        "rules": [],
+        "errors": []
+      }
+    },
+    {
+      "name": "valid/slot-derived",
+      "requirements": [
+        "TOPO-001"
+      ],
+      "document": "topologies/slot-derived.topology.json",
+      "stage": "none",
+      "expect": {
+        "valid": true,
+        "rules": [],
+        "errors": []
+      }
+    },
+    {
+      "name": "valid/slot-explicit",
+      "requirements": [
+        "TOPO-001"
+      ],
+      "document": "topologies/slot-explicit.topology.json",
+      "stage": "none",
+      "expect": {
+        "valid": true,
+        "rules": [],
+        "errors": []
+      }
+    },
+    {
+      "name": "valid/slot-small",
+      "requirements": [
+        "TOPO-001"
+      ],
+      "document": "topologies/slot-small.topology.json",
+      "stage": "none",
+      "expect": {
+        "valid": true,
+        "rules": [],
+        "errors": []
+      }
+    },
+    {
+      "name": "valid/spread-ladder",
+      "requirements": [
+        "TOPO-001"
+      ],
+      "document": "topologies/spread-ladder.topology.json",
+      "stage": "none",
+      "expect": {
+        "valid": true,
+        "rules": [],
+        "errors": []
+      }
+    },
+    {
+      "name": "valid/weight-zero",
+      "requirements": [
+        "TOPO-001"
+      ],
+      "document": "topologies/weight-zero.topology.json",
+      "stage": "none",
+      "expect": {
+        "valid": true,
+        "rules": [],
+        "errors": []
+      }
+    },
+    {
+      "name": "valid/weight-zero-all",
+      "requirements": [
+        "TOPO-001"
+      ],
+      "document": "topologies/weight-zero-all.topology.json",
+      "stage": "none",
+      "expect": {
+        "valid": true,
+        "rules": [],
+        "errors": []
+      }
+    },
+    {
+      "name": "valid/weight-zero-pinned",
+      "requirements": [
+        "TOPO-001"
+      ],
+      "document": "topologies/weight-zero-pinned.topology.json",
+      "stage": "none",
+      "expect": {
+        "valid": true,
+        "rules": [],
+        "errors": []
+      }
+    }
+  ]
+}

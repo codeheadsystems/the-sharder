@@ -1,0 +1,33 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "invalid-slot-overlap",
+  "epoch": 1,
+  "strategy": {
+    "kind": "slot",
+    "slotCount": 8,
+    "assignment": "explicit",
+    "assignments": [
+      {
+        "slots": [
+          "0-5"
+        ],
+        "nodes": [
+          "n1"
+        ]
+      },
+      {
+        "slots": [
+          "4-7"
+        ],
+        "nodes": [
+          "n1"
+        ]
+      }
+    ]
+  },
+  "nodes": [
+    {
+      "id": "n1"
+    }
+  ]
+}

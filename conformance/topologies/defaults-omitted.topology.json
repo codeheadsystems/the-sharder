@@ -1,0 +1,19 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "defaults-omitted",
+  "epoch": 1,
+  "strategy": {
+    "kind": "ring"
+  },
+  "nodes": [
+    {
+      "id": "d1"
+    },
+    {
+      "id": "d2"
+    },
+    {
+      "id": "d3"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "invalid-derived-tokens",
+  "epoch": 1,
+  "strategy": {
+    "kind": "ring",
+    "tokenAssignment": "derived"
+  },
+  "nodes": [
+    {
+      "id": "n1",
+      "tokens": [
+        "0000000000000001"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,212 @@
+{
+  "vectorSet": "placement-identity-comparison",
+  "kind": "formula",
+  "description": "The node identity comparator: unsigned octets of the UTF-8 encoding, lexicographic, with a proper prefix comparing less.  It is the final tie-break of every ordering the specification defines, so a port that compares by code point, by collation, or case insensitively passes every ordering vector and fails on the first tie.",
+  "requirements": [
+    "CORE-003",
+    "PLACE-020",
+    "PLACE-021",
+    "PLACE-022",
+    "PLACE-023"
+  ],
+  "cases": [
+    {
+      "name": "a|b",
+      "requirements": [
+        "PLACE-020",
+        "PLACE-021",
+        "PLACE-022",
+        "CORE-003"
+      ],
+      "formula": "compareNodeIdentity",
+      "inputs": {
+        "left": "a",
+        "right": "b",
+        "leftOctets": "61",
+        "rightOctets": "62"
+      },
+      "note": "an ordinary ordering",
+      "expect": "less"
+    },
+    {
+      "name": "a|a",
+      "requirements": [
+        "PLACE-020",
+        "PLACE-021",
+        "PLACE-022",
+        "CORE-003"
+      ],
+      "formula": "compareNodeIdentity",
+      "inputs": {
+        "left": "a",
+        "right": "a",
+        "leftOctets": "61",
+        "rightOctets": "61"
+      },
+      "note": "equality",
+      "expect": "equal"
+    },
+    {
+      "name": "a|ab",
+      "requirements": [
+        "PLACE-020",
+        "PLACE-021",
+        "PLACE-022",
+        "CORE-003"
+      ],
+      "formula": "compareNodeIdentity",
+      "inputs": {
+        "left": "a",
+        "right": "ab",
+        "leftOctets": "61",
+        "rightOctets": "6162"
+      },
+      "note": "a proper prefix compares less",
+      "expect": "less"
+    },
+    {
+      "name": "Node|node",
+      "requirements": [
+        "PLACE-020",
+        "PLACE-021",
+        "PLACE-022",
+        "CORE-003"
+      ],
+      "formula": "compareNodeIdentity",
+      "inputs": {
+        "left": "Node",
+        "right": "node",
+        "leftOctets": "4e6f6465",
+        "rightOctets": "6e6f6465"
+      },
+      "note": "case sensitive: 0x4e is below 0x6e",
+      "expect": "less"
+    },
+    {
+      "name": "Z|a",
+      "requirements": [
+        "PLACE-020",
+        "PLACE-021",
+        "PLACE-022",
+        "CORE-003"
+      ],
+      "formula": "compareNodeIdentity",
+      "inputs": {
+        "left": "Z",
+        "right": "a",
+        "leftOctets": "5a",
+        "rightOctets": "61"
+      },
+      "note": "0x5a is below 0x61, which a case-insensitive comparator reverses",
+      "expect": "less"
+    },
+    {
+      "name": "a|B",
+      "requirements": [
+        "PLACE-020",
+        "PLACE-021",
+        "PLACE-022",
+        "CORE-003"
+      ],
+      "formula": "compareNodeIdentity",
+      "inputs": {
+        "left": "a",
+        "right": "B",
+        "leftOctets": "61",
+        "rightOctets": "42"
+      },
+      "note": "0x61 is above 0x42, which a locale collation commonly reverses",
+      "expect": "greater"
+    },
+    {
+      "name": "n-1|n1",
+      "requirements": [
+        "PLACE-020",
+        "PLACE-021",
+        "PLACE-022",
+        "CORE-003"
+      ],
+      "formula": "compareNodeIdentity",
+      "inputs": {
+        "left": "n-1",
+        "right": "n1",
+        "leftOctets": "6e2d31",
+        "rightOctets": "6e31"
+      },
+      "note": "0x2d is below 0x31",
+      "expect": "less"
+    },
+    {
+      "name": "n2|n10",
+      "requirements": [
+        "PLACE-020",
+        "PLACE-021",
+        "PLACE-022",
+        "CORE-003"
+      ],
+      "formula": "compareNodeIdentity",
+      "inputs": {
+        "left": "n2",
+        "right": "n10",
+        "leftOctets": "6e32",
+        "rightOctets": "6e3130"
+      },
+      "note": "octet order, not numeric order",
+      "expect": "greater"
+    },
+    {
+      "name": "café|cafz",
+      "requirements": [
+        "PLACE-020",
+        "PLACE-021",
+        "PLACE-022",
+        "CORE-003"
+      ],
+      "formula": "compareNodeIdentity",
+      "inputs": {
+        "left": "café",
+        "right": "cafz",
+        "leftOctets": "636166c3a9",
+        "rightOctets": "6361667a"
+      },
+      "note": "the UTF-8 octets of é begin 0xc3, which is above 0x7a",
+      "expect": "greater"
+    },
+    {
+      "name": "<empty>|a",
+      "requirements": [
+        "PLACE-020",
+        "PLACE-021",
+        "PLACE-022",
+        "CORE-003"
+      ],
+      "formula": "compareNodeIdentity",
+      "inputs": {
+        "left": "",
+        "right": "a",
+        "leftOctets": "",
+        "rightOctets": "61"
+      },
+      "note": "the empty identity compares below every non-empty one",
+      "expect": "less"
+    },
+    {
+      "name": "ÿ|Ā",
+      "requirements": [
+        "PLACE-020",
+        "PLACE-021",
+        "PLACE-022",
+        "CORE-003"
+      ],
+      "formula": "compareNodeIdentity",
+      "inputs": {
+        "left": "ÿ",
+        "right": "Ā",
+        "leftOctets": "c3bf",
+        "rightOctets": "c480"
+      },
+      "note": "two code points whose UTF-8 encodings order the same way",
+      "expect": "less"
+    }
+  ]
+}

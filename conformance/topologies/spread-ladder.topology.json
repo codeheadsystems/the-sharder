@@ -1,0 +1,72 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "spread-ladder",
+  "epoch": 1,
+  "domainLevels": [
+    "region",
+    "zone",
+    "rack"
+  ],
+  "replication": {
+    "factor": 4,
+    "spread": [
+      "region",
+      "zone",
+      "rack"
+    ],
+    "spreadPolicy": "relaxed"
+  },
+  "strategy": {
+    "kind": "rendezvous"
+  },
+  "nodes": [
+    {
+      "id": "eu-a-1",
+      "domains": {
+        "region": "eu",
+        "zone": "a",
+        "rack": "r1"
+      }
+    },
+    {
+      "id": "eu-a-2",
+      "domains": {
+        "region": "eu",
+        "zone": "a",
+        "rack": "r2"
+      }
+    },
+    {
+      "id": "eu-b-1",
+      "domains": {
+        "region": "eu",
+        "zone": "b",
+        "rack": "r1"
+      }
+    },
+    {
+      "id": "eu-b-2",
+      "domains": {
+        "region": "eu",
+        "zone": "b",
+        "rack": "r1"
+      }
+    },
+    {
+      "id": "us-a-1",
+      "domains": {
+        "region": "us",
+        "zone": "a",
+        "rack": "r1"
+      }
+    },
+    {
+      "id": "us-a-2",
+      "domains": {
+        "region": "us",
+        "zone": "a",
+        "rack": "r1"
+      }
+    }
+  ]
+}

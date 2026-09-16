@@ -1,0 +1,20 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "invalid-extra-domain",
+  "epoch": 1,
+  "domainLevels": [
+    "zone"
+  ],
+  "strategy": {
+    "kind": "rendezvous"
+  },
+  "nodes": [
+    {
+      "id": "n1",
+      "domains": {
+        "zone": "za",
+        "rack": "r1"
+      }
+    }
+  ]
+}

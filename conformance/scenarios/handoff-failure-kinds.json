@@ -1,0 +1,280 @@
+{
+  "scenario": "handoff-failure-kinds",
+  "description": "Each of the four failure kinds of `MOVE-011`, with the trigger sequence that reaches it and the condition it raises.  A terminal state admits no further transition.",
+  "requirements": [
+    "ERR-052",
+    "ERR-053",
+    "MOVE-011",
+    "MOVE-021",
+    "MOVE-031",
+    "MOVE-231",
+    "MOVE-451",
+    "MOVE-461"
+  ],
+  "deterministic": true,
+  "setup": {},
+  "steps": [
+    {
+      "action": "driveToFailure",
+      "failureKind": "unverified",
+      "triggers": [
+        "admittedByRatePolicy",
+        "prepareSuccess",
+        "noBulkRemaining",
+        "residueAtOrBelowThreshold",
+        "cutoverCommitted",
+        "verifyMismatch"
+      ],
+      "note": "`MOVE-451`: the source copy stays in place and `cleanup` never runs for it",
+      "expect": {
+        "state": "failed",
+        "failureKind": "unverified",
+        "condition": {
+          "code": 403,
+          "name": "handoffFailed",
+          "cause": "unverified"
+        },
+        "history": [
+          {
+            "from": "planned",
+            "to": "preparing",
+            "trigger": "admittedByRatePolicy",
+            "at": 1000
+          },
+          {
+            "from": "preparing",
+            "to": "transferring",
+            "trigger": "prepareSuccess",
+            "at": 1100
+          },
+          {
+            "from": "transferring",
+            "to": "catchingUp",
+            "trigger": "noBulkRemaining",
+            "at": 1200
+          },
+          {
+            "from": "catchingUp",
+            "to": "cutover",
+            "trigger": "residueAtOrBelowThreshold",
+            "at": 1300
+          },
+          {
+            "from": "cutover",
+            "to": "verifying",
+            "trigger": "cutoverCommitted",
+            "at": 1400
+          },
+          {
+            "from": "verifying",
+            "to": "failed",
+            "trigger": "verifyMismatch",
+            "at": 1500
+          }
+        ],
+        "terminal": true
+      }
+    },
+    {
+      "action": "expectTerminal",
+      "failureKind": "unverified",
+      "expect": {
+        "furtherTransitionRefused": true,
+        "error": "HandoffError"
+      }
+    },
+    {
+      "action": "driveToFailure",
+      "failureKind": "residue",
+      "triggers": [
+        "admittedByRatePolicy",
+        "prepareSuccess",
+        "noBulkRemaining",
+        "residueAtOrBelowThreshold",
+        "cutoverCommitted",
+        "verifySuccess",
+        "attemptsExhausted"
+      ],
+      "note": "`MOVE-461`: ownership moved correctly and a copy is left at the source",
+      "expect": {
+        "state": "failed",
+        "failureKind": "residue",
+        "condition": {
+          "code": 403,
+          "name": "handoffFailed",
+          "cause": "residue"
+        },
+        "history": [
+          {
+            "from": "planned",
+            "to": "preparing",
+            "trigger": "admittedByRatePolicy",
+            "at": 1000
+          },
+          {
+            "from": "preparing",
+            "to": "transferring",
+            "trigger": "prepareSuccess",
+            "at": 1100
+          },
+          {
+            "from": "transferring",
+            "to": "catchingUp",
+            "trigger": "noBulkRemaining",
+            "at": 1200
+          },
+          {
+            "from": "catchingUp",
+            "to": "cutover",
+            "trigger": "residueAtOrBelowThreshold",
+            "at": 1300
+          },
+          {
+            "from": "cutover",
+            "to": "verifying",
+            "trigger": "cutoverCommitted",
+            "at": 1400
+          },
+          {
+            "from": "verifying",
+            "to": "cleanup",
+            "trigger": "verifySuccess",
+            "at": 1500
+          },
+          {
+            "from": "cleanup",
+            "to": "failed",
+            "trigger": "attemptsExhausted",
+            "at": 1600
+          }
+        ],
+        "terminal": true
+      }
+    },
+    {
+      "action": "expectTerminal",
+      "failureKind": "residue",
+      "expect": {
+        "furtherTransitionRefused": true,
+        "error": "HandoffError"
+      }
+    },
+    {
+      "action": "driveToFailure",
+      "failureKind": "undetermined",
+      "triggers": [
+        "admittedByRatePolicy",
+        "prepareSuccess",
+        "noBulkRemaining",
+        "residueAtOrBelowThreshold",
+        "commitUndetermined"
+      ],
+      "note": "`MOVE-231`: the outcome of `commitCutover` was not established by the deadline",
+      "expect": {
+        "state": "failed",
+        "failureKind": "undetermined",
+        "condition": {
+          "code": 403,
+          "name": "handoffFailed",
+          "cause": "undetermined"
+        },
+        "history": [
+          {
+            "from": "planned",
+            "to": "preparing",
+            "trigger": "admittedByRatePolicy",
+            "at": 1000
+          },
+          {
+            "from": "preparing",
+            "to": "transferring",
+            "trigger": "prepareSuccess",
+            "at": 1100
+          },
+          {
+            "from": "transferring",
+            "to": "catchingUp",
+            "trigger": "noBulkRemaining",
+            "at": 1200
+          },
+          {
+            "from": "catchingUp",
+            "to": "cutover",
+            "trigger": "residueAtOrBelowThreshold",
+            "at": 1300
+          },
+          {
+            "from": "cutover",
+            "to": "failed",
+            "trigger": "commitUndetermined",
+            "at": 1400
+          }
+        ],
+        "terminal": true
+      }
+    },
+    {
+      "action": "expectTerminal",
+      "failureKind": "undetermined",
+      "expect": {
+        "furtherTransitionRefused": true,
+        "error": "HandoffError"
+      }
+    },
+    {
+      "action": "driveToFailure",
+      "failureKind": "rollbackFailed",
+      "triggers": [
+        "admittedByRatePolicy",
+        "prepareSuccess",
+        "abort",
+        "attemptsExhausted"
+      ],
+      "note": "compensation itself failed, so an operator releases the destination's partial copy",
+      "expect": {
+        "state": "failed",
+        "failureKind": "rollbackFailed",
+        "condition": {
+          "code": 403,
+          "name": "handoffFailed",
+          "cause": "rollbackFailed"
+        },
+        "history": [
+          {
+            "from": "planned",
+            "to": "preparing",
+            "trigger": "admittedByRatePolicy",
+            "at": 1000
+          },
+          {
+            "from": "preparing",
+            "to": "transferring",
+            "trigger": "prepareSuccess",
+            "at": 1100
+          },
+          {
+            "from": "transferring",
+            "to": "aborting",
+            "trigger": "abort",
+            "at": 1200
+          },
+          {
+            "from": "aborting",
+            "to": "failed",
+            "trigger": "attemptsExhausted",
+            "at": 1300
+          }
+        ],
+        "terminal": true
+      }
+    },
+    {
+      "action": "expectTerminal",
+      "failureKind": "rollbackFailed",
+      "expect": {
+        "furtherTransitionRefused": true,
+        "error": "HandoffError"
+      }
+    }
+  ]
+}

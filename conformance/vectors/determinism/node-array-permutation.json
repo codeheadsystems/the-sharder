@@ -1,0 +1,495 @@
+{
+  "vectorSet": "determinism-node-array-permutation",
+  "kind": "permutation",
+  "description": "Reversing the `nodes` array, changing the epoch, changing `topologyId`, and adding `metadata` leave every candidate ordering unchanged.",
+  "requirements": [
+    "CORE-002",
+    "PROP-005",
+    "RING-013",
+    "RV-013"
+  ],
+  "cases": [
+    {
+      "name": "ring-plain",
+      "requirements": [
+        "PROP-005",
+        "RING-013",
+        "RV-013",
+        "CORE-002"
+      ],
+      "topology": "topologies/ring-plain.topology.json",
+      "permutedDocument": {
+        "formatVersion": "1.0",
+        "topologyId": "ring-plain-permuted",
+        "epoch": 1001,
+        "strategy": {
+          "kind": "ring",
+          "tokenAssignment": "derived",
+          "tokensPerWeightUnit": 1,
+          "maxTokensPerNode": 4096
+        },
+        "nodes": [
+          {
+            "id": "n4"
+          },
+          {
+            "id": "n3"
+          },
+          {
+            "id": "n2"
+          },
+          {
+            "id": "n1"
+          }
+        ],
+        "metadata": {
+          "note": "permuted, and at a different epoch"
+        }
+      },
+      "expect": {
+        "identicalCandidates": [
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "perm-0"
+            },
+            "candidates": [
+              "n3",
+              "n4",
+              "n2",
+              "n1"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "perm-1"
+            },
+            "candidates": [
+              "n4",
+              "n2",
+              "n1",
+              "n3"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "perm-2"
+            },
+            "candidates": [
+              "n2",
+              "n1",
+              "n3",
+              "n4"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "perm-3"
+            },
+            "candidates": [
+              "n3",
+              "n4",
+              "n2",
+              "n1"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "perm-4"
+            },
+            "candidates": [
+              "n3",
+              "n4",
+              "n2",
+              "n1"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "perm-5"
+            },
+            "candidates": [
+              "n3",
+              "n4",
+              "n2",
+              "n1"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "rendezvous-plain",
+      "requirements": [
+        "PROP-005",
+        "RING-013",
+        "RV-013",
+        "CORE-002"
+      ],
+      "topology": "topologies/rendezvous-plain.topology.json",
+      "permutedDocument": {
+        "formatVersion": "1.0",
+        "topologyId": "rv-plain-permuted",
+        "epoch": 1001,
+        "replication": {
+          "factor": 3
+        },
+        "strategy": {
+          "kind": "rendezvous"
+        },
+        "nodes": [
+          {
+            "id": "n5"
+          },
+          {
+            "id": "n4"
+          },
+          {
+            "id": "n3"
+          },
+          {
+            "id": "n2"
+          },
+          {
+            "id": "n1"
+          }
+        ],
+        "metadata": {
+          "note": "permuted, and at a different epoch"
+        }
+      },
+      "expect": {
+        "identicalCandidates": [
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "perm-0"
+            },
+            "candidates": [
+              "n1",
+              "n4",
+              "n5",
+              "n2",
+              "n3"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "perm-1"
+            },
+            "candidates": [
+              "n1",
+              "n5",
+              "n4",
+              "n2",
+              "n3"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "perm-2"
+            },
+            "candidates": [
+              "n4",
+              "n1",
+              "n2",
+              "n5",
+              "n3"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "perm-3"
+            },
+            "candidates": [
+              "n5",
+              "n2",
+              "n3",
+              "n1",
+              "n4"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "perm-4"
+            },
+            "candidates": [
+              "n5",
+              "n4",
+              "n1",
+              "n3",
+              "n2"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "perm-5"
+            },
+            "candidates": [
+              "n2",
+              "n1",
+              "n4",
+              "n3",
+              "n5"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "slot-derived",
+      "requirements": [
+        "PROP-005",
+        "RING-013",
+        "RV-013",
+        "CORE-002"
+      ],
+      "topology": "topologies/slot-derived.topology.json",
+      "permutedDocument": {
+        "formatVersion": "1.0",
+        "topologyId": "slot-derived-permuted",
+        "epoch": 1002,
+        "replication": {
+          "factor": 2
+        },
+        "strategy": {
+          "kind": "slot",
+          "slotCount": 64,
+          "assignment": "derived"
+        },
+        "nodes": [
+          {
+            "id": "s4",
+            "weight": 0
+          },
+          {
+            "id": "s3",
+            "weight": 2
+          },
+          {
+            "id": "s2",
+            "weight": 1
+          },
+          {
+            "id": "s1",
+            "weight": 1
+          }
+        ],
+        "metadata": {
+          "note": "permuted, and at a different epoch"
+        }
+      },
+      "expect": {
+        "identicalCandidates": [
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "perm-0"
+            },
+            "candidates": [
+              "s2",
+              "s3",
+              "s1"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "perm-1"
+            },
+            "candidates": [
+              "s1",
+              "s2",
+              "s3"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "perm-2"
+            },
+            "candidates": [
+              "s3",
+              "s2",
+              "s1"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "perm-3"
+            },
+            "candidates": [
+              "s3",
+              "s1",
+              "s2"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "perm-4"
+            },
+            "candidates": [
+              "s2",
+              "s3",
+              "s1"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "perm-5"
+            },
+            "candidates": [
+              "s2",
+              "s3",
+              "s1"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "range-derived",
+      "requirements": [
+        "PROP-005",
+        "RING-013",
+        "RV-013",
+        "CORE-002"
+      ],
+      "topology": "topologies/range-derived.topology.json",
+      "permutedDocument": {
+        "formatVersion": "1.0",
+        "topologyId": "range-derived-permuted",
+        "epoch": 1003,
+        "replication": {
+          "factor": 2
+        },
+        "strategy": {
+          "kind": "range",
+          "assignment": "derived",
+          "ranges": [
+            {
+              "shardId": "r0",
+              "start": null,
+              "end": "40"
+            },
+            {
+              "shardId": "r1",
+              "start": "40",
+              "end": "80"
+            },
+            {
+              "shardId": "r2",
+              "start": "80",
+              "end": "c0"
+            },
+            {
+              "shardId": "r3",
+              "start": "c0",
+              "end": null
+            }
+          ]
+        },
+        "nodes": [
+          {
+            "id": "n3",
+            "weight": 2
+          },
+          {
+            "id": "n2",
+            "weight": 1
+          },
+          {
+            "id": "n1",
+            "weight": 1
+          }
+        ],
+        "metadata": {
+          "note": "permuted, and at a different epoch"
+        }
+      },
+      "expect": {
+        "identicalCandidates": [
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "perm-0"
+            },
+            "candidates": [
+              "n2",
+              "n3",
+              "n1"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "perm-1"
+            },
+            "candidates": [
+              "n2",
+              "n3",
+              "n1"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "perm-2"
+            },
+            "candidates": [
+              "n2",
+              "n3",
+              "n1"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "perm-3"
+            },
+            "candidates": [
+              "n2",
+              "n3",
+              "n1"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "perm-4"
+            },
+            "candidates": [
+              "n2",
+              "n3",
+              "n1"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "perm-5"
+            },
+            "candidates": [
+              "n2",
+              "n3",
+              "n1"
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

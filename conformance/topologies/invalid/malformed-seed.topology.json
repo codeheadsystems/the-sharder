@@ -1,0 +1,17 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "invalid-seed",
+  "epoch": 1,
+  "hash": {
+    "algorithm": "siphash-2-4",
+    "seed": "ABCD"
+  },
+  "strategy": {
+    "kind": "rendezvous"
+  },
+  "nodes": [
+    {
+      "id": "n1"
+    }
+  ]
+}

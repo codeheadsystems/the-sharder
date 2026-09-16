@@ -1,0 +1,27 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "rendezvous-score-tie",
+  "epoch": 1,
+  "replication": {
+    "factor": 2
+  },
+  "strategy": {
+    "kind": "rendezvous",
+    "virtualNodesPerWeightUnit": 1,
+    "maxVirtualNodesPerNode": 1
+  },
+  "nodes": [
+    {
+      "id": "b08cfe34be8e9321"
+    },
+    {
+      "id": "e6d7fd19d016a1b2"
+    },
+    {
+      "id": "zz-third"
+    }
+  ],
+  "metadata": {
+    "note": "the first two identities score identically for `tie-probe`"
+  }
+}

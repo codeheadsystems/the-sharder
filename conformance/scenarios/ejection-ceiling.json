@@ -1,0 +1,100 @@
+{
+  "scenario": "ejection-ceiling",
+  "description": "Every node of the placement set fails.  The ceiling refuses the third ejection so that a correlated failure cannot empty the cluster's attemptable set.",
+  "requirements": [
+    "HEALTH-025",
+    "HEALTH-034",
+    "HEALTH-043",
+    "SEC-031"
+  ],
+  "deterministic": true,
+  "setup": {},
+  "steps": [
+    {
+      "action": "reportHealth",
+      "node": "n1",
+      "outcome": "failure",
+      "repeat": 6,
+      "at": 600,
+      "expect": {
+        "state": "unavailable",
+        "states": {
+          "n1": "unavailable"
+        }
+      }
+    },
+    {
+      "action": "reportHealth",
+      "node": "n2",
+      "outcome": "failure",
+      "repeat": 6,
+      "at": 1200,
+      "expect": {
+        "state": "suspect",
+        "states": {
+          "n1": "unavailable",
+          "n2": "suspect"
+        }
+      }
+    },
+    {
+      "action": "reportHealth",
+      "node": "n3",
+      "outcome": "failure",
+      "repeat": 6,
+      "at": 1800,
+      "expect": {
+        "state": "suspect",
+        "states": {
+          "n1": "unavailable",
+          "n2": "suspect",
+          "n3": "suspect"
+        }
+      }
+    },
+    {
+      "action": "expectHealthCeiling",
+      "note": "`HEALTH-034`: a transition into `unavailable` is refused where it would take the ejected count above `maxEjectionPercent` of the placement set, and the refused node holds `suspect`",
+      "expect": {
+        "placementSetSize": 3,
+        "maxEjectionPercent": 50,
+        "states": {
+          "n1": "unavailable",
+          "n2": "suspect",
+          "n3": "suspect"
+        },
+        "ejectedCount": 1,
+        "refusals": [
+          {
+            "event": "sharder.health.ejection_refused",
+            "node": "n2",
+            "ejected": 1,
+            "setSize": 3,
+            "at": 1100
+          },
+          {
+            "event": "sharder.health.ejection_refused",
+            "node": "n2",
+            "ejected": 1,
+            "setSize": 3,
+            "at": 1200
+          },
+          {
+            "event": "sharder.health.ejection_refused",
+            "node": "n3",
+            "ejected": 1,
+            "setSize": 3,
+            "at": 1700
+          },
+          {
+            "event": "sharder.health.ejection_refused",
+            "node": "n3",
+            "ejected": 1,
+            "setSize": 3,
+            "at": 1800
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,203 @@
+{
+  "vectorSet": "topology-ownership-delta",
+  "kind": "ownershipDelta",
+  "description": "The ownership delta between two snapshots, the reorder-only case that gains and loses nothing, and the changes that make shard identity incomparable.",
+  "requirements": [
+    "ERR-050",
+    "MOVE-241",
+    "MOVE-251",
+    "MOVE-271",
+    "SEC-013",
+    "TOPO-211",
+    "TOPO-221",
+    "TOPO-231",
+    "TOPO-241"
+  ],
+  "cases": [
+    {
+      "name": "one-shard-moved",
+      "requirements": [
+        "TOPO-211",
+        "TOPO-221",
+        "TOPO-241"
+      ],
+      "before": "topologies/delta-before.topology.json",
+      "after": "topologies/delta-moved.topology.json",
+      "note": "slots 3 to 5 lose b and gain d; slots 0 to 2 are unchanged",
+      "expect": {
+        "shardsChanged": 3,
+        "delta": [
+          {
+            "shard": "3",
+            "before": [
+              "b",
+              "c"
+            ],
+            "after": [
+              "d",
+              "c"
+            ],
+            "gained": [
+              "d"
+            ],
+            "lost": [
+              "b"
+            ]
+          },
+          {
+            "shard": "4",
+            "before": [
+              "b",
+              "c"
+            ],
+            "after": [
+              "d",
+              "c"
+            ],
+            "gained": [
+              "d"
+            ],
+            "lost": [
+              "b"
+            ]
+          },
+          {
+            "shard": "5",
+            "before": [
+              "b",
+              "c"
+            ],
+            "after": [
+              "d",
+              "c"
+            ],
+            "gained": [
+              "d"
+            ],
+            "lost": [
+              "b"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "reorder-only",
+      "requirements": [
+        "TOPO-211",
+        "TOPO-221",
+        "TOPO-241"
+      ],
+      "before": "topologies/delta-before.topology.json",
+      "after": "topologies/delta-reordered.topology.json",
+      "note": "`TOPO-241`: a shard whose replica set is the same set in a different order is a delta entry with no node gained and no node lost",
+      "expect": {
+        "shardsChanged": 3,
+        "delta": [
+          {
+            "shard": "0",
+            "before": [
+              "a",
+              "b"
+            ],
+            "after": [
+              "b",
+              "a"
+            ],
+            "gained": [],
+            "lost": []
+          },
+          {
+            "shard": "1",
+            "before": [
+              "a",
+              "b"
+            ],
+            "after": [
+              "b",
+              "a"
+            ],
+            "gained": [],
+            "lost": []
+          },
+          {
+            "shard": "2",
+            "before": [
+              "a",
+              "b"
+            ],
+            "after": [
+              "b",
+              "a"
+            ],
+            "gained": [],
+            "lost": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "differing-slot-count",
+      "requirements": [
+        "TOPO-231",
+        "SEC-013",
+        "ERR-050"
+      ],
+      "before": "topologies/delta-before.topology.json",
+      "after": "topologies/delta-other-slot-count.topology.json",
+      "note": "`TOPO-231`: shard identity is not comparable across a change to slotCount, so the delta is refused rather than computed.",
+      "expect": {
+        "comparable": false,
+        "differingField": "slotCount",
+        "condition": {
+          "code": 401,
+          "name": "planRefused",
+          "cause": "incomparableShards"
+        }
+      }
+    },
+    {
+      "name": "differing-seed",
+      "requirements": [
+        "TOPO-231",
+        "SEC-013",
+        "ERR-050"
+      ],
+      "before": "topologies/delta-before.topology.json",
+      "after": "topologies/delta-other-seed.topology.json",
+      "note": "`TOPO-231`: shard identity is not comparable across a change to hash.seed, so the delta is refused rather than computed.",
+      "expect": {
+        "comparable": false,
+        "differingField": "hash.seed",
+        "condition": {
+          "code": 401,
+          "name": "planRefused",
+          "cause": "incomparableShards"
+        }
+      }
+    },
+    {
+      "name": "rendezvous-enumerates-no-shard",
+      "requirements": [
+        "TOPO-211",
+        "MOVE-241",
+        "MOVE-251",
+        "MOVE-271",
+        "RV-021"
+      ],
+      "before": "topologies/rendezvous-plain.topology.json",
+      "after": "topologies/rendezvous-plain.topology.json",
+      "note": "`MOVE-271`: under a strategy that enumerates no shard the delta is empty and a plan is refused naming the strategy kind.",
+      "expect": {
+        "shardsChanged": 0,
+        "delta": [],
+        "plannable": false,
+        "condition": {
+          "code": 401,
+          "name": "planRefused",
+          "cause": "strategyUnsupported"
+        }
+      }
+    }
+  ]
+}

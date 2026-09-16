@@ -1,0 +1,71 @@
+{
+  "vectorSet": "overrides-pin-keeps-shard",
+  "kind": "pinShard",
+  "description": "A pinned routing key keeps its shard identifier, and its candidate ordering differs from the ordering the shard itself produces.",
+  "requirements": [
+    "OVR-010",
+    "OVR-016",
+    "PLACE-030",
+    "PLACE-033"
+  ],
+  "cases": [
+    {
+      "name": "pinned",
+      "requirements": [
+        "OVR-016",
+        "PLACE-030",
+        "PLACE-033"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "pinned-key"
+      },
+      "note": "`OVR-016`: `shardOf` keeps answering for a pinned key, and the pinned ordering differs from the shard's ordering, so `PLACE-033` does not hold for a pinned routing key.",
+      "expect": {
+        "shard": "6394d998107bfd9e",
+        "candidates": [
+          "rp3",
+          "rp1"
+        ],
+        "candidatesForShard": [
+          "rp2",
+          "rp3",
+          "rp1"
+        ],
+        "agrees": false,
+        "matchedOverride": {
+          "index": 0,
+          "mode": "pin"
+        }
+      }
+    },
+    {
+      "name": "unpinned",
+      "requirements": [
+        "OVR-016",
+        "PLACE-030",
+        "PLACE-033"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "other-key"
+      },
+      "note": "`OVR-016`: `shardOf` keeps answering for a pinned key, and the pinned ordering differs from the shard's ordering, so `PLACE-033` does not hold for a pinned routing key.",
+      "expect": {
+        "shard": "13649a5e59732d73",
+        "candidates": [
+          "rp2",
+          "rp1",
+          "rp3"
+        ],
+        "candidatesForShard": [
+          "rp2",
+          "rp1",
+          "rp3"
+        ],
+        "agrees": true,
+        "matchedOverride": null
+      }
+    }
+  ]
+}

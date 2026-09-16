@@ -1,0 +1,81 @@
+{
+  "scenario": "health-filter-fails-open",
+  "description": "Every replica of a shard is ejected.  The health filter returns the whole preference list rather than nothing, and the decision records that it failed open.",
+  "requirements": [
+    "FAIL-002",
+    "FAIL-012",
+    "FAIL-013",
+    "HEALTH-005",
+    "HEALTH-034",
+    "OBS-010"
+  ],
+  "deterministic": true,
+  "setup": {},
+  "steps": [
+    {
+      "action": "route",
+      "topology": "topologies/fail-open.topology.json",
+      "key": {
+        "encoding": "utf8",
+        "value": "fail-open-probe"
+      },
+      "expect": {
+        "shard": "6661696c2d6f70656e2d70726f6265",
+        "token": {
+          "topologyId": "fail-open",
+          "epoch": 1
+        },
+        "preferenceList": [
+          "f4",
+          "f3",
+          "f1",
+          "f0",
+          "f5",
+          "f2"
+        ],
+        "replicaCount": 2
+      }
+    },
+    {
+      "action": "reportHealth",
+      "node": "f4",
+      "outcome": "failure",
+      "repeat": 5,
+      "at": 500,
+      "expect": {
+        "state": "unavailable"
+      }
+    },
+    {
+      "action": "reportHealth",
+      "node": "f3",
+      "outcome": "failure",
+      "repeat": 5,
+      "at": 1000,
+      "expect": {
+        "state": "unavailable"
+      }
+    },
+    {
+      "action": "attemptSequence",
+      "key": {
+        "encoding": "utf8",
+        "value": "fail-open-probe"
+      },
+      "preferenceListPrefix": 2,
+      "note": "`FAIL-012`: every entry of this list is `unavailable`, so the filter fails open and the attempt sequence is the whole list in preference list order.  The decision records that it failed open.",
+      "expect": {
+        "attemptSequence": [
+          "f4",
+          "f3"
+        ],
+        "filterFailedOpen": true,
+        "placementSetSize": 6,
+        "states": {
+          "f4": "unavailable",
+          "f3": "unavailable"
+        }
+      }
+    }
+  ]
+}

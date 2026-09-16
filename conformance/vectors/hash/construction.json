@@ -1,0 +1,733 @@
+{
+  "vectorSet": "hash-construction",
+  "kind": "hash",
+  "description": "The framed, domain-tagged hash construction of `HASH-020` through `HASH-032`, including the framed message octets so that a port can separate a framing defect from a SipHash defect.",
+  "requirements": [
+    "HASH-010",
+    "HASH-011",
+    "HASH-020",
+    "HASH-021",
+    "HASH-022",
+    "HASH-023",
+    "HASH-024",
+    "HASH-030",
+    "HASH-031",
+    "HASH-032",
+    "HASH-044",
+    "PLACE-053"
+  ],
+  "cases": [
+    {
+      "name": "keyHash/empty",
+      "requirements": [
+        "HASH-011",
+        "HASH-021",
+        "HASH-022",
+        "HASH-023",
+        "HASH-024",
+        "HASH-030",
+        "HASH-031",
+        "HASH-032"
+      ],
+      "function": "keyHash",
+      "seed": "00000000000000000000000000000000",
+      "fields": [
+        "736861726465722f6b65792f7631",
+        ""
+      ],
+      "framedMessage": "0000000e736861726465722f6b65792f763100000000",
+      "expect": "21baec10fe8bd5a1"
+    },
+    {
+      "name": "keyHash/ascii",
+      "requirements": [
+        "HASH-011",
+        "HASH-021",
+        "HASH-022",
+        "HASH-023",
+        "HASH-030",
+        "HASH-031",
+        "HASH-032"
+      ],
+      "function": "keyHash",
+      "seed": "00000000000000000000000000000000",
+      "fields": [
+        "736861726465722f6b65792f7631",
+        "757365722d3432"
+      ],
+      "framedMessage": "0000000e736861726465722f6b65792f763100000007757365722d3432",
+      "expect": "d0492a875f9f4e24"
+    },
+    {
+      "name": "keyHash/tenant",
+      "requirements": [
+        "HASH-011",
+        "HASH-021",
+        "HASH-022",
+        "HASH-023",
+        "HASH-030",
+        "HASH-031",
+        "HASH-032"
+      ],
+      "function": "keyHash",
+      "seed": "00000000000000000000000000000000",
+      "fields": [
+        "736861726465722f6b65792f7631",
+        "61636d65"
+      ],
+      "framedMessage": "0000000e736861726465722f6b65792f76310000000461636d65",
+      "expect": "24b99ca891703ada"
+    },
+    {
+      "name": "keyHash/binary",
+      "requirements": [
+        "HASH-011",
+        "HASH-021",
+        "HASH-022",
+        "HASH-023",
+        "HASH-030",
+        "HASH-031",
+        "HASH-032"
+      ],
+      "function": "keyHash",
+      "seed": "00000000000000000000000000000000",
+      "fields": [
+        "736861726465722f6b65792f7631",
+        "00ff7f80"
+      ],
+      "framedMessage": "0000000e736861726465722f6b65792f76310000000400ff7f80",
+      "expect": "e9749610f96a511b"
+    },
+    {
+      "name": "keyHash/sixteen-octets",
+      "requirements": [
+        "HASH-011",
+        "HASH-021",
+        "HASH-022",
+        "HASH-023",
+        "HASH-030",
+        "HASH-031",
+        "HASH-032"
+      ],
+      "function": "keyHash",
+      "seed": "00000000000000000000000000000000",
+      "fields": [
+        "736861726465722f6b65792f7631",
+        "000102030405060708090a0b0c0d0e0f"
+      ],
+      "framedMessage": "0000000e736861726465722f6b65792f763100000010000102030405060708090a0b0c0d0e0f",
+      "expect": "65d702d55ac49256"
+    },
+    {
+      "name": "keyHash/utf8-multibyte",
+      "requirements": [
+        "HASH-011",
+        "HASH-021",
+        "HASH-022",
+        "HASH-023",
+        "HASH-030",
+        "HASH-031",
+        "HASH-032"
+      ],
+      "function": "keyHash",
+      "seed": "00000000000000000000000000000000",
+      "fields": [
+        "736861726465722f6b65792f7631",
+        "636166c3a92de697a5e69cac"
+      ],
+      "framedMessage": "0000000e736861726465722f6b65792f76310000000c636166c3a92de697a5e69cac",
+      "expect": "59cc67766bd102e8"
+    },
+    {
+      "name": "keyHash/seeded/empty",
+      "requirements": [
+        "HASH-010",
+        "HASH-021",
+        "HASH-022",
+        "HASH-023",
+        "HASH-024",
+        "HASH-030",
+        "HASH-031",
+        "HASH-032"
+      ],
+      "function": "keyHash",
+      "seed": "9e3779b97f4a7c159e3779b97f4a7c15",
+      "fields": [
+        "736861726465722f6b65792f7631",
+        ""
+      ],
+      "framedMessage": "0000000e736861726465722f6b65792f763100000000",
+      "expect": "0ad1c78b43e0aaa7"
+    },
+    {
+      "name": "keyHash/seeded/ascii",
+      "requirements": [
+        "HASH-010",
+        "HASH-021",
+        "HASH-022",
+        "HASH-023",
+        "HASH-030",
+        "HASH-031",
+        "HASH-032"
+      ],
+      "function": "keyHash",
+      "seed": "9e3779b97f4a7c159e3779b97f4a7c15",
+      "fields": [
+        "736861726465722f6b65792f7631",
+        "757365722d3432"
+      ],
+      "framedMessage": "0000000e736861726465722f6b65792f763100000007757365722d3432",
+      "expect": "9ab85e8e7e8eefaa"
+    },
+    {
+      "name": "ringToken/n1/0",
+      "requirements": [
+        "HASH-011",
+        "HASH-020",
+        "HASH-021",
+        "HASH-022",
+        "HASH-023",
+        "HASH-030",
+        "HASH-031",
+        "HASH-032",
+        "PLACE-053"
+      ],
+      "function": "ringToken",
+      "seed": "00000000000000000000000000000000",
+      "fields": [
+        "736861726465722f72696e672d746f6b656e2f7631",
+        "6e31",
+        "00000000"
+      ],
+      "framedMessage": "00000015736861726465722f72696e672d746f6b656e2f7631000000026e310000000400000000",
+      "expect": "8a7fec0b9699c7df"
+    },
+    {
+      "name": "ringToken/n1/1",
+      "requirements": [
+        "HASH-011",
+        "HASH-020",
+        "HASH-021",
+        "HASH-022",
+        "HASH-023",
+        "HASH-030",
+        "HASH-031",
+        "HASH-032",
+        "PLACE-053"
+      ],
+      "function": "ringToken",
+      "seed": "00000000000000000000000000000000",
+      "fields": [
+        "736861726465722f72696e672d746f6b656e2f7631",
+        "6e31",
+        "00000001"
+      ],
+      "framedMessage": "00000015736861726465722f72696e672d746f6b656e2f7631000000026e310000000400000001",
+      "expect": "4b660fce6e3672ff"
+    },
+    {
+      "name": "ringToken/n1/255",
+      "requirements": [
+        "HASH-011",
+        "HASH-020",
+        "HASH-021",
+        "HASH-022",
+        "HASH-023",
+        "HASH-030",
+        "HASH-031",
+        "HASH-032",
+        "PLACE-053"
+      ],
+      "function": "ringToken",
+      "seed": "00000000000000000000000000000000",
+      "fields": [
+        "736861726465722f72696e672d746f6b656e2f7631",
+        "6e31",
+        "000000ff"
+      ],
+      "framedMessage": "00000015736861726465722f72696e672d746f6b656e2f7631000000026e3100000004000000ff",
+      "expect": "9612daaae6939a81"
+    },
+    {
+      "name": "ringToken/n1/65536",
+      "requirements": [
+        "HASH-011",
+        "HASH-020",
+        "HASH-021",
+        "HASH-022",
+        "HASH-023",
+        "HASH-030",
+        "HASH-031",
+        "HASH-032",
+        "PLACE-053"
+      ],
+      "function": "ringToken",
+      "seed": "00000000000000000000000000000000",
+      "fields": [
+        "736861726465722f72696e672d746f6b656e2f7631",
+        "6e31",
+        "00010000"
+      ],
+      "framedMessage": "00000015736861726465722f72696e672d746f6b656e2f7631000000026e310000000400010000",
+      "expect": "fc8000f46cd492f0"
+    },
+    {
+      "name": "ringToken/store-a1/0",
+      "requirements": [
+        "HASH-011",
+        "HASH-020",
+        "HASH-021",
+        "HASH-022",
+        "HASH-023",
+        "HASH-030",
+        "HASH-031",
+        "HASH-032",
+        "PLACE-053"
+      ],
+      "function": "ringToken",
+      "seed": "00000000000000000000000000000000",
+      "fields": [
+        "736861726465722f72696e672d746f6b656e2f7631",
+        "73746f72652d6131",
+        "00000000"
+      ],
+      "framedMessage": "00000015736861726465722f72696e672d746f6b656e2f76310000000873746f72652d61310000000400000000",
+      "expect": "43af6e1129be297a"
+    },
+    {
+      "name": "ringToken/store-a1/1",
+      "requirements": [
+        "HASH-011",
+        "HASH-020",
+        "HASH-021",
+        "HASH-022",
+        "HASH-023",
+        "HASH-030",
+        "HASH-031",
+        "HASH-032",
+        "PLACE-053"
+      ],
+      "function": "ringToken",
+      "seed": "00000000000000000000000000000000",
+      "fields": [
+        "736861726465722f72696e672d746f6b656e2f7631",
+        "73746f72652d6131",
+        "00000001"
+      ],
+      "framedMessage": "00000015736861726465722f72696e672d746f6b656e2f76310000000873746f72652d61310000000400000001",
+      "expect": "5dbbf6439ff2651e"
+    },
+    {
+      "name": "ringToken/store-a1/255",
+      "requirements": [
+        "HASH-011",
+        "HASH-020",
+        "HASH-021",
+        "HASH-022",
+        "HASH-023",
+        "HASH-030",
+        "HASH-031",
+        "HASH-032",
+        "PLACE-053"
+      ],
+      "function": "ringToken",
+      "seed": "00000000000000000000000000000000",
+      "fields": [
+        "736861726465722f72696e672d746f6b656e2f7631",
+        "73746f72652d6131",
+        "000000ff"
+      ],
+      "framedMessage": "00000015736861726465722f72696e672d746f6b656e2f76310000000873746f72652d613100000004000000ff",
+      "expect": "47371e1c9a41f14f"
+    },
+    {
+      "name": "ringToken/store-a1/65536",
+      "requirements": [
+        "HASH-011",
+        "HASH-020",
+        "HASH-021",
+        "HASH-022",
+        "HASH-023",
+        "HASH-030",
+        "HASH-031",
+        "HASH-032",
+        "PLACE-053"
+      ],
+      "function": "ringToken",
+      "seed": "00000000000000000000000000000000",
+      "fields": [
+        "736861726465722f72696e672d746f6b656e2f7631",
+        "73746f72652d6131",
+        "00010000"
+      ],
+      "framedMessage": "00000015736861726465722f72696e672d746f6b656e2f76310000000873746f72652d61310000000400010000",
+      "expect": "f207f4fa164b577c"
+    },
+    {
+      "name": "ringToken/empty/0",
+      "requirements": [
+        "HASH-011",
+        "HASH-020",
+        "HASH-021",
+        "HASH-022",
+        "HASH-023",
+        "HASH-024",
+        "HASH-030",
+        "HASH-031",
+        "HASH-032",
+        "PLACE-053"
+      ],
+      "function": "ringToken",
+      "seed": "00000000000000000000000000000000",
+      "fields": [
+        "736861726465722f72696e672d746f6b656e2f7631",
+        "",
+        "00000000"
+      ],
+      "framedMessage": "00000015736861726465722f72696e672d746f6b656e2f7631000000000000000400000000",
+      "expect": "4a3178091c1a6438"
+    },
+    {
+      "name": "rvScore/empty/n1/0",
+      "requirements": [
+        "HASH-011",
+        "HASH-020",
+        "HASH-021",
+        "HASH-022",
+        "HASH-023",
+        "HASH-024",
+        "HASH-030",
+        "HASH-031",
+        "HASH-032",
+        "PLACE-053"
+      ],
+      "function": "rvScore",
+      "seed": "00000000000000000000000000000000",
+      "fields": [
+        "736861726465722f72656e64657a766f75732f7631",
+        "",
+        "6e31",
+        "00000000"
+      ],
+      "framedMessage": "00000015736861726465722f72656e64657a766f75732f763100000000000000026e310000000400000000",
+      "expect": "af378d14265c33d3"
+    },
+    {
+      "name": "rvScore/empty/n1/3",
+      "requirements": [
+        "HASH-011",
+        "HASH-020",
+        "HASH-021",
+        "HASH-022",
+        "HASH-023",
+        "HASH-024",
+        "HASH-030",
+        "HASH-031",
+        "HASH-032",
+        "PLACE-053"
+      ],
+      "function": "rvScore",
+      "seed": "00000000000000000000000000000000",
+      "fields": [
+        "736861726465722f72656e64657a766f75732f7631",
+        "",
+        "6e31",
+        "00000003"
+      ],
+      "framedMessage": "00000015736861726465722f72656e64657a766f75732f763100000000000000026e310000000400000003",
+      "expect": "c2ac72d7dbfc45bf"
+    },
+    {
+      "name": "rvScore/empty/n2/0",
+      "requirements": [
+        "HASH-011",
+        "HASH-020",
+        "HASH-021",
+        "HASH-022",
+        "HASH-023",
+        "HASH-024",
+        "HASH-030",
+        "HASH-031",
+        "HASH-032",
+        "PLACE-053"
+      ],
+      "function": "rvScore",
+      "seed": "00000000000000000000000000000000",
+      "fields": [
+        "736861726465722f72656e64657a766f75732f7631",
+        "",
+        "6e32",
+        "00000000"
+      ],
+      "framedMessage": "00000015736861726465722f72656e64657a766f75732f763100000000000000026e320000000400000000",
+      "expect": "bb97debddd0a9ee5"
+    },
+    {
+      "name": "rvScore/empty/n2/3",
+      "requirements": [
+        "HASH-011",
+        "HASH-020",
+        "HASH-021",
+        "HASH-022",
+        "HASH-023",
+        "HASH-024",
+        "HASH-030",
+        "HASH-031",
+        "HASH-032",
+        "PLACE-053"
+      ],
+      "function": "rvScore",
+      "seed": "00000000000000000000000000000000",
+      "fields": [
+        "736861726465722f72656e64657a766f75732f7631",
+        "",
+        "6e32",
+        "00000003"
+      ],
+      "framedMessage": "00000015736861726465722f72656e64657a766f75732f763100000000000000026e320000000400000003",
+      "expect": "8644c102003b398c"
+    },
+    {
+      "name": "rvScore/user-42/n1/0",
+      "requirements": [
+        "HASH-011",
+        "HASH-020",
+        "HASH-021",
+        "HASH-022",
+        "HASH-023",
+        "HASH-030",
+        "HASH-031",
+        "HASH-032",
+        "PLACE-053"
+      ],
+      "function": "rvScore",
+      "seed": "00000000000000000000000000000000",
+      "fields": [
+        "736861726465722f72656e64657a766f75732f7631",
+        "757365722d3432",
+        "6e31",
+        "00000000"
+      ],
+      "framedMessage": "00000015736861726465722f72656e64657a766f75732f763100000007757365722d3432000000026e310000000400000000",
+      "expect": "385fafc4f956febe"
+    },
+    {
+      "name": "rvScore/user-42/n1/3",
+      "requirements": [
+        "HASH-011",
+        "HASH-020",
+        "HASH-021",
+        "HASH-022",
+        "HASH-023",
+        "HASH-030",
+        "HASH-031",
+        "HASH-032",
+        "PLACE-053"
+      ],
+      "function": "rvScore",
+      "seed": "00000000000000000000000000000000",
+      "fields": [
+        "736861726465722f72656e64657a766f75732f7631",
+        "757365722d3432",
+        "6e31",
+        "00000003"
+      ],
+      "framedMessage": "00000015736861726465722f72656e64657a766f75732f763100000007757365722d3432000000026e310000000400000003",
+      "expect": "f54ebe06f3529eaa"
+    },
+    {
+      "name": "rvScore/user-42/n2/0",
+      "requirements": [
+        "HASH-011",
+        "HASH-020",
+        "HASH-021",
+        "HASH-022",
+        "HASH-023",
+        "HASH-030",
+        "HASH-031",
+        "HASH-032",
+        "PLACE-053"
+      ],
+      "function": "rvScore",
+      "seed": "00000000000000000000000000000000",
+      "fields": [
+        "736861726465722f72656e64657a766f75732f7631",
+        "757365722d3432",
+        "6e32",
+        "00000000"
+      ],
+      "framedMessage": "00000015736861726465722f72656e64657a766f75732f763100000007757365722d3432000000026e320000000400000000",
+      "expect": "0e1ebe2cdf07f102"
+    },
+    {
+      "name": "rvScore/user-42/n2/3",
+      "requirements": [
+        "HASH-011",
+        "HASH-020",
+        "HASH-021",
+        "HASH-022",
+        "HASH-023",
+        "HASH-030",
+        "HASH-031",
+        "HASH-032",
+        "PLACE-053"
+      ],
+      "function": "rvScore",
+      "seed": "00000000000000000000000000000000",
+      "fields": [
+        "736861726465722f72656e64657a766f75732f7631",
+        "757365722d3432",
+        "6e32",
+        "00000003"
+      ],
+      "framedMessage": "00000015736861726465722f72656e64657a766f75732f763100000007757365722d3432000000026e320000000400000003",
+      "expect": "840bf040c07e47c0"
+    },
+    {
+      "name": "slotScore/0/s1/0",
+      "requirements": [
+        "HASH-011",
+        "HASH-020",
+        "HASH-021",
+        "HASH-022",
+        "HASH-023",
+        "HASH-030",
+        "HASH-031",
+        "HASH-032",
+        "PLACE-053"
+      ],
+      "function": "slotScore",
+      "seed": "00000000000000000000000000000000",
+      "fields": [
+        "736861726465722f736c6f742d72656e64657a766f75732f7631",
+        "00000000",
+        "7331",
+        "00000000"
+      ],
+      "framedMessage": "0000001a736861726465722f736c6f742d72656e64657a766f75732f763100000004000000000000000273310000000400000000",
+      "expect": "f592b343f0a41610"
+    },
+    {
+      "name": "slotScore/1/s1/0",
+      "requirements": [
+        "HASH-011",
+        "HASH-020",
+        "HASH-021",
+        "HASH-022",
+        "HASH-023",
+        "HASH-030",
+        "HASH-031",
+        "HASH-032",
+        "PLACE-053"
+      ],
+      "function": "slotScore",
+      "seed": "00000000000000000000000000000000",
+      "fields": [
+        "736861726465722f736c6f742d72656e64657a766f75732f7631",
+        "00000001",
+        "7331",
+        "00000000"
+      ],
+      "framedMessage": "0000001a736861726465722f736c6f742d72656e64657a766f75732f763100000004000000010000000273310000000400000000",
+      "expect": "0222b976f8dc8f0c"
+    },
+    {
+      "name": "slotScore/16383/s1/0",
+      "requirements": [
+        "HASH-011",
+        "HASH-020",
+        "HASH-021",
+        "HASH-022",
+        "HASH-023",
+        "HASH-030",
+        "HASH-031",
+        "HASH-032",
+        "PLACE-053"
+      ],
+      "function": "slotScore",
+      "seed": "00000000000000000000000000000000",
+      "fields": [
+        "736861726465722f736c6f742d72656e64657a766f75732f7631",
+        "00003fff",
+        "7331",
+        "00000000"
+      ],
+      "framedMessage": "0000001a736861726465722f736c6f742d72656e64657a766f75732f76310000000400003fff0000000273310000000400000000",
+      "expect": "46674a22181ad55a"
+    },
+    {
+      "name": "slotScore/1048575/s1/0",
+      "requirements": [
+        "HASH-011",
+        "HASH-020",
+        "HASH-021",
+        "HASH-022",
+        "HASH-023",
+        "HASH-030",
+        "HASH-031",
+        "HASH-032",
+        "PLACE-053"
+      ],
+      "function": "slotScore",
+      "seed": "00000000000000000000000000000000",
+      "fields": [
+        "736861726465722f736c6f742d72656e64657a766f75732f7631",
+        "000fffff",
+        "7331",
+        "00000000"
+      ],
+      "framedMessage": "0000001a736861726465722f736c6f742d72656e64657a766f75732f763100000004000fffff0000000273310000000400000000",
+      "expect": "449482586a9ae92e"
+    },
+    {
+      "name": "rangeScore/r0/n1/0",
+      "requirements": [
+        "HASH-011",
+        "HASH-020",
+        "HASH-021",
+        "HASH-022",
+        "HASH-023",
+        "HASH-030",
+        "HASH-031",
+        "HASH-032",
+        "PLACE-034",
+        "PLACE-053"
+      ],
+      "function": "rangeScore",
+      "seed": "00000000000000000000000000000000",
+      "fields": [
+        "736861726465722f72616e67652d72656e64657a766f75732f7631",
+        "7230",
+        "6e31",
+        "00000000"
+      ],
+      "framedMessage": "0000001b736861726465722f72616e67652d72656e64657a766f75732f7631000000027230000000026e310000000400000000",
+      "expect": "ae748a8dbc2a29dc"
+    },
+    {
+      "name": "rangeScore/range-with-a-longer-name/n1/0",
+      "requirements": [
+        "HASH-011",
+        "HASH-020",
+        "HASH-021",
+        "HASH-022",
+        "HASH-023",
+        "HASH-030",
+        "HASH-031",
+        "HASH-032",
+        "PLACE-034",
+        "PLACE-053"
+      ],
+      "function": "rangeScore",
+      "seed": "00000000000000000000000000000000",
+      "fields": [
+        "736861726465722f72616e67652d72656e64657a766f75732f7631",
+        "72616e67652d776974682d612d6c6f6e6765722d6e616d65",
+        "6e31",
+        "00000000"
+      ],
+      "framedMessage": "0000001b736861726465722f72616e67652d72656e64657a766f75732f76310000001872616e67652d776974682d612d6c6f6e6765722d6e616d65000000026e310000000400000000",
+      "expect": "3bf7d3c57b90718e"
+    }
+  ]
+}

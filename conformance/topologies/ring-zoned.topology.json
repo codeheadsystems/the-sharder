@@ -1,0 +1,72 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "ring-zoned",
+  "epoch": 12,
+  "domainLevels": [
+    "zone",
+    "rack"
+  ],
+  "replication": {
+    "factor": 3,
+    "spread": [
+      "zone"
+    ],
+    "spreadPolicy": "relaxed"
+  },
+  "strategy": {
+    "kind": "ring",
+    "tokenAssignment": "derived",
+    "tokensPerWeightUnit": 4,
+    "maxTokensPerNode": 4096
+  },
+  "nodes": [
+    {
+      "id": "store-a1",
+      "weight": 2,
+      "domains": {
+        "zone": "za",
+        "rack": "r01"
+      }
+    },
+    {
+      "id": "store-a2",
+      "weight": 1,
+      "domains": {
+        "zone": "za",
+        "rack": "r02"
+      }
+    },
+    {
+      "id": "store-b1",
+      "weight": 1,
+      "domains": {
+        "zone": "zb",
+        "rack": "r11"
+      }
+    },
+    {
+      "id": "store-b2",
+      "weight": 3,
+      "domains": {
+        "zone": "zb",
+        "rack": "r12"
+      }
+    },
+    {
+      "id": "store-c1",
+      "weight": 1,
+      "domains": {
+        "zone": "zc",
+        "rack": "r21"
+      }
+    },
+    {
+      "id": "store-c2",
+      "weight": 1,
+      "domains": {
+        "zone": "zc",
+        "rack": "r22"
+      }
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "vectorSet": "keytransform-prefix-fields-2",
+  "kind": "keyTransform",
+  "description": "The `prefixFields` transform at a count of 2.",
+  "requirements": [
+    "KEY-041",
+    "KEY-042",
+    "KEY-044"
+  ],
+  "cases": [
+    {
+      "name": "two-fields",
+      "requirements": [
+        "KEY-044"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "acme:orders:99"
+      },
+      "note": "the octets before the second separator",
+      "expect": {
+        "routingKey": "61636d653a6f7264657273"
+      }
+    },
+    {
+      "name": "consecutive",
+      "requirements": [
+        "KEY-044"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "::"
+      },
+      "note": "KEY-044: consecutive separators count separately",
+      "expect": {
+        "routingKey": "3a"
+      }
+    },
+    {
+      "name": "too-few",
+      "requirements": [
+        "KEY-044"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "a:b"
+      },
+      "note": "KEY-042: fewer than `count` occurrences",
+      "expect": {
+        "routingKey": "613a62"
+      }
+    },
+    {
+      "name": "exactly-two",
+      "requirements": [
+        "KEY-044"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "a:b:"
+      },
+      "note": "the prefix up to the second separator",
+      "expect": {
+        "routingKey": "613a62"
+      }
+    }
+  ],
+  "topology": "topologies/kt-prefix-2.topology.json"
+}

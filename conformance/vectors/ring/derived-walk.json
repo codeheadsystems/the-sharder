@@ -1,0 +1,886 @@
+{
+  "vectorSet": "ring-derived-walk",
+  "kind": "routing",
+  "description": "The ring walk under derived tokens: every eligible node appears exactly once, in ring order from the owning entry, wrapping once.",
+  "requirements": [
+    "CORE-040",
+    "PLACE-013",
+    "PLACE-017",
+    "RING-001",
+    "RING-010",
+    "RING-013",
+    "RING-020",
+    "RING-021",
+    "RING-022",
+    "RING-023",
+    "RING-025",
+    "RING-030",
+    "TOPO-151"
+  ],
+  "topology": "topologies/ring-plain.topology.json",
+  "topologyDigest": "3b304305d80fd970e789d00acd8409f4126b2b6c4e6b6ce6d891acbd5b0540eb",
+  "cases": [
+    {
+      "name": "walk/user-42",
+      "requirements": [
+        "RING-020",
+        "RING-021",
+        "RING-023"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "user-42"
+      },
+      "note": "the ordinary ring walk",
+      "expect": {
+        "routingKey": "757365722d3432",
+        "shard": "1fc30855a7a85a61",
+        "token": {
+          "topologyId": "ring-plain",
+          "epoch": 1
+        },
+        "factor": 1,
+        "replicaCount": 1,
+        "candidates": [
+          "n3",
+          "n4",
+          "n2",
+          "n1"
+        ],
+        "preferenceList": [
+          {
+            "node": "n3",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n4",
+            "position": 1,
+            "role": "fallback"
+          },
+          {
+            "node": "n2",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "n1",
+            "position": 3,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "walk/empty-key",
+      "requirements": [
+        "KEY-004",
+        "RING-020"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": ""
+      },
+      "expect": {
+        "routingKey": "",
+        "shard": "3668c0cc1bd10950",
+        "token": {
+          "topologyId": "ring-plain",
+          "epoch": 1
+        },
+        "factor": 1,
+        "replicaCount": 1,
+        "candidates": [
+          "n4",
+          "n2",
+          "n1",
+          "n3"
+        ],
+        "preferenceList": [
+          {
+            "node": "n4",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n2",
+            "position": 1,
+            "role": "fallback"
+          },
+          {
+            "node": "n1",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "n3",
+            "position": 3,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "walk/wrap",
+      "requirements": [
+        "RING-020",
+        "RING-021"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "key-000042"
+      },
+      "note": "included so that some case in the set wraps past the last ring entry",
+      "expect": {
+        "routingKey": "6b65792d303030303432",
+        "shard": "1fc30855a7a85a61",
+        "token": {
+          "topologyId": "ring-plain",
+          "epoch": 1
+        },
+        "factor": 1,
+        "replicaCount": 1,
+        "candidates": [
+          "n3",
+          "n4",
+          "n2",
+          "n1"
+        ],
+        "preferenceList": [
+          {
+            "node": "n3",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n4",
+            "position": 1,
+            "role": "fallback"
+          },
+          {
+            "node": "n2",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "n1",
+            "position": 3,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "walk/binary-key",
+      "requirements": [
+        "RING-020"
+      ],
+      "key": {
+        "encoding": "base16",
+        "value": "ffffffffffffffff"
+      },
+      "expect": {
+        "routingKey": "ffffffffffffffff",
+        "shard": "8a7fec0b9699c7df",
+        "token": {
+          "topologyId": "ring-plain",
+          "epoch": 1
+        },
+        "factor": 1,
+        "replicaCount": 1,
+        "candidates": [
+          "n1",
+          "n3",
+          "n4",
+          "n2"
+        ],
+        "preferenceList": [
+          {
+            "node": "n1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n3",
+            "position": 1,
+            "role": "fallback"
+          },
+          {
+            "node": "n4",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "n2",
+            "position": 3,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "walk/k0",
+      "requirements": [
+        "RING-020",
+        "RING-021",
+        "RING-022"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "k0"
+      },
+      "expect": {
+        "routingKey": "6b30",
+        "shard": "1fc30855a7a85a61",
+        "token": {
+          "topologyId": "ring-plain",
+          "epoch": 1
+        },
+        "factor": 1,
+        "replicaCount": 1,
+        "candidates": [
+          "n3",
+          "n4",
+          "n2",
+          "n1"
+        ],
+        "preferenceList": [
+          {
+            "node": "n3",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n4",
+            "position": 1,
+            "role": "fallback"
+          },
+          {
+            "node": "n2",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "n1",
+            "position": 3,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "walk/k1",
+      "requirements": [
+        "RING-020",
+        "RING-021",
+        "RING-022"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "k1"
+      },
+      "expect": {
+        "routingKey": "6b31",
+        "shard": "1fc30855a7a85a61",
+        "token": {
+          "topologyId": "ring-plain",
+          "epoch": 1
+        },
+        "factor": 1,
+        "replicaCount": 1,
+        "candidates": [
+          "n3",
+          "n4",
+          "n2",
+          "n1"
+        ],
+        "preferenceList": [
+          {
+            "node": "n3",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n4",
+            "position": 1,
+            "role": "fallback"
+          },
+          {
+            "node": "n2",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "n1",
+            "position": 3,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "walk/k2",
+      "requirements": [
+        "RING-020",
+        "RING-021",
+        "RING-022"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "k2"
+      },
+      "expect": {
+        "routingKey": "6b32",
+        "shard": "8a7fec0b9699c7df",
+        "token": {
+          "topologyId": "ring-plain",
+          "epoch": 1
+        },
+        "factor": 1,
+        "replicaCount": 1,
+        "candidates": [
+          "n1",
+          "n3",
+          "n4",
+          "n2"
+        ],
+        "preferenceList": [
+          {
+            "node": "n1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n3",
+            "position": 1,
+            "role": "fallback"
+          },
+          {
+            "node": "n4",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "n2",
+            "position": 3,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "walk/k3",
+      "requirements": [
+        "RING-020",
+        "RING-021",
+        "RING-022"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "k3"
+      },
+      "expect": {
+        "routingKey": "6b33",
+        "shard": "8a7fec0b9699c7df",
+        "token": {
+          "topologyId": "ring-plain",
+          "epoch": 1
+        },
+        "factor": 1,
+        "replicaCount": 1,
+        "candidates": [
+          "n1",
+          "n3",
+          "n4",
+          "n2"
+        ],
+        "preferenceList": [
+          {
+            "node": "n1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n3",
+            "position": 1,
+            "role": "fallback"
+          },
+          {
+            "node": "n4",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "n2",
+            "position": 3,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "walk/k4",
+      "requirements": [
+        "RING-020",
+        "RING-021",
+        "RING-022"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "k4"
+      },
+      "expect": {
+        "routingKey": "6b34",
+        "shard": "1fc30855a7a85a61",
+        "token": {
+          "topologyId": "ring-plain",
+          "epoch": 1
+        },
+        "factor": 1,
+        "replicaCount": 1,
+        "candidates": [
+          "n3",
+          "n4",
+          "n2",
+          "n1"
+        ],
+        "preferenceList": [
+          {
+            "node": "n3",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n4",
+            "position": 1,
+            "role": "fallback"
+          },
+          {
+            "node": "n2",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "n1",
+            "position": 3,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "walk/k5",
+      "requirements": [
+        "RING-020",
+        "RING-021",
+        "RING-022"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "k5"
+      },
+      "expect": {
+        "routingKey": "6b35",
+        "shard": "1fc30855a7a85a61",
+        "token": {
+          "topologyId": "ring-plain",
+          "epoch": 1
+        },
+        "factor": 1,
+        "replicaCount": 1,
+        "candidates": [
+          "n3",
+          "n4",
+          "n2",
+          "n1"
+        ],
+        "preferenceList": [
+          {
+            "node": "n3",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n4",
+            "position": 1,
+            "role": "fallback"
+          },
+          {
+            "node": "n2",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "n1",
+            "position": 3,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "walk/k6",
+      "requirements": [
+        "RING-020",
+        "RING-021",
+        "RING-022"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "k6"
+      },
+      "expect": {
+        "routingKey": "6b36",
+        "shard": "1fc30855a7a85a61",
+        "token": {
+          "topologyId": "ring-plain",
+          "epoch": 1
+        },
+        "factor": 1,
+        "replicaCount": 1,
+        "candidates": [
+          "n3",
+          "n4",
+          "n2",
+          "n1"
+        ],
+        "preferenceList": [
+          {
+            "node": "n3",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n4",
+            "position": 1,
+            "role": "fallback"
+          },
+          {
+            "node": "n2",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "n1",
+            "position": 3,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "walk/k7",
+      "requirements": [
+        "RING-020",
+        "RING-021",
+        "RING-022"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "k7"
+      },
+      "expect": {
+        "routingKey": "6b37",
+        "shard": "1fc30855a7a85a61",
+        "token": {
+          "topologyId": "ring-plain",
+          "epoch": 1
+        },
+        "factor": 1,
+        "replicaCount": 1,
+        "candidates": [
+          "n3",
+          "n4",
+          "n2",
+          "n1"
+        ],
+        "preferenceList": [
+          {
+            "node": "n3",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n4",
+            "position": 1,
+            "role": "fallback"
+          },
+          {
+            "node": "n2",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "n1",
+            "position": 3,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "walk/k8",
+      "requirements": [
+        "RING-020",
+        "RING-021",
+        "RING-022"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "k8"
+      },
+      "expect": {
+        "routingKey": "6b38",
+        "shard": "1fc30855a7a85a61",
+        "token": {
+          "topologyId": "ring-plain",
+          "epoch": 1
+        },
+        "factor": 1,
+        "replicaCount": 1,
+        "candidates": [
+          "n3",
+          "n4",
+          "n2",
+          "n1"
+        ],
+        "preferenceList": [
+          {
+            "node": "n3",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n4",
+            "position": 1,
+            "role": "fallback"
+          },
+          {
+            "node": "n2",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "n1",
+            "position": 3,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "walk/k9",
+      "requirements": [
+        "RING-020",
+        "RING-021",
+        "RING-022"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "k9"
+      },
+      "expect": {
+        "routingKey": "6b39",
+        "shard": "8a7fec0b9699c7df",
+        "token": {
+          "topologyId": "ring-plain",
+          "epoch": 1
+        },
+        "factor": 1,
+        "replicaCount": 1,
+        "candidates": [
+          "n1",
+          "n3",
+          "n4",
+          "n2"
+        ],
+        "preferenceList": [
+          {
+            "node": "n1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n3",
+            "position": 1,
+            "role": "fallback"
+          },
+          {
+            "node": "n4",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "n2",
+            "position": 3,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "walk/k10",
+      "requirements": [
+        "RING-020",
+        "RING-021",
+        "RING-022"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "k10"
+      },
+      "expect": {
+        "routingKey": "6b3130",
+        "shard": "1fc30855a7a85a61",
+        "token": {
+          "topologyId": "ring-plain",
+          "epoch": 1
+        },
+        "factor": 1,
+        "replicaCount": 1,
+        "candidates": [
+          "n3",
+          "n4",
+          "n2",
+          "n1"
+        ],
+        "preferenceList": [
+          {
+            "node": "n3",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n4",
+            "position": 1,
+            "role": "fallback"
+          },
+          {
+            "node": "n2",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "n1",
+            "position": 3,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "walk/k11",
+      "requirements": [
+        "RING-020",
+        "RING-021",
+        "RING-022"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "k11"
+      },
+      "expect": {
+        "routingKey": "6b3131",
+        "shard": "3668c0cc1bd10950",
+        "token": {
+          "topologyId": "ring-plain",
+          "epoch": 1
+        },
+        "factor": 1,
+        "replicaCount": 1,
+        "candidates": [
+          "n4",
+          "n2",
+          "n1",
+          "n3"
+        ],
+        "preferenceList": [
+          {
+            "node": "n4",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n2",
+            "position": 1,
+            "role": "fallback"
+          },
+          {
+            "node": "n1",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "n3",
+            "position": 3,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    }
+  ]
+}

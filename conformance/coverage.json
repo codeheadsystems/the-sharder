@@ -1,0 +1,1976 @@
+{
+  "specification": "docs/design/10-specification.md",
+  "statedRequirements": 635,
+  "coveredRequirements": 424,
+  "uncoveredRequirements": 211,
+  "coveragePercent": 66,
+  "identifiersNamedButNotStated": [],
+  "byPrefix": [
+    {
+      "prefix": "CFG",
+      "section": "Configuration surface",
+      "stated": 29,
+      "covered": 5,
+      "uncovered": [
+        "CFG-001",
+        "CFG-002",
+        "CFG-003",
+        "CFG-004",
+        "CFG-005",
+        "CFG-006",
+        "CFG-007",
+        "CFG-010",
+        "CFG-011",
+        "CFG-012",
+        "CFG-013",
+        "CFG-022",
+        "CFG-030",
+        "CFG-031",
+        "CFG-032",
+        "CFG-041",
+        "CFG-042",
+        "CFG-051",
+        "CFG-053",
+        "CFG-054",
+        "CFG-060",
+        "CFG-061",
+        "CFG-062",
+        "CFG-063"
+      ],
+      "percent": 17
+    },
+    {
+      "prefix": "CORE",
+      "section": "Core model",
+      "stated": 41,
+      "covered": 7,
+      "uncovered": [
+        "CORE-001",
+        "CORE-010",
+        "CORE-011",
+        "CORE-012",
+        "CORE-021",
+        "CORE-022",
+        "CORE-030",
+        "CORE-031",
+        "CORE-032",
+        "CORE-033",
+        "CORE-034",
+        "CORE-041",
+        "CORE-042",
+        "CORE-043",
+        "CORE-044",
+        "CORE-045",
+        "CORE-050",
+        "CORE-051",
+        "CORE-052",
+        "CORE-054",
+        "CORE-055",
+        "CORE-056",
+        "CORE-057",
+        "CORE-060",
+        "CORE-061",
+        "CORE-062",
+        "CORE-063",
+        "CORE-064",
+        "CORE-065",
+        "CORE-070",
+        "CORE-071",
+        "CORE-072",
+        "CORE-073",
+        "CORE-074"
+      ],
+      "percent": 17
+    },
+    {
+      "prefix": "HASH",
+      "section": "Core model",
+      "stated": 19,
+      "covered": 15,
+      "uncovered": [
+        "HASH-012",
+        "HASH-041",
+        "HASH-042",
+        "HASH-043"
+      ],
+      "percent": 78
+    },
+    {
+      "prefix": "ERR",
+      "section": "Error taxonomy",
+      "stated": 36,
+      "covered": 26,
+      "uncovered": [
+        "ERR-022",
+        "ERR-023",
+        "ERR-024",
+        "ERR-025",
+        "ERR-033",
+        "ERR-051",
+        "ERR-060",
+        "ERR-061",
+        "ERR-062",
+        "ERR-063"
+      ],
+      "percent": 72
+    },
+    {
+      "prefix": "OBS",
+      "section": "Observability",
+      "stated": 32,
+      "covered": 4,
+      "uncovered": [
+        "OBS-001",
+        "OBS-002",
+        "OBS-003",
+        "OBS-004",
+        "OBS-005",
+        "OBS-006",
+        "OBS-007",
+        "OBS-011",
+        "OBS-012",
+        "OBS-020",
+        "OBS-021",
+        "OBS-022",
+        "OBS-023",
+        "OBS-024",
+        "OBS-025",
+        "OBS-026",
+        "OBS-030",
+        "OBS-034",
+        "OBS-035",
+        "OBS-040",
+        "OBS-041",
+        "OBS-042",
+        "OBS-043",
+        "OBS-044",
+        "OBS-045",
+        "OBS-046",
+        "OBS-047",
+        "OBS-048"
+      ],
+      "percent": 12
+    },
+    {
+      "prefix": "FAIL",
+      "section": "Replication and failover",
+      "stated": 29,
+      "covered": 15,
+      "uncovered": [
+        "FAIL-005",
+        "FAIL-010",
+        "FAIL-020",
+        "FAIL-023",
+        "FAIL-024",
+        "FAIL-025",
+        "FAIL-026",
+        "FAIL-027",
+        "FAIL-040",
+        "FAIL-041",
+        "FAIL-042",
+        "FAIL-043",
+        "FAIL-044",
+        "FAIL-045"
+      ],
+      "percent": 51
+    },
+    {
+      "prefix": "HEALTH",
+      "section": "Replication and failover",
+      "stated": 40,
+      "covered": 19,
+      "uncovered": [
+        "HEALTH-001",
+        "HEALTH-002",
+        "HEALTH-003",
+        "HEALTH-006",
+        "HEALTH-010",
+        "HEALTH-011",
+        "HEALTH-012",
+        "HEALTH-013",
+        "HEALTH-014",
+        "HEALTH-015",
+        "HEALTH-016",
+        "HEALTH-017",
+        "HEALTH-022",
+        "HEALTH-030",
+        "HEALTH-033",
+        "HEALTH-042",
+        "HEALTH-046",
+        "HEALTH-047",
+        "HEALTH-052",
+        "HEALTH-053",
+        "HEALTH-054"
+      ],
+      "percent": 47
+    },
+    {
+      "prefix": "READ",
+      "section": "Replication and failover",
+      "stated": 12,
+      "covered": 9,
+      "uncovered": [
+        "READ-011",
+        "READ-020",
+        "READ-021"
+      ],
+      "percent": 75
+    },
+    {
+      "prefix": "REPL",
+      "section": "Replication and failover",
+      "stated": 20,
+      "covered": 15,
+      "uncovered": [
+        "REPL-006",
+        "REPL-010",
+        "REPL-022",
+        "REPL-023",
+        "REPL-024"
+      ],
+      "percent": 75
+    },
+    {
+      "prefix": "SPREAD",
+      "section": "Replication and failover",
+      "stated": 17,
+      "covered": 17,
+      "uncovered": [],
+      "percent": 100
+    },
+    {
+      "prefix": "DIR",
+      "section": "Routing keys and placement",
+      "stated": 11,
+      "covered": 11,
+      "uncovered": [],
+      "percent": 100
+    },
+    {
+      "prefix": "KEY",
+      "section": "Routing keys and placement",
+      "stated": 24,
+      "covered": 22,
+      "uncovered": [
+        "KEY-003",
+        "KEY-005"
+      ],
+      "percent": 91
+    },
+    {
+      "prefix": "OVR",
+      "section": "Routing keys and placement",
+      "stated": 28,
+      "covered": 27,
+      "uncovered": [
+        "OVR-033"
+      ],
+      "percent": 96
+    },
+    {
+      "prefix": "PLACE",
+      "section": "Routing keys and placement",
+      "stated": 40,
+      "covered": 39,
+      "uncovered": [
+        "PLACE-004"
+      ],
+      "percent": 97
+    },
+    {
+      "prefix": "PROP",
+      "section": "Routing keys and placement",
+      "stated": 36,
+      "covered": 36,
+      "uncovered": [],
+      "percent": 100
+    },
+    {
+      "prefix": "RANGE",
+      "section": "Routing keys and placement",
+      "stated": 20,
+      "covered": 18,
+      "uncovered": [
+        "RANGE-014",
+        "RANGE-015"
+      ],
+      "percent": 90
+    },
+    {
+      "prefix": "RING",
+      "section": "Routing keys and placement",
+      "stated": 18,
+      "covered": 17,
+      "uncovered": [
+        "RING-012"
+      ],
+      "percent": 94
+    },
+    {
+      "prefix": "RV",
+      "section": "Routing keys and placement",
+      "stated": 11,
+      "covered": 11,
+      "uncovered": [],
+      "percent": 100
+    },
+    {
+      "prefix": "SLOT",
+      "section": "Routing keys and placement",
+      "stated": 16,
+      "covered": 15,
+      "uncovered": [
+        "SLOT-013"
+      ],
+      "percent": 93
+    },
+    {
+      "prefix": "SEC",
+      "section": "Security and multi-tenancy",
+      "stated": 20,
+      "covered": 7,
+      "uncovered": [
+        "SEC-002",
+        "SEC-003",
+        "SEC-004",
+        "SEC-014",
+        "SEC-020",
+        "SEC-021",
+        "SEC-022",
+        "SEC-023",
+        "SEC-024",
+        "SEC-030",
+        "SEC-032",
+        "SEC-033",
+        "SEC-034"
+      ],
+      "percent": 35
+    },
+    {
+      "prefix": "FENCE",
+      "section": "Topology change and rebalancing",
+      "stated": 22,
+      "covered": 19,
+      "uncovered": [
+        "FENCE-011",
+        "FENCE-161",
+        "FENCE-201"
+      ],
+      "percent": 86
+    },
+    {
+      "prefix": "MOVE",
+      "section": "Topology change and rebalancing",
+      "stated": 51,
+      "covered": 29,
+      "uncovered": [
+        "MOVE-061",
+        "MOVE-062",
+        "MOVE-081",
+        "MOVE-111",
+        "MOVE-141",
+        "MOVE-191",
+        "MOVE-261",
+        "MOVE-281",
+        "MOVE-291",
+        "MOVE-301",
+        "MOVE-311",
+        "MOVE-321",
+        "MOVE-331",
+        "MOVE-341",
+        "MOVE-351",
+        "MOVE-361",
+        "MOVE-371",
+        "MOVE-381",
+        "MOVE-391",
+        "MOVE-401",
+        "MOVE-411",
+        "MOVE-431"
+      ],
+      "percent": 56
+    },
+    {
+      "prefix": "RATE",
+      "section": "Topology change and rebalancing",
+      "stated": 15,
+      "covered": 10,
+      "uncovered": [
+        "RATE-031",
+        "RATE-061",
+        "RATE-121",
+        "RATE-131",
+        "RATE-141"
+      ],
+      "percent": 66
+    },
+    {
+      "prefix": "SPLIT",
+      "section": "Topology change and rebalancing",
+      "stated": 22,
+      "covered": 13,
+      "uncovered": [
+        "SPLIT-021",
+        "SPLIT-031",
+        "SPLIT-051",
+        "SPLIT-141",
+        "SPLIT-151",
+        "SPLIT-181",
+        "SPLIT-191",
+        "SPLIT-201",
+        "SPLIT-211"
+      ],
+      "percent": 59
+    },
+    {
+      "prefix": "TOPO",
+      "section": "Topology change and rebalancing",
+      "stated": 26,
+      "covered": 18,
+      "uncovered": [
+        "TOPO-002",
+        "TOPO-021",
+        "TOPO-031",
+        "TOPO-041",
+        "TOPO-101",
+        "TOPO-141",
+        "TOPO-181",
+        "TOPO-201"
+      ],
+      "percent": 69
+    }
+  ],
+  "coveredBy": {
+    "KEY-030": [
+      "vectors/adversarial/colliding-keys.json",
+      "vectors/keytransform/brace-tag.json",
+      "vectors/rendezvous/cache-hash-tags.json"
+    ],
+    "PLACE-010": [
+      "properties/properties.json",
+      "vectors/adversarial/colliding-keys.json",
+      "vectors/rendezvous/cache-hash-tags.json"
+    ],
+    "PROP-003": [
+      "properties/properties.json",
+      "vectors/adversarial/colliding-keys.json"
+    ],
+    "RING-020": [
+      "vectors/adversarial/colliding-keys.json",
+      "vectors/ring/derived-walk.json",
+      "vectors/ring/derived-zoned.json",
+      "vectors/ring/explicit-tokens.json"
+    ],
+    "RING-030": [
+      "vectors/adversarial/colliding-keys.json",
+      "vectors/placement/shard-enumeration.json",
+      "vectors/ring/derived-walk.json"
+    ],
+    "SEC-001": [
+      "vectors/adversarial/colliding-keys.json"
+    ],
+    "SLOT-001": [
+      "vectors/adversarial/colliding-keys.json",
+      "vectors/slot/explicit-assignment.json",
+      "vectors/slot/non-power-of-two-modulus.json"
+    ],
+    "SLOT-023": [
+      "vectors/adversarial/colliding-keys.json",
+      "vectors/slot/derived-assignment.json"
+    ],
+    "ERR-020": [
+      "vectors/adversarial/empty-topology-ring.json",
+      "vectors/adversarial/empty-topology.json",
+      "vectors/adversarial/weight-zero-all.json",
+      "vectors/directory/no-match.json",
+      "vectors/overrides/precedence-and-composition.json"
+    ],
+    "PLACE-005": [
+      "vectors/adversarial/empty-topology-ring.json",
+      "vectors/adversarial/empty-topology.json"
+    ],
+    "RING-024": [
+      "vectors/adversarial/empty-topology-ring.json"
+    ],
+    "ERR-021": [
+      "vectors/adversarial/empty-topology.json",
+      "vectors/adversarial/weight-zero-all.json",
+      "vectors/directory/no-match.json",
+      "vectors/errors/taxonomy.json",
+      "vectors/overrides/precedence-and-composition.json"
+    ],
+    "RV-002": [
+      "vectors/adversarial/weight-zero-all.json",
+      "vectors/adversarial/weight-zero.json"
+    ],
+    "RV-012": [
+      "vectors/adversarial/weight-zero-all.json"
+    ],
+    "PLACE-042": [
+      "vectors/adversarial/weight-zero.json",
+      "vectors/overrides/pin-admits-weight-zero.json",
+      "vectors/rendezvous/cache-hash-tags.json",
+      "vectors/ring/weight-zero.json",
+      "vectors/slot/derived-assignment.json"
+    ],
+    "PLACE-043": [
+      "vectors/adversarial/weight-zero.json",
+      "vectors/overrides/pin-admits-weight-zero.json",
+      "vectors/rendezvous/cache-hash-tags.json",
+      "vectors/ring/explicit-tokens.json",
+      "vectors/ring/weight-zero.json"
+    ],
+    "REPL-020": [
+      "properties/properties.json",
+      "vectors/adversarial/weight-zero.json",
+      "vectors/replication/factor-exceeds-node-count.json",
+      "vectors/replication/single-node.json",
+      "vectors/spread/all-nodes-one-domain-strict.json"
+    ],
+    "REPL-021": [
+      "properties/properties.json",
+      "vectors/adversarial/weight-zero.json",
+      "vectors/replication/factor-exceeds-node-count.json",
+      "vectors/replication/single-node.json",
+      "vectors/spread/all-nodes-one-domain-strict.json"
+    ],
+    "CORE-002": [
+      "properties/properties.json",
+      "vectors/determinism/node-array-permutation.json"
+    ],
+    "PROP-005": [
+      "properties/properties.json",
+      "vectors/determinism/node-array-permutation.json"
+    ],
+    "RING-013": [
+      "properties/properties.json",
+      "vectors/determinism/node-array-permutation.json",
+      "vectors/ring/derived-walk.json"
+    ],
+    "RV-013": [
+      "properties/properties.json",
+      "vectors/determinism/node-array-permutation.json",
+      "vectors/rendezvous/ordering.json"
+    ],
+    "PLACE-016": [
+      "vectors/determinism/tie-breaks.json"
+    ],
+    "PLACE-020": [
+      "vectors/determinism/tie-breaks.json",
+      "vectors/placement/identity-comparison.json",
+      "vectors/rendezvous/ordering.json"
+    ],
+    "PLACE-021": [
+      "vectors/determinism/tie-breaks.json",
+      "vectors/placement/identity-comparison.json"
+    ],
+    "PLACE-023": [
+      "vectors/determinism/tie-breaks.json",
+      "vectors/placement/identity-comparison.json",
+      "vectors/rendezvous/ordering.json"
+    ],
+    "RANGE-031": [
+      "vectors/determinism/tie-breaks.json",
+      "vectors/range/derived-assignment.json"
+    ],
+    "RANGE-032": [
+      "vectors/determinism/tie-breaks.json",
+      "vectors/range/derived-assignment.json"
+    ],
+    "RING-010": [
+      "vectors/determinism/tie-breaks.json",
+      "vectors/ring/derived-walk.json"
+    ],
+    "RING-011": [
+      "vectors/determinism/tie-breaks.json"
+    ],
+    "RING-031": [
+      "vectors/determinism/tie-breaks.json",
+      "vectors/placement/shard-enumeration.json"
+    ],
+    "RV-003": [
+      "vectors/determinism/tie-breaks.json",
+      "vectors/rendezvous/ordering.json"
+    ],
+    "RV-010": [
+      "vectors/determinism/tie-breaks.json",
+      "vectors/rendezvous/cache-hash-tags.json",
+      "vectors/rendezvous/ordering.json",
+      "vectors/rendezvous/tenant-router.json"
+    ],
+    "CORE-020": [
+      "vectors/digest/canonical-form.json"
+    ],
+    "TOPO-001": [
+      "vectors/digest/canonical-form.json",
+      "vectors/validation/documents.json"
+    ],
+    "TOPO-061": [
+      "properties/properties.json",
+      "scenarios/topology-rollback.json",
+      "vectors/digest/canonical-form.json"
+    ],
+    "DIR-001": [
+      "vectors/directory/matcher-precedence.json"
+    ],
+    "DIR-002": [
+      "vectors/directory/matcher-precedence.json"
+    ],
+    "DIR-003": [
+      "vectors/directory/matcher-precedence.json",
+      "vectors/directory/no-match.json"
+    ],
+    "DIR-004": [
+      "vectors/directory/matcher-precedence.json",
+      "vectors/placement/document-defaults.json"
+    ],
+    "DIR-005": [
+      "vectors/directory/matcher-precedence.json"
+    ],
+    "DIR-020": [
+      "vectors/directory/matcher-precedence.json",
+      "vectors/directory/no-match.json",
+      "vectors/placement/shard-enumeration.json"
+    ],
+    "PLACE-060": [
+      "vectors/directory/matcher-precedence.json"
+    ],
+    "PLACE-061": [
+      "vectors/directory/matcher-precedence.json",
+      "vectors/rendezvous/tenant-router.json"
+    ],
+    "PLACE-062": [
+      "vectors/directory/matcher-precedence.json",
+      "vectors/rendezvous/tenant-router.json"
+    ],
+    "PLACE-063": [
+      "vectors/directory/matcher-precedence.json",
+      "vectors/overrides/precedence-and-composition.json"
+    ],
+    "PLACE-064": [
+      "vectors/directory/matcher-precedence.json"
+    ],
+    "PLACE-065": [
+      "vectors/directory/matcher-precedence.json",
+      "vectors/overrides/precedence-and-composition.json",
+      "vectors/rendezvous/tenant-router.json"
+    ],
+    "DIR-010": [
+      "vectors/directory/no-match.json"
+    ],
+    "DIR-011": [
+      "vectors/directory/no-match.json"
+    ],
+    "DIR-012": [
+      "vectors/directory/no-match.json"
+    ],
+    "PLACE-002": [
+      "vectors/directory/no-match.json",
+      "vectors/ring/administrative-states.json"
+    ],
+    "PLACE-014": [
+      "vectors/directory/no-match.json",
+      "vectors/slot/explicit-assignment.json"
+    ],
+    "REPL-005": [
+      "vectors/directory/no-match.json",
+      "vectors/overrides/precedence-and-composition.json"
+    ],
+    "ERR-001": [
+      "vectors/errors/taxonomy.json"
+    ],
+    "ERR-002": [
+      "vectors/errors/taxonomy.json"
+    ],
+    "ERR-003": [
+      "vectors/errors/taxonomy.json"
+    ],
+    "ERR-004": [
+      "vectors/errors/taxonomy.json"
+    ],
+    "ERR-005": [
+      "vectors/errors/taxonomy.json"
+    ],
+    "ERR-006": [
+      "vectors/errors/taxonomy.json"
+    ],
+    "ERR-007": [
+      "vectors/errors/taxonomy.json"
+    ],
+    "ERR-008": [
+      "vectors/errors/taxonomy.json"
+    ],
+    "ERR-009": [
+      "vectors/errors/taxonomy.json",
+      "vectors/replication/factor-exceeds-node-count.json"
+    ],
+    "ERR-010": [
+      "vectors/errors/taxonomy.json"
+    ],
+    "ERR-011": [
+      "vectors/errors/taxonomy.json"
+    ],
+    "ERR-045": [
+      "scenarios/split-topology-view.json",
+      "vectors/errors/taxonomy.json"
+    ],
+    "REPL-025": [
+      "vectors/errors/taxonomy.json",
+      "vectors/replication/factor-exceeds-node-count.json",
+      "vectors/replication/single-node.json"
+    ],
+    "CORE-005": [
+      "vectors/formulas/detection-and-fencing.json",
+      "vectors/formulas/failover.json",
+      "vectors/formulas/health.json"
+    ],
+    "FENCE-001": [
+      "vectors/formulas/detection-and-fencing.json"
+    ],
+    "FENCE-021": [
+      "vectors/formulas/detection-and-fencing.json"
+    ],
+    "FENCE-031": [
+      "vectors/formulas/detection-and-fencing.json"
+    ],
+    "OBS-031": [
+      "vectors/formulas/detection-and-fencing.json"
+    ],
+    "OBS-032": [
+      "vectors/formulas/detection-and-fencing.json"
+    ],
+    "OBS-033": [
+      "vectors/formulas/detection-and-fencing.json"
+    ],
+    "SPLIT-041": [
+      "vectors/formulas/detection-and-fencing.json"
+    ],
+    "CFG-020": [
+      "vectors/formulas/failover.json"
+    ],
+    "CFG-021": [
+      "vectors/formulas/failover.json"
+    ],
+    "FAIL-021": [
+      "vectors/formulas/failover.json"
+    ],
+    "FAIL-022": [
+      "vectors/formulas/failover.json"
+    ],
+    "FAIL-030": [
+      "vectors/formulas/failover.json"
+    ],
+    "FAIL-031": [
+      "vectors/formulas/failover.json"
+    ],
+    "FAIL-032": [
+      "vectors/formulas/failover.json"
+    ],
+    "FAIL-033": [
+      "vectors/formulas/failover.json"
+    ],
+    "FAIL-034": [
+      "vectors/formulas/failover.json"
+    ],
+    "FAIL-035": [
+      "vectors/formulas/failover.json"
+    ],
+    "HEALTH-021": [
+      "vectors/formulas/health.json"
+    ],
+    "HEALTH-023": [
+      "scenarios/failover-and-recovery.json",
+      "vectors/formulas/health.json"
+    ],
+    "HEALTH-031": [
+      "vectors/formulas/health.json"
+    ],
+    "HEALTH-032": [
+      "vectors/formulas/health.json"
+    ],
+    "HEALTH-034": [
+      "scenarios/ejection-ceiling.json",
+      "scenarios/health-filter-fails-open.json",
+      "vectors/formulas/health.json"
+    ],
+    "HEALTH-050": [
+      "scenarios/failover-and-recovery.json",
+      "vectors/formulas/health.json"
+    ],
+    "HEALTH-051": [
+      "scenarios/failover-and-recovery.json",
+      "vectors/formulas/health.json"
+    ],
+    "HEALTH-055": [
+      "vectors/formulas/health.json"
+    ],
+    "CFG-050": [
+      "vectors/formulas/migration-rate.json"
+    ],
+    "CFG-052": [
+      "vectors/formulas/migration-rate.json"
+    ],
+    "ERR-050": [
+      "vectors/formulas/migration-rate.json",
+      "vectors/split/lineage.json",
+      "vectors/topology/ownership-delta.json"
+    ],
+    "MOVE-171": [
+      "properties/properties.json",
+      "scenarios/node-dies-mid-migration.json",
+      "vectors/formulas/migration-rate.json"
+    ],
+    "PLACE-050": [
+      "vectors/formulas/migration-rate.json",
+      "vectors/placement/document-defaults.json",
+      "vectors/rendezvous/virtual-node-cap.json",
+      "vectors/ring/derived-zoned.json"
+    ],
+    "PLACE-051": [
+      "vectors/formulas/migration-rate.json",
+      "vectors/rendezvous/virtual-node-cap.json"
+    ],
+    "PLACE-052": [
+      "vectors/formulas/migration-rate.json",
+      "vectors/rendezvous/virtual-node-cap.json"
+    ],
+    "RATE-021": [
+      "vectors/formulas/migration-rate.json"
+    ],
+    "RATE-041": [
+      "vectors/formulas/migration-rate.json"
+    ],
+    "RATE-051": [
+      "vectors/formulas/migration-rate.json"
+    ],
+    "RATE-101": [
+      "vectors/formulas/migration-rate.json"
+    ],
+    "HASH-010": [
+      "vectors/hash/construction.json"
+    ],
+    "HASH-011": [
+      "vectors/hash/construction.json"
+    ],
+    "HASH-020": [
+      "vectors/hash/construction.json"
+    ],
+    "HASH-021": [
+      "vectors/hash/construction.json"
+    ],
+    "HASH-022": [
+      "vectors/hash/construction.json"
+    ],
+    "HASH-023": [
+      "vectors/hash/construction.json"
+    ],
+    "HASH-024": [
+      "vectors/hash/construction.json"
+    ],
+    "HASH-030": [
+      "vectors/hash/construction.json"
+    ],
+    "HASH-031": [
+      "vectors/hash/construction.json"
+    ],
+    "HASH-032": [
+      "vectors/hash/construction.json"
+    ],
+    "HASH-044": [
+      "vectors/hash/construction.json",
+      "vectors/hash/siphash-primitive.json"
+    ],
+    "PLACE-034": [
+      "vectors/hash/construction.json"
+    ],
+    "PLACE-053": [
+      "vectors/hash/construction.json"
+    ],
+    "HASH-001": [
+      "vectors/hash/siphash-primitive.json"
+    ],
+    "HASH-002": [
+      "vectors/hash/siphash-primitive.json"
+    ],
+    "HASH-003": [
+      "vectors/hash/siphash-primitive.json"
+    ],
+    "HASH-040": [
+      "vectors/hash/siphash-primitive.json"
+    ],
+    "SEC-015": [
+      "vectors/hash/siphash-primitive.json"
+    ],
+    "KEY-037": [
+      "vectors/keytransform/brace-tag-same-octet.json"
+    ],
+    "KEY-031": [
+      "vectors/keytransform/brace-tag.json",
+      "vectors/rendezvous/cache-hash-tags.json"
+    ],
+    "KEY-032": [
+      "vectors/keytransform/brace-tag.json"
+    ],
+    "KEY-033": [
+      "vectors/keytransform/brace-tag.json"
+    ],
+    "KEY-034": [
+      "vectors/keytransform/brace-tag.json"
+    ],
+    "KEY-035": [
+      "vectors/keytransform/brace-tag.json"
+    ],
+    "KEY-036": [
+      "vectors/keytransform/brace-tag.json"
+    ],
+    "KEY-011": [
+      "vectors/keytransform/continuation-octet.json",
+      "vectors/keytransform/prefix-fields-1.json"
+    ],
+    "KEY-012": [
+      "vectors/keytransform/continuation-octet.json"
+    ],
+    "KEY-013": [
+      "vectors/keytransform/continuation-octet.json",
+      "vectors/keytransform/none.json"
+    ],
+    "KEY-014": [
+      "vectors/keytransform/continuation-octet.json",
+      "vectors/keytransform/prefix-fields-1.json"
+    ],
+    "KEY-043": [
+      "vectors/keytransform/continuation-octet.json",
+      "vectors/keytransform/prefix-fields-1.json"
+    ],
+    "KEY-001": [
+      "vectors/keytransform/none.json"
+    ],
+    "KEY-002": [
+      "vectors/keytransform/none.json"
+    ],
+    "KEY-004": [
+      "vectors/keytransform/none.json",
+      "vectors/rendezvous/ordering.json",
+      "vectors/ring/derived-walk.json"
+    ],
+    "KEY-010": [
+      "vectors/keytransform/none.json",
+      "vectors/placement/document-defaults.json"
+    ],
+    "KEY-020": [
+      "vectors/keytransform/none.json"
+    ],
+    "KEY-040": [
+      "vectors/keytransform/prefix-fields-1.json"
+    ],
+    "KEY-041": [
+      "vectors/keytransform/prefix-fields-1.json",
+      "vectors/keytransform/prefix-fields-2.json",
+      "vectors/rendezvous/tenant-router.json"
+    ],
+    "KEY-042": [
+      "vectors/keytransform/prefix-fields-1.json",
+      "vectors/keytransform/prefix-fields-2.json"
+    ],
+    "KEY-044": [
+      "vectors/keytransform/prefix-fields-2.json"
+    ],
+    "PROP-010": [
+      "properties/properties.json",
+      "vectors/movement/add-one-node.json"
+    ],
+    "PROP-011": [
+      "properties/properties.json",
+      "vectors/movement/add-one-node.json"
+    ],
+    "PROP-012": [
+      "properties/properties.json",
+      "vectors/movement/add-one-node.json"
+    ],
+    "PROP-016": [
+      "properties/properties.json",
+      "vectors/movement/add-one-node.json"
+    ],
+    "PROP-019": [
+      "properties/properties.json",
+      "vectors/movement/add-one-node.json"
+    ],
+    "OVR-010": [
+      "properties/properties.json",
+      "vectors/overrides/pin-admits-weight-zero.json",
+      "vectors/overrides/pin-keeps-shard.json",
+      "vectors/overrides/precedence-and-composition.json",
+      "vectors/rendezvous/tenant-router.json"
+    ],
+    "OVR-016": [
+      "vectors/overrides/pin-keeps-shard.json"
+    ],
+    "PLACE-030": [
+      "vectors/overrides/pin-keeps-shard.json",
+      "vectors/placement/shard-enumeration.json"
+    ],
+    "PLACE-033": [
+      "vectors/overrides/pin-keeps-shard.json",
+      "vectors/placement/shard-enumeration.json"
+    ],
+    "OVR-001": [
+      "vectors/overrides/precedence-and-composition.json",
+      "vectors/rendezvous/tenant-router.json"
+    ],
+    "OVR-002": [
+      "vectors/overrides/precedence-and-composition.json",
+      "vectors/rendezvous/tenant-router.json"
+    ],
+    "OVR-003": [
+      "vectors/overrides/precedence-and-composition.json"
+    ],
+    "OVR-004": [
+      "vectors/overrides/precedence-and-composition.json",
+      "vectors/rendezvous/tenant-router.json"
+    ],
+    "OVR-005": [
+      "vectors/overrides/precedence-and-composition.json"
+    ],
+    "OVR-006": [
+      "vectors/overrides/precedence-and-composition.json"
+    ],
+    "OVR-011": [
+      "vectors/overrides/precedence-and-composition.json",
+      "vectors/rendezvous/tenant-router.json"
+    ],
+    "OVR-012": [
+      "vectors/overrides/precedence-and-composition.json"
+    ],
+    "OVR-013": [
+      "properties/properties.json",
+      "vectors/overrides/precedence-and-composition.json",
+      "vectors/spread/applies-to-pinned-ordering.json"
+    ],
+    "OVR-014": [
+      "vectors/overrides/precedence-and-composition.json"
+    ],
+    "OVR-020": [
+      "properties/properties.json",
+      "vectors/overrides/precedence-and-composition.json",
+      "vectors/rendezvous/tenant-router.json"
+    ],
+    "OVR-021": [
+      "vectors/overrides/precedence-and-composition.json"
+    ],
+    "OVR-022": [
+      "vectors/overrides/precedence-and-composition.json",
+      "vectors/rendezvous/tenant-router.json"
+    ],
+    "OVR-023": [
+      "vectors/overrides/precedence-and-composition.json"
+    ],
+    "OVR-024": [
+      "vectors/overrides/precedence-and-composition.json"
+    ],
+    "OVR-025": [
+      "vectors/overrides/precedence-and-composition.json"
+    ],
+    "OVR-026": [
+      "vectors/overrides/precedence-and-composition.json"
+    ],
+    "OVR-027": [
+      "vectors/overrides/precedence-and-composition.json"
+    ],
+    "OVR-030": [
+      "vectors/overrides/precedence-and-composition.json"
+    ],
+    "OVR-031": [
+      "vectors/overrides/precedence-and-composition.json"
+    ],
+    "OVR-040": [
+      "vectors/overrides/precedence-and-composition.json"
+    ],
+    "OVR-041": [
+      "vectors/overrides/precedence-and-composition.json"
+    ],
+    "PLACE-066": [
+      "vectors/overrides/precedence-and-composition.json"
+    ],
+    "REPL-003": [
+      "vectors/overrides/precedence-and-composition.json"
+    ],
+    "PLACE-040": [
+      "vectors/placement/document-defaults.json"
+    ],
+    "PLACE-044": [
+      "properties/properties.json",
+      "vectors/placement/document-defaults.json",
+      "vectors/ring/explicit-tokens.json"
+    ],
+    "RANGE-021": [
+      "vectors/placement/document-defaults.json"
+    ],
+    "REPL-001": [
+      "vectors/placement/document-defaults.json"
+    ],
+    "RING-001": [
+      "vectors/placement/document-defaults.json",
+      "vectors/ring/derived-walk.json",
+      "vectors/ring/derived-zoned.json",
+      "vectors/ring/weight-zero.json"
+    ],
+    "SLOT-014": [
+      "vectors/placement/document-defaults.json",
+      "vectors/slot/explicit-assignment.json"
+    ],
+    "SPREAD-003": [
+      "vectors/placement/document-defaults.json"
+    ],
+    "CORE-003": [
+      "vectors/placement/identity-comparison.json"
+    ],
+    "PLACE-022": [
+      "vectors/placement/identity-comparison.json"
+    ],
+    "DIR-021": [
+      "vectors/placement/shard-enumeration.json"
+    ],
+    "DIR-022": [
+      "vectors/placement/shard-enumeration.json"
+    ],
+    "MOVE-241": [
+      "scenarios/handoff-happy-path.json",
+      "vectors/placement/shard-enumeration.json",
+      "vectors/split/lineage.json",
+      "vectors/topology/ownership-delta.json"
+    ],
+    "PLACE-031": [
+      "vectors/placement/shard-enumeration.json"
+    ],
+    "PLACE-032": [
+      "vectors/placement/shard-enumeration.json"
+    ],
+    "RANGE-040": [
+      "vectors/placement/shard-enumeration.json",
+      "vectors/range/derived-assignment.json",
+      "vectors/range/explicit-bounds.json"
+    ],
+    "RANGE-041": [
+      "vectors/placement/shard-enumeration.json"
+    ],
+    "RANGE-042": [
+      "vectors/placement/shard-enumeration.json"
+    ],
+    "RING-032": [
+      "vectors/placement/shard-enumeration.json"
+    ],
+    "RV-020": [
+      "vectors/placement/shard-enumeration.json",
+      "vectors/rendezvous/ordering.json"
+    ],
+    "RV-021": [
+      "vectors/placement/shard-enumeration.json",
+      "vectors/rendezvous/ordering.json",
+      "vectors/topology/ownership-delta.json"
+    ],
+    "RV-022": [
+      "vectors/placement/shard-enumeration.json"
+    ],
+    "SLOT-030": [
+      "vectors/placement/shard-enumeration.json",
+      "vectors/slot/derived-assignment.json",
+      "vectors/slot/explicit-assignment.json"
+    ],
+    "SLOT-031": [
+      "vectors/placement/shard-enumeration.json",
+      "vectors/slot/derived-assignment.json"
+    ],
+    "SLOT-032": [
+      "vectors/placement/shard-enumeration.json"
+    ],
+    "PLACE-041": [
+      "vectors/properties/witnesses.json",
+      "vectors/ring/derived-zoned.json"
+    ],
+    "PROP-006": [
+      "properties/properties.json",
+      "vectors/properties/witnesses.json"
+    ],
+    "PROP-013": [
+      "properties/properties.json",
+      "vectors/properties/witnesses.json"
+    ],
+    "PROP-014": [
+      "properties/properties.json",
+      "vectors/properties/witnesses.json"
+    ],
+    "PROP-015": [
+      "properties/properties.json",
+      "vectors/properties/witnesses.json"
+    ],
+    "PROP-020": [
+      "properties/properties.json",
+      "vectors/properties/witnesses.json"
+    ],
+    "PROP-021": [
+      "properties/properties.json",
+      "vectors/properties/witnesses.json"
+    ],
+    "PROP-022": [
+      "properties/properties.json",
+      "vectors/properties/witnesses.json"
+    ],
+    "PROP-030": [
+      "properties/properties.json",
+      "vectors/properties/witnesses.json"
+    ],
+    "PROP-032": [
+      "properties/properties.json",
+      "vectors/properties/witnesses.json"
+    ],
+    "PROP-033": [
+      "properties/properties.json",
+      "vectors/properties/witnesses.json"
+    ],
+    "RANGE-030": [
+      "vectors/range/derived-assignment.json"
+    ],
+    "RANGE-033": [
+      "vectors/range/derived-assignment.json"
+    ],
+    "RANGE-001": [
+      "vectors/range/explicit-bounds.json"
+    ],
+    "RANGE-002": [
+      "vectors/range/explicit-bounds.json"
+    ],
+    "RANGE-003": [
+      "vectors/range/explicit-bounds.json"
+    ],
+    "RANGE-004": [
+      "vectors/range/explicit-bounds.json"
+    ],
+    "RANGE-005": [
+      "vectors/range/explicit-bounds.json"
+    ],
+    "RANGE-010": [
+      "vectors/range/explicit-bounds.json"
+    ],
+    "RANGE-011": [
+      "vectors/range/explicit-bounds.json"
+    ],
+    "RANGE-012": [
+      "vectors/range/explicit-bounds.json"
+    ],
+    "RANGE-013": [
+      "vectors/range/explicit-bounds.json"
+    ],
+    "RANGE-020": [
+      "vectors/range/explicit-bounds.json"
+    ],
+    "READ-001": [
+      "vectors/read/affinity.json"
+    ],
+    "READ-010": [
+      "vectors/read/affinity.json"
+    ],
+    "READ-012": [
+      "vectors/read/affinity.json"
+    ],
+    "READ-013": [
+      "vectors/read/affinity.json"
+    ],
+    "READ-014": [
+      "vectors/read/affinity.json"
+    ],
+    "READ-015": [
+      "vectors/read/affinity.json"
+    ],
+    "READ-016": [
+      "vectors/read/affinity.json"
+    ],
+    "READ-022": [
+      "vectors/read/affinity.json"
+    ],
+    "READ-023": [
+      "vectors/read/affinity.json"
+    ],
+    "RV-001": [
+      "vectors/rendezvous/cache-hash-tags.json",
+      "vectors/rendezvous/ordering.json",
+      "vectors/rendezvous/virtual-node-cap.json"
+    ],
+    "RV-004": [
+      "vectors/rendezvous/ordering.json"
+    ],
+    "RV-011": [
+      "vectors/rendezvous/ordering.json"
+    ],
+    "PLACE-003": [
+      "vectors/rendezvous/tenant-router.json"
+    ],
+    "REPL-002": [
+      "vectors/rendezvous/tenant-router.json"
+    ],
+    "PLACE-054": [
+      "vectors/rendezvous/virtual-node-cap.json"
+    ],
+    "REPL-011": [
+      "properties/properties.json",
+      "vectors/replication/factor-exceeds-node-count.json"
+    ],
+    "REPL-013": [
+      "properties/properties.json",
+      "vectors/replication/fallback-tail.json",
+      "vectors/ring/derived-zoned.json",
+      "vectors/spread/applies-to-pinned-ordering.json",
+      "vectors/spread/degradation-ladder.json"
+    ],
+    "REPL-014": [
+      "properties/properties.json",
+      "vectors/replication/fallback-tail.json",
+      "vectors/ring/derived-zoned.json"
+    ],
+    "REPL-015": [
+      "properties/properties.json",
+      "vectors/replication/fallback-tail.json"
+    ],
+    "REPL-017": [
+      "properties/properties.json",
+      "vectors/replication/fallback-tail.json",
+      "vectors/ring/derived-zoned.json"
+    ],
+    "SPREAD-021": [
+      "properties/properties.json",
+      "vectors/replication/fallback-tail.json",
+      "vectors/spread/all-nodes-one-domain-relaxed.json",
+      "vectors/spread/degradation-ladder.json"
+    ],
+    "SPREAD-013": [
+      "properties/properties.json",
+      "vectors/replication/single-node.json",
+      "vectors/spread/all-nodes-one-domain-relaxed.json",
+      "vectors/spread/degradation-ladder.json",
+      "vectors/spread/relaxation-stages.json"
+    ],
+    "PLACE-001": [
+      "vectors/ring/administrative-states.json"
+    ],
+    "RING-005": [
+      "vectors/ring/administrative-states.json",
+      "vectors/ring/explicit-tokens.json"
+    ],
+    "CORE-040": [
+      "vectors/ring/derived-walk.json"
+    ],
+    "PLACE-013": [
+      "properties/properties.json",
+      "vectors/ring/derived-walk.json",
+      "vectors/slot/explicit-assignment.json"
+    ],
+    "PLACE-017": [
+      "vectors/ring/derived-walk.json"
+    ],
+    "RING-021": [
+      "vectors/ring/derived-walk.json",
+      "vectors/ring/explicit-tokens.json"
+    ],
+    "RING-022": [
+      "vectors/ring/derived-walk.json"
+    ],
+    "RING-023": [
+      "vectors/ring/derived-walk.json"
+    ],
+    "RING-025": [
+      "vectors/ring/derived-walk.json"
+    ],
+    "TOPO-151": [
+      "vectors/ring/derived-walk.json"
+    ],
+    "REPL-012": [
+      "properties/properties.json",
+      "vectors/ring/derived-zoned.json"
+    ],
+    "SPREAD-001": [
+      "properties/properties.json",
+      "vectors/ring/derived-zoned.json",
+      "vectors/spread/all-nodes-one-domain-relaxed.json"
+    ],
+    "SPREAD-011": [
+      "properties/properties.json",
+      "vectors/ring/derived-zoned.json",
+      "vectors/spread/all-nodes-one-domain-relaxed.json",
+      "vectors/spread/degradation-ladder.json",
+      "vectors/spread/relaxation-stages.json"
+    ],
+    "SPREAD-012": [
+      "properties/properties.json",
+      "vectors/ring/derived-zoned.json",
+      "vectors/spread/all-nodes-one-domain-relaxed.json",
+      "vectors/spread/degradation-ladder.json",
+      "vectors/spread/relaxation-stages.json"
+    ],
+    "SPREAD-015": [
+      "properties/properties.json",
+      "vectors/ring/derived-zoned.json",
+      "vectors/spread/all-nodes-one-domain-relaxed.json",
+      "vectors/spread/all-nodes-one-domain-strict.json",
+      "vectors/spread/degradation-ladder.json",
+      "vectors/spread/relaxation-stages.json"
+    ],
+    "RING-003": [
+      "vectors/ring/explicit-tokens.json"
+    ],
+    "RING-004": [
+      "vectors/ring/explicit-tokens.json"
+    ],
+    "SEC-010": [
+      "vectors/ring/non-default-seed.json"
+    ],
+    "SEC-011": [
+      "vectors/ring/non-default-seed.json"
+    ],
+    "SEC-012": [
+      "vectors/ring/non-default-seed.json"
+    ],
+    "RING-002": [
+      "vectors/ring/weight-zero.json"
+    ],
+    "SLOT-020": [
+      "vectors/slot/derived-assignment.json"
+    ],
+    "SLOT-021": [
+      "vectors/slot/derived-assignment.json"
+    ],
+    "SLOT-022": [
+      "vectors/slot/derived-assignment.json"
+    ],
+    "SLOT-002": [
+      "vectors/slot/explicit-assignment.json",
+      "vectors/slot/non-power-of-two-modulus.json"
+    ],
+    "SLOT-003": [
+      "vectors/slot/explicit-assignment.json",
+      "vectors/slot/non-power-of-two-modulus.json"
+    ],
+    "SLOT-010": [
+      "vectors/slot/explicit-assignment.json"
+    ],
+    "SLOT-011": [
+      "vectors/slot/explicit-assignment.json"
+    ],
+    "SLOT-012": [
+      "vectors/slot/explicit-assignment.json"
+    ],
+    "PROP-024": [
+      "properties/properties.json",
+      "vectors/slot/non-power-of-two-modulus.json"
+    ],
+    "MOVE-251": [
+      "vectors/split/lineage.json",
+      "vectors/topology/ownership-delta.json"
+    ],
+    "SPLIT-001": [
+      "vectors/split/lineage.json"
+    ],
+    "SPLIT-011": [
+      "vectors/split/lineage.json"
+    ],
+    "SPLIT-061": [
+      "vectors/split/lineage.json"
+    ],
+    "SPLIT-071": [
+      "vectors/split/lineage.json"
+    ],
+    "SPLIT-081": [
+      "vectors/split/lineage.json"
+    ],
+    "SPLIT-091": [
+      "vectors/split/lineage.json"
+    ],
+    "SPLIT-101": [
+      "vectors/split/lineage.json"
+    ],
+    "SPLIT-111": [
+      "vectors/split/lineage.json"
+    ],
+    "SPLIT-121": [
+      "vectors/split/lineage.json"
+    ],
+    "SPLIT-131": [
+      "vectors/split/lineage.json"
+    ],
+    "SPLIT-161": [
+      "vectors/split/lineage.json"
+    ],
+    "SPLIT-171": [
+      "vectors/split/lineage.json"
+    ],
+    "SPREAD-010": [
+      "properties/properties.json",
+      "vectors/spread/all-nodes-one-domain-relaxed.json",
+      "vectors/spread/degradation-ladder.json",
+      "vectors/spread/relaxation-stages.json"
+    ],
+    "SPREAD-014": [
+      "properties/properties.json",
+      "vectors/spread/all-nodes-one-domain-strict.json"
+    ],
+    "PROP-050": [
+      "properties/properties.json",
+      "vectors/spread/applies-to-pinned-ordering.json"
+    ],
+    "SPREAD-004": [
+      "vectors/spread/applies-to-pinned-ordering.json"
+    ],
+    "SPREAD-005": [
+      "vectors/spread/degradation-ladder.json",
+      "vectors/spread/relaxation-stages.json"
+    ],
+    "SPREAD-016": [
+      "vectors/spread/degradation-ladder.json"
+    ],
+    "SPREAD-017": [
+      "properties/properties.json",
+      "vectors/spread/degradation-ladder.json",
+      "vectors/spread/relaxation-stages.json"
+    ],
+    "SPREAD-018": [
+      "properties/properties.json",
+      "vectors/spread/degradation-ladder.json",
+      "vectors/spread/relaxation-stages.json"
+    ],
+    "SPREAD-019": [
+      "vectors/spread/degradation-ladder.json",
+      "vectors/spread/relaxation-stages.json"
+    ],
+    "SPREAD-020": [
+      "properties/properties.json",
+      "vectors/spread/degradation-ladder.json",
+      "vectors/spread/relaxation-stages.json"
+    ],
+    "MOVE-271": [
+      "vectors/topology/ownership-delta.json"
+    ],
+    "SEC-013": [
+      "vectors/topology/ownership-delta.json"
+    ],
+    "TOPO-211": [
+      "scenarios/handoff-happy-path.json",
+      "vectors/topology/ownership-delta.json"
+    ],
+    "TOPO-221": [
+      "scenarios/handoff-happy-path.json",
+      "vectors/topology/ownership-delta.json"
+    ],
+    "TOPO-231": [
+      "vectors/topology/ownership-delta.json"
+    ],
+    "TOPO-241": [
+      "vectors/topology/ownership-delta.json"
+    ],
+    "ERR-030": [
+      "vectors/validation/documents.json"
+    ],
+    "OVR-015": [
+      "vectors/validation/documents.json"
+    ],
+    "OVR-028": [
+      "vectors/validation/documents.json"
+    ],
+    "PLACE-067": [
+      "vectors/validation/documents.json"
+    ],
+    "REPL-004": [
+      "vectors/validation/documents.json"
+    ],
+    "TOPO-011": [
+      "vectors/validation/documents.json"
+    ],
+    "TOPO-191": [
+      "vectors/validation/documents.json"
+    ],
+    "PROP-001": [
+      "properties/properties.json"
+    ],
+    "PROP-002": [
+      "properties/properties.json"
+    ],
+    "PLACE-012": [
+      "properties/properties.json"
+    ],
+    "PROP-004": [
+      "properties/properties.json"
+    ],
+    "PLACE-015": [
+      "properties/properties.json"
+    ],
+    "PROP-040": [
+      "properties/properties.json"
+    ],
+    "PROP-041": [
+      "properties/properties.json",
+      "scenarios/failover-and-recovery.json"
+    ],
+    "PROP-045": [
+      "properties/properties.json",
+      "scenarios/failover-and-recovery.json"
+    ],
+    "FAIL-001": [
+      "properties/properties.json",
+      "scenarios/failover-and-recovery.json"
+    ],
+    "FAIL-011": [
+      "properties/properties.json"
+    ],
+    "REPL-016": [
+      "properties/properties.json"
+    ],
+    "PROP-042": [
+      "properties/properties.json"
+    ],
+    "PROP-043": [
+      "properties/properties.json"
+    ],
+    "PROP-044": [
+      "properties/properties.json"
+    ],
+    "PLACE-011": [
+      "properties/properties.json"
+    ],
+    "CORE-004": [
+      "properties/properties.json"
+    ],
+    "PROP-017": [
+      "properties/properties.json"
+    ],
+    "PROP-018": [
+      "properties/properties.json"
+    ],
+    "SLOT-004": [
+      "properties/properties.json"
+    ],
+    "PROP-031": [
+      "properties/properties.json"
+    ],
+    "PROP-023": [
+      "properties/properties.json"
+    ],
+    "PROP-026": [
+      "properties/properties.json"
+    ],
+    "PROP-025": [
+      "properties/properties.json"
+    ],
+    "SPREAD-002": [
+      "properties/properties.json"
+    ],
+    "PROP-052": [
+      "properties/properties.json"
+    ],
+    "PROP-051": [
+      "properties/properties.json"
+    ],
+    "OVR-032": [
+      "properties/properties.json"
+    ],
+    "TOPO-051": [
+      "properties/properties.json",
+      "scenarios/topology-rollback.json"
+    ],
+    "TOPO-071": [
+      "properties/properties.json"
+    ],
+    "TOPO-081": [
+      "properties/properties.json",
+      "scenarios/topology-rollback.json"
+    ],
+    "TOPO-091": [
+      "properties/properties.json",
+      "scenarios/topology-rollback.json"
+    ],
+    "ERR-031": [
+      "properties/properties.json",
+      "scenarios/topology-rollback.json"
+    ],
+    "ERR-034": [
+      "properties/properties.json"
+    ],
+    "MOVE-151": [
+      "properties/properties.json",
+      "scenarios/coordinator-death-and-recovery.json"
+    ],
+    "MOVE-161": [
+      "properties/properties.json",
+      "scenarios/coordinator-death-and-recovery.json"
+    ],
+    "MOVE-201": [
+      "properties/properties.json",
+      "scenarios/coordinator-death-and-recovery.json"
+    ],
+    "MOVE-211": [
+      "properties/properties.json",
+      "scenarios/coordinator-death-and-recovery.json"
+    ],
+    "MOVE-221": [
+      "properties/properties.json",
+      "scenarios/coordinator-death-and-recovery.json"
+    ],
+    "MOVE-231": [
+      "properties/properties.json",
+      "scenarios/coordinator-death-and-recovery.json",
+      "scenarios/handoff-failure-kinds.json"
+    ],
+    "MOVE-011": [
+      "properties/properties.json",
+      "scenarios/handoff-failure-kinds.json"
+    ],
+    "MOVE-021": [
+      "properties/properties.json",
+      "scenarios/abort-during-catching-up.json",
+      "scenarios/handoff-failure-kinds.json",
+      "scenarios/handoff-happy-path.json",
+      "scenarios/node-dies-mid-migration.json"
+    ],
+    "MOVE-031": [
+      "properties/properties.json",
+      "scenarios/handoff-failure-kinds.json",
+      "scenarios/handoff-happy-path.json"
+    ],
+    "MOVE-441": [
+      "properties/properties.json"
+    ],
+    "MOVE-491": [
+      "properties/properties.json",
+      "scenarios/abort-during-catching-up.json",
+      "scenarios/node-dies-mid-migration.json"
+    ],
+    "FENCE-101": [
+      "properties/properties.json"
+    ],
+    "FENCE-071": [
+      "properties/properties.json",
+      "scenarios/caller-three-epochs-stale.json",
+      "scenarios/split-topology-view.json"
+    ],
+    "FENCE-081": [
+      "properties/properties.json",
+      "scenarios/caller-three-epochs-stale.json",
+      "scenarios/split-topology-view.json"
+    ],
+    "FENCE-091": [
+      "properties/properties.json",
+      "scenarios/caller-three-epochs-stale.json"
+    ],
+    "FAIL-002": [
+      "properties/properties.json",
+      "scenarios/failover-and-recovery.json",
+      "scenarios/health-filter-fails-open.json"
+    ],
+    "FAIL-003": [
+      "properties/properties.json",
+      "scenarios/failover-and-recovery.json"
+    ],
+    "FAIL-004": [
+      "properties/properties.json",
+      "scenarios/failover-and-recovery.json"
+    ],
+    "FAIL-012": [
+      "properties/properties.json",
+      "scenarios/failover-and-recovery.json",
+      "scenarios/health-filter-fails-open.json"
+    ],
+    "ERR-032": [
+      "scenarios/topology-rollback.json"
+    ],
+    "MOVE-471": [
+      "scenarios/topology-rollback.json"
+    ],
+    "ERR-040": [
+      "scenarios/caller-three-epochs-stale.json",
+      "scenarios/split-topology-view.json"
+    ],
+    "ERR-041": [
+      "scenarios/caller-three-epochs-stale.json",
+      "scenarios/split-topology-view.json"
+    ],
+    "ERR-042": [
+      "scenarios/caller-three-epochs-stale.json"
+    ],
+    "ERR-044": [
+      "scenarios/caller-three-epochs-stale.json"
+    ],
+    "FENCE-041": [
+      "scenarios/caller-three-epochs-stale.json"
+    ],
+    "FENCE-061": [
+      "scenarios/caller-three-epochs-stale.json"
+    ],
+    "FENCE-111": [
+      "scenarios/caller-three-epochs-stale.json",
+      "scenarios/split-topology-view.json"
+    ],
+    "FENCE-121": [
+      "scenarios/caller-three-epochs-stale.json",
+      "scenarios/split-topology-view.json"
+    ],
+    "FENCE-131": [
+      "scenarios/caller-three-epochs-stale.json",
+      "scenarios/split-topology-view.json"
+    ],
+    "FENCE-141": [
+      "scenarios/caller-three-epochs-stale.json",
+      "scenarios/split-topology-view.json"
+    ],
+    "FENCE-151": [
+      "scenarios/caller-three-epochs-stale.json"
+    ],
+    "TOPO-161": [
+      "scenarios/caller-three-epochs-stale.json"
+    ],
+    "TOPO-171": [
+      "scenarios/caller-three-epochs-stale.json"
+    ],
+    "CORE-053": [
+      "scenarios/split-topology-view.json"
+    ],
+    "FENCE-051": [
+      "scenarios/split-topology-view.json"
+    ],
+    "TOPO-121": [
+      "scenarios/split-topology-view.json"
+    ],
+    "CFG-040": [
+      "scenarios/redirect-walk-depth-limit.json"
+    ],
+    "ERR-043": [
+      "scenarios/redirect-walk-depth-limit.json"
+    ],
+    "FENCE-171": [
+      "scenarios/redirect-walk-depth-limit.json"
+    ],
+    "FENCE-181": [
+      "scenarios/redirect-walk-depth-limit.json"
+    ],
+    "FENCE-191": [
+      "scenarios/redirect-walk-depth-limit.json"
+    ],
+    "FENCE-211": [
+      "scenarios/redirect-walk-depth-limit.json"
+    ],
+    "MOVE-001": [
+      "scenarios/handoff-happy-path.json"
+    ],
+    "MOVE-041": [
+      "scenarios/handoff-happy-path.json"
+    ],
+    "MOVE-051": [
+      "scenarios/handoff-happy-path.json"
+    ],
+    "MOVE-071": [
+      "scenarios/handoff-happy-path.json",
+      "scenarios/migration-rate-control.json"
+    ],
+    "MOVE-121": [
+      "scenarios/handoff-happy-path.json"
+    ],
+    "MOVE-131": [
+      "scenarios/handoff-happy-path.json"
+    ],
+    "MOVE-181": [
+      "scenarios/handoff-happy-path.json"
+    ],
+    "HEALTH-005": [
+      "scenarios/failover-and-recovery.json",
+      "scenarios/health-filter-fails-open.json",
+      "scenarios/node-dies-mid-migration.json"
+    ],
+    "HEALTH-041": [
+      "scenarios/failover-and-recovery.json",
+      "scenarios/node-dies-mid-migration.json"
+    ],
+    "HEALTH-043": [
+      "scenarios/ejection-ceiling.json",
+      "scenarios/failover-and-recovery.json",
+      "scenarios/node-dies-mid-migration.json"
+    ],
+    "HEALTH-048": [
+      "scenarios/node-dies-mid-migration.json"
+    ],
+    "MOVE-421": [
+      "scenarios/abort-during-catching-up.json",
+      "scenarios/node-dies-mid-migration.json"
+    ],
+    "MOVE-481": [
+      "scenarios/node-dies-mid-migration.json",
+      "scenarios/plan-superseded-by-new-epoch.json"
+    ],
+    "ERR-052": [
+      "scenarios/handoff-failure-kinds.json"
+    ],
+    "ERR-053": [
+      "scenarios/handoff-failure-kinds.json"
+    ],
+    "MOVE-451": [
+      "scenarios/handoff-failure-kinds.json"
+    ],
+    "MOVE-461": [
+      "scenarios/handoff-failure-kinds.json"
+    ],
+    "MOVE-091": [
+      "scenarios/plan-superseded-by-new-epoch.json"
+    ],
+    "MOVE-101": [
+      "scenarios/plan-superseded-by-new-epoch.json"
+    ],
+    "TOPO-111": [
+      "scenarios/plan-superseded-by-new-epoch.json"
+    ],
+    "TOPO-131": [
+      "scenarios/plan-superseded-by-new-epoch.json"
+    ],
+    "RATE-001": [
+      "scenarios/migration-rate-control.json"
+    ],
+    "RATE-011": [
+      "scenarios/migration-rate-control.json"
+    ],
+    "RATE-071": [
+      "scenarios/migration-rate-control.json"
+    ],
+    "RATE-081": [
+      "scenarios/migration-rate-control.json"
+    ],
+    "RATE-091": [
+      "scenarios/migration-rate-control.json"
+    ],
+    "RATE-111": [
+      "scenarios/migration-rate-control.json"
+    ],
+    "FAIL-013": [
+      "scenarios/failover-and-recovery.json",
+      "scenarios/health-filter-fails-open.json"
+    ],
+    "HEALTH-004": [
+      "scenarios/failover-and-recovery.json"
+    ],
+    "HEALTH-020": [
+      "scenarios/failover-and-recovery.json"
+    ],
+    "HEALTH-024": [
+      "scenarios/failover-and-recovery.json"
+    ],
+    "HEALTH-040": [
+      "scenarios/failover-and-recovery.json"
+    ],
+    "HEALTH-044": [
+      "scenarios/failover-and-recovery.json"
+    ],
+    "HEALTH-045": [
+      "scenarios/failover-and-recovery.json"
+    ],
+    "OBS-010": [
+      "scenarios/health-filter-fails-open.json"
+    ],
+    "HEALTH-025": [
+      "scenarios/ejection-ceiling.json"
+    ],
+    "SEC-031": [
+      "scenarios/ejection-ceiling.json"
+    ]
+  }
+}

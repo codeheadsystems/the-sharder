@@ -1,0 +1,498 @@
+{
+  "scenario": "coordinator-death-and-recovery",
+  "description": "The coordinator dies in each non-terminal state and rebuilds its plan.  The resumed state is a function of the integrator's durable observation, never of the coordinator's own record.",
+  "requirements": [
+    "MOVE-151",
+    "MOVE-161",
+    "MOVE-201",
+    "MOVE-211",
+    "MOVE-221",
+    "MOVE-231"
+  ],
+  "deterministic": true,
+  "setup": {},
+  "steps": [
+    {
+      "action": "coordinatorRestart",
+      "diedInState": "preparing",
+      "triggersBeforeDeath": [
+        "admittedByRatePolicy"
+      ],
+      "observation": "noRecordDestinationNotPrepared",
+      "at": 20000,
+      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "expect": {
+        "resumedState": "preparing"
+      }
+    },
+    {
+      "action": "coordinatorRestart",
+      "diedInState": "preparing",
+      "triggersBeforeDeath": [
+        "admittedByRatePolicy"
+      ],
+      "observation": "noRecordDestinationPrepared",
+      "at": 20000,
+      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "expect": {
+        "resumedState": "transferring"
+      }
+    },
+    {
+      "action": "coordinatorRestart",
+      "diedInState": "preparing",
+      "triggersBeforeDeath": [
+        "admittedByRatePolicy"
+      ],
+      "observation": "noRecordSourceQuiesced",
+      "at": 20000,
+      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "expect": {
+        "resumedState": "cutover"
+      }
+    },
+    {
+      "action": "coordinatorRestart",
+      "diedInState": "preparing",
+      "triggersBeforeDeath": [
+        "admittedByRatePolicy"
+      ],
+      "observation": "recordOwnedByDestinationAtTargetEpoch",
+      "at": 20000,
+      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "expect": {
+        "resumedState": "verifying"
+      }
+    },
+    {
+      "action": "coordinatorRestart",
+      "diedInState": "preparing",
+      "triggersBeforeDeath": [
+        "admittedByRatePolicy"
+      ],
+      "observation": "recordNamesAnotherOwnerOrEpoch",
+      "at": 20000,
+      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "expect": {
+        "resumedState": "aborting"
+      }
+    },
+    {
+      "action": "coordinatorRestart",
+      "diedInState": "transferring",
+      "triggersBeforeDeath": [
+        "admittedByRatePolicy",
+        "prepareSuccess"
+      ],
+      "observation": "noRecordDestinationNotPrepared",
+      "at": 20000,
+      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "expect": {
+        "resumedState": "preparing"
+      }
+    },
+    {
+      "action": "coordinatorRestart",
+      "diedInState": "transferring",
+      "triggersBeforeDeath": [
+        "admittedByRatePolicy",
+        "prepareSuccess"
+      ],
+      "observation": "noRecordDestinationPrepared",
+      "at": 20000,
+      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "expect": {
+        "resumedState": "transferring"
+      }
+    },
+    {
+      "action": "coordinatorRestart",
+      "diedInState": "transferring",
+      "triggersBeforeDeath": [
+        "admittedByRatePolicy",
+        "prepareSuccess"
+      ],
+      "observation": "noRecordSourceQuiesced",
+      "at": 20000,
+      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "expect": {
+        "resumedState": "cutover"
+      }
+    },
+    {
+      "action": "coordinatorRestart",
+      "diedInState": "transferring",
+      "triggersBeforeDeath": [
+        "admittedByRatePolicy",
+        "prepareSuccess"
+      ],
+      "observation": "recordOwnedByDestinationAtTargetEpoch",
+      "at": 20000,
+      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "expect": {
+        "resumedState": "verifying"
+      }
+    },
+    {
+      "action": "coordinatorRestart",
+      "diedInState": "transferring",
+      "triggersBeforeDeath": [
+        "admittedByRatePolicy",
+        "prepareSuccess"
+      ],
+      "observation": "recordNamesAnotherOwnerOrEpoch",
+      "at": 20000,
+      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "expect": {
+        "resumedState": "aborting"
+      }
+    },
+    {
+      "action": "coordinatorRestart",
+      "diedInState": "catchingUp",
+      "triggersBeforeDeath": [
+        "admittedByRatePolicy",
+        "prepareSuccess",
+        "noBulkRemaining"
+      ],
+      "observation": "noRecordDestinationNotPrepared",
+      "at": 20000,
+      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "expect": {
+        "resumedState": "preparing"
+      }
+    },
+    {
+      "action": "coordinatorRestart",
+      "diedInState": "catchingUp",
+      "triggersBeforeDeath": [
+        "admittedByRatePolicy",
+        "prepareSuccess",
+        "noBulkRemaining"
+      ],
+      "observation": "noRecordDestinationPrepared",
+      "at": 20000,
+      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "expect": {
+        "resumedState": "transferring"
+      }
+    },
+    {
+      "action": "coordinatorRestart",
+      "diedInState": "catchingUp",
+      "triggersBeforeDeath": [
+        "admittedByRatePolicy",
+        "prepareSuccess",
+        "noBulkRemaining"
+      ],
+      "observation": "noRecordSourceQuiesced",
+      "at": 20000,
+      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "expect": {
+        "resumedState": "cutover"
+      }
+    },
+    {
+      "action": "coordinatorRestart",
+      "diedInState": "catchingUp",
+      "triggersBeforeDeath": [
+        "admittedByRatePolicy",
+        "prepareSuccess",
+        "noBulkRemaining"
+      ],
+      "observation": "recordOwnedByDestinationAtTargetEpoch",
+      "at": 20000,
+      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "expect": {
+        "resumedState": "verifying"
+      }
+    },
+    {
+      "action": "coordinatorRestart",
+      "diedInState": "catchingUp",
+      "triggersBeforeDeath": [
+        "admittedByRatePolicy",
+        "prepareSuccess",
+        "noBulkRemaining"
+      ],
+      "observation": "recordNamesAnotherOwnerOrEpoch",
+      "at": 20000,
+      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "expect": {
+        "resumedState": "aborting"
+      }
+    },
+    {
+      "action": "coordinatorRestart",
+      "diedInState": "cutover",
+      "triggersBeforeDeath": [
+        "admittedByRatePolicy",
+        "prepareSuccess",
+        "noBulkRemaining",
+        "residueAtOrBelowThreshold"
+      ],
+      "observation": "noRecordDestinationNotPrepared",
+      "at": 20000,
+      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "expect": {
+        "resumedState": "preparing"
+      }
+    },
+    {
+      "action": "coordinatorRestart",
+      "diedInState": "cutover",
+      "triggersBeforeDeath": [
+        "admittedByRatePolicy",
+        "prepareSuccess",
+        "noBulkRemaining",
+        "residueAtOrBelowThreshold"
+      ],
+      "observation": "noRecordDestinationPrepared",
+      "at": 20000,
+      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "expect": {
+        "resumedState": "transferring"
+      }
+    },
+    {
+      "action": "coordinatorRestart",
+      "diedInState": "cutover",
+      "triggersBeforeDeath": [
+        "admittedByRatePolicy",
+        "prepareSuccess",
+        "noBulkRemaining",
+        "residueAtOrBelowThreshold"
+      ],
+      "observation": "noRecordSourceQuiesced",
+      "at": 20000,
+      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "expect": {
+        "resumedState": "cutover"
+      }
+    },
+    {
+      "action": "coordinatorRestart",
+      "diedInState": "cutover",
+      "triggersBeforeDeath": [
+        "admittedByRatePolicy",
+        "prepareSuccess",
+        "noBulkRemaining",
+        "residueAtOrBelowThreshold"
+      ],
+      "observation": "recordOwnedByDestinationAtTargetEpoch",
+      "at": 20000,
+      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "expect": {
+        "resumedState": "verifying"
+      }
+    },
+    {
+      "action": "coordinatorRestart",
+      "diedInState": "cutover",
+      "triggersBeforeDeath": [
+        "admittedByRatePolicy",
+        "prepareSuccess",
+        "noBulkRemaining",
+        "residueAtOrBelowThreshold"
+      ],
+      "observation": "recordNamesAnotherOwnerOrEpoch",
+      "at": 20000,
+      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "expect": {
+        "resumedState": "aborting"
+      }
+    },
+    {
+      "action": "coordinatorRestart",
+      "diedInState": "verifying",
+      "triggersBeforeDeath": [
+        "admittedByRatePolicy",
+        "prepareSuccess",
+        "noBulkRemaining",
+        "residueAtOrBelowThreshold",
+        "cutoverCommitted"
+      ],
+      "observation": "noRecordDestinationNotPrepared",
+      "at": 20000,
+      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "expect": {
+        "resumedState": "preparing"
+      }
+    },
+    {
+      "action": "coordinatorRestart",
+      "diedInState": "verifying",
+      "triggersBeforeDeath": [
+        "admittedByRatePolicy",
+        "prepareSuccess",
+        "noBulkRemaining",
+        "residueAtOrBelowThreshold",
+        "cutoverCommitted"
+      ],
+      "observation": "noRecordDestinationPrepared",
+      "at": 20000,
+      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "expect": {
+        "resumedState": "transferring"
+      }
+    },
+    {
+      "action": "coordinatorRestart",
+      "diedInState": "verifying",
+      "triggersBeforeDeath": [
+        "admittedByRatePolicy",
+        "prepareSuccess",
+        "noBulkRemaining",
+        "residueAtOrBelowThreshold",
+        "cutoverCommitted"
+      ],
+      "observation": "noRecordSourceQuiesced",
+      "at": 20000,
+      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "expect": {
+        "resumedState": "cutover"
+      }
+    },
+    {
+      "action": "coordinatorRestart",
+      "diedInState": "verifying",
+      "triggersBeforeDeath": [
+        "admittedByRatePolicy",
+        "prepareSuccess",
+        "noBulkRemaining",
+        "residueAtOrBelowThreshold",
+        "cutoverCommitted"
+      ],
+      "observation": "recordOwnedByDestinationAtTargetEpoch",
+      "at": 20000,
+      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "expect": {
+        "resumedState": "verifying"
+      }
+    },
+    {
+      "action": "coordinatorRestart",
+      "diedInState": "verifying",
+      "triggersBeforeDeath": [
+        "admittedByRatePolicy",
+        "prepareSuccess",
+        "noBulkRemaining",
+        "residueAtOrBelowThreshold",
+        "cutoverCommitted"
+      ],
+      "observation": "recordNamesAnotherOwnerOrEpoch",
+      "at": 20000,
+      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "expect": {
+        "resumedState": "aborting"
+      }
+    },
+    {
+      "action": "coordinatorRestart",
+      "diedInState": "cleanup",
+      "triggersBeforeDeath": [
+        "admittedByRatePolicy",
+        "prepareSuccess",
+        "noBulkRemaining",
+        "residueAtOrBelowThreshold",
+        "cutoverCommitted",
+        "verifySuccess"
+      ],
+      "observation": "noRecordDestinationNotPrepared",
+      "at": 20000,
+      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "expect": {
+        "resumedState": "preparing"
+      }
+    },
+    {
+      "action": "coordinatorRestart",
+      "diedInState": "cleanup",
+      "triggersBeforeDeath": [
+        "admittedByRatePolicy",
+        "prepareSuccess",
+        "noBulkRemaining",
+        "residueAtOrBelowThreshold",
+        "cutoverCommitted",
+        "verifySuccess"
+      ],
+      "observation": "noRecordDestinationPrepared",
+      "at": 20000,
+      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "expect": {
+        "resumedState": "transferring"
+      }
+    },
+    {
+      "action": "coordinatorRestart",
+      "diedInState": "cleanup",
+      "triggersBeforeDeath": [
+        "admittedByRatePolicy",
+        "prepareSuccess",
+        "noBulkRemaining",
+        "residueAtOrBelowThreshold",
+        "cutoverCommitted",
+        "verifySuccess"
+      ],
+      "observation": "noRecordSourceQuiesced",
+      "at": 20000,
+      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "expect": {
+        "resumedState": "cutover"
+      }
+    },
+    {
+      "action": "coordinatorRestart",
+      "diedInState": "cleanup",
+      "triggersBeforeDeath": [
+        "admittedByRatePolicy",
+        "prepareSuccess",
+        "noBulkRemaining",
+        "residueAtOrBelowThreshold",
+        "cutoverCommitted",
+        "verifySuccess"
+      ],
+      "observation": "recordOwnedByDestinationAtTargetEpoch",
+      "at": 20000,
+      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "expect": {
+        "resumedState": "verifying"
+      }
+    },
+    {
+      "action": "coordinatorRestart",
+      "diedInState": "cleanup",
+      "triggersBeforeDeath": [
+        "admittedByRatePolicy",
+        "prepareSuccess",
+        "noBulkRemaining",
+        "residueAtOrBelowThreshold",
+        "cutoverCommitted",
+        "verifySuccess"
+      ],
+      "observation": "recordNamesAnotherOwnerOrEpoch",
+      "at": 20000,
+      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "expect": {
+        "resumedState": "aborting"
+      }
+    },
+    {
+      "action": "coordinatorRestart",
+      "diedInState": "cutover",
+      "triggersBeforeDeath": [
+        "admittedByRatePolicy",
+        "prepareSuccess",
+        "noBulkRemaining",
+        "residueAtOrBelowThreshold"
+      ],
+      "observation": "unavailable",
+      "at": 30000,
+      "note": "`MOVE-231`: an unavailable or undetermined observation in `cutover` fails the handoff and forbids any further `cleanup`, `rollback`, or `commitCutover`",
+      "expect": {
+        "resumedState": "failed",
+        "failureKind": "undetermined"
+      }
+    }
+  ]
+}

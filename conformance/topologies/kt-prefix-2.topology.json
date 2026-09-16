@@ -1,0 +1,18 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "kt-prefix-2",
+  "epoch": 1,
+  "keyTransform": {
+    "kind": "prefixFields",
+    "separator": "3a",
+    "count": 2
+  },
+  "strategy": {
+    "kind": "rendezvous"
+  },
+  "nodes": [
+    {
+      "id": "n1"
+    }
+  ]
+}

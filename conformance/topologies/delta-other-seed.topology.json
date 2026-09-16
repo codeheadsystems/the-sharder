@@ -1,0 +1,51 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "delta",
+  "epoch": 5,
+  "replication": {
+    "factor": 2
+  },
+  "strategy": {
+    "kind": "slot",
+    "slotCount": 6,
+    "assignment": "explicit",
+    "assignments": [
+      {
+        "slots": [
+          "0-2"
+        ],
+        "nodes": [
+          "a",
+          "b"
+        ]
+      },
+      {
+        "slots": [
+          "3-5"
+        ],
+        "nodes": [
+          "b",
+          "c"
+        ]
+      }
+    ]
+  },
+  "nodes": [
+    {
+      "id": "a"
+    },
+    {
+      "id": "b"
+    },
+    {
+      "id": "c"
+    },
+    {
+      "id": "d"
+    }
+  ],
+  "hash": {
+    "algorithm": "siphash-2-4",
+    "seed": "9e3779b97f4a7c159e3779b97f4a7c15"
+  }
+}

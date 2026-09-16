@@ -1,0 +1,53 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "slot-explicit",
+  "epoch": 4,
+  "replication": {
+    "factor": 2
+  },
+  "strategy": {
+    "kind": "slot",
+    "slotCount": 16384,
+    "assignment": "explicit",
+    "assignments": [
+      {
+        "slots": [
+          "0-5460"
+        ],
+        "nodes": [
+          "shard-a",
+          "shard-b"
+        ]
+      },
+      {
+        "slots": [
+          "5461-10922"
+        ],
+        "nodes": [
+          "shard-b",
+          "shard-c"
+        ]
+      },
+      {
+        "slots": [
+          "10923-16383"
+        ],
+        "nodes": [
+          "shard-c",
+          "shard-a"
+        ]
+      }
+    ]
+  },
+  "nodes": [
+    {
+      "id": "shard-a"
+    },
+    {
+      "id": "shard-b"
+    },
+    {
+      "id": "shard-c"
+    }
+  ]
+}

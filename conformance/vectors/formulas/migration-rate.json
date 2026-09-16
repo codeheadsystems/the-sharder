@@ -1,0 +1,426 @@
+{
+  "vectorSet": "formulas-migration-rate",
+  "kind": "formula",
+  "description": "Step budget adjustment, retry backoff, policy validation, and the virtual node count.",
+  "requirements": [
+    "MOVE-171",
+    "PLACE-050",
+    "PLACE-051",
+    "PLACE-052",
+    "RATE-021",
+    "RATE-041",
+    "RATE-051",
+    "RATE-101"
+  ],
+  "cases": [
+    {
+      "name": "budgetAfterSuccess/1-1-64",
+      "requirements": [
+        "RATE-041"
+      ],
+      "formula": "budgetAfterSuccess",
+      "inputs": {
+        "budget": 1,
+        "budgetIncrement": 1,
+        "maxStepBudget": 64
+      },
+      "expect": 2
+    },
+    {
+      "name": "budgetAfterSuccess/63-1-64",
+      "requirements": [
+        "RATE-041"
+      ],
+      "formula": "budgetAfterSuccess",
+      "inputs": {
+        "budget": 63,
+        "budgetIncrement": 1,
+        "maxStepBudget": 64
+      },
+      "expect": 64
+    },
+    {
+      "name": "budgetAfterSuccess/64-1-64",
+      "requirements": [
+        "RATE-041"
+      ],
+      "formula": "budgetAfterSuccess",
+      "inputs": {
+        "budget": 64,
+        "budgetIncrement": 1,
+        "maxStepBudget": 64
+      },
+      "expect": 64
+    },
+    {
+      "name": "budgetAfterSuccess/60-8-64",
+      "requirements": [
+        "RATE-041"
+      ],
+      "formula": "budgetAfterSuccess",
+      "inputs": {
+        "budget": 60,
+        "budgetIncrement": 8,
+        "maxStepBudget": 64
+      },
+      "expect": 64
+    },
+    {
+      "name": "budgetAfterDeferral/64-1",
+      "requirements": [
+        "RATE-041",
+        "RATE-101"
+      ],
+      "formula": "budgetAfterDeferral",
+      "inputs": {
+        "budget": 64,
+        "minStepBudget": 1
+      },
+      "note": "unsigned integer division, so 3 halves to 1 rather than to 2",
+      "expect": 32
+    },
+    {
+      "name": "budgetAfterDeferral/3-1",
+      "requirements": [
+        "RATE-041",
+        "RATE-101"
+      ],
+      "formula": "budgetAfterDeferral",
+      "inputs": {
+        "budget": 3,
+        "minStepBudget": 1
+      },
+      "note": "unsigned integer division, so 3 halves to 1 rather than to 2",
+      "expect": 1
+    },
+    {
+      "name": "budgetAfterDeferral/2-1",
+      "requirements": [
+        "RATE-041",
+        "RATE-101"
+      ],
+      "formula": "budgetAfterDeferral",
+      "inputs": {
+        "budget": 2,
+        "minStepBudget": 1
+      },
+      "note": "unsigned integer division, so 3 halves to 1 rather than to 2",
+      "expect": 1
+    },
+    {
+      "name": "budgetAfterDeferral/1-1",
+      "requirements": [
+        "RATE-041",
+        "RATE-101"
+      ],
+      "formula": "budgetAfterDeferral",
+      "inputs": {
+        "budget": 1,
+        "minStepBudget": 1
+      },
+      "note": "unsigned integer division, so 3 halves to 1 rather than to 2",
+      "expect": 1
+    },
+    {
+      "name": "budgetAfterDeferral/9-4",
+      "requirements": [
+        "RATE-041",
+        "RATE-101"
+      ],
+      "formula": "budgetAfterDeferral",
+      "inputs": {
+        "budget": 9,
+        "minStepBudget": 4
+      },
+      "note": "unsigned integer division, so 3 halves to 1 rather than to 2",
+      "expect": 4
+    },
+    {
+      "name": "retryBackoffMillis/1",
+      "requirements": [
+        "RATE-051",
+        "MOVE-171"
+      ],
+      "formula": "retryBackoffMillis",
+      "inputs": {
+        "attempt": 1,
+        "retryBackoffBaseMillis": 1000,
+        "retryBackoffCapMillis": 60000
+      },
+      "expect": 1000
+    },
+    {
+      "name": "retryBackoffMillis/2",
+      "requirements": [
+        "RATE-051",
+        "MOVE-171"
+      ],
+      "formula": "retryBackoffMillis",
+      "inputs": {
+        "attempt": 2,
+        "retryBackoffBaseMillis": 1000,
+        "retryBackoffCapMillis": 60000
+      },
+      "expect": 2000
+    },
+    {
+      "name": "retryBackoffMillis/3",
+      "requirements": [
+        "RATE-051",
+        "MOVE-171"
+      ],
+      "formula": "retryBackoffMillis",
+      "inputs": {
+        "attempt": 3,
+        "retryBackoffBaseMillis": 1000,
+        "retryBackoffCapMillis": 60000
+      },
+      "expect": 4000
+    },
+    {
+      "name": "retryBackoffMillis/6",
+      "requirements": [
+        "RATE-051",
+        "MOVE-171"
+      ],
+      "formula": "retryBackoffMillis",
+      "inputs": {
+        "attempt": 6,
+        "retryBackoffBaseMillis": 1000,
+        "retryBackoffCapMillis": 60000
+      },
+      "expect": 32000
+    },
+    {
+      "name": "retryBackoffMillis/7",
+      "requirements": [
+        "RATE-051",
+        "MOVE-171"
+      ],
+      "formula": "retryBackoffMillis",
+      "inputs": {
+        "attempt": 7,
+        "retryBackoffBaseMillis": 1000,
+        "retryBackoffCapMillis": 60000
+      },
+      "expect": 60000
+    },
+    {
+      "name": "retryBackoffMillis/8",
+      "requirements": [
+        "RATE-051",
+        "MOVE-171"
+      ],
+      "formula": "retryBackoffMillis",
+      "inputs": {
+        "attempt": 8,
+        "retryBackoffBaseMillis": 1000,
+        "retryBackoffCapMillis": 60000
+      },
+      "expect": 60000
+    },
+    {
+      "name": "retryBackoffMillis/20",
+      "requirements": [
+        "RATE-051",
+        "MOVE-171"
+      ],
+      "formula": "retryBackoffMillis",
+      "inputs": {
+        "attempt": 20,
+        "retryBackoffBaseMillis": 1000,
+        "retryBackoffCapMillis": 60000
+      },
+      "expect": 60000
+    },
+    {
+      "name": "policyRefused/1-64-0",
+      "requirements": [
+        "RATE-021",
+        "ERR-050",
+        "CFG-050",
+        "CFG-052"
+      ],
+      "formula": "policyRefused",
+      "inputs": {
+        "minStepBudget": 1,
+        "maxStepBudget": 64,
+        "catchUpResidualThreshold": 0,
+        "reTransferResidualThreshold": 18446744073709551615
+      },
+      "expect": []
+    },
+    {
+      "name": "policyRefused/0-64-0",
+      "requirements": [
+        "RATE-021",
+        "ERR-050",
+        "CFG-050",
+        "CFG-052"
+      ],
+      "formula": "policyRefused",
+      "inputs": {
+        "minStepBudget": 0,
+        "maxStepBudget": 64,
+        "catchUpResidualThreshold": 0,
+        "reTransferResidualThreshold": 10
+      },
+      "expect": [
+        "minStepBudgetZero"
+      ]
+    },
+    {
+      "name": "policyRefused/8-4-0",
+      "requirements": [
+        "RATE-021",
+        "ERR-050",
+        "CFG-050",
+        "CFG-052"
+      ],
+      "formula": "policyRefused",
+      "inputs": {
+        "minStepBudget": 8,
+        "maxStepBudget": 4,
+        "catchUpResidualThreshold": 0,
+        "reTransferResidualThreshold": 10
+      },
+      "expect": [
+        "maxBelowMinStepBudget"
+      ]
+    },
+    {
+      "name": "policyRefused/1-64-10",
+      "requirements": [
+        "RATE-021",
+        "ERR-050",
+        "CFG-050",
+        "CFG-052"
+      ],
+      "formula": "policyRefused",
+      "inputs": {
+        "minStepBudget": 1,
+        "maxStepBudget": 64,
+        "catchUpResidualThreshold": 10,
+        "reTransferResidualThreshold": 10
+      },
+      "expect": [
+        "retransferThresholdNotAboveCatchUp"
+      ]
+    },
+    {
+      "name": "policyRefused/1-64-10",
+      "requirements": [
+        "RATE-021",
+        "ERR-050",
+        "CFG-050",
+        "CFG-052"
+      ],
+      "formula": "policyRefused",
+      "inputs": {
+        "minStepBudget": 1,
+        "maxStepBudget": 64,
+        "catchUpResidualThreshold": 10,
+        "reTransferResidualThreshold": 5
+      },
+      "expect": [
+        "retransferThresholdNotAboveCatchUp"
+      ]
+    },
+    {
+      "name": "virtualNodeCount/1-4-4096",
+      "requirements": [
+        "PLACE-050",
+        "PLACE-051",
+        "PLACE-052"
+      ],
+      "formula": "virtualNodeCount",
+      "inputs": {
+        "weight": 1,
+        "perWeightUnit": 4,
+        "cap": 4096
+      },
+      "note": "the product reaches 4096000000 at the configured maxima, which overflows a signed 32-bit integer, so it is computed in at least 64 bits",
+      "expect": 4
+    },
+    {
+      "name": "virtualNodeCount/0-4-4096",
+      "requirements": [
+        "PLACE-050",
+        "PLACE-051",
+        "PLACE-052"
+      ],
+      "formula": "virtualNodeCount",
+      "inputs": {
+        "weight": 0,
+        "perWeightUnit": 4,
+        "cap": 4096
+      },
+      "note": "the product reaches 4096000000 at the configured maxima, which overflows a signed 32-bit integer, so it is computed in at least 64 bits",
+      "expect": 0
+    },
+    {
+      "name": "virtualNodeCount/1024-4-4096",
+      "requirements": [
+        "PLACE-050",
+        "PLACE-051",
+        "PLACE-052"
+      ],
+      "formula": "virtualNodeCount",
+      "inputs": {
+        "weight": 1024,
+        "perWeightUnit": 4,
+        "cap": 4096
+      },
+      "note": "the product reaches 4096000000 at the configured maxima, which overflows a signed 32-bit integer, so it is computed in at least 64 bits",
+      "expect": 4096
+    },
+    {
+      "name": "virtualNodeCount/1025-4-4096",
+      "requirements": [
+        "PLACE-050",
+        "PLACE-051",
+        "PLACE-052"
+      ],
+      "formula": "virtualNodeCount",
+      "inputs": {
+        "weight": 1025,
+        "perWeightUnit": 4,
+        "cap": 4096
+      },
+      "note": "the product reaches 4096000000 at the configured maxima, which overflows a signed 32-bit integer, so it is computed in at least 64 bits",
+      "expect": 4096
+    },
+    {
+      "name": "virtualNodeCount/1000000-4096-65536",
+      "requirements": [
+        "PLACE-050",
+        "PLACE-051",
+        "PLACE-052"
+      ],
+      "formula": "virtualNodeCount",
+      "inputs": {
+        "weight": 1000000,
+        "perWeightUnit": 4096,
+        "cap": 65536
+      },
+      "note": "the product reaches 4096000000 at the configured maxima, which overflows a signed 32-bit integer, so it is computed in at least 64 bits",
+      "expect": 65536
+    },
+    {
+      "name": "virtualNodeCount/1-1-1024",
+      "requirements": [
+        "PLACE-050",
+        "PLACE-051",
+        "PLACE-052"
+      ],
+      "formula": "virtualNodeCount",
+      "inputs": {
+        "weight": 1,
+        "perWeightUnit": 1,
+        "cap": 1024
+      },
+      "note": "the product reaches 4096000000 at the configured maxima, which overflows a signed 32-bit integer, so it is computed in at least 64 bits",
+      "expect": 1
+    }
+  ]
+}

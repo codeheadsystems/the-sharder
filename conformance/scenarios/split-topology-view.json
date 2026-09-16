@@ -1,0 +1,231 @@
+{
+  "scenario": "split-topology-view",
+  "description": "Half the cluster holds epoch 1 and half holds epoch 3, and the two halves disagree about the replica set of one key.  Every crossing request is refused, and the refusal names the owner the recipient believes in.",
+  "requirements": [
+    "CORE-053",
+    "ERR-040",
+    "ERR-041",
+    "ERR-045",
+    "FENCE-051",
+    "FENCE-071",
+    "FENCE-081",
+    "FENCE-111",
+    "FENCE-121",
+    "FENCE-131",
+    "FENCE-141",
+    "TOPO-121"
+  ],
+  "deterministic": true,
+  "setup": {},
+  "steps": [
+    {
+      "action": "declareView",
+      "view": "old",
+      "topology": "topologies/migration-epoch-1.topology.json"
+    },
+    {
+      "action": "declareView",
+      "view": "new",
+      "topology": "topologies/migration-epoch-3.topology.json"
+    },
+    {
+      "action": "routeInView",
+      "view": "old",
+      "key": {
+        "encoding": "base16",
+        "value": "50"
+      },
+      "expect": {
+        "shard": "r1",
+        "token": {
+          "topologyId": "migration",
+          "epoch": 1
+        },
+        "preferenceList": [
+          "n2",
+          "n3"
+        ],
+        "replicaCount": 2
+      }
+    },
+    {
+      "action": "routeInView",
+      "view": "new",
+      "key": {
+        "encoding": "base16",
+        "value": "50"
+      },
+      "expect": {
+        "shard": "r1",
+        "token": {
+          "topologyId": "migration",
+          "epoch": 3
+        },
+        "preferenceList": [
+          "n4",
+          "n1"
+        ],
+        "replicaCount": 2
+      }
+    },
+    {
+      "action": "compareOwnership",
+      "key": {
+        "encoding": "base16",
+        "value": "50"
+      },
+      "note": "the two halves disagree about who owns the key, which is what fencing detects",
+      "expect": {
+        "oldReplicaSet": [
+          "n2",
+          "n3"
+        ],
+        "newReplicaSet": [
+          "n4",
+          "n1"
+        ],
+        "disagree": true
+      }
+    },
+    {
+      "action": "recipientCheck",
+      "senderView": "old",
+      "recipientView": "new",
+      "token": {
+        "topologyId": "migration",
+        "epoch": 1
+      },
+      "key": {
+        "encoding": "base16",
+        "value": "50"
+      },
+      "selfId": "n2",
+      "recipientPolicy": "strict",
+      "note": "where `relation` is `senderAhead` and `ownership` is `notOwner`, both `FENCE-121` and `FENCE-141` require a refusal, and `ERR-045` puts `notOwner` ahead of `epochMismatch` so the refusal names `currentOwner`.",
+      "expect": {
+        "verdict": {
+          "relation": "senderBehind",
+          "ownership": "notOwner",
+          "ownershipStable": false,
+          "currentOwner": "n4",
+          "localToken": {
+            "topologyId": "migration",
+            "epoch": 3
+          }
+        },
+        "condition": {
+          "code": 301,
+          "name": "notOwner",
+          "cause": null,
+          "currentOwner": "n4"
+        },
+        "served": false
+      }
+    },
+    {
+      "action": "recipientCheck",
+      "senderView": "old",
+      "recipientView": "new",
+      "token": {
+        "topologyId": "migration",
+        "epoch": 1
+      },
+      "key": {
+        "encoding": "base16",
+        "value": "50"
+      },
+      "selfId": "n4",
+      "recipientPolicy": "strict",
+      "note": "where `relation` is `senderAhead` and `ownership` is `notOwner`, both `FENCE-121` and `FENCE-141` require a refusal, and `ERR-045` puts `notOwner` ahead of `epochMismatch` so the refusal names `currentOwner`.",
+      "expect": {
+        "verdict": {
+          "relation": "senderBehind",
+          "ownership": "owner",
+          "ownershipStable": false,
+          "currentOwner": "n4",
+          "localToken": {
+            "topologyId": "migration",
+            "epoch": 3
+          }
+        },
+        "condition": {
+          "code": 302,
+          "name": "epochMismatch",
+          "cause": "senderBehind",
+          "currentOwner": null
+        },
+        "served": false
+      }
+    },
+    {
+      "action": "recipientCheck",
+      "senderView": "new",
+      "recipientView": "old",
+      "token": {
+        "topologyId": "migration",
+        "epoch": 3
+      },
+      "key": {
+        "encoding": "base16",
+        "value": "50"
+      },
+      "selfId": "n4",
+      "recipientPolicy": "strict",
+      "note": "where `relation` is `senderAhead` and `ownership` is `notOwner`, both `FENCE-121` and `FENCE-141` require a refusal, and `ERR-045` puts `notOwner` ahead of `epochMismatch` so the refusal names `currentOwner`.",
+      "expect": {
+        "verdict": {
+          "relation": "senderAhead",
+          "ownership": "notOwner",
+          "ownershipStable": false,
+          "currentOwner": "n2",
+          "localToken": {
+            "topologyId": "migration",
+            "epoch": 1
+          }
+        },
+        "condition": {
+          "code": 301,
+          "name": "notOwner",
+          "cause": null,
+          "currentOwner": "n2"
+        },
+        "served": false
+      }
+    },
+    {
+      "action": "recipientCheck",
+      "senderView": "new",
+      "recipientView": "old",
+      "token": {
+        "topologyId": "migration",
+        "epoch": 3
+      },
+      "key": {
+        "encoding": "base16",
+        "value": "50"
+      },
+      "selfId": "n2",
+      "recipientPolicy": "strict",
+      "note": "where `relation` is `senderAhead` and `ownership` is `notOwner`, both `FENCE-121` and `FENCE-141` require a refusal, and `ERR-045` puts `notOwner` ahead of `epochMismatch` so the refusal names `currentOwner`.",
+      "expect": {
+        "verdict": {
+          "relation": "senderAhead",
+          "ownership": "owner",
+          "ownershipStable": false,
+          "currentOwner": "n2",
+          "localToken": {
+            "topologyId": "migration",
+            "epoch": 1
+          }
+        },
+        "condition": {
+          "code": 302,
+          "name": "epochMismatch",
+          "cause": "senderAhead",
+          "currentOwner": null
+        },
+        "served": false
+      }
+    }
+  ]
+}

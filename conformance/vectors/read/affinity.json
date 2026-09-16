@@ -1,0 +1,2155 @@
+{
+  "vectorSet": "read-affinity",
+  "kind": "readAffinity",
+  "description": "`routeForRead` partitions the first `window` entries towards a domain path, stably, and leaves everything at or beyond `window` untouched.",
+  "requirements": [
+    "READ-001",
+    "READ-010",
+    "READ-012",
+    "READ-013",
+    "READ-014",
+    "READ-015",
+    "READ-016",
+    "READ-022",
+    "READ-023"
+  ],
+  "cases": [
+    {
+      "name": "read-0/eu",
+      "requirements": [
+        "READ-012",
+        "READ-013",
+        "READ-014",
+        "READ-016",
+        "READ-023"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "read-0"
+      },
+      "affinity": {
+        "level": "region",
+        "path": [
+          "eu"
+        ],
+        "window": null
+      },
+      "expect": {
+        "preferenceList": [
+          {
+            "node": "ap-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "us-a",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "ordered": [
+          {
+            "node": "eu-a",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "us-a",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "replicaCount": 4,
+        "shard": "726561642d30"
+      }
+    },
+    {
+      "name": "read-0/us",
+      "requirements": [
+        "READ-012",
+        "READ-013",
+        "READ-014",
+        "READ-016",
+        "READ-023"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "read-0"
+      },
+      "affinity": {
+        "level": "region",
+        "path": [
+          "us"
+        ],
+        "window": null
+      },
+      "expect": {
+        "preferenceList": [
+          {
+            "node": "ap-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "us-a",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "ordered": [
+          {
+            "node": "us-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "us-a",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "replicaCount": 4,
+        "shard": "726561642d30"
+      }
+    },
+    {
+      "name": "read-0/ap-window-2",
+      "requirements": [
+        "READ-012",
+        "READ-013",
+        "READ-014",
+        "READ-016",
+        "READ-023"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "read-0"
+      },
+      "affinity": {
+        "level": "region",
+        "path": [
+          "ap"
+        ],
+        "window": 2
+      },
+      "expect": {
+        "preferenceList": [
+          {
+            "node": "ap-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "us-a",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "ordered": [
+          {
+            "node": "ap-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "us-a",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "replicaCount": 4,
+        "shard": "726561642d30"
+      }
+    },
+    {
+      "name": "read-0/absent",
+      "requirements": [
+        "READ-012",
+        "READ-013",
+        "READ-014",
+        "READ-016",
+        "READ-023"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "read-0"
+      },
+      "affinity": {
+        "level": "region",
+        "path": [
+          "antarctica"
+        ],
+        "window": null
+      },
+      "expect": {
+        "preferenceList": [
+          {
+            "node": "ap-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "us-a",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "ordered": [
+          {
+            "node": "ap-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "us-a",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "replicaCount": 4,
+        "shard": "726561642d30"
+      }
+    },
+    {
+      "name": "read-1/eu",
+      "requirements": [
+        "READ-012",
+        "READ-013",
+        "READ-014",
+        "READ-016",
+        "READ-023"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "read-1"
+      },
+      "affinity": {
+        "level": "region",
+        "path": [
+          "eu"
+        ],
+        "window": null
+      },
+      "expect": {
+        "preferenceList": [
+          {
+            "node": "us-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "ordered": [
+          {
+            "node": "eu-a",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "replicaCount": 4,
+        "shard": "726561642d31"
+      }
+    },
+    {
+      "name": "read-1/us",
+      "requirements": [
+        "READ-012",
+        "READ-013",
+        "READ-014",
+        "READ-016",
+        "READ-023"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "read-1"
+      },
+      "affinity": {
+        "level": "region",
+        "path": [
+          "us"
+        ],
+        "window": null
+      },
+      "expect": {
+        "preferenceList": [
+          {
+            "node": "us-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "ordered": [
+          {
+            "node": "us-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "replicaCount": 4,
+        "shard": "726561642d31"
+      }
+    },
+    {
+      "name": "read-1/ap-window-2",
+      "requirements": [
+        "READ-012",
+        "READ-013",
+        "READ-014",
+        "READ-016",
+        "READ-023"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "read-1"
+      },
+      "affinity": {
+        "level": "region",
+        "path": [
+          "ap"
+        ],
+        "window": 2
+      },
+      "expect": {
+        "preferenceList": [
+          {
+            "node": "us-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "ordered": [
+          {
+            "node": "us-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "replicaCount": 4,
+        "shard": "726561642d31"
+      }
+    },
+    {
+      "name": "read-1/absent",
+      "requirements": [
+        "READ-012",
+        "READ-013",
+        "READ-014",
+        "READ-016",
+        "READ-023"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "read-1"
+      },
+      "affinity": {
+        "level": "region",
+        "path": [
+          "antarctica"
+        ],
+        "window": null
+      },
+      "expect": {
+        "preferenceList": [
+          {
+            "node": "us-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "ordered": [
+          {
+            "node": "us-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "replicaCount": 4,
+        "shard": "726561642d31"
+      }
+    },
+    {
+      "name": "read-2/eu",
+      "requirements": [
+        "READ-012",
+        "READ-013",
+        "READ-014",
+        "READ-016",
+        "READ-023"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "read-2"
+      },
+      "affinity": {
+        "level": "region",
+        "path": [
+          "eu"
+        ],
+        "window": null
+      },
+      "expect": {
+        "preferenceList": [
+          {
+            "node": "us-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "ordered": [
+          {
+            "node": "eu-a",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "replicaCount": 4,
+        "shard": "726561642d32"
+      }
+    },
+    {
+      "name": "read-2/us",
+      "requirements": [
+        "READ-012",
+        "READ-013",
+        "READ-014",
+        "READ-016",
+        "READ-023"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "read-2"
+      },
+      "affinity": {
+        "level": "region",
+        "path": [
+          "us"
+        ],
+        "window": null
+      },
+      "expect": {
+        "preferenceList": [
+          {
+            "node": "us-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "ordered": [
+          {
+            "node": "us-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "replicaCount": 4,
+        "shard": "726561642d32"
+      }
+    },
+    {
+      "name": "read-2/ap-window-2",
+      "requirements": [
+        "READ-012",
+        "READ-013",
+        "READ-014",
+        "READ-016",
+        "READ-023"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "read-2"
+      },
+      "affinity": {
+        "level": "region",
+        "path": [
+          "ap"
+        ],
+        "window": 2
+      },
+      "expect": {
+        "preferenceList": [
+          {
+            "node": "us-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "ordered": [
+          {
+            "node": "us-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "replicaCount": 4,
+        "shard": "726561642d32"
+      }
+    },
+    {
+      "name": "read-2/absent",
+      "requirements": [
+        "READ-012",
+        "READ-013",
+        "READ-014",
+        "READ-016",
+        "READ-023"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "read-2"
+      },
+      "affinity": {
+        "level": "region",
+        "path": [
+          "antarctica"
+        ],
+        "window": null
+      },
+      "expect": {
+        "preferenceList": [
+          {
+            "node": "us-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "ordered": [
+          {
+            "node": "us-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "replicaCount": 4,
+        "shard": "726561642d32"
+      }
+    },
+    {
+      "name": "read-3/eu",
+      "requirements": [
+        "READ-012",
+        "READ-013",
+        "READ-014",
+        "READ-016",
+        "READ-023"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "read-3"
+      },
+      "affinity": {
+        "level": "region",
+        "path": [
+          "eu"
+        ],
+        "window": null
+      },
+      "expect": {
+        "preferenceList": [
+          {
+            "node": "ap-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "ap-a",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "ordered": [
+          {
+            "node": "eu-a",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "ap-a",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "replicaCount": 4,
+        "shard": "726561642d33"
+      }
+    },
+    {
+      "name": "read-3/us",
+      "requirements": [
+        "READ-012",
+        "READ-013",
+        "READ-014",
+        "READ-016",
+        "READ-023"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "read-3"
+      },
+      "affinity": {
+        "level": "region",
+        "path": [
+          "us"
+        ],
+        "window": null
+      },
+      "expect": {
+        "preferenceList": [
+          {
+            "node": "ap-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "ap-a",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "ordered": [
+          {
+            "node": "us-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "ap-a",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "replicaCount": 4,
+        "shard": "726561642d33"
+      }
+    },
+    {
+      "name": "read-3/ap-window-2",
+      "requirements": [
+        "READ-012",
+        "READ-013",
+        "READ-014",
+        "READ-016",
+        "READ-023"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "read-3"
+      },
+      "affinity": {
+        "level": "region",
+        "path": [
+          "ap"
+        ],
+        "window": 2
+      },
+      "expect": {
+        "preferenceList": [
+          {
+            "node": "ap-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "ap-a",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "ordered": [
+          {
+            "node": "ap-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "ap-a",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "replicaCount": 4,
+        "shard": "726561642d33"
+      }
+    },
+    {
+      "name": "read-3/absent",
+      "requirements": [
+        "READ-012",
+        "READ-013",
+        "READ-014",
+        "READ-016",
+        "READ-023"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "read-3"
+      },
+      "affinity": {
+        "level": "region",
+        "path": [
+          "antarctica"
+        ],
+        "window": null
+      },
+      "expect": {
+        "preferenceList": [
+          {
+            "node": "ap-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "ap-a",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "ordered": [
+          {
+            "node": "ap-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "ap-a",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "replicaCount": 4,
+        "shard": "726561642d33"
+      }
+    },
+    {
+      "name": "read-4/eu",
+      "requirements": [
+        "READ-012",
+        "READ-013",
+        "READ-014",
+        "READ-016",
+        "READ-023"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "read-4"
+      },
+      "affinity": {
+        "level": "region",
+        "path": [
+          "eu"
+        ],
+        "window": null
+      },
+      "expect": {
+        "preferenceList": [
+          {
+            "node": "ap-a",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "us-a",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "ordered": [
+          {
+            "node": "eu-a",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "us-a",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "replicaCount": 4,
+        "shard": "726561642d34"
+      }
+    },
+    {
+      "name": "read-4/us",
+      "requirements": [
+        "READ-012",
+        "READ-013",
+        "READ-014",
+        "READ-016",
+        "READ-023"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "read-4"
+      },
+      "affinity": {
+        "level": "region",
+        "path": [
+          "us"
+        ],
+        "window": null
+      },
+      "expect": {
+        "preferenceList": [
+          {
+            "node": "ap-a",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "us-a",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "ordered": [
+          {
+            "node": "us-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "us-a",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "replicaCount": 4,
+        "shard": "726561642d34"
+      }
+    },
+    {
+      "name": "read-4/ap-window-2",
+      "requirements": [
+        "READ-012",
+        "READ-013",
+        "READ-014",
+        "READ-016",
+        "READ-023"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "read-4"
+      },
+      "affinity": {
+        "level": "region",
+        "path": [
+          "ap"
+        ],
+        "window": 2
+      },
+      "expect": {
+        "preferenceList": [
+          {
+            "node": "ap-a",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "us-a",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "ordered": [
+          {
+            "node": "ap-a",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "us-a",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "replicaCount": 4,
+        "shard": "726561642d34"
+      }
+    },
+    {
+      "name": "read-4/absent",
+      "requirements": [
+        "READ-012",
+        "READ-013",
+        "READ-014",
+        "READ-016",
+        "READ-023"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "read-4"
+      },
+      "affinity": {
+        "level": "region",
+        "path": [
+          "antarctica"
+        ],
+        "window": null
+      },
+      "expect": {
+        "preferenceList": [
+          {
+            "node": "ap-a",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "us-a",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "ordered": [
+          {
+            "node": "ap-a",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "us-a",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "replicaCount": 4,
+        "shard": "726561642d34"
+      }
+    },
+    {
+      "name": "read-5/eu",
+      "requirements": [
+        "READ-012",
+        "READ-013",
+        "READ-014",
+        "READ-016",
+        "READ-023"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "read-5"
+      },
+      "affinity": {
+        "level": "region",
+        "path": [
+          "eu"
+        ],
+        "window": null
+      },
+      "expect": {
+        "preferenceList": [
+          {
+            "node": "eu-a",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "ordered": [
+          {
+            "node": "eu-a",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "replicaCount": 4,
+        "shard": "726561642d35"
+      }
+    },
+    {
+      "name": "read-5/us",
+      "requirements": [
+        "READ-012",
+        "READ-013",
+        "READ-014",
+        "READ-016",
+        "READ-023"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "read-5"
+      },
+      "affinity": {
+        "level": "region",
+        "path": [
+          "us"
+        ],
+        "window": null
+      },
+      "expect": {
+        "preferenceList": [
+          {
+            "node": "eu-a",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "ordered": [
+          {
+            "node": "us-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "replicaCount": 4,
+        "shard": "726561642d35"
+      }
+    },
+    {
+      "name": "read-5/ap-window-2",
+      "requirements": [
+        "READ-012",
+        "READ-013",
+        "READ-014",
+        "READ-016",
+        "READ-023"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "read-5"
+      },
+      "affinity": {
+        "level": "region",
+        "path": [
+          "ap"
+        ],
+        "window": 2
+      },
+      "expect": {
+        "preferenceList": [
+          {
+            "node": "eu-a",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "ordered": [
+          {
+            "node": "eu-a",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "replicaCount": 4,
+        "shard": "726561642d35"
+      }
+    },
+    {
+      "name": "read-5/absent",
+      "requirements": [
+        "READ-012",
+        "READ-013",
+        "READ-014",
+        "READ-016",
+        "READ-023"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "read-5"
+      },
+      "affinity": {
+        "level": "region",
+        "path": [
+          "antarctica"
+        ],
+        "window": null
+      },
+      "expect": {
+        "preferenceList": [
+          {
+            "node": "eu-a",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "ordered": [
+          {
+            "node": "eu-a",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "replicaCount": 4,
+        "shard": "726561642d35"
+      }
+    }
+  ],
+  "topology": "topologies/read-affinity.topology.json"
+}

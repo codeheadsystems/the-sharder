@@ -1,0 +1,48 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "range-derived",
+  "epoch": 3,
+  "replication": {
+    "factor": 2
+  },
+  "strategy": {
+    "kind": "range",
+    "assignment": "derived",
+    "ranges": [
+      {
+        "shardId": "r0",
+        "start": null,
+        "end": "40"
+      },
+      {
+        "shardId": "r1",
+        "start": "40",
+        "end": "80"
+      },
+      {
+        "shardId": "r2",
+        "start": "80",
+        "end": "c0"
+      },
+      {
+        "shardId": "r3",
+        "start": "c0",
+        "end": null
+      }
+    ]
+  },
+  "nodes": [
+    {
+      "id": "n1",
+      "weight": 1
+    },
+    {
+      "id": "n2",
+      "weight": 1
+    },
+    {
+      "id": "n3",
+      "weight": 2
+    }
+  ]
+}

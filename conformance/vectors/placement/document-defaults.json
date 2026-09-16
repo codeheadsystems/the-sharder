@@ -1,0 +1,187 @@
+{
+  "vectorSet": "placement-document-defaults",
+  "kind": "defaults",
+  "description": "A document that omits every optional member and one that writes every default out produce identical orderings, and weight changes nothing under an authored assignment.",
+  "requirements": [
+    "DIR-004",
+    "KEY-010",
+    "PLACE-040",
+    "PLACE-044",
+    "RANGE-021",
+    "REPL-001",
+    "SLOT-014",
+    "SPREAD-003"
+  ],
+  "cases": [
+    {
+      "name": "omitted-equals-explicit",
+      "requirements": [
+        "PLACE-040",
+        "KEY-010",
+        "REPL-001",
+        "SPREAD-003",
+        "RING-001",
+        "PLACE-050"
+      ],
+      "omittedDocument": "topologies/defaults-omitted.topology.json",
+      "explicitDocument": "topologies/defaults-explicit.topology.json",
+      "note": "a document omitting every optional member routes identically to one writing every default out.  `weight` defaults to 1, `replication.factor` to 1, `keyTransform` to `none`, and the ring sizing fields to 4 and 4096.",
+      "expect": {
+        "identical": true,
+        "rows": [
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "defaults-0"
+            },
+            "candidates": [
+              "d2",
+              "d3",
+              "d1"
+            ],
+            "replicaCount": 1,
+            "factor": 1
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "defaults-1"
+            },
+            "candidates": [
+              "d1",
+              "d3",
+              "d2"
+            ],
+            "replicaCount": 1,
+            "factor": 1
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "defaults-2"
+            },
+            "candidates": [
+              "d3",
+              "d2",
+              "d1"
+            ],
+            "replicaCount": 1,
+            "factor": 1
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "defaults-3"
+            },
+            "candidates": [
+              "d1",
+              "d3",
+              "d2"
+            ],
+            "replicaCount": 1,
+            "factor": 1
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "defaults-4"
+            },
+            "candidates": [
+              "d2",
+              "d1",
+              "d3"
+            ],
+            "replicaCount": 1,
+            "factor": 1
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "defaults-5"
+            },
+            "candidates": [
+              "d1",
+              "d3",
+              "d2"
+            ],
+            "replicaCount": 1,
+            "factor": 1
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "defaults-6"
+            },
+            "candidates": [
+              "d2",
+              "d1",
+              "d3"
+            ],
+            "replicaCount": 1,
+            "factor": 1
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "defaults-7"
+            },
+            "candidates": [
+              "d3",
+              "d2",
+              "d1"
+            ],
+            "replicaCount": 1,
+            "factor": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "weight-advisory-under-explicit-assignment",
+      "requirements": [
+        "PLACE-044",
+        "RANGE-021",
+        "SLOT-014",
+        "DIR-004"
+      ],
+      "omittedDocument": "topologies/range-explicit.topology.json",
+      "explicitDocument": "topologies/range-explicit-weighted.topology.json",
+      "note": "raising one node's weight sevenfold changes no ordering under an authored assignment; weight is advisory there.",
+      "expect": {
+        "identical": true,
+        "rows": [
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "a"
+            },
+            "candidates": [
+              "n1",
+              "n2"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "m"
+            },
+            "candidates": [
+              "n2",
+              "n3"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "zzz"
+            },
+            "candidates": [
+              "n3",
+              "n1"
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

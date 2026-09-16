@@ -1,0 +1,33 @@
+{
+  "vectorSet": "adversarial-weight-zero-all",
+  "kind": "routing",
+  "description": "Every node at weight 0: the candidate ordering is empty and the cause is `zeroVirtualNodes`.",
+  "requirements": [
+    "ERR-020",
+    "ERR-021",
+    "RV-002",
+    "RV-012"
+  ],
+  "topology": "topologies/weight-zero-all.topology.json",
+  "topologyDigest": "9e6855e02d4144bbcbe86621349e28b53c029ca39766feea0351e6fe334fe884",
+  "cases": [
+    {
+      "name": "all-weight-zero",
+      "requirements": [
+        "ERR-020",
+        "ERR-021",
+        "RV-012"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "anything"
+      },
+      "note": "every eligible node has a virtual node count of 0",
+      "expectError": {
+        "code": 101,
+        "name": "noCandidate",
+        "cause": "zeroVirtualNodes"
+      }
+    }
+  ]
+}

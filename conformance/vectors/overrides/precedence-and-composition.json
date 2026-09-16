@@ -1,0 +1,339 @@
+{
+  "vectorSet": "overrides-precedence-and-composition",
+  "kind": "routing",
+  "description": "Override matching, pinning, constraints, their composition, and the override replication factor.",
+  "requirements": [
+    "OVR-001",
+    "OVR-002",
+    "OVR-003",
+    "OVR-004",
+    "OVR-005",
+    "OVR-006",
+    "OVR-010",
+    "OVR-011",
+    "OVR-012",
+    "OVR-013",
+    "OVR-014",
+    "OVR-020",
+    "OVR-021",
+    "OVR-022",
+    "OVR-023",
+    "OVR-024",
+    "OVR-025",
+    "OVR-026",
+    "OVR-027",
+    "OVR-030",
+    "OVR-031",
+    "OVR-040",
+    "OVR-041",
+    "PLACE-063",
+    "PLACE-065",
+    "PLACE-066",
+    "REPL-003",
+    "REPL-005"
+  ],
+  "topology": "topologies/overrides-precedence.topology.json",
+  "topologyDigest": "f2609780f639e23c817877c929f2d1c28fc3605ef1a22d1ce09b8dbeb83f71fb",
+  "cases": [
+    {
+      "name": "exact-beats-prefix",
+      "requirements": [
+        "OVR-002",
+        "OVR-020",
+        "OVR-040",
+        "PLACE-065"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "abcd"
+      },
+      "note": "the exact entry wins and supersedes the document factor with its own",
+      "expect": {
+        "routingKey": "61626364",
+        "shard": "61626364",
+        "token": {
+          "topologyId": "overrides-precedence",
+          "epoch": 1
+        },
+        "factor": 1,
+        "replicaCount": 1,
+        "candidates": [
+          "n-eu-1",
+          "n-eu-2",
+          "n-pin-2"
+        ],
+        "preferenceList": [
+          {
+            "node": "n-eu-1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n-eu-2",
+            "position": 1,
+            "role": "fallback"
+          },
+          {
+            "node": "n-pin-2",
+            "position": 2,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": {
+          "index": 3,
+          "mode": "constrain"
+        }
+      }
+    },
+    {
+      "name": "longest-prefix",
+      "requirements": [
+        "OVR-010",
+        "PLACE-065"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "abce"
+      },
+      "note": "`abc` beats the single octet 0xab and the empty prefix",
+      "expect": {
+        "routingKey": "61626365",
+        "shard": "61626365",
+        "token": {
+          "topologyId": "overrides-precedence",
+          "epoch": 1
+        },
+        "factor": 2,
+        "replicaCount": 1,
+        "candidates": [
+          "n-pin-2"
+        ],
+        "preferenceList": [
+          {
+            "node": "n-pin-2",
+            "position": 0,
+            "role": "replica"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "nodes",
+        "matchedOverride": {
+          "index": 2,
+          "mode": "pin"
+        }
+      }
+    },
+    {
+      "name": "empty-prefix",
+      "requirements": [
+        "OVR-010",
+        "PLACE-063"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "zzz"
+      },
+      "note": "the empty prefix is the only match",
+      "expect": {
+        "routingKey": "7a7a7a",
+        "shard": "7a7a7a",
+        "token": {
+          "topologyId": "overrides-precedence",
+          "epoch": 1
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "n-pin-1",
+          "n-pin-2"
+        ],
+        "preferenceList": [
+          {
+            "node": "n-pin-1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n-pin-2",
+            "position": 1,
+            "role": "replica"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": {
+          "index": 0,
+          "mode": "pin"
+        }
+      }
+    },
+    {
+      "name": "constrain-by-tag",
+      "requirements": [
+        "OVR-021",
+        "OVR-023"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "tag-anything"
+      },
+      "expect": {
+        "routingKey": "7461672d616e797468696e67",
+        "shard": "7461672d616e797468696e67",
+        "token": {
+          "topologyId": "overrides-precedence",
+          "epoch": 1
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "n-us-1",
+          "n-eu-1"
+        ],
+        "preferenceList": [
+          {
+            "node": "n-us-1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n-eu-1",
+            "position": 1,
+            "role": "replica"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": {
+          "index": 4,
+          "mode": "constrain"
+        }
+      }
+    },
+    {
+      "name": "constrain-by-node-list",
+      "requirements": [
+        "OVR-024"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "nodes-anything"
+      },
+      "expect": {
+        "routingKey": "6e6f6465732d616e797468696e67",
+        "shard": "6e6f6465732d616e797468696e67",
+        "token": {
+          "topologyId": "overrides-precedence",
+          "epoch": 1
+        },
+        "factor": 2,
+        "replicaCount": 1,
+        "candidates": [
+          "n-us-1"
+        ],
+        "preferenceList": [
+          {
+            "node": "n-us-1",
+            "position": 0,
+            "role": "replica"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "nodes",
+        "matchedOverride": {
+          "index": 5,
+          "mode": "constrain"
+        }
+      }
+    },
+    {
+      "name": "constrain-excludes-all",
+      "requirements": [
+        "ERR-020",
+        "ERR-021",
+        "OVR-027"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "none-anything"
+      },
+      "note": "no node satisfies the constraint, so the call answers noCandidate",
+      "expectError": {
+        "code": 101,
+        "name": "noCandidate",
+        "cause": "constraintExcludedAll"
+      }
+    },
+    {
+      "name": "pin-filtered-to-empty",
+      "requirements": [
+        "ERR-020",
+        "ERR-021",
+        "OVR-011",
+        "OVR-014"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "gone-anything"
+      },
+      "note": "the pinned node is `leaving`, so the pin empties and the strategy does not run",
+      "expectError": {
+        "code": 101,
+        "name": "noCandidate",
+        "cause": "pinExcludedAll"
+      }
+    },
+    {
+      "name": "pin-and-constrain",
+      "requirements": [
+        "OVR-030",
+        "OVR-031"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "both-anything"
+      },
+      "note": "the pin applies and the constraint filters it; n-eu-1 is dropped",
+      "expect": {
+        "routingKey": "626f74682d616e797468696e67",
+        "shard": "626f74682d616e797468696e67",
+        "token": {
+          "topologyId": "overrides-precedence",
+          "epoch": 1
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "n-us-1",
+          "n-us-2"
+        ],
+        "preferenceList": [
+          {
+            "node": "n-us-1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n-us-2",
+            "position": 1,
+            "role": "replica"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": {
+          "index": 8,
+          "mode": "both"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,269 @@
+{
+  "scenario": "topology-rollback",
+  "description": "An authority reverts an assignment.  The library never accepts a lower epoch, so the revert arrives as a higher epoch carrying the former assignment.  The scenario also covers the equal-epoch digest conflict and the foreign identifier.",
+  "requirements": [
+    "ERR-031",
+    "ERR-032",
+    "MOVE-471",
+    "TOPO-051",
+    "TOPO-061",
+    "TOPO-081",
+    "TOPO-091"
+  ],
+  "deterministic": true,
+  "setup": {},
+  "steps": [
+    {
+      "action": "installTopology",
+      "topology": "topologies/migration-epoch-1.topology.json",
+      "expect": {
+        "outcome": "installed",
+        "condition": null,
+        "epochInForce": 1,
+        "digest": "b72298adeaee5522ec0fff88198278ea468425717bde86ee7363ed30b2e64f82"
+      }
+    },
+    {
+      "action": "installTopology",
+      "topology": "topologies/migration-epoch-2.topology.json",
+      "expect": {
+        "outcome": "installed",
+        "condition": null,
+        "epochInForce": 2,
+        "digest": "06406fb0a9b72820d7192cf560b299e846aa1bb8970f66ccb4fb825449ad97a9"
+      }
+    },
+    {
+      "action": "installTopology",
+      "topology": "topologies/migration-epoch-1.topology.json",
+      "expect": {
+        "outcome": "rejected",
+        "condition": {
+          "code": 203,
+          "name": "staleDocument",
+          "detail": "an epoch below the epoch in force"
+        },
+        "epochInForce": 2,
+        "digest": "b72298adeaee5522ec0fff88198278ea468425717bde86ee7363ed30b2e64f82"
+      }
+    },
+    {
+      "action": "installTopology",
+      "topology": "topologies/migration-epoch-2.topology.json",
+      "expect": {
+        "outcome": "noop",
+        "condition": null,
+        "epochInForce": 2,
+        "digest": "06406fb0a9b72820d7192cf560b299e846aa1bb8970f66ccb4fb825449ad97a9"
+      }
+    },
+    {
+      "action": "installTopology",
+      "document": {
+        "formatVersion": "1.0",
+        "topologyId": "migration",
+        "epoch": 2,
+        "domainLevels": [
+          "zone"
+        ],
+        "replication": {
+          "factor": 2
+        },
+        "strategy": {
+          "kind": "range",
+          "assignment": "explicit",
+          "ranges": [
+            {
+              "shardId": "r0",
+              "start": null,
+              "end": "40",
+              "nodes": [
+                "n1",
+                "n2"
+              ]
+            },
+            {
+              "shardId": "r1",
+              "start": "40",
+              "end": "80",
+              "nodes": [
+                "n4",
+                "n3"
+              ]
+            },
+            {
+              "shardId": "r2",
+              "start": "80",
+              "end": null,
+              "nodes": [
+                "n3",
+                "n1"
+              ]
+            }
+          ]
+        },
+        "nodes": [
+          {
+            "id": "n1",
+            "domains": {
+              "zone": "za"
+            },
+            "address": "10.0.0.1:7000"
+          },
+          {
+            "id": "n2",
+            "domains": {
+              "zone": "zb"
+            },
+            "address": "10.0.0.2:7000"
+          },
+          {
+            "id": "n3",
+            "domains": {
+              "zone": "zc"
+            },
+            "address": "10.0.0.3:7000"
+          },
+          {
+            "id": "n4",
+            "state": "active",
+            "domains": {
+              "zone": "zd"
+            },
+            "address": "10.0.0.4:7000"
+          }
+        ],
+        "metadata": {
+          "note": "same epoch, different content"
+        }
+      },
+      "expect": {
+        "outcome": "rejected",
+        "condition": {
+          "code": 202,
+          "name": "topologyConflict",
+          "detail": "an equal epoch whose digest differs"
+        },
+        "epochInForce": 2,
+        "digest": "b4eff927cf1e3a7a0ec3e6f1cbebf13c71d24474d26ea9ca45032cc3e324e7a1"
+      }
+    },
+    {
+      "action": "installTopology",
+      "document": {
+        "formatVersion": "1.0",
+        "topologyId": "some-other-cluster",
+        "epoch": 3,
+        "domainLevels": [
+          "zone"
+        ],
+        "replication": {
+          "factor": 2
+        },
+        "strategy": {
+          "kind": "range",
+          "assignment": "explicit",
+          "ranges": [
+            {
+              "shardId": "r0",
+              "start": null,
+              "end": "40",
+              "nodes": [
+                "n1",
+                "n2"
+              ]
+            },
+            {
+              "shardId": "r1",
+              "start": "40",
+              "end": "80",
+              "nodes": [
+                "n4",
+                "n1"
+              ]
+            },
+            {
+              "shardId": "r2",
+              "start": "80",
+              "end": null,
+              "nodes": [
+                "n3",
+                "n1"
+              ]
+            }
+          ]
+        },
+        "nodes": [
+          {
+            "id": "n1",
+            "domains": {
+              "zone": "za"
+            },
+            "address": "10.0.0.1:7000"
+          },
+          {
+            "id": "n2",
+            "domains": {
+              "zone": "zb"
+            },
+            "address": "10.0.0.2:7000"
+          },
+          {
+            "id": "n3",
+            "domains": {
+              "zone": "zc"
+            },
+            "address": "10.0.0.3:7000"
+          },
+          {
+            "id": "n4",
+            "state": "active",
+            "domains": {
+              "zone": "zd"
+            },
+            "address": "10.0.0.4:7000"
+          }
+        ]
+      },
+      "expect": {
+        "outcome": "rejected",
+        "condition": {
+          "code": 202,
+          "name": "topologyConflict",
+          "detail": "a differing topologyId"
+        },
+        "epochInForce": 2
+      }
+    },
+    {
+      "action": "installTopology",
+      "topology": "topologies/migration-epoch-5-rollback.topology.json",
+      "note": "the rollback: the epoch 1 assignment republished at epoch 5, under `MOVE-471`",
+      "expect": {
+        "outcome": "installed",
+        "condition": null,
+        "epochInForce": 5,
+        "digest": "428523c78b5b10cfd2ba60a31cb1c8cf5d484b52ffb0d803a4a9c7538662f697"
+      }
+    },
+    {
+      "action": "route",
+      "key": {
+        "encoding": "base16",
+        "value": "50"
+      },
+      "expect": {
+        "shard": "r1",
+        "token": {
+          "topologyId": "migration",
+          "epoch": 5
+        },
+        "preferenceList": [
+          "n2",
+          "n3"
+        ],
+        "replicaCount": 2
+      }
+    }
+  ]
+}

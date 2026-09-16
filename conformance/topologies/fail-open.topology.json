@@ -1,0 +1,31 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "fail-open",
+  "epoch": 1,
+  "replication": {
+    "factor": 2
+  },
+  "strategy": {
+    "kind": "rendezvous"
+  },
+  "nodes": [
+    {
+      "id": "f0"
+    },
+    {
+      "id": "f1"
+    },
+    {
+      "id": "f2"
+    },
+    {
+      "id": "f3"
+    },
+    {
+      "id": "f4"
+    },
+    {
+      "id": "f5"
+    }
+  ]
+}

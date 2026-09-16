@@ -1,0 +1,920 @@
+{
+  "vectorSet": "rendezvous-ordering",
+  "kind": "routing",
+  "description": "Rendezvous ordering by descending score with the node identity tie-break, at one virtual node per node.",
+  "requirements": [
+    "PLACE-020",
+    "PLACE-023",
+    "RV-001",
+    "RV-003",
+    "RV-004",
+    "RV-010",
+    "RV-011",
+    "RV-013",
+    "RV-020",
+    "RV-021"
+  ],
+  "topology": "topologies/rendezvous-plain.topology.json",
+  "topologyDigest": "088094afef54cb2a8709423959e29c2c66d279459feeed7b7422affee04615d6",
+  "cases": [
+    {
+      "name": "plain/0",
+      "requirements": [
+        "RV-003",
+        "RV-010",
+        "RV-011"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "rv-0"
+      },
+      "expect": {
+        "routingKey": "72762d30",
+        "shard": "72762d30",
+        "token": {
+          "topologyId": "rv-plain",
+          "epoch": 1
+        },
+        "factor": 3,
+        "replicaCount": 3,
+        "candidates": [
+          "n5",
+          "n1",
+          "n4",
+          "n2",
+          "n3"
+        ],
+        "preferenceList": [
+          {
+            "node": "n5",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n1",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n4",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "n2",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "n3",
+            "position": 4,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "plain/1",
+      "requirements": [
+        "RV-003",
+        "RV-010",
+        "RV-011"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "rv-1"
+      },
+      "expect": {
+        "routingKey": "72762d31",
+        "shard": "72762d31",
+        "token": {
+          "topologyId": "rv-plain",
+          "epoch": 1
+        },
+        "factor": 3,
+        "replicaCount": 3,
+        "candidates": [
+          "n2",
+          "n4",
+          "n5",
+          "n3",
+          "n1"
+        ],
+        "preferenceList": [
+          {
+            "node": "n2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n4",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n5",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "n3",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "n1",
+            "position": 4,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "plain/2",
+      "requirements": [
+        "RV-003",
+        "RV-010",
+        "RV-011"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "rv-2"
+      },
+      "expect": {
+        "routingKey": "72762d32",
+        "shard": "72762d32",
+        "token": {
+          "topologyId": "rv-plain",
+          "epoch": 1
+        },
+        "factor": 3,
+        "replicaCount": 3,
+        "candidates": [
+          "n3",
+          "n2",
+          "n5",
+          "n4",
+          "n1"
+        ],
+        "preferenceList": [
+          {
+            "node": "n3",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n2",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n5",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "n4",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "n1",
+            "position": 4,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "plain/3",
+      "requirements": [
+        "RV-003",
+        "RV-010",
+        "RV-011"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "rv-3"
+      },
+      "expect": {
+        "routingKey": "72762d33",
+        "shard": "72762d33",
+        "token": {
+          "topologyId": "rv-plain",
+          "epoch": 1
+        },
+        "factor": 3,
+        "replicaCount": 3,
+        "candidates": [
+          "n4",
+          "n3",
+          "n5",
+          "n1",
+          "n2"
+        ],
+        "preferenceList": [
+          {
+            "node": "n4",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n3",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n5",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "n1",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "n2",
+            "position": 4,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "plain/4",
+      "requirements": [
+        "RV-003",
+        "RV-010",
+        "RV-011"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "rv-4"
+      },
+      "expect": {
+        "routingKey": "72762d34",
+        "shard": "72762d34",
+        "token": {
+          "topologyId": "rv-plain",
+          "epoch": 1
+        },
+        "factor": 3,
+        "replicaCount": 3,
+        "candidates": [
+          "n1",
+          "n3",
+          "n4",
+          "n5",
+          "n2"
+        ],
+        "preferenceList": [
+          {
+            "node": "n1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n3",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n4",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "n5",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "n2",
+            "position": 4,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "plain/5",
+      "requirements": [
+        "RV-003",
+        "RV-010",
+        "RV-011"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "rv-5"
+      },
+      "expect": {
+        "routingKey": "72762d35",
+        "shard": "72762d35",
+        "token": {
+          "topologyId": "rv-plain",
+          "epoch": 1
+        },
+        "factor": 3,
+        "replicaCount": 3,
+        "candidates": [
+          "n5",
+          "n3",
+          "n4",
+          "n1",
+          "n2"
+        ],
+        "preferenceList": [
+          {
+            "node": "n5",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n3",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n4",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "n1",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "n2",
+            "position": 4,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "plain/6",
+      "requirements": [
+        "RV-003",
+        "RV-010",
+        "RV-011"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "rv-6"
+      },
+      "expect": {
+        "routingKey": "72762d36",
+        "shard": "72762d36",
+        "token": {
+          "topologyId": "rv-plain",
+          "epoch": 1
+        },
+        "factor": 3,
+        "replicaCount": 3,
+        "candidates": [
+          "n3",
+          "n2",
+          "n4",
+          "n5",
+          "n1"
+        ],
+        "preferenceList": [
+          {
+            "node": "n3",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n2",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n4",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "n5",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "n1",
+            "position": 4,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "plain/7",
+      "requirements": [
+        "RV-003",
+        "RV-010",
+        "RV-011"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "rv-7"
+      },
+      "expect": {
+        "routingKey": "72762d37",
+        "shard": "72762d37",
+        "token": {
+          "topologyId": "rv-plain",
+          "epoch": 1
+        },
+        "factor": 3,
+        "replicaCount": 3,
+        "candidates": [
+          "n1",
+          "n4",
+          "n2",
+          "n3",
+          "n5"
+        ],
+        "preferenceList": [
+          {
+            "node": "n1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n4",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n2",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "n3",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "n5",
+            "position": 4,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "plain/8",
+      "requirements": [
+        "RV-003",
+        "RV-010",
+        "RV-011"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "rv-8"
+      },
+      "expect": {
+        "routingKey": "72762d38",
+        "shard": "72762d38",
+        "token": {
+          "topologyId": "rv-plain",
+          "epoch": 1
+        },
+        "factor": 3,
+        "replicaCount": 3,
+        "candidates": [
+          "n2",
+          "n3",
+          "n1",
+          "n4",
+          "n5"
+        ],
+        "preferenceList": [
+          {
+            "node": "n2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n3",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n1",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "n4",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "n5",
+            "position": 4,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "plain/9",
+      "requirements": [
+        "RV-003",
+        "RV-010",
+        "RV-011"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "rv-9"
+      },
+      "expect": {
+        "routingKey": "72762d39",
+        "shard": "72762d39",
+        "token": {
+          "topologyId": "rv-plain",
+          "epoch": 1
+        },
+        "factor": 3,
+        "replicaCount": 3,
+        "candidates": [
+          "n2",
+          "n4",
+          "n5",
+          "n1",
+          "n3"
+        ],
+        "preferenceList": [
+          {
+            "node": "n2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n4",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n5",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "n1",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "n3",
+            "position": 4,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "plain/10",
+      "requirements": [
+        "RV-003",
+        "RV-010",
+        "RV-011"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "rv-10"
+      },
+      "expect": {
+        "routingKey": "72762d3130",
+        "shard": "72762d3130",
+        "token": {
+          "topologyId": "rv-plain",
+          "epoch": 1
+        },
+        "factor": 3,
+        "replicaCount": 3,
+        "candidates": [
+          "n5",
+          "n1",
+          "n3",
+          "n4",
+          "n2"
+        ],
+        "preferenceList": [
+          {
+            "node": "n5",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n1",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n3",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "n4",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "n2",
+            "position": 4,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "plain/11",
+      "requirements": [
+        "RV-003",
+        "RV-010",
+        "RV-011"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "rv-11"
+      },
+      "expect": {
+        "routingKey": "72762d3131",
+        "shard": "72762d3131",
+        "token": {
+          "topologyId": "rv-plain",
+          "epoch": 1
+        },
+        "factor": 3,
+        "replicaCount": 3,
+        "candidates": [
+          "n4",
+          "n5",
+          "n1",
+          "n2",
+          "n3"
+        ],
+        "preferenceList": [
+          {
+            "node": "n4",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n5",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n1",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "n2",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "n3",
+            "position": 4,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "plain/12",
+      "requirements": [
+        "RV-003",
+        "RV-010",
+        "RV-011"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "rv-12"
+      },
+      "expect": {
+        "routingKey": "72762d3132",
+        "shard": "72762d3132",
+        "token": {
+          "topologyId": "rv-plain",
+          "epoch": 1
+        },
+        "factor": 3,
+        "replicaCount": 3,
+        "candidates": [
+          "n2",
+          "n1",
+          "n4",
+          "n3",
+          "n5"
+        ],
+        "preferenceList": [
+          {
+            "node": "n2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n1",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n4",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "n3",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "n5",
+            "position": 4,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "plain/13",
+      "requirements": [
+        "RV-003",
+        "RV-010",
+        "RV-011"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "rv-13"
+      },
+      "expect": {
+        "routingKey": "72762d3133",
+        "shard": "72762d3133",
+        "token": {
+          "topologyId": "rv-plain",
+          "epoch": 1
+        },
+        "factor": 3,
+        "replicaCount": 3,
+        "candidates": [
+          "n2",
+          "n1",
+          "n4",
+          "n5",
+          "n3"
+        ],
+        "preferenceList": [
+          {
+            "node": "n2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n1",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n4",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "n5",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "n3",
+            "position": 4,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "plain/empty-key",
+      "requirements": [
+        "KEY-004",
+        "RV-003"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": ""
+      },
+      "expect": {
+        "routingKey": "",
+        "shard": "",
+        "token": {
+          "topologyId": "rv-plain",
+          "epoch": 1
+        },
+        "factor": 3,
+        "replicaCount": 3,
+        "candidates": [
+          "n2",
+          "n1",
+          "n5",
+          "n3",
+          "n4"
+        ],
+        "preferenceList": [
+          {
+            "node": "n2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n1",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n5",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "n3",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "n4",
+            "position": 4,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    }
+  ]
+}

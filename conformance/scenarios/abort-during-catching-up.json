@@ -1,0 +1,106 @@
+{
+  "scenario": "abort-during-catching-up",
+  "description": "An abort requested in `catchingUp` moves the handoff to `aborting` and runs compensation.  A second abort has no further effect.",
+  "requirements": [
+    "MOVE-021",
+    "MOVE-421",
+    "MOVE-491"
+  ],
+  "deterministic": true,
+  "setup": {},
+  "steps": [
+    {
+      "action": "handoffStep",
+      "handoff": "h-r1",
+      "trigger": "admittedByRatePolicy",
+      "at": 1000,
+      "expect": {
+        "outcome": {
+          "outcome": "advanced",
+          "id": "h-r1",
+          "fromState": "planned",
+          "toState": "preparing"
+        },
+        "state": "preparing"
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-r1",
+      "trigger": "prepareSuccess",
+      "at": 2000,
+      "expect": {
+        "outcome": {
+          "outcome": "advanced",
+          "id": "h-r1",
+          "fromState": "preparing",
+          "toState": "transferring"
+        },
+        "state": "transferring"
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-r1",
+      "trigger": "noBulkRemaining",
+      "at": 3000,
+      "expect": {
+        "outcome": {
+          "outcome": "advanced",
+          "id": "h-r1",
+          "fromState": "transferring",
+          "toState": "catchingUp"
+        },
+        "state": "catchingUp"
+      }
+    },
+    {
+      "action": "handoffAbort",
+      "handoff": "h-r1",
+      "reason": "operator requested",
+      "at": 9000,
+      "expect": {
+        "outcome": {
+          "outcome": "advanced",
+          "state": "aborting"
+        },
+        "state": "aborting"
+      }
+    },
+    {
+      "action": "handoffAbort",
+      "handoff": "h-r1",
+      "reason": "again",
+      "at": 9500,
+      "note": "`MOVE-491`: an abort is idempotent",
+      "expect": {
+        "outcome": {
+          "outcome": "noop",
+          "state": "aborting"
+        },
+        "state": "aborting"
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-r1",
+      "trigger": "rollbackSuccess",
+      "at": 10000,
+      "expect": {
+        "outcome": {
+          "outcome": "settled",
+          "id": "h-r1",
+          "terminalState": "aborted",
+          "failureKind": null
+        },
+        "state": "aborted"
+      }
+    },
+    {
+      "action": "expectSummary",
+      "expect": {
+        "aborted": 1
+      }
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "vectorSet": "keytransform-brace-tag-same-octet",
+  "kind": "keyTransform",
+  "description": "The `braceTag` transform where `open` and `close` are the same octet.",
+  "requirements": [
+    "KEY-037"
+  ],
+  "cases": [
+    {
+      "name": "pair",
+      "requirements": [
+        "KEY-037"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "a|b|c"
+      },
+      "note": "KEY-037: one octet serving as both delimiters",
+      "expect": {
+        "routingKey": "62"
+      }
+    },
+    {
+      "name": "single",
+      "requirements": [
+        "KEY-037"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "a|b"
+      },
+      "note": "no close octet after the open",
+      "expect": {
+        "routingKey": "617c62"
+      }
+    },
+    {
+      "name": "adjacent",
+      "requirements": [
+        "KEY-037"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "a||b"
+      },
+      "note": "KEY-033: nothing between the two",
+      "expect": {
+        "routingKey": "617c7c62"
+      }
+    }
+  ],
+  "topology": "topologies/kt-brace-same.topology.json"
+}

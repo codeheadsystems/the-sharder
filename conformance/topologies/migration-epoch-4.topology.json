@@ -1,0 +1,75 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "migration",
+  "epoch": 4,
+  "domainLevels": [
+    "zone"
+  ],
+  "replication": {
+    "factor": 2
+  },
+  "strategy": {
+    "kind": "range",
+    "assignment": "explicit",
+    "ranges": [
+      {
+        "shardId": "r0",
+        "start": null,
+        "end": "40",
+        "nodes": [
+          "n1",
+          "n2"
+        ]
+      },
+      {
+        "shardId": "r1",
+        "start": "40",
+        "end": "80",
+        "nodes": [
+          "n1",
+          "n3"
+        ]
+      },
+      {
+        "shardId": "r2",
+        "start": "80",
+        "end": null,
+        "nodes": [
+          "n3",
+          "n1"
+        ]
+      }
+    ]
+  },
+  "nodes": [
+    {
+      "id": "n1",
+      "domains": {
+        "zone": "za"
+      },
+      "address": "10.0.0.1:7000"
+    },
+    {
+      "id": "n2",
+      "domains": {
+        "zone": "zb"
+      },
+      "address": "10.0.0.2:7000"
+    },
+    {
+      "id": "n3",
+      "domains": {
+        "zone": "zc"
+      },
+      "address": "10.0.0.3:7000"
+    },
+    {
+      "id": "n4",
+      "state": "active",
+      "domains": {
+        "zone": "zd"
+      },
+      "address": "10.0.0.4:7000"
+    }
+  ]
+}

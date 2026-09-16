@@ -1,0 +1,888 @@
+{
+  "vectorSet": "spread-degradation-ladder",
+  "kind": "routing",
+  "description": "Three spread levels, factor 4, and a node set that forces the relaxation ladder past stage 0.  Stage k of `SPREAD-010` enforces the finest m-k levels, which `SPREAD-018` makes equivalent to enforcing `spread[k]` alone, so the chosen stage is the coarsest level at which a full replica prefix exists.  `vectors/spread/relaxation-stages.json` records each stage separately.",
+  "requirements": [
+    "REPL-013",
+    "SPREAD-005",
+    "SPREAD-010",
+    "SPREAD-011",
+    "SPREAD-012",
+    "SPREAD-013",
+    "SPREAD-015",
+    "SPREAD-016",
+    "SPREAD-017",
+    "SPREAD-018",
+    "SPREAD-019",
+    "SPREAD-020",
+    "SPREAD-021"
+  ],
+  "topology": "topologies/spread-ladder.topology.json",
+  "topologyDigest": "603a8ce1a2c447149b7076017b4997c1fd06b54e8e5c6d341d5612cc3e31a89e",
+  "cases": [
+    {
+      "name": "ladder/0",
+      "requirements": [
+        "SPREAD-010",
+        "SPREAD-011",
+        "SPREAD-012",
+        "SPREAD-015",
+        "SPREAD-017"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "ladder-0"
+      },
+      "note": "three spread levels and factor 4 over six nodes",
+      "expect": {
+        "routingKey": "6c61646465722d30",
+        "shard": "6c61646465722d30",
+        "token": {
+          "topologyId": "spread-ladder",
+          "epoch": 1
+        },
+        "factor": 4,
+        "replicaCount": 4,
+        "candidates": [
+          "eu-a-2",
+          "us-a-1",
+          "eu-a-1",
+          "eu-b-2",
+          "us-a-2",
+          "eu-b-1"
+        ],
+        "preferenceList": [
+          {
+            "node": "eu-a-2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "us-a-1",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a-1",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b-2",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "us-a-2",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b-1",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [
+          "region",
+          "zone"
+        ],
+        "spreadStage": 2,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "ladder/1",
+      "requirements": [
+        "SPREAD-010",
+        "SPREAD-011",
+        "SPREAD-012",
+        "SPREAD-015",
+        "SPREAD-017"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "ladder-1"
+      },
+      "note": "three spread levels and factor 4 over six nodes",
+      "expect": {
+        "routingKey": "6c61646465722d31",
+        "shard": "6c61646465722d31",
+        "token": {
+          "topologyId": "spread-ladder",
+          "epoch": 1
+        },
+        "factor": 4,
+        "replicaCount": 4,
+        "candidates": [
+          "eu-a-1",
+          "us-a-1",
+          "eu-b-1",
+          "eu-a-2",
+          "us-a-2",
+          "eu-b-2"
+        ],
+        "preferenceList": [
+          {
+            "node": "eu-a-1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "us-a-1",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b-1",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a-2",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "us-a-2",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b-2",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [
+          "region",
+          "zone"
+        ],
+        "spreadStage": 2,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "ladder/2",
+      "requirements": [
+        "SPREAD-010",
+        "SPREAD-011",
+        "SPREAD-012",
+        "SPREAD-015",
+        "SPREAD-017"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "ladder-2"
+      },
+      "note": "three spread levels and factor 4 over six nodes",
+      "expect": {
+        "routingKey": "6c61646465722d32",
+        "shard": "6c61646465722d32",
+        "token": {
+          "topologyId": "spread-ladder",
+          "epoch": 1
+        },
+        "factor": 4,
+        "replicaCount": 4,
+        "candidates": [
+          "us-a-2",
+          "us-a-1",
+          "eu-b-2",
+          "eu-a-2",
+          "eu-b-1",
+          "eu-a-1"
+        ],
+        "preferenceList": [
+          {
+            "node": "us-a-2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b-2",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a-2",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a-1",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "us-a-1",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b-1",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [
+          "region",
+          "zone"
+        ],
+        "spreadStage": 2,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "ladder/3",
+      "requirements": [
+        "SPREAD-010",
+        "SPREAD-011",
+        "SPREAD-012",
+        "SPREAD-015",
+        "SPREAD-017"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "ladder-3"
+      },
+      "note": "three spread levels and factor 4 over six nodes",
+      "expect": {
+        "routingKey": "6c61646465722d33",
+        "shard": "6c61646465722d33",
+        "token": {
+          "topologyId": "spread-ladder",
+          "epoch": 1
+        },
+        "factor": 4,
+        "replicaCount": 4,
+        "candidates": [
+          "us-a-2",
+          "eu-b-1",
+          "eu-b-2",
+          "eu-a-2",
+          "eu-a-1",
+          "us-a-1"
+        ],
+        "preferenceList": [
+          {
+            "node": "us-a-2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b-1",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a-2",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a-1",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b-2",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "us-a-1",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [
+          "region",
+          "zone"
+        ],
+        "spreadStage": 2,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "ladder/4",
+      "requirements": [
+        "SPREAD-010",
+        "SPREAD-011",
+        "SPREAD-012",
+        "SPREAD-015",
+        "SPREAD-017"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "ladder-4"
+      },
+      "note": "three spread levels and factor 4 over six nodes",
+      "expect": {
+        "routingKey": "6c61646465722d34",
+        "shard": "6c61646465722d34",
+        "token": {
+          "topologyId": "spread-ladder",
+          "epoch": 1
+        },
+        "factor": 4,
+        "replicaCount": 4,
+        "candidates": [
+          "us-a-2",
+          "eu-b-1",
+          "eu-b-2",
+          "eu-a-2",
+          "us-a-1",
+          "eu-a-1"
+        ],
+        "preferenceList": [
+          {
+            "node": "us-a-2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b-1",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a-2",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a-1",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b-2",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "us-a-1",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [
+          "region",
+          "zone"
+        ],
+        "spreadStage": 2,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "ladder/5",
+      "requirements": [
+        "SPREAD-010",
+        "SPREAD-011",
+        "SPREAD-012",
+        "SPREAD-015",
+        "SPREAD-017"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "ladder-5"
+      },
+      "note": "three spread levels and factor 4 over six nodes",
+      "expect": {
+        "routingKey": "6c61646465722d35",
+        "shard": "6c61646465722d35",
+        "token": {
+          "topologyId": "spread-ladder",
+          "epoch": 1
+        },
+        "factor": 4,
+        "replicaCount": 4,
+        "candidates": [
+          "eu-b-1",
+          "eu-b-2",
+          "eu-a-2",
+          "eu-a-1",
+          "us-a-1",
+          "us-a-2"
+        ],
+        "preferenceList": [
+          {
+            "node": "eu-b-1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a-2",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a-1",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-a-1",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b-2",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "us-a-2",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [
+          "region",
+          "zone"
+        ],
+        "spreadStage": 2,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "ladder/6",
+      "requirements": [
+        "SPREAD-010",
+        "SPREAD-011",
+        "SPREAD-012",
+        "SPREAD-015",
+        "SPREAD-017"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "ladder-6"
+      },
+      "note": "three spread levels and factor 4 over six nodes",
+      "expect": {
+        "routingKey": "6c61646465722d36",
+        "shard": "6c61646465722d36",
+        "token": {
+          "topologyId": "spread-ladder",
+          "epoch": 1
+        },
+        "factor": 4,
+        "replicaCount": 4,
+        "candidates": [
+          "us-a-1",
+          "us-a-2",
+          "eu-a-1",
+          "eu-b-2",
+          "eu-a-2",
+          "eu-b-1"
+        ],
+        "preferenceList": [
+          {
+            "node": "us-a-1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a-1",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b-2",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a-2",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "us-a-2",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b-1",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [
+          "region",
+          "zone"
+        ],
+        "spreadStage": 2,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "ladder/7",
+      "requirements": [
+        "SPREAD-010",
+        "SPREAD-011",
+        "SPREAD-012",
+        "SPREAD-015",
+        "SPREAD-017"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "ladder-7"
+      },
+      "note": "three spread levels and factor 4 over six nodes",
+      "expect": {
+        "routingKey": "6c61646465722d37",
+        "shard": "6c61646465722d37",
+        "token": {
+          "topologyId": "spread-ladder",
+          "epoch": 1
+        },
+        "factor": 4,
+        "replicaCount": 4,
+        "candidates": [
+          "eu-b-1",
+          "eu-b-2",
+          "us-a-2",
+          "eu-a-2",
+          "eu-a-1",
+          "us-a-1"
+        ],
+        "preferenceList": [
+          {
+            "node": "eu-b-1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "us-a-2",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a-2",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a-1",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b-2",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "us-a-1",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [
+          "region",
+          "zone"
+        ],
+        "spreadStage": 2,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "ladder/8",
+      "requirements": [
+        "SPREAD-010",
+        "SPREAD-011",
+        "SPREAD-012",
+        "SPREAD-015",
+        "SPREAD-017"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "ladder-8"
+      },
+      "note": "three spread levels and factor 4 over six nodes",
+      "expect": {
+        "routingKey": "6c61646465722d38",
+        "shard": "6c61646465722d38",
+        "token": {
+          "topologyId": "spread-ladder",
+          "epoch": 1
+        },
+        "factor": 4,
+        "replicaCount": 4,
+        "candidates": [
+          "eu-b-1",
+          "us-a-2",
+          "eu-a-1",
+          "us-a-1",
+          "eu-b-2",
+          "eu-a-2"
+        ],
+        "preferenceList": [
+          {
+            "node": "eu-b-1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "us-a-2",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a-1",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a-2",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "us-a-1",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b-2",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [
+          "region",
+          "zone"
+        ],
+        "spreadStage": 2,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "ladder/9",
+      "requirements": [
+        "SPREAD-010",
+        "SPREAD-011",
+        "SPREAD-012",
+        "SPREAD-015",
+        "SPREAD-017"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "ladder-9"
+      },
+      "note": "three spread levels and factor 4 over six nodes",
+      "expect": {
+        "routingKey": "6c61646465722d39",
+        "shard": "6c61646465722d39",
+        "token": {
+          "topologyId": "spread-ladder",
+          "epoch": 1
+        },
+        "factor": 4,
+        "replicaCount": 4,
+        "candidates": [
+          "eu-b-2",
+          "us-a-2",
+          "eu-b-1",
+          "eu-a-2",
+          "us-a-1",
+          "eu-a-1"
+        ],
+        "preferenceList": [
+          {
+            "node": "eu-b-2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "us-a-2",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a-2",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a-1",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b-1",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "us-a-1",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [
+          "region",
+          "zone"
+        ],
+        "spreadStage": 2,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "ladder/10",
+      "requirements": [
+        "SPREAD-010",
+        "SPREAD-011",
+        "SPREAD-012",
+        "SPREAD-015",
+        "SPREAD-017"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "ladder-10"
+      },
+      "note": "three spread levels and factor 4 over six nodes",
+      "expect": {
+        "routingKey": "6c61646465722d3130",
+        "shard": "6c61646465722d3130",
+        "token": {
+          "topologyId": "spread-ladder",
+          "epoch": 1
+        },
+        "factor": 4,
+        "replicaCount": 4,
+        "candidates": [
+          "us-a-1",
+          "us-a-2",
+          "eu-a-2",
+          "eu-b-2",
+          "eu-a-1",
+          "eu-b-1"
+        ],
+        "preferenceList": [
+          {
+            "node": "us-a-1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a-2",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b-2",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a-1",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "us-a-2",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b-1",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [
+          "region",
+          "zone"
+        ],
+        "spreadStage": 2,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "ladder/11",
+      "requirements": [
+        "SPREAD-010",
+        "SPREAD-011",
+        "SPREAD-012",
+        "SPREAD-015",
+        "SPREAD-017"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "ladder-11"
+      },
+      "note": "three spread levels and factor 4 over six nodes",
+      "expect": {
+        "routingKey": "6c61646465722d3131",
+        "shard": "6c61646465722d3131",
+        "token": {
+          "topologyId": "spread-ladder",
+          "epoch": 1
+        },
+        "factor": 4,
+        "replicaCount": 4,
+        "candidates": [
+          "eu-b-1",
+          "eu-b-2",
+          "us-a-1",
+          "eu-a-2",
+          "eu-a-1",
+          "us-a-2"
+        ],
+        "preferenceList": [
+          {
+            "node": "eu-b-1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "us-a-1",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a-2",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a-1",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b-2",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "us-a-2",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [
+          "region",
+          "zone"
+        ],
+        "spreadStage": 2,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    }
+  ]
+}

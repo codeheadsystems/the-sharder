@@ -1,0 +1,13 @@
+{
+  "formatVersion": "1.7",
+  "topologyId": "invalid-minor-version",
+  "epoch": 1,
+  "strategy": {
+    "kind": "rendezvous"
+  },
+  "nodes": [
+    {
+      "id": "n1"
+    }
+  ]
+}

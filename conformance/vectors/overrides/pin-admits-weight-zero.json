@@ -1,0 +1,93 @@
+{
+  "vectorSet": "overrides-pin-admits-weight-zero",
+  "kind": "routing",
+  "description": "A node of weight 0 places nothing under a derived assignment and still serves a pin.",
+  "requirements": [
+    "OVR-010",
+    "PLACE-042",
+    "PLACE-043"
+  ],
+  "topology": "topologies/weight-zero-pinned.topology.json",
+  "topologyDigest": "489ec01ac90e5e8d52af0c5a364c725d9a96498941565e10913f0481034aafa6",
+  "cases": [
+    {
+      "name": "pin-admits-weight-zero",
+      "requirements": [
+        "OVR-010",
+        "PLACE-043"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "pinned"
+      },
+      "note": "a node of weight 0 is eligible for a pin and appears in the ordering",
+      "expect": {
+        "routingKey": "70696e6e6564",
+        "shard": "70696e6e6564",
+        "token": {
+          "topologyId": "weight-zero-pinned",
+          "epoch": 1
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "zero-1",
+          "live-1"
+        ],
+        "preferenceList": [
+          {
+            "node": "zero-1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "live-1",
+            "position": 1,
+            "role": "replica"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": {
+          "index": 0,
+          "mode": "pin"
+        }
+      }
+    },
+    {
+      "name": "strategy-excludes-weight-zero",
+      "requirements": [
+        "PLACE-042"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "unpinned"
+      },
+      "expect": {
+        "routingKey": "756e70696e6e6564",
+        "shard": "756e70696e6e6564",
+        "token": {
+          "topologyId": "weight-zero-pinned",
+          "epoch": 1
+        },
+        "factor": 2,
+        "replicaCount": 1,
+        "candidates": [
+          "live-1"
+        ],
+        "preferenceList": [
+          {
+            "node": "live-1",
+            "position": 0,
+            "role": "replica"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "nodes",
+        "matchedOverride": null
+      }
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "lineage",
+  "epoch": 3,
+  "replication": {
+    "factor": 2
+  },
+  "strategy": {
+    "kind": "range",
+    "assignment": "explicit",
+    "ranges": [
+      {
+        "shardId": "whole",
+        "start": null,
+        "end": null,
+        "nodes": [
+          "n1",
+          "n2"
+        ]
+      }
+    ]
+  },
+  "nodes": [
+    {
+      "id": "n1"
+    },
+    {
+      "id": "n2"
+    },
+    {
+      "id": "n3"
+    }
+  ]
+}

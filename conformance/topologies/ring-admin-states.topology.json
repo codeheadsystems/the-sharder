@@ -1,0 +1,35 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "ring-admin-states",
+  "epoch": 5,
+  "replication": {
+    "factor": 3
+  },
+  "strategy": {
+    "kind": "ring",
+    "tokenAssignment": "derived",
+    "tokensPerWeightUnit": 2
+  },
+  "nodes": [
+    {
+      "id": "active-1",
+      "state": "active"
+    },
+    {
+      "id": "active-2",
+      "state": "active"
+    },
+    {
+      "id": "draining-1",
+      "state": "draining"
+    },
+    {
+      "id": "joining-1",
+      "state": "joining"
+    },
+    {
+      "id": "leaving-1",
+      "state": "leaving"
+    }
+  ]
+}

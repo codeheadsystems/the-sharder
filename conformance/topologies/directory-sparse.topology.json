@@ -1,0 +1,53 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "directory-sparse",
+  "epoch": 1,
+  "replication": {
+    "factor": 1
+  },
+  "strategy": {
+    "kind": "directory",
+    "entries": [
+      {
+        "match": {
+          "kind": "exact",
+          "value": "known"
+        },
+        "nodes": [
+          "c1"
+        ]
+      },
+      {
+        "match": {
+          "kind": "prefix",
+          "value": "pre"
+        },
+        "nodes": [
+          "c2",
+          "c1"
+        ]
+      },
+      {
+        "match": {
+          "kind": "exact",
+          "value": "gone"
+        },
+        "nodes": [
+          "c-leaving"
+        ]
+      }
+    ]
+  },
+  "nodes": [
+    {
+      "id": "c1"
+    },
+    {
+      "id": "c2"
+    },
+    {
+      "id": "c-leaving",
+      "state": "leaving"
+    }
+  ]
+}

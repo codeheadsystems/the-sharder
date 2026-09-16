@@ -1,0 +1,285 @@
+{
+  "vectorSet": "spread-one-domain-strict",
+  "kind": "routing",
+  "description": "The same node set under `strict`: a shorter replica prefix rather than a degraded spread.",
+  "requirements": [
+    "REPL-020",
+    "REPL-021",
+    "SPREAD-014",
+    "SPREAD-015"
+  ],
+  "topology": "topologies/one-domain-strict.topology.json",
+  "topologyDigest": "93fe191069d9c5dce39535f53a70705c0850be74285c8d41b1b5bb7d652c178f",
+  "cases": [
+    {
+      "name": "strict/0",
+      "requirements": [
+        "REPL-021",
+        "SPREAD-014"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "r0"
+      },
+      "note": "`strict` evaluates stage 0 alone, so r is 1 and the cause is `domains`",
+      "expect": {
+        "routingKey": "7230",
+        "shard": "7230",
+        "token": {
+          "topologyId": "one-domain-strict",
+          "epoch": 1
+        },
+        "factor": 3,
+        "replicaCount": 1,
+        "candidates": [
+          "n2",
+          "n4",
+          "n1",
+          "n3"
+        ],
+        "preferenceList": [
+          {
+            "node": "n2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n4",
+            "position": 1,
+            "role": "fallback"
+          },
+          {
+            "node": "n1",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "n3",
+            "position": 3,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "domains",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "strict/1",
+      "requirements": [
+        "REPL-021",
+        "SPREAD-014"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "r1"
+      },
+      "note": "`strict` evaluates stage 0 alone, so r is 1 and the cause is `domains`",
+      "expect": {
+        "routingKey": "7231",
+        "shard": "7231",
+        "token": {
+          "topologyId": "one-domain-strict",
+          "epoch": 1
+        },
+        "factor": 3,
+        "replicaCount": 1,
+        "candidates": [
+          "n2",
+          "n4",
+          "n3",
+          "n1"
+        ],
+        "preferenceList": [
+          {
+            "node": "n2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n4",
+            "position": 1,
+            "role": "fallback"
+          },
+          {
+            "node": "n3",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "n1",
+            "position": 3,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "domains",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "strict/2",
+      "requirements": [
+        "REPL-021",
+        "SPREAD-014"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "r2"
+      },
+      "note": "`strict` evaluates stage 0 alone, so r is 1 and the cause is `domains`",
+      "expect": {
+        "routingKey": "7232",
+        "shard": "7232",
+        "token": {
+          "topologyId": "one-domain-strict",
+          "epoch": 1
+        },
+        "factor": 3,
+        "replicaCount": 1,
+        "candidates": [
+          "n1",
+          "n4",
+          "n2",
+          "n3"
+        ],
+        "preferenceList": [
+          {
+            "node": "n1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n4",
+            "position": 1,
+            "role": "fallback"
+          },
+          {
+            "node": "n2",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "n3",
+            "position": 3,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "domains",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "strict/3",
+      "requirements": [
+        "REPL-021",
+        "SPREAD-014"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "r3"
+      },
+      "note": "`strict` evaluates stage 0 alone, so r is 1 and the cause is `domains`",
+      "expect": {
+        "routingKey": "7233",
+        "shard": "7233",
+        "token": {
+          "topologyId": "one-domain-strict",
+          "epoch": 1
+        },
+        "factor": 3,
+        "replicaCount": 1,
+        "candidates": [
+          "n1",
+          "n2",
+          "n4",
+          "n3"
+        ],
+        "preferenceList": [
+          {
+            "node": "n1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n2",
+            "position": 1,
+            "role": "fallback"
+          },
+          {
+            "node": "n4",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "n3",
+            "position": 3,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "domains",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "strict/4",
+      "requirements": [
+        "REPL-021",
+        "SPREAD-014"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "r4"
+      },
+      "note": "`strict` evaluates stage 0 alone, so r is 1 and the cause is `domains`",
+      "expect": {
+        "routingKey": "7234",
+        "shard": "7234",
+        "token": {
+          "topologyId": "one-domain-strict",
+          "epoch": 1
+        },
+        "factor": 3,
+        "replicaCount": 1,
+        "candidates": [
+          "n4",
+          "n3",
+          "n2",
+          "n1"
+        ],
+        "preferenceList": [
+          {
+            "node": "n4",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n3",
+            "position": 1,
+            "role": "fallback"
+          },
+          {
+            "node": "n2",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "n1",
+            "position": 3,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "domains",
+        "matchedOverride": null
+      }
+    }
+  ]
+}

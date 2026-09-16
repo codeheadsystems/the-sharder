@@ -1,0 +1,16 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "invalid-hash-algorithm",
+  "epoch": 1,
+  "hash": {
+    "algorithm": "xxhash64"
+  },
+  "strategy": {
+    "kind": "rendezvous"
+  },
+  "nodes": [
+    {
+      "id": "n1"
+    }
+  ]
+}

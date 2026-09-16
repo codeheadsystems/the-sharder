@@ -1,0 +1,33 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "weight-zero-pinned",
+  "epoch": 1,
+  "replication": {
+    "factor": 2
+  },
+  "strategy": {
+    "kind": "rendezvous"
+  },
+  "nodes": [
+    {
+      "id": "live-1",
+      "weight": 1
+    },
+    {
+      "id": "zero-1",
+      "weight": 0
+    }
+  ],
+  "overrides": [
+    {
+      "match": {
+        "kind": "exact",
+        "value": "pinned"
+      },
+      "pin": [
+        "zero-1",
+        "live-1"
+      ]
+    }
+  ]
+}

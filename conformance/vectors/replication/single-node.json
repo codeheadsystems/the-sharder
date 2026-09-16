@@ -1,0 +1,129 @@
+{
+  "vectorSet": "replication-single-node",
+  "kind": "routing",
+  "description": "A topology of one node at factor 3.",
+  "requirements": [
+    "REPL-020",
+    "REPL-021",
+    "REPL-025",
+    "SPREAD-013"
+  ],
+  "topology": "topologies/single-node.topology.json",
+  "topologyDigest": "c95f340f1c68aeeff2dd0afe3320884ac006832ddea99b63ef08057ab44a12fc",
+  "cases": [
+    {
+      "name": "single-node/0",
+      "requirements": [
+        "REPL-020",
+        "REPL-021"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "one-0"
+      },
+      "note": "one node, factor 3: r is 1, the tail is empty, the cause is `nodes`",
+      "expect": {
+        "routingKey": "6f6e652d30",
+        "shard": "6f6e652d30",
+        "token": {
+          "topologyId": "single-node",
+          "epoch": 1
+        },
+        "factor": 3,
+        "replicaCount": 1,
+        "candidates": [
+          "only"
+        ],
+        "preferenceList": [
+          {
+            "node": "only",
+            "position": 0,
+            "role": "replica"
+          }
+        ],
+        "relaxedLevels": [
+          "zone"
+        ],
+        "spreadStage": 1,
+        "shortfall": "nodes",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "single-node/1",
+      "requirements": [
+        "REPL-020",
+        "REPL-021"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "one-1"
+      },
+      "note": "one node, factor 3: r is 1, the tail is empty, the cause is `nodes`",
+      "expect": {
+        "routingKey": "6f6e652d31",
+        "shard": "6f6e652d31",
+        "token": {
+          "topologyId": "single-node",
+          "epoch": 1
+        },
+        "factor": 3,
+        "replicaCount": 1,
+        "candidates": [
+          "only"
+        ],
+        "preferenceList": [
+          {
+            "node": "only",
+            "position": 0,
+            "role": "replica"
+          }
+        ],
+        "relaxedLevels": [
+          "zone"
+        ],
+        "spreadStage": 1,
+        "shortfall": "nodes",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "single-node/2",
+      "requirements": [
+        "REPL-020",
+        "REPL-021"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "one-2"
+      },
+      "note": "one node, factor 3: r is 1, the tail is empty, the cause is `nodes`",
+      "expect": {
+        "routingKey": "6f6e652d32",
+        "shard": "6f6e652d32",
+        "token": {
+          "topologyId": "single-node",
+          "epoch": 1
+        },
+        "factor": 3,
+        "replicaCount": 1,
+        "candidates": [
+          "only"
+        ],
+        "preferenceList": [
+          {
+            "node": "only",
+            "position": 0,
+            "role": "replica"
+          }
+        ],
+        "relaxedLevels": [
+          "zone"
+        ],
+        "spreadStage": 1,
+        "shortfall": "nodes",
+        "matchedOverride": null
+      }
+    }
+  ]
+}

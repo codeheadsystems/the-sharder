@@ -1,0 +1,24 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "invalid-range-start",
+  "epoch": 1,
+  "strategy": {
+    "kind": "range",
+    "assignment": "explicit",
+    "ranges": [
+      {
+        "shardId": "r0",
+        "start": "00",
+        "end": null,
+        "nodes": [
+          "n1"
+        ]
+      }
+    ]
+  },
+  "nodes": [
+    {
+      "id": "n1"
+    }
+  ]
+}

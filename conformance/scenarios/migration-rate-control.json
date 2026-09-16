@@ -1,0 +1,107 @@
+{
+  "scenario": "migration-rate-control",
+  "description": "Concurrency bounds and backpressure decide what a `step` admits.  Neither pressure level moves a handoff out of `planned`, and `hard` withholds only the two bulk hooks.",
+  "requirements": [
+    "MOVE-071",
+    "RATE-001",
+    "RATE-011",
+    "RATE-071",
+    "RATE-081",
+    "RATE-091",
+    "RATE-111"
+  ],
+  "deterministic": true,
+  "setup": {},
+  "steps": [
+    {
+      "action": "handoffStep",
+      "handoff": "h-a",
+      "trigger": "admittedByRatePolicy",
+      "at": 1000,
+      "expect": {
+        "outcome": {
+          "outcome": "advanced",
+          "id": "h-a",
+          "fromState": "planned",
+          "toState": "preparing"
+        },
+        "state": "preparing"
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-b",
+      "trigger": "admittedByRatePolicy",
+      "at": 1100,
+      "note": "`maxConcurrentPerSourceNode` defaults to 1 and both handoffs leave n1",
+      "expect": {
+        "outcome": {
+          "outcome": "idle",
+          "reason": "concurrencyBound"
+        },
+        "state": "planned"
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-b",
+      "trigger": "admittedByRatePolicy",
+      "at": 1200,
+      "pressure": "soft",
+      "note": "`RATE-081` and `RATE-091`: neither level admits a handoff out of `planned`",
+      "expect": {
+        "outcome": {
+          "outcome": "idle",
+          "reason": "pressure:soft"
+        },
+        "state": "planned"
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-b",
+      "trigger": "admittedByRatePolicy",
+      "at": 1200,
+      "pressure": "hard",
+      "note": "`RATE-081` and `RATE-091`: neither level admits a handoff out of `planned`",
+      "expect": {
+        "outcome": {
+          "outcome": "idle",
+          "reason": "pressure:hard"
+        },
+        "state": "planned"
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-a",
+      "trigger": "prepareSuccess",
+      "at": 1300,
+      "pressure": "hard",
+      "note": "`RATE-091` withholds `transfer` and `catchUp` and no other hook",
+      "expect": {
+        "outcome": {
+          "outcome": "advanced",
+          "id": "h-a",
+          "fromState": "preparing",
+          "toState": "transferring"
+        },
+        "state": "transferring"
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-a",
+      "trigger": "noBulkRemaining",
+      "at": 1400,
+      "pressure": "hard",
+      "expect": {
+        "outcome": {
+          "outcome": "idle",
+          "reason": "pressure:hard"
+        },
+        "state": "transferring"
+      }
+    }
+  ]
+}

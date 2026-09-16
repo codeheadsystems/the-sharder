@@ -1,0 +1,46 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "movement-bound-rv",
+  "epoch": 1,
+  "replication": {
+    "factor": 1
+  },
+  "strategy": {
+    "kind": "rendezvous",
+    "virtualNodesPerWeightUnit": 1
+  },
+  "nodes": [
+    {
+      "id": "b0",
+      "weight": 1
+    },
+    {
+      "id": "b1",
+      "weight": 1
+    },
+    {
+      "id": "b2",
+      "weight": 1
+    },
+    {
+      "id": "b3",
+      "weight": 1
+    },
+    {
+      "id": "b4",
+      "weight": 1
+    },
+    {
+      "id": "b5",
+      "weight": 1
+    },
+    {
+      "id": "b6",
+      "weight": 1
+    },
+    {
+      "id": "b7",
+      "weight": 1
+    }
+  ]
+}

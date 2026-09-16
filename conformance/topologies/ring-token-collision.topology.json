@@ -1,0 +1,28 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "ring-token-collision",
+  "epoch": 1,
+  "replication": {
+    "factor": 2
+  },
+  "strategy": {
+    "kind": "ring",
+    "tokenAssignment": "derived",
+    "tokensPerWeightUnit": 1,
+    "maxTokensPerNode": 1
+  },
+  "nodes": [
+    {
+      "id": "0b1a4700c87f5839"
+    },
+    {
+      "id": "e88025c0246a27df"
+    },
+    {
+      "id": "zz-third"
+    }
+  ],
+  "metadata": {
+    "note": "the first two identities derive the same token at index 0"
+  }
+}

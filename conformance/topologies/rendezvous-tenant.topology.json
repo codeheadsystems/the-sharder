@@ -1,0 +1,94 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "tenant-router",
+  "epoch": 42,
+  "keyTransform": {
+    "kind": "prefixFields",
+    "separator": "3a",
+    "count": 1
+  },
+  "domainLevels": [
+    "region"
+  ],
+  "replication": {
+    "factor": 1
+  },
+  "strategy": {
+    "kind": "rendezvous",
+    "virtualNodesPerWeightUnit": 1
+  },
+  "nodes": [
+    {
+      "id": "cluster-eu-1",
+      "weight": 1,
+      "domains": {
+        "region": "eu-west"
+      },
+      "address": "https://eu1.internal",
+      "tags": {
+        "tier": "standard"
+      }
+    },
+    {
+      "id": "cluster-eu-2",
+      "weight": 1,
+      "domains": {
+        "region": "eu-central"
+      },
+      "address": "https://eu2.internal",
+      "tags": {
+        "tier": "standard"
+      }
+    },
+    {
+      "id": "cluster-us-1",
+      "weight": 2,
+      "domains": {
+        "region": "us-east"
+      },
+      "address": "https://us1.internal",
+      "tags": {
+        "tier": "standard"
+      }
+    },
+    {
+      "id": "cluster-us-2",
+      "weight": 1,
+      "domains": {
+        "region": "us-east"
+      },
+      "address": "https://us2.internal",
+      "tags": {
+        "tier": "dedicated"
+      }
+    }
+  ],
+  "overrides": [
+    {
+      "match": {
+        "kind": "exact",
+        "value": "acme"
+      },
+      "pin": [
+        "cluster-us-2",
+        "cluster-us-1"
+      ],
+      "note": "contract 8841, dedicated tier"
+    },
+    {
+      "match": {
+        "kind": "prefix",
+        "value": "eu-"
+      },
+      "constrain": {
+        "domains": {
+          "region": [
+            "eu-west",
+            "eu-central"
+          ]
+        }
+      },
+      "note": "residency"
+    }
+  ]
+}

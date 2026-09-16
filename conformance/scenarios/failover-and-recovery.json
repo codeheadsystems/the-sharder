@@ -1,0 +1,208 @@
+{
+  "scenario": "failover-and-recovery",
+  "description": "A replica fails, is ejected, is probed under probation, and returns.  The preference list never changes; only the attempt sequence does.",
+  "requirements": [
+    "FAIL-001",
+    "FAIL-002",
+    "FAIL-003",
+    "FAIL-004",
+    "FAIL-012",
+    "FAIL-013",
+    "HEALTH-004",
+    "HEALTH-005",
+    "HEALTH-020",
+    "HEALTH-023",
+    "HEALTH-024",
+    "HEALTH-040",
+    "HEALTH-041",
+    "HEALTH-043",
+    "HEALTH-044",
+    "HEALTH-045",
+    "HEALTH-050",
+    "HEALTH-051",
+    "PROP-041",
+    "PROP-045"
+  ],
+  "deterministic": true,
+  "setup": {},
+  "steps": [
+    {
+      "action": "route",
+      "topology": "topologies/migration-epoch-1.topology.json",
+      "key": {
+        "encoding": "base16",
+        "value": "50"
+      },
+      "expect": {
+        "shard": "r1",
+        "token": {
+          "topologyId": "migration",
+          "epoch": 1
+        },
+        "preferenceList": [
+          "n2",
+          "n3"
+        ],
+        "replicaCount": 2
+      }
+    },
+    {
+      "action": "attemptSequence",
+      "key": {
+        "encoding": "base16",
+        "value": "50"
+      },
+      "note": "`HEALTH-004`: no signal has been ingested, so nothing is filtered",
+      "expect": {
+        "attemptSequence": [
+          "n2",
+          "n3"
+        ],
+        "filterFailedOpen": false
+      }
+    },
+    {
+      "action": "reportHealth",
+      "node": "n2",
+      "outcome": "failure",
+      "at": 1000,
+      "expect": {
+        "state": "suspect"
+      }
+    },
+    {
+      "action": "reportHealth",
+      "node": "n2",
+      "outcome": "failure",
+      "at": 1200,
+      "expect": {
+        "state": "suspect"
+      }
+    },
+    {
+      "action": "reportHealth",
+      "node": "n2",
+      "outcome": "failure",
+      "at": 1400,
+      "expect": {
+        "state": "suspect"
+      }
+    },
+    {
+      "action": "reportHealth",
+      "node": "n2",
+      "outcome": "failure",
+      "at": 1600,
+      "expect": {
+        "state": "suspect"
+      }
+    },
+    {
+      "action": "reportHealth",
+      "node": "n2",
+      "outcome": "failure",
+      "at": 1800,
+      "expect": {
+        "state": "unavailable"
+      }
+    },
+    {
+      "action": "attemptSequence",
+      "key": {
+        "encoding": "base16",
+        "value": "50"
+      },
+      "note": "`FAIL-002`: the filter removes entries and never reorders them, so the primary of the decision is unchanged",
+      "expect": {
+        "attemptSequence": [
+          "n3"
+        ],
+        "filterFailedOpen": false,
+        "primaryUnchanged": true,
+        "healthOfPrimary": "unavailable"
+      }
+    },
+    {
+      "action": "attemptSequence",
+      "key": {
+        "encoding": "base16",
+        "value": "50"
+      },
+      "at": 2300,
+      "note": "`HEALTH-034`: the placement set holds three nodes, so a second ejection would take the ejected share above `maxEjectionPercent` and is refused.  The refused node holds `suspect`, which is attemptable.",
+      "expect": {
+        "attemptSequence": [
+          "n3"
+        ],
+        "filterFailedOpen": false,
+        "placementSetSize": 3,
+        "ejectionsRefused": [
+          {
+            "event": "sharder.health.ejection_refused",
+            "node": "n3",
+            "ejected": 1,
+            "setSize": 3,
+            "at": 1940
+          }
+        ],
+        "states": {
+          "n2": "unavailable",
+          "n3": "suspect"
+        }
+      }
+    },
+    {
+      "action": "advanceClock",
+      "to": 32300,
+      "note": "`HEALTH-044`: `baseEjectionMillis` elapses and the node reaches `probation`",
+      "expect": {
+        "states": {
+          "n2": "probation",
+          "n3": "suspect"
+        }
+      }
+    },
+    {
+      "action": "probeAdmission",
+      "node": "n2",
+      "calls": 20,
+      "note": "`HEALTH-051`: one attempt in `probationDivisor` is admitted",
+      "expect": {
+        "admitted": [
+          true,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          true,
+          false,
+          false,
+          false
+        ],
+        "admittedCount": 2
+      }
+    },
+    {
+      "action": "advanceClock",
+      "to": 62300,
+      "note": "`HEALTH-045`: `probationMillis` elapses with no failure",
+      "expect": {
+        "states": {
+          "n2": "available",
+          "n3": "suspect"
+        }
+      }
+    }
+  ]
+}

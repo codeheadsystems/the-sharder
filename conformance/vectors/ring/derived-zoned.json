@@ -1,0 +1,692 @@
+{
+  "vectorSet": "ring-derived-zoned",
+  "kind": "routing",
+  "description": "Ring placement with weights, two domain levels, factor 3, and a zone spread. Exercises the preference list builder over a ring candidate ordering.",
+  "requirements": [
+    "PLACE-041",
+    "PLACE-050",
+    "REPL-012",
+    "REPL-013",
+    "REPL-014",
+    "REPL-017",
+    "RING-001",
+    "SPREAD-001",
+    "SPREAD-011",
+    "SPREAD-012",
+    "SPREAD-015"
+  ],
+  "topology": "topologies/ring-zoned.topology.json",
+  "topologyDigest": "d947c4aa45a782f32c422ce8bfdd6bef4f79186378ece4f0ed02e89686615ca2",
+  "cases": [
+    {
+      "name": "zoned/tenant-0",
+      "requirements": [
+        "REPL-012",
+        "RING-020",
+        "SPREAD-011",
+        "SPREAD-012"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "tenant-0"
+      },
+      "expect": {
+        "routingKey": "74656e616e742d30",
+        "shard": "5dbbf6439ff2651e",
+        "token": {
+          "topologyId": "ring-zoned",
+          "epoch": 12
+        },
+        "factor": 3,
+        "replicaCount": 3,
+        "candidates": [
+          "store-a1",
+          "store-c1",
+          "store-b2",
+          "store-c2",
+          "store-a2",
+          "store-b1"
+        ],
+        "preferenceList": [
+          {
+            "node": "store-a1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "store-c1",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "store-b2",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "store-c2",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "store-a2",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "store-b1",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "zoned/tenant-1",
+      "requirements": [
+        "REPL-012",
+        "RING-020",
+        "SPREAD-011",
+        "SPREAD-012"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "tenant-1"
+      },
+      "expect": {
+        "routingKey": "74656e616e742d31",
+        "shard": "61c0829980b19114",
+        "token": {
+          "topologyId": "ring-zoned",
+          "epoch": 12
+        },
+        "factor": 3,
+        "replicaCount": 3,
+        "candidates": [
+          "store-c1",
+          "store-b2",
+          "store-c2",
+          "store-a1",
+          "store-a2",
+          "store-b1"
+        ],
+        "preferenceList": [
+          {
+            "node": "store-c1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "store-b2",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "store-a1",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "store-c2",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "store-a2",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "store-b1",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "zoned/tenant-2",
+      "requirements": [
+        "REPL-012",
+        "RING-020",
+        "SPREAD-011",
+        "SPREAD-012"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "tenant-2"
+      },
+      "expect": {
+        "routingKey": "74656e616e742d32",
+        "shard": "9ac4817a376d2aee",
+        "token": {
+          "topologyId": "ring-zoned",
+          "epoch": 12
+        },
+        "factor": 3,
+        "replicaCount": 3,
+        "candidates": [
+          "store-b2",
+          "store-c1",
+          "store-c2",
+          "store-a1",
+          "store-a2",
+          "store-b1"
+        ],
+        "preferenceList": [
+          {
+            "node": "store-b2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "store-c1",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "store-a1",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "store-c2",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "store-a2",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "store-b1",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "zoned/tenant-3",
+      "requirements": [
+        "REPL-012",
+        "RING-020",
+        "SPREAD-011",
+        "SPREAD-012"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "tenant-3"
+      },
+      "expect": {
+        "routingKey": "74656e616e742d33",
+        "shard": "e26f63a7d54b4759",
+        "token": {
+          "topologyId": "ring-zoned",
+          "epoch": 12
+        },
+        "factor": 3,
+        "replicaCount": 3,
+        "candidates": [
+          "store-a1",
+          "store-a2",
+          "store-b1",
+          "store-b2",
+          "store-c2",
+          "store-c1"
+        ],
+        "preferenceList": [
+          {
+            "node": "store-a1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "store-b1",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "store-c2",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "store-a2",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "store-b2",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "store-c1",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "zoned/tenant-4",
+      "requirements": [
+        "REPL-012",
+        "RING-020",
+        "SPREAD-011",
+        "SPREAD-012"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "tenant-4"
+      },
+      "expect": {
+        "routingKey": "74656e616e742d34",
+        "shard": "4500184a815d3043",
+        "token": {
+          "topologyId": "ring-zoned",
+          "epoch": 12
+        },
+        "factor": 3,
+        "replicaCount": 3,
+        "candidates": [
+          "store-b2",
+          "store-a1",
+          "store-c1",
+          "store-c2",
+          "store-a2",
+          "store-b1"
+        ],
+        "preferenceList": [
+          {
+            "node": "store-b2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "store-a1",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "store-c1",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "store-c2",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "store-a2",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "store-b1",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "zoned/tenant-5",
+      "requirements": [
+        "REPL-012",
+        "RING-020",
+        "SPREAD-011",
+        "SPREAD-012"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "tenant-5"
+      },
+      "expect": {
+        "routingKey": "74656e616e742d35",
+        "shard": "be57964333f00831",
+        "token": {
+          "topologyId": "ring-zoned",
+          "epoch": 12
+        },
+        "factor": 3,
+        "replicaCount": 3,
+        "candidates": [
+          "store-a1",
+          "store-c1",
+          "store-a2",
+          "store-c2",
+          "store-b1",
+          "store-b2"
+        ],
+        "preferenceList": [
+          {
+            "node": "store-a1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "store-c1",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "store-b1",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "store-a2",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "store-c2",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "store-b2",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "zoned/tenant-6",
+      "requirements": [
+        "REPL-012",
+        "RING-020",
+        "SPREAD-011",
+        "SPREAD-012"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "tenant-6"
+      },
+      "expect": {
+        "routingKey": "74656e616e742d36",
+        "shard": "d23528b032da83ee",
+        "token": {
+          "topologyId": "ring-zoned",
+          "epoch": 12
+        },
+        "factor": 3,
+        "replicaCount": 3,
+        "candidates": [
+          "store-c2",
+          "store-a1",
+          "store-a2",
+          "store-b1",
+          "store-b2",
+          "store-c1"
+        ],
+        "preferenceList": [
+          {
+            "node": "store-c2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "store-a1",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "store-b1",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "store-a2",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "store-b2",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "store-c1",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "zoned/tenant-7",
+      "requirements": [
+        "REPL-012",
+        "RING-020",
+        "SPREAD-011",
+        "SPREAD-012"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "tenant-7"
+      },
+      "expect": {
+        "routingKey": "74656e616e742d37",
+        "shard": "c475d5dfaa63c7b6",
+        "token": {
+          "topologyId": "ring-zoned",
+          "epoch": 12
+        },
+        "factor": 3,
+        "replicaCount": 3,
+        "candidates": [
+          "store-c1",
+          "store-a2",
+          "store-c2",
+          "store-a1",
+          "store-b1",
+          "store-b2"
+        ],
+        "preferenceList": [
+          {
+            "node": "store-c1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "store-a2",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "store-b1",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "store-c2",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "store-a1",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "store-b2",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "zoned/tenant-8",
+      "requirements": [
+        "REPL-012",
+        "RING-020",
+        "SPREAD-011",
+        "SPREAD-012"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "tenant-8"
+      },
+      "expect": {
+        "routingKey": "74656e616e742d38",
+        "shard": "3aeaf02588ded92b",
+        "token": {
+          "topologyId": "ring-zoned",
+          "epoch": 12
+        },
+        "factor": 3,
+        "replicaCount": 3,
+        "candidates": [
+          "store-a2",
+          "store-b2",
+          "store-a1",
+          "store-c1",
+          "store-c2",
+          "store-b1"
+        ],
+        "preferenceList": [
+          {
+            "node": "store-a2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "store-b2",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "store-c1",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "store-a1",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "store-c2",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "store-b1",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "zoned/tenant-9",
+      "requirements": [
+        "REPL-012",
+        "RING-020",
+        "SPREAD-011",
+        "SPREAD-012"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "tenant-9"
+      },
+      "expect": {
+        "routingKey": "74656e616e742d39",
+        "shard": "9ac4817a376d2aee",
+        "token": {
+          "topologyId": "ring-zoned",
+          "epoch": 12
+        },
+        "factor": 3,
+        "replicaCount": 3,
+        "candidates": [
+          "store-b2",
+          "store-c1",
+          "store-c2",
+          "store-a1",
+          "store-a2",
+          "store-b1"
+        ],
+        "preferenceList": [
+          {
+            "node": "store-b2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "store-c1",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "store-a1",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "store-c2",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "store-a2",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "store-b1",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    }
+  ]
+}

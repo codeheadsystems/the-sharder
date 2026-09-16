@@ -1,0 +1,34 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "movement-rv",
+  "epoch": 1,
+  "replication": {
+    "factor": 3
+  },
+  "strategy": {
+    "kind": "rendezvous",
+    "virtualNodesPerWeightUnit": 1
+  },
+  "nodes": [
+    {
+      "id": "m1",
+      "weight": 1
+    },
+    {
+      "id": "m2",
+      "weight": 1
+    },
+    {
+      "id": "m3",
+      "weight": 1
+    },
+    {
+      "id": "m4",
+      "weight": 1
+    },
+    {
+      "id": "m5",
+      "weight": 1
+    }
+  ]
+}

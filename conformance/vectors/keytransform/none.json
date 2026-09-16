@@ -1,0 +1,101 @@
+{
+  "vectorSet": "keytransform-none",
+  "kind": "keyTransform",
+  "description": "The `none` transform returns the key octet for octet.",
+  "requirements": [
+    "KEY-001",
+    "KEY-002",
+    "KEY-004",
+    "KEY-010",
+    "KEY-013",
+    "KEY-020"
+  ],
+  "cases": [
+    {
+      "name": "empty",
+      "requirements": [
+        "KEY-001",
+        "KEY-002",
+        "KEY-013",
+        "KEY-020"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": ""
+      },
+      "note": "KEY-004: a key of zero octets routes like any other",
+      "expect": {
+        "routingKey": ""
+      }
+    },
+    {
+      "name": "ascii",
+      "requirements": [
+        "KEY-001",
+        "KEY-002",
+        "KEY-013",
+        "KEY-020"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "user-42"
+      },
+      "note": "the key unchanged",
+      "expect": {
+        "routingKey": "757365722d3432"
+      }
+    },
+    {
+      "name": "binary",
+      "requirements": [
+        "KEY-001",
+        "KEY-002",
+        "KEY-013",
+        "KEY-020"
+      ],
+      "key": {
+        "encoding": "base16",
+        "value": "00ff7b7d"
+      },
+      "note": "KEY-001 and KEY-002: octets, carried through with no encoding applied",
+      "expect": {
+        "routingKey": "00ff7b7d"
+      }
+    },
+    {
+      "name": "invalid-utf8",
+      "requirements": [
+        "KEY-001",
+        "KEY-002",
+        "KEY-013",
+        "KEY-020"
+      ],
+      "key": {
+        "encoding": "base16",
+        "value": "c328ff"
+      },
+      "note": "KEY-013: octets that are not a valid encoding of text are routed, not refused",
+      "expect": {
+        "routingKey": "c328ff"
+      }
+    },
+    {
+      "name": "nul-octets",
+      "requirements": [
+        "KEY-001",
+        "KEY-002",
+        "KEY-013",
+        "KEY-020"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "\u0000\u0000"
+      },
+      "note": "KEY-001: a NUL octet is an octet like any other",
+      "expect": {
+        "routingKey": "0000"
+      }
+    }
+  ],
+  "topology": "topologies/kt-none.topology.json"
+}

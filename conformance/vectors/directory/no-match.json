@@ -1,0 +1,132 @@
+{
+  "vectorSet": "directory-no-match",
+  "kind": "routing",
+  "description": "A routing key that no directory entry matches, and an entry whose every node is outside the placement set.",
+  "requirements": [
+    "DIR-010",
+    "DIR-011",
+    "DIR-012",
+    "DIR-020",
+    "ERR-020",
+    "ERR-021",
+    "PLACE-002",
+    "PLACE-014",
+    "REPL-005"
+  ],
+  "topology": "topologies/directory-sparse.topology.json",
+  "topologyDigest": "801a8f04db57c5fffa78267d43e8c6f607ce69f63f69bed0e3c4799aeec61690",
+  "cases": [
+    {
+      "name": "known",
+      "requirements": [
+        "DIR-003"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "known"
+      },
+      "expect": {
+        "routingKey": "6b6e6f776e",
+        "shard": "exact:6b6e6f776e",
+        "token": {
+          "topologyId": "directory-sparse",
+          "epoch": 1
+        },
+        "factor": 1,
+        "replicaCount": 1,
+        "candidates": [
+          "c1"
+        ],
+        "preferenceList": [
+          {
+            "node": "c1",
+            "position": 0,
+            "role": "replica"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "prefixed",
+      "requirements": [
+        "DIR-003"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "prefixed-key"
+      },
+      "expect": {
+        "routingKey": "70726566697865642d6b6579",
+        "shard": "prefix:707265",
+        "token": {
+          "topologyId": "directory-sparse",
+          "epoch": 1
+        },
+        "factor": 1,
+        "replicaCount": 1,
+        "candidates": [
+          "c2",
+          "c1"
+        ],
+        "preferenceList": [
+          {
+            "node": "c2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "c1",
+            "position": 1,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "no-match",
+      "requirements": [
+        "DIR-010",
+        "DIR-011",
+        "ERR-020",
+        "ERR-021"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "unknown"
+      },
+      "note": "a directory is exhaustive by construction; no match is no route",
+      "expectError": {
+        "code": 101,
+        "name": "noCandidate",
+        "cause": "noDirectoryEntry"
+      }
+    },
+    {
+      "name": "entry-names-leaving-node",
+      "requirements": [
+        "ERR-020",
+        "ERR-021",
+        "PLACE-002",
+        "PLACE-014"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "gone"
+      },
+      "note": "the entry's only node is `leaving`, so the ordering is empty and `ERR-021` names `authoredListExcludedAll`",
+      "expectError": {
+        "code": 101,
+        "name": "noCandidate",
+        "cause": "authoredListExcludedAll"
+      }
+    }
+  ]
+}

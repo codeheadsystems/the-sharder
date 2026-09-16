@@ -1,0 +1,338 @@
+{
+  "vectorSet": "ring-non-default-seed",
+  "kind": "routing",
+  "description": "Ring placement under a non-default hash seed.  Every other vector in the suite uses the sixteen zero octets.",
+  "requirements": [
+    "SEC-010",
+    "SEC-011",
+    "SEC-012"
+  ],
+  "topology": "topologies/ring-seeded.topology.json",
+  "topologyDigest": "d87982666b99da9bec68618eeddc31864b8dada1abd889121c54584434f6cc5e",
+  "cases": [
+    {
+      "name": "seeded/0",
+      "requirements": [
+        "SEC-010",
+        "SEC-012"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "seeded-0"
+      },
+      "note": "a non-default seed, which moves every key relative to the zero seed",
+      "expect": {
+        "routingKey": "7365656465642d30",
+        "shard": "0b2b41c612777318",
+        "token": {
+          "topologyId": "ring-seeded",
+          "epoch": 118
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "n3",
+          "n1",
+          "n4",
+          "n2"
+        ],
+        "preferenceList": [
+          {
+            "node": "n3",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n1",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n4",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "n2",
+            "position": 3,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "seeded/1",
+      "requirements": [
+        "SEC-010",
+        "SEC-012"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "seeded-1"
+      },
+      "note": "a non-default seed, which moves every key relative to the zero seed",
+      "expect": {
+        "routingKey": "7365656465642d31",
+        "shard": "6c6ceecf2a42ffcc",
+        "token": {
+          "topologyId": "ring-seeded",
+          "epoch": 118
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "n4",
+          "n2",
+          "n3",
+          "n1"
+        ],
+        "preferenceList": [
+          {
+            "node": "n4",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n2",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n3",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "n1",
+            "position": 3,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "seeded/2",
+      "requirements": [
+        "SEC-010",
+        "SEC-012"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "seeded-2"
+      },
+      "note": "a non-default seed, which moves every key relative to the zero seed",
+      "expect": {
+        "routingKey": "7365656465642d32",
+        "shard": "9f7bdc921837d1cb",
+        "token": {
+          "topologyId": "ring-seeded",
+          "epoch": 118
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "n2",
+          "n3",
+          "n1",
+          "n4"
+        ],
+        "preferenceList": [
+          {
+            "node": "n2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n3",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n1",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "n4",
+            "position": 3,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "seeded/3",
+      "requirements": [
+        "SEC-010",
+        "SEC-012"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "seeded-3"
+      },
+      "note": "a non-default seed, which moves every key relative to the zero seed",
+      "expect": {
+        "routingKey": "7365656465642d33",
+        "shard": "9f7bdc921837d1cb",
+        "token": {
+          "topologyId": "ring-seeded",
+          "epoch": 118
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "n2",
+          "n3",
+          "n1",
+          "n4"
+        ],
+        "preferenceList": [
+          {
+            "node": "n2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n3",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n1",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "n4",
+            "position": 3,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "seeded/4",
+      "requirements": [
+        "SEC-010",
+        "SEC-012"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "seeded-4"
+      },
+      "note": "a non-default seed, which moves every key relative to the zero seed",
+      "expect": {
+        "routingKey": "7365656465642d34",
+        "shard": "6c6ceecf2a42ffcc",
+        "token": {
+          "topologyId": "ring-seeded",
+          "epoch": 118
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "n4",
+          "n2",
+          "n3",
+          "n1"
+        ],
+        "preferenceList": [
+          {
+            "node": "n4",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n2",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n3",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "n1",
+            "position": 3,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "seeded/5",
+      "requirements": [
+        "SEC-010",
+        "SEC-012"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "seeded-5"
+      },
+      "note": "a non-default seed, which moves every key relative to the zero seed",
+      "expect": {
+        "routingKey": "7365656465642d35",
+        "shard": "9f7bdc921837d1cb",
+        "token": {
+          "topologyId": "ring-seeded",
+          "epoch": 118
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "n2",
+          "n3",
+          "n1",
+          "n4"
+        ],
+        "preferenceList": [
+          {
+            "node": "n2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n3",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n1",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "n4",
+            "position": 3,
+            "role": "fallback"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    }
+  ]
+}

@@ -1,0 +1,342 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sharder.dev/schema/topology-v1.schema.json",
+  "title": "sharder topology document, format version 1",
+  "type": "object",
+  "required": ["formatVersion", "topologyId", "epoch", "strategy", "nodes"],
+  "additionalProperties": false,
+  "properties": {
+    "formatVersion": { "$ref": "#/$defs/formatVersion" },
+    "topologyId": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "epoch": { "$ref": "#/$defs/safeUint" },
+    "hash": { "$ref": "#/$defs/hash" },
+    "keyTransform": { "$ref": "#/$defs/keyTransform" },
+    "domainLevels": {
+      "type": "array",
+      "maxItems": 8,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1, "maxLength": 64 }
+    },
+    "replication": { "$ref": "#/$defs/replication" },
+    "strategy": { "$ref": "#/$defs/strategy" },
+    "nodes": { "type": "array", "items": { "$ref": "#/$defs/node" } },
+    "overrides": { "type": "array", "items": { "$ref": "#/$defs/override" } },
+    "metadata": { "$ref": "#/$defs/stringMap" }
+  },
+
+  "$defs": {
+    "formatVersion": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+    },
+    "safeUint": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "hexU64": { "type": "string", "pattern": "^[0-9a-f]{16}$" },
+    "hexBytes": { "type": "string", "pattern": "^([0-9a-f]{2})*$" },
+    "nodeId": { "type": "string", "minLength": 1, "maxLength": 256 },
+    "levelName": { "type": "string", "minLength": 1, "maxLength": 64 },
+    "stringMap": {
+      "type": "object",
+      "additionalProperties": { "type": "string", "maxLength": 1024 }
+    },
+
+    "hash": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "algorithm": { "type": "string", "enum": ["siphash-2-4"], "default": "siphash-2-4" },
+        "seed": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{32}$",
+          "default": "00000000000000000000000000000000"
+        }
+      }
+    },
+
+    "keyTransform": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind"],
+          "properties": { "kind": { "const": "none" } }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind"],
+          "properties": {
+            "kind": { "const": "braceTag" },
+            "open": { "$ref": "#/$defs/byteLiteral", "default": "7b" },
+            "close": { "$ref": "#/$defs/byteLiteral", "default": "7d" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "separator"],
+          "properties": {
+            "kind": { "const": "prefixFields" },
+            "separator": { "$ref": "#/$defs/byteLiteral" },
+            "count": { "type": "integer", "minimum": 1, "maximum": 16, "default": 1 }
+          }
+        }
+      ]
+    },
+
+    "byteLiteral": { "type": "string", "pattern": "^[0-9a-f]{2}$" },
+
+    "replication": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "factor": { "type": "integer", "minimum": 1, "maximum": 1024, "default": 1 },
+        "spread": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/levelName" }
+        },
+        "spreadPolicy": {
+          "type": "string",
+          "enum": ["relaxed", "strict"],
+          "default": "relaxed"
+        }
+      }
+    },
+
+    "node": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id"],
+      "properties": {
+        "id": { "$ref": "#/$defs/nodeId" },
+        "state": {
+          "type": "string",
+          "enum": ["active", "joining", "draining", "leaving"],
+          "default": "active"
+        },
+        "weight": { "type": "integer", "minimum": 0, "maximum": 1000000, "default": 1 },
+        "domains": {
+          "type": "object",
+          "additionalProperties": { "type": "string", "minLength": 1, "maxLength": 128 }
+        },
+        "address": { "type": "string", "maxLength": 1024 },
+        "tags": { "$ref": "#/$defs/stringMap" },
+        "tokens": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/hexU64" }
+        }
+      }
+    },
+
+    "matcher": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "value"],
+      "properties": {
+        "kind": { "type": "string", "enum": ["exact", "prefix"] },
+        "value": { "type": "string" },
+        "encoding": { "type": "string", "enum": ["utf8", "base16"], "default": "utf8" }
+      }
+    },
+
+    "constraint": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "domains": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "type": "string", "minLength": 1 }
+          }
+        },
+        "tags": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "type": "string" }
+          }
+        },
+        "nodes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/nodeId" }
+        }
+      }
+    },
+
+    "override": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["match"],
+      "anyOf": [{ "required": ["pin"] }, { "required": ["constrain"] }],
+      "properties": {
+        "match": { "$ref": "#/$defs/matcher" },
+        "pin": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/nodeId" }
+        },
+        "constrain": { "$ref": "#/$defs/constraint" },
+        "factor": { "type": "integer", "minimum": 1, "maximum": 1024 },
+        "note": { "type": "string", "maxLength": 1024 }
+      }
+    },
+
+    "slotRange": { "type": "string", "pattern": "^(0|[1-9][0-9]*)(-(0|[1-9][0-9]*))?$" },
+
+    "strategy": {
+      "oneOf": [
+        { "$ref": "#/$defs/strategyRing" },
+        { "$ref": "#/$defs/strategyRendezvous" },
+        { "$ref": "#/$defs/strategySlot" },
+        { "$ref": "#/$defs/strategyRange" },
+        { "$ref": "#/$defs/strategyDirectory" }
+      ]
+    },
+
+    "strategyRing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind"],
+      "properties": {
+        "kind": { "const": "ring" },
+        "tokenAssignment": {
+          "type": "string",
+          "enum": ["derived", "explicit"],
+          "default": "derived"
+        },
+        "tokensPerWeightUnit": {
+          "type": "integer", "minimum": 1, "maximum": 4096, "default": 4
+        },
+        "maxTokensPerNode": {
+          "type": "integer", "minimum": 1, "maximum": 65536, "default": 4096
+        }
+      }
+    },
+
+    "strategyRendezvous": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind"],
+      "properties": {
+        "kind": { "const": "rendezvous" },
+        "virtualNodesPerWeightUnit": {
+          "type": "integer", "minimum": 1, "maximum": 1024, "default": 1
+        },
+        "maxVirtualNodesPerNode": {
+          "type": "integer", "minimum": 1, "maximum": 65536, "default": 1024
+        }
+      }
+    },
+
+    "strategySlot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "slotCount"],
+      "properties": {
+        "kind": { "const": "slot" },
+        "slotCount": { "type": "integer", "minimum": 1, "maximum": 1048576 },
+        "assignment": {
+          "type": "string",
+          "enum": ["derived", "explicit"],
+          "default": "derived"
+        },
+        "assignments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["slots", "nodes"],
+            "properties": {
+              "slots": {
+                "type": "array",
+                "minItems": 1,
+                "items": { "$ref": "#/$defs/slotRange" }
+              },
+              "nodes": {
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "items": { "$ref": "#/$defs/nodeId" }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "strategyRange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "ranges"],
+      "properties": {
+        "kind": { "const": "range" },
+        "assignment": {
+          "type": "string",
+          "enum": ["derived", "explicit"],
+          "default": "explicit"
+        },
+        "ranges": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["shardId", "start", "end"],
+            "properties": {
+              "shardId": { "type": "string", "minLength": 1, "maxLength": 128 },
+              "start": { "oneOf": [{ "$ref": "#/$defs/hexBytes" }, { "type": "null" }] },
+              "end": { "oneOf": [{ "$ref": "#/$defs/hexBytes" }, { "type": "null" }] },
+              "nodes": {
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "items": { "$ref": "#/$defs/nodeId" }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "strategyDirectory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "entries"],
+      "properties": {
+        "kind": { "const": "directory" },
+        "entries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["match", "nodes"],
+            "properties": {
+              "match": { "$ref": "#/$defs/matcher" },
+              "nodes": {
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "items": { "$ref": "#/$defs/nodeId" }
+              },
+              "note": { "type": "string", "maxLength": 1024 }
+            }
+          }
+        }
+      }
+    }
+  }
+}

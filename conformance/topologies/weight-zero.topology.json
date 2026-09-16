@@ -1,0 +1,30 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "weight-zero",
+  "epoch": 1,
+  "replication": {
+    "factor": 2
+  },
+  "strategy": {
+    "kind": "rendezvous"
+  },
+  "nodes": [
+    {
+      "id": "live-1",
+      "weight": 1
+    },
+    {
+      "id": "live-2",
+      "weight": 1
+    },
+    {
+      "id": "zero-1",
+      "weight": 0
+    },
+    {
+      "id": "zero-2",
+      "weight": 0,
+      "state": "draining"
+    }
+  ]
+}

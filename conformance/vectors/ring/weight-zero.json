@@ -1,0 +1,261 @@
+{
+  "vectorSet": "ring-weight-zero",
+  "kind": "routing",
+  "description": "A node of weight 0 under derived token assignment owns no token and never appears.",
+  "requirements": [
+    "PLACE-042",
+    "PLACE-043",
+    "RING-001",
+    "RING-002"
+  ],
+  "cases": [
+    {
+      "name": "weight-zero/0",
+      "requirements": [
+        "RING-002",
+        "PLACE-042"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "rz-0"
+      },
+      "expect": {
+        "routingKey": "727a2d30",
+        "shard": "74d769a9eae9842f",
+        "token": {
+          "topologyId": "ring-weight-zero",
+          "epoch": 1
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "rz-live-2",
+          "rz-live-1"
+        ],
+        "preferenceList": [
+          {
+            "node": "rz-live-2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "rz-live-1",
+            "position": 1,
+            "role": "replica"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "weight-zero/1",
+      "requirements": [
+        "RING-002",
+        "PLACE-042"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "rz-1"
+      },
+      "expect": {
+        "routingKey": "727a2d31",
+        "shard": "c6803e0df4ab349e",
+        "token": {
+          "topologyId": "ring-weight-zero",
+          "epoch": 1
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "rz-live-2",
+          "rz-live-1"
+        ],
+        "preferenceList": [
+          {
+            "node": "rz-live-2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "rz-live-1",
+            "position": 1,
+            "role": "replica"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "weight-zero/2",
+      "requirements": [
+        "RING-002",
+        "PLACE-042"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "rz-2"
+      },
+      "expect": {
+        "routingKey": "727a2d32",
+        "shard": "2bdd54adcd880648",
+        "token": {
+          "topologyId": "ring-weight-zero",
+          "epoch": 1
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "rz-live-2",
+          "rz-live-1"
+        ],
+        "preferenceList": [
+          {
+            "node": "rz-live-2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "rz-live-1",
+            "position": 1,
+            "role": "replica"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "weight-zero/3",
+      "requirements": [
+        "RING-002",
+        "PLACE-042"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "rz-3"
+      },
+      "expect": {
+        "routingKey": "727a2d33",
+        "shard": "c6803e0df4ab349e",
+        "token": {
+          "topologyId": "ring-weight-zero",
+          "epoch": 1
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "rz-live-2",
+          "rz-live-1"
+        ],
+        "preferenceList": [
+          {
+            "node": "rz-live-2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "rz-live-1",
+            "position": 1,
+            "role": "replica"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "weight-zero/4",
+      "requirements": [
+        "RING-002",
+        "PLACE-042"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "rz-4"
+      },
+      "expect": {
+        "routingKey": "727a2d34",
+        "shard": "e67c50b8066cd42e",
+        "token": {
+          "topologyId": "ring-weight-zero",
+          "epoch": 1
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "rz-live-1",
+          "rz-live-2"
+        ],
+        "preferenceList": [
+          {
+            "node": "rz-live-1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "rz-live-2",
+            "position": 1,
+            "role": "replica"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "weight-zero/5",
+      "requirements": [
+        "RING-002",
+        "PLACE-042"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "rz-5"
+      },
+      "expect": {
+        "routingKey": "727a2d35",
+        "shard": "74d769a9eae9842f",
+        "token": {
+          "topologyId": "ring-weight-zero",
+          "epoch": 1
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "rz-live-2",
+          "rz-live-1"
+        ],
+        "preferenceList": [
+          {
+            "node": "rz-live-2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "rz-live-1",
+            "position": 1,
+            "role": "replica"
+          }
+        ],
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    }
+  ],
+  "topology": "topologies/ring-weight-zero.topology.json",
+  "topologyDigest": "d3a3cc764c0012f56a528cdedb727cec58bb59464a52acede1206435783a80fb"
+}

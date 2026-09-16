@@ -1,0 +1,152 @@
+{
+  "scenario": "plan-superseded-by-new-epoch",
+  "description": "A third epoch arrives while three handoffs are in flight.  The plan is superseded, pre-cutover handoffs abort, and the handoff past cutover runs on.",
+  "requirements": [
+    "MOVE-091",
+    "MOVE-101",
+    "MOVE-481",
+    "TOPO-111",
+    "TOPO-131"
+  ],
+  "deterministic": true,
+  "setup": {},
+  "steps": [
+    {
+      "action": "handoffStep",
+      "handoff": "h-a",
+      "trigger": "admittedByRatePolicy",
+      "at": 1000,
+      "expect": {
+        "outcome": {
+          "outcome": "advanced",
+          "id": "h-a",
+          "fromState": "planned",
+          "toState": "preparing"
+        },
+        "state": "preparing"
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-a",
+      "trigger": "prepareSuccess",
+      "at": 1100,
+      "expect": {
+        "outcome": {
+          "outcome": "advanced",
+          "id": "h-a",
+          "fromState": "preparing",
+          "toState": "transferring"
+        },
+        "state": "transferring"
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-a",
+      "trigger": "noBulkRemaining",
+      "at": 1200,
+      "expect": {
+        "outcome": {
+          "outcome": "advanced",
+          "id": "h-a",
+          "fromState": "transferring",
+          "toState": "catchingUp"
+        },
+        "state": "catchingUp"
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-a",
+      "trigger": "residueAtOrBelowThreshold",
+      "at": 1300,
+      "expect": {
+        "outcome": {
+          "outcome": "advanced",
+          "id": "h-a",
+          "fromState": "catchingUp",
+          "toState": "cutover"
+        },
+        "state": "cutover"
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-a",
+      "trigger": "cutoverCommitted",
+      "at": 1400,
+      "expect": {
+        "outcome": {
+          "outcome": "advanced",
+          "id": "h-a",
+          "fromState": "cutover",
+          "toState": "verifying"
+        },
+        "state": "verifying"
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-b",
+      "trigger": "admittedByRatePolicy",
+      "at": 1000,
+      "expect": {
+        "outcome": {
+          "outcome": "advanced",
+          "id": "h-b",
+          "fromState": "planned",
+          "toState": "preparing"
+        },
+        "state": "preparing"
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-b",
+      "trigger": "prepareSuccess",
+      "at": 1100,
+      "expect": {
+        "outcome": {
+          "outcome": "advanced",
+          "id": "h-b",
+          "fromState": "preparing",
+          "toState": "transferring"
+        },
+        "state": "transferring"
+      }
+    },
+    {
+      "action": "snapshotInstalled",
+      "topologyId": "migration",
+      "epoch": 4,
+      "at": 50000,
+      "note": "`MOVE-091`: an epoch that is neither the plan's source nor its target supersedes the plan.  Handoffs at `cutover` or beyond run to a terminal state.",
+      "expect": {
+        "result": {
+          "superseded": true,
+          "aborted": [
+            "h-b",
+            "h-c"
+          ],
+          "finishing": [
+            "h-a"
+          ]
+        },
+        "states": {
+          "h-a": "verifying",
+          "h-b": "aborting",
+          "h-c": "aborted"
+        }
+      }
+    },
+    {
+      "action": "expectSummary",
+      "expect": {
+        "verifying": 1,
+        "aborting": 1,
+        "aborted": 1
+      }
+    }
+  ]
+}

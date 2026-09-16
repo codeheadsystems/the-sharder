@@ -1,0 +1,1858 @@
+{
+  "vectorSet": "movement-add-one-node",
+  "kind": "movement",
+  "description": "Adding one node to a topology of five.  Every key keeps its first candidate or moves to the added node, and the whole candidate ordering is preserved as a subsequence.  The counts are golden, so a port reproduces them exactly.",
+  "requirements": [
+    "PROP-010",
+    "PROP-011",
+    "PROP-012",
+    "PROP-016",
+    "PROP-019"
+  ],
+  "cases": [
+    {
+      "name": "ring",
+      "requirements": [
+        "PROP-010",
+        "PROP-011",
+        "PROP-012",
+        "PROP-016"
+      ],
+      "before": "topologies/movement-ring-before.topology.json",
+      "after": "topologies/movement-ring-after.topology.json",
+      "addedNode": "m6",
+      "expect": {
+        "sampleSize": 400,
+        "movedCount": 70,
+        "unmovedCount": 330,
+        "firstCandidates": [
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-0"
+            },
+            "before": "m3",
+            "after": "m3",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-1"
+            },
+            "before": "m2",
+            "after": "m2",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-2"
+            },
+            "before": "m4",
+            "after": "m4",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-3"
+            },
+            "before": "m2",
+            "after": "m2",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-4"
+            },
+            "before": "m2",
+            "after": "m2",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-5"
+            },
+            "before": "m1",
+            "after": "m1",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-6"
+            },
+            "before": "m4",
+            "after": "m4",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-7"
+            },
+            "before": "m1",
+            "after": "m1",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-8"
+            },
+            "before": "m3",
+            "after": "m3",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-9"
+            },
+            "before": "m5",
+            "after": "m6",
+            "moved": true
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-10"
+            },
+            "before": "m2",
+            "after": "m2",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-11"
+            },
+            "before": "m2",
+            "after": "m2",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-12"
+            },
+            "before": "m2",
+            "after": "m2",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-13"
+            },
+            "before": "m5",
+            "after": "m5",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-14"
+            },
+            "before": "m3",
+            "after": "m3",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-15"
+            },
+            "before": "m2",
+            "after": "m2",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-16"
+            },
+            "before": "m4",
+            "after": "m6",
+            "moved": true
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-17"
+            },
+            "before": "m3",
+            "after": "m3",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-18"
+            },
+            "before": "m1",
+            "after": "m6",
+            "moved": true
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-19"
+            },
+            "before": "m5",
+            "after": "m5",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-20"
+            },
+            "before": "m1",
+            "after": "m1",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-21"
+            },
+            "before": "m2",
+            "after": "m6",
+            "moved": true
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-22"
+            },
+            "before": "m5",
+            "after": "m5",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-23"
+            },
+            "before": "m5",
+            "after": "m6",
+            "moved": true
+          }
+        ],
+        "orderingSubsequence": [
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-0"
+            },
+            "beforeCandidates": [
+              "m3",
+              "m5",
+              "m4",
+              "m1",
+              "m2"
+            ],
+            "afterCandidates": [
+              "m3",
+              "m5",
+              "m6",
+              "m4",
+              "m1",
+              "m2"
+            ],
+            "afterWithoutAddedNode": [
+              "m3",
+              "m5",
+              "m4",
+              "m1",
+              "m2"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-1"
+            },
+            "beforeCandidates": [
+              "m2",
+              "m5",
+              "m1",
+              "m3",
+              "m4"
+            ],
+            "afterCandidates": [
+              "m2",
+              "m5",
+              "m1",
+              "m6",
+              "m3",
+              "m4"
+            ],
+            "afterWithoutAddedNode": [
+              "m2",
+              "m5",
+              "m1",
+              "m3",
+              "m4"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-2"
+            },
+            "beforeCandidates": [
+              "m4",
+              "m5",
+              "m3",
+              "m1",
+              "m2"
+            ],
+            "afterCandidates": [
+              "m4",
+              "m5",
+              "m3",
+              "m1",
+              "m6",
+              "m2"
+            ],
+            "afterWithoutAddedNode": [
+              "m4",
+              "m5",
+              "m3",
+              "m1",
+              "m2"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-3"
+            },
+            "beforeCandidates": [
+              "m2",
+              "m4",
+              "m3",
+              "m1",
+              "m5"
+            ],
+            "afterCandidates": [
+              "m2",
+              "m4",
+              "m3",
+              "m1",
+              "m5",
+              "m6"
+            ],
+            "afterWithoutAddedNode": [
+              "m2",
+              "m4",
+              "m3",
+              "m1",
+              "m5"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-4"
+            },
+            "beforeCandidates": [
+              "m2",
+              "m3",
+              "m4",
+              "m1",
+              "m5"
+            ],
+            "afterCandidates": [
+              "m2",
+              "m3",
+              "m4",
+              "m1",
+              "m5",
+              "m6"
+            ],
+            "afterWithoutAddedNode": [
+              "m2",
+              "m3",
+              "m4",
+              "m1",
+              "m5"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-5"
+            },
+            "beforeCandidates": [
+              "m1",
+              "m2",
+              "m5",
+              "m3",
+              "m4"
+            ],
+            "afterCandidates": [
+              "m1",
+              "m2",
+              "m5",
+              "m6",
+              "m3",
+              "m4"
+            ],
+            "afterWithoutAddedNode": [
+              "m1",
+              "m2",
+              "m5",
+              "m3",
+              "m4"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-6"
+            },
+            "beforeCandidates": [
+              "m4",
+              "m5",
+              "m3",
+              "m1",
+              "m2"
+            ],
+            "afterCandidates": [
+              "m4",
+              "m5",
+              "m3",
+              "m1",
+              "m6",
+              "m2"
+            ],
+            "afterWithoutAddedNode": [
+              "m4",
+              "m5",
+              "m3",
+              "m1",
+              "m2"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-7"
+            },
+            "beforeCandidates": [
+              "m1",
+              "m2",
+              "m5",
+              "m3",
+              "m4"
+            ],
+            "afterCandidates": [
+              "m1",
+              "m2",
+              "m5",
+              "m6",
+              "m3",
+              "m4"
+            ],
+            "afterWithoutAddedNode": [
+              "m1",
+              "m2",
+              "m5",
+              "m3",
+              "m4"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "rendezvous",
+      "requirements": [
+        "PROP-010",
+        "PROP-011",
+        "PROP-012",
+        "PROP-016"
+      ],
+      "before": "topologies/movement-rv-before.topology.json",
+      "after": "topologies/movement-rv-after.topology.json",
+      "addedNode": "m6",
+      "expect": {
+        "sampleSize": 400,
+        "movedCount": 61,
+        "unmovedCount": 339,
+        "firstCandidates": [
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-0"
+            },
+            "before": "m2",
+            "after": "m2",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-1"
+            },
+            "before": "m3",
+            "after": "m3",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-2"
+            },
+            "before": "m4",
+            "after": "m4",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-3"
+            },
+            "before": "m2",
+            "after": "m2",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-4"
+            },
+            "before": "m4",
+            "after": "m6",
+            "moved": true
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-5"
+            },
+            "before": "m4",
+            "after": "m4",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-6"
+            },
+            "before": "m4",
+            "after": "m4",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-7"
+            },
+            "before": "m4",
+            "after": "m4",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-8"
+            },
+            "before": "m3",
+            "after": "m3",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-9"
+            },
+            "before": "m2",
+            "after": "m2",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-10"
+            },
+            "before": "m5",
+            "after": "m5",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-11"
+            },
+            "before": "m2",
+            "after": "m2",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-12"
+            },
+            "before": "m3",
+            "after": "m3",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-13"
+            },
+            "before": "m5",
+            "after": "m6",
+            "moved": true
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-14"
+            },
+            "before": "m4",
+            "after": "m4",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-15"
+            },
+            "before": "m1",
+            "after": "m1",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-16"
+            },
+            "before": "m3",
+            "after": "m6",
+            "moved": true
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-17"
+            },
+            "before": "m5",
+            "after": "m5",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-18"
+            },
+            "before": "m5",
+            "after": "m5",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-19"
+            },
+            "before": "m5",
+            "after": "m5",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-20"
+            },
+            "before": "m3",
+            "after": "m3",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-21"
+            },
+            "before": "m2",
+            "after": "m2",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-22"
+            },
+            "before": "m2",
+            "after": "m2",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-23"
+            },
+            "before": "m2",
+            "after": "m2",
+            "moved": false
+          }
+        ],
+        "orderingSubsequence": [
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-0"
+            },
+            "beforeCandidates": [
+              "m2",
+              "m3",
+              "m5",
+              "m1",
+              "m4"
+            ],
+            "afterCandidates": [
+              "m2",
+              "m3",
+              "m5",
+              "m1",
+              "m6",
+              "m4"
+            ],
+            "afterWithoutAddedNode": [
+              "m2",
+              "m3",
+              "m5",
+              "m1",
+              "m4"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-1"
+            },
+            "beforeCandidates": [
+              "m3",
+              "m5",
+              "m4",
+              "m2",
+              "m1"
+            ],
+            "afterCandidates": [
+              "m3",
+              "m6",
+              "m5",
+              "m4",
+              "m2",
+              "m1"
+            ],
+            "afterWithoutAddedNode": [
+              "m3",
+              "m5",
+              "m4",
+              "m2",
+              "m1"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-2"
+            },
+            "beforeCandidates": [
+              "m4",
+              "m5",
+              "m2",
+              "m3",
+              "m1"
+            ],
+            "afterCandidates": [
+              "m4",
+              "m5",
+              "m2",
+              "m3",
+              "m6",
+              "m1"
+            ],
+            "afterWithoutAddedNode": [
+              "m4",
+              "m5",
+              "m2",
+              "m3",
+              "m1"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-3"
+            },
+            "beforeCandidates": [
+              "m2",
+              "m4",
+              "m5",
+              "m1",
+              "m3"
+            ],
+            "afterCandidates": [
+              "m2",
+              "m4",
+              "m5",
+              "m6",
+              "m1",
+              "m3"
+            ],
+            "afterWithoutAddedNode": [
+              "m2",
+              "m4",
+              "m5",
+              "m1",
+              "m3"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-4"
+            },
+            "beforeCandidates": [
+              "m4",
+              "m2",
+              "m1",
+              "m3",
+              "m5"
+            ],
+            "afterCandidates": [
+              "m6",
+              "m4",
+              "m2",
+              "m1",
+              "m3",
+              "m5"
+            ],
+            "afterWithoutAddedNode": [
+              "m4",
+              "m2",
+              "m1",
+              "m3",
+              "m5"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-5"
+            },
+            "beforeCandidates": [
+              "m4",
+              "m1",
+              "m2",
+              "m3",
+              "m5"
+            ],
+            "afterCandidates": [
+              "m4",
+              "m1",
+              "m2",
+              "m3",
+              "m5",
+              "m6"
+            ],
+            "afterWithoutAddedNode": [
+              "m4",
+              "m1",
+              "m2",
+              "m3",
+              "m5"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-6"
+            },
+            "beforeCandidates": [
+              "m4",
+              "m3",
+              "m5",
+              "m1",
+              "m2"
+            ],
+            "afterCandidates": [
+              "m4",
+              "m3",
+              "m6",
+              "m5",
+              "m1",
+              "m2"
+            ],
+            "afterWithoutAddedNode": [
+              "m4",
+              "m3",
+              "m5",
+              "m1",
+              "m2"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-7"
+            },
+            "beforeCandidates": [
+              "m4",
+              "m1",
+              "m3",
+              "m5",
+              "m2"
+            ],
+            "afterCandidates": [
+              "m4",
+              "m1",
+              "m3",
+              "m5",
+              "m6",
+              "m2"
+            ],
+            "afterWithoutAddedNode": [
+              "m4",
+              "m1",
+              "m3",
+              "m5",
+              "m2"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "slot-derived",
+      "requirements": [
+        "PROP-010",
+        "PROP-011",
+        "PROP-012",
+        "PROP-016"
+      ],
+      "before": "topologies/movement-slot-before.topology.json",
+      "after": "topologies/movement-slot-after.topology.json",
+      "addedNode": "m6",
+      "expect": {
+        "sampleSize": 400,
+        "movedCount": 61,
+        "unmovedCount": 339,
+        "firstCandidates": [
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-0"
+            },
+            "before": "m1",
+            "after": "m1",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-1"
+            },
+            "before": "m1",
+            "after": "m1",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-2"
+            },
+            "before": "m5",
+            "after": "m5",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-3"
+            },
+            "before": "m1",
+            "after": "m1",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-4"
+            },
+            "before": "m1",
+            "after": "m1",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-5"
+            },
+            "before": "m3",
+            "after": "m3",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-6"
+            },
+            "before": "m3",
+            "after": "m6",
+            "moved": true
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-7"
+            },
+            "before": "m2",
+            "after": "m2",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-8"
+            },
+            "before": "m4",
+            "after": "m4",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-9"
+            },
+            "before": "m2",
+            "after": "m2",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-10"
+            },
+            "before": "m5",
+            "after": "m6",
+            "moved": true
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-11"
+            },
+            "before": "m5",
+            "after": "m6",
+            "moved": true
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-12"
+            },
+            "before": "m5",
+            "after": "m5",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-13"
+            },
+            "before": "m1",
+            "after": "m1",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-14"
+            },
+            "before": "m1",
+            "after": "m1",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-15"
+            },
+            "before": "m2",
+            "after": "m2",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-16"
+            },
+            "before": "m3",
+            "after": "m3",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-17"
+            },
+            "before": "m3",
+            "after": "m3",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-18"
+            },
+            "before": "m5",
+            "after": "m5",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-19"
+            },
+            "before": "m5",
+            "after": "m5",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-20"
+            },
+            "before": "m4",
+            "after": "m4",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-21"
+            },
+            "before": "m1",
+            "after": "m1",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-22"
+            },
+            "before": "m4",
+            "after": "m6",
+            "moved": true
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-23"
+            },
+            "before": "m1",
+            "after": "m1",
+            "moved": false
+          }
+        ],
+        "orderingSubsequence": [
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-0"
+            },
+            "beforeCandidates": [
+              "m1",
+              "m3",
+              "m2",
+              "m4",
+              "m5"
+            ],
+            "afterCandidates": [
+              "m1",
+              "m3",
+              "m2",
+              "m4",
+              "m6",
+              "m5"
+            ],
+            "afterWithoutAddedNode": [
+              "m1",
+              "m3",
+              "m2",
+              "m4",
+              "m5"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-1"
+            },
+            "beforeCandidates": [
+              "m1",
+              "m2",
+              "m4",
+              "m3",
+              "m5"
+            ],
+            "afterCandidates": [
+              "m1",
+              "m2",
+              "m4",
+              "m3",
+              "m5",
+              "m6"
+            ],
+            "afterWithoutAddedNode": [
+              "m1",
+              "m2",
+              "m4",
+              "m3",
+              "m5"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-2"
+            },
+            "beforeCandidates": [
+              "m5",
+              "m3",
+              "m2",
+              "m4",
+              "m1"
+            ],
+            "afterCandidates": [
+              "m5",
+              "m3",
+              "m6",
+              "m2",
+              "m4",
+              "m1"
+            ],
+            "afterWithoutAddedNode": [
+              "m5",
+              "m3",
+              "m2",
+              "m4",
+              "m1"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-3"
+            },
+            "beforeCandidates": [
+              "m1",
+              "m5",
+              "m2",
+              "m3",
+              "m4"
+            ],
+            "afterCandidates": [
+              "m1",
+              "m5",
+              "m2",
+              "m6",
+              "m3",
+              "m4"
+            ],
+            "afterWithoutAddedNode": [
+              "m1",
+              "m5",
+              "m2",
+              "m3",
+              "m4"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-4"
+            },
+            "beforeCandidates": [
+              "m1",
+              "m5",
+              "m2",
+              "m4",
+              "m3"
+            ],
+            "afterCandidates": [
+              "m1",
+              "m6",
+              "m5",
+              "m2",
+              "m4",
+              "m3"
+            ],
+            "afterWithoutAddedNode": [
+              "m1",
+              "m5",
+              "m2",
+              "m4",
+              "m3"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-5"
+            },
+            "beforeCandidates": [
+              "m3",
+              "m2",
+              "m5",
+              "m1",
+              "m4"
+            ],
+            "afterCandidates": [
+              "m3",
+              "m6",
+              "m2",
+              "m5",
+              "m1",
+              "m4"
+            ],
+            "afterWithoutAddedNode": [
+              "m3",
+              "m2",
+              "m5",
+              "m1",
+              "m4"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-6"
+            },
+            "beforeCandidates": [
+              "m3",
+              "m2",
+              "m4",
+              "m5",
+              "m1"
+            ],
+            "afterCandidates": [
+              "m6",
+              "m3",
+              "m2",
+              "m4",
+              "m5",
+              "m1"
+            ],
+            "afterWithoutAddedNode": [
+              "m3",
+              "m2",
+              "m4",
+              "m5",
+              "m1"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-7"
+            },
+            "beforeCandidates": [
+              "m2",
+              "m4",
+              "m1",
+              "m3",
+              "m5"
+            ],
+            "afterCandidates": [
+              "m2",
+              "m4",
+              "m1",
+              "m6",
+              "m3",
+              "m5"
+            ],
+            "afterWithoutAddedNode": [
+              "m2",
+              "m4",
+              "m1",
+              "m3",
+              "m5"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "range-derived",
+      "requirements": [
+        "PROP-010",
+        "PROP-011",
+        "PROP-012",
+        "PROP-016"
+      ],
+      "before": "topologies/movement-range-before.topology.json",
+      "after": "topologies/movement-range-after.topology.json",
+      "addedNode": "m6",
+      "expect": {
+        "sampleSize": 384,
+        "movedCount": 120,
+        "unmovedCount": 264,
+        "firstCandidates": [
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "\u0000"
+            },
+            "before": "m1",
+            "after": "m6",
+            "moved": true
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "\u0001"
+            },
+            "before": "m1",
+            "after": "m6",
+            "moved": true
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "\u0002"
+            },
+            "before": "m1",
+            "after": "m6",
+            "moved": true
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "\u0003"
+            },
+            "before": "m1",
+            "after": "m6",
+            "moved": true
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "\u0004"
+            },
+            "before": "m1",
+            "after": "m6",
+            "moved": true
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "\u0005"
+            },
+            "before": "m1",
+            "after": "m6",
+            "moved": true
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "\u0006"
+            },
+            "before": "m1",
+            "after": "m6",
+            "moved": true
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "\u0007"
+            },
+            "before": "m1",
+            "after": "m6",
+            "moved": true
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "\b"
+            },
+            "before": "m1",
+            "after": "m6",
+            "moved": true
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "\t"
+            },
+            "before": "m1",
+            "after": "m6",
+            "moved": true
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "\n"
+            },
+            "before": "m1",
+            "after": "m6",
+            "moved": true
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "\u000b"
+            },
+            "before": "m1",
+            "after": "m6",
+            "moved": true
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "\f"
+            },
+            "before": "m1",
+            "after": "m6",
+            "moved": true
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "\r"
+            },
+            "before": "m1",
+            "after": "m6",
+            "moved": true
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "\u000e"
+            },
+            "before": "m1",
+            "after": "m6",
+            "moved": true
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "\u000f"
+            },
+            "before": "m1",
+            "after": "m6",
+            "moved": true
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "\u0010"
+            },
+            "before": "m4",
+            "after": "m6",
+            "moved": true
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "\u0011"
+            },
+            "before": "m4",
+            "after": "m6",
+            "moved": true
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "\u0012"
+            },
+            "before": "m4",
+            "after": "m6",
+            "moved": true
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "\u0013"
+            },
+            "before": "m4",
+            "after": "m6",
+            "moved": true
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "\u0014"
+            },
+            "before": "m4",
+            "after": "m6",
+            "moved": true
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "\u0015"
+            },
+            "before": "m4",
+            "after": "m6",
+            "moved": true
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "\u0016"
+            },
+            "before": "m4",
+            "after": "m6",
+            "moved": true
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "\u0017"
+            },
+            "before": "m4",
+            "after": "m6",
+            "moved": true
+          }
+        ],
+        "orderingSubsequence": [
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "\u0000"
+            },
+            "beforeCandidates": [
+              "m1",
+              "m4",
+              "m2",
+              "m5",
+              "m3"
+            ],
+            "afterCandidates": [
+              "m6",
+              "m1",
+              "m4",
+              "m2",
+              "m5",
+              "m3"
+            ],
+            "afterWithoutAddedNode": [
+              "m1",
+              "m4",
+              "m2",
+              "m5",
+              "m3"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "\u0001"
+            },
+            "beforeCandidates": [
+              "m1",
+              "m4",
+              "m2",
+              "m5",
+              "m3"
+            ],
+            "afterCandidates": [
+              "m6",
+              "m1",
+              "m4",
+              "m2",
+              "m5",
+              "m3"
+            ],
+            "afterWithoutAddedNode": [
+              "m1",
+              "m4",
+              "m2",
+              "m5",
+              "m3"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "\u0002"
+            },
+            "beforeCandidates": [
+              "m1",
+              "m4",
+              "m2",
+              "m5",
+              "m3"
+            ],
+            "afterCandidates": [
+              "m6",
+              "m1",
+              "m4",
+              "m2",
+              "m5",
+              "m3"
+            ],
+            "afterWithoutAddedNode": [
+              "m1",
+              "m4",
+              "m2",
+              "m5",
+              "m3"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "\u0003"
+            },
+            "beforeCandidates": [
+              "m1",
+              "m4",
+              "m2",
+              "m5",
+              "m3"
+            ],
+            "afterCandidates": [
+              "m6",
+              "m1",
+              "m4",
+              "m2",
+              "m5",
+              "m3"
+            ],
+            "afterWithoutAddedNode": [
+              "m1",
+              "m4",
+              "m2",
+              "m5",
+              "m3"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "\u0004"
+            },
+            "beforeCandidates": [
+              "m1",
+              "m4",
+              "m2",
+              "m5",
+              "m3"
+            ],
+            "afterCandidates": [
+              "m6",
+              "m1",
+              "m4",
+              "m2",
+              "m5",
+              "m3"
+            ],
+            "afterWithoutAddedNode": [
+              "m1",
+              "m4",
+              "m2",
+              "m5",
+              "m3"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "\u0005"
+            },
+            "beforeCandidates": [
+              "m1",
+              "m4",
+              "m2",
+              "m5",
+              "m3"
+            ],
+            "afterCandidates": [
+              "m6",
+              "m1",
+              "m4",
+              "m2",
+              "m5",
+              "m3"
+            ],
+            "afterWithoutAddedNode": [
+              "m1",
+              "m4",
+              "m2",
+              "m5",
+              "m3"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "\u0006"
+            },
+            "beforeCandidates": [
+              "m1",
+              "m4",
+              "m2",
+              "m5",
+              "m3"
+            ],
+            "afterCandidates": [
+              "m6",
+              "m1",
+              "m4",
+              "m2",
+              "m5",
+              "m3"
+            ],
+            "afterWithoutAddedNode": [
+              "m1",
+              "m4",
+              "m2",
+              "m5",
+              "m3"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "\u0007"
+            },
+            "beforeCandidates": [
+              "m1",
+              "m4",
+              "m2",
+              "m5",
+              "m3"
+            ],
+            "afterCandidates": [
+              "m6",
+              "m1",
+              "m4",
+              "m2",
+              "m5",
+              "m3"
+            ],
+            "afterWithoutAddedNode": [
+              "m1",
+              "m4",
+              "m2",
+              "m5",
+              "m3"
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

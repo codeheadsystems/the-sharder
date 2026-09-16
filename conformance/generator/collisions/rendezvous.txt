@@ -1,0 +1,4 @@
+mode rendezvous
+lambda 1036420845 mu 4984220995
+a b08cfe34be8e9321 627d9ab28d7293ba
+b e6d7fd19d016a1b2 627d9ab28d7293ba
