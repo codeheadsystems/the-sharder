@@ -340,11 +340,47 @@ DELTA_OTHER_SEED = copy.deepcopy(DELTA_BEFORE)
 DELTA_OTHER_SEED["epoch"] = 5
 DELTA_OTHER_SEED["hash"] = {"algorithm": "siphash-2-4", "seed": T.STORAGE_SEED}
 
+# `TOPO-213`: sixteen slots, so the ascending slot index of `SLOT-031` and the octet order of the
+# shard identifiers disagree.  Slots 8 through 15 move, which the index order lists as 8, 9, 10 and
+# the octet order as 10, 11, ..., 8, 9.
+DELTA_WIDE_BEFORE = {
+    "formatVersion": "1.0", "topologyId": "delta-wide", "epoch": 1,
+    "replication": {"factor": 2},
+    "strategy": {"kind": "slot", "slotCount": 16, "assignment": "explicit",
+                 "assignments": [{"slots": ["0-15"], "nodes": ["a", "b"]}]},
+    "nodes": [{"id": "a"}, {"id": "b"}, {"id": "c"}],
+}
+
+DELTA_WIDE_AFTER = copy.deepcopy(DELTA_WIDE_BEFORE)
+DELTA_WIDE_AFTER["epoch"] = 2
+DELTA_WIDE_AFTER["strategy"]["assignments"] = [{"slots": ["0-7"], "nodes": ["a", "b"]},
+                                               {"slots": ["8-15"], "nodes": ["c", "b"]}]
+
+# `TOPO-211`: `spreadPolicy` of `strict` over one zone level admits two of the three replicas the
+# factor asks for, so the replica set is the two entries whose role is `replica` and the third
+# preference list entry is a fallback the delta must not report as an owner.
+DELTA_SHORT_BEFORE = {
+    "formatVersion": "1.0", "topologyId": "delta-short", "epoch": 1,
+    "domainLevels": ["zone"],
+    "replication": {"factor": 3, "spread": ["zone"], "spreadPolicy": "strict"},
+    "strategy": {"kind": "slot", "slotCount": 4, "assignment": "explicit",
+                 "assignments": [{"slots": ["0-3"], "nodes": ["a", "b", "c", "d"]}]},
+    "nodes": [{"id": "a", "domains": {"zone": "z1"}}, {"id": "b", "domains": {"zone": "z1"}},
+              {"id": "c", "domains": {"zone": "z2"}}, {"id": "d", "domains": {"zone": "z2"}}],
+}
+
+DELTA_SHORT_AFTER = copy.deepcopy(DELTA_SHORT_BEFORE)
+DELTA_SHORT_AFTER["epoch"] = 2
+DELTA_SHORT_AFTER["strategy"]["assignments"] = [{"slots": ["0-3"],
+                                                 "nodes": ["d", "b", "c", "a"]}]
+
 
 def build_ownership_delta(root):
     documents = {"delta-before": DELTA_BEFORE, "delta-moved": DELTA_MOVED,
                  "delta-reordered": DELTA_REORDERED, "delta-other-slot-count": DELTA_OTHER_COUNT,
-                 "delta-other-seed": DELTA_OTHER_SEED}
+                 "delta-other-seed": DELTA_OTHER_SEED,
+                 "delta-wide-before": DELTA_WIDE_BEFORE, "delta-wide-after": DELTA_WIDE_AFTER,
+                 "delta-short-before": DELTA_SHORT_BEFORE, "delta-short-after": DELTA_SHORT_AFTER}
     for name, document in documents.items():
         write_json(root / ("topologies/%s.topology.json" % name), document)
     snapshots = {name: Snapshot(d) for name, d in documents.items()}
@@ -382,6 +418,28 @@ def build_ownership_delta(root):
                                      "cause": "incomparableShards"}},
         })
 
+    for label, before, after, requirements, note in [
+        ("slot-index-order", "delta-wide-before", "delta-wide-after",
+         ["TOPO-211", "TOPO-213", "PLACE-031", "SLOT-031"],
+         "`TOPO-213`: the entries follow the ascending slot index `SLOT-031` enumerates, so slots "
+         "8 and 9 precede slot 10.  Ordering the shard identifiers as octets would put 10 first "
+         "and is the divergence a `slotCount` at or below 10 cannot show."),
+        ("replica-prefix-short-of-factor", "delta-short-before", "delta-short-after",
+         ["TOPO-211", "REPL-017", "REPL-020", "SPREAD-014"],
+         "`TOPO-211`: `strict` over one zone level admits two replicas of the three the factor "
+         "asks for, so the replica set is the two entries whose role is `replica` and the third "
+         "preference list entry is a fallback under `REPL-013` rather than an owner."),
+    ]:
+        rows = handoff.ownership_delta(snapshots[before], snapshots[after], lambda s: s.factor)
+        cases.append({
+            "name": label,
+            "requirements": requirements,
+            "before": "topologies/%s.topology.json" % before,
+            "after": "topologies/%s.topology.json" % after,
+            "note": note,
+            "expect": {"shardsChanged": len(rows), "delta": rows},
+        })
+
     cases.append({
         "name": "rendezvous-enumerates-no-shard",
         "requirements": ["TOPO-211", "MOVE-241", "MOVE-251", "MOVE-271", "RV-021"],
@@ -397,8 +455,10 @@ def build_ownership_delta(root):
     emit(root, "vectors/topology/ownership-delta.json", "topology-ownership-delta",
          "ownershipDelta",
          "The ownership delta between two snapshots, the reorder-only case that gains and loses "
-         "nothing, and the changes that make shard identity incomparable.",
-         ["TOPO-211", "TOPO-221", "TOPO-231", "TOPO-241", "MOVE-241", "MOVE-251", "MOVE-271",
+         "nothing, the entry order over sixteen slots, the replica set under a shortfall, and the "
+         "changes that make shard identity incomparable.",
+         ["TOPO-211", "TOPO-213", "TOPO-221", "TOPO-231", "TOPO-241", "PLACE-031", "SLOT-031",
+          "REPL-017", "REPL-020", "SPREAD-014", "MOVE-241", "MOVE-251", "MOVE-271",
           "SEC-013", "ERR-050"], cases)
 
 

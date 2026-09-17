@@ -28,7 +28,7 @@ conformance levels of [`30-conformance.md`](30-conformance.md#conformance-levels
 | configuration | every setting of the `CFG-*` group with its default |
 | format | `formatVersion` 1.0, the JSON Schema, the canonical form, and the digest |
 | providers | the in-memory reference provider and the static file provider |
-| conformance | 59 vector files, 638 cases, 103 topology documents, 30 properties, and the manifest |
+| conformance | 59 vector files, 640 cases, 107 topology documents, 30 properties, and the manifest |
 
 An integrator who routes a tenant identifier to one of several clusters is served in full by v0.1
 and depends on `sharder-api` and `sharder-core` alone.
@@ -90,6 +90,14 @@ The fencing token shape. The pair of `topologyId` and `epoch`, with an optional 
 the wire from a sender to a recipient that may be a different implementation at a different version.
 Both ends change together or not at all. `FENCE-011` and
 [`adr/0005`](adr/0005-epoch-and-version-semantics.md).
+
+The provider contract. `TopologyProvider`, `TopologySink`, the capability pair, the `load` result
+union, and the source version of `CORE-084` are what a third-party adapter is written against, and
+this roadmap schedules such an adapter below. Once one exists outside the repository, a member
+cannot be added to `load` or to `onDocument` without breaking it, which is why conditional fetch
+arrives at v0.1 rather than when a fleet first outgrows a 30 second poll of a 7.5 MB document.
+`CORE-080` to `CORE-087`, [`adr/0004`](adr/0004-topology-provider-contract.md), and
+[`adr/0048`](adr/0048-conditional-fetch-in-the-provider-contract.md).
 
 The error taxonomy. Sixteen conditions, each with a permanent numeric code, a permanent name, and a
 fixed retryable flag. The code and the name are what a metric label, a log line, a serialised error,

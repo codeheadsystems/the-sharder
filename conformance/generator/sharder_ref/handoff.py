@@ -215,20 +215,31 @@ class Plan:
 
 
 def ownership_delta(before, after, factor_of):
-    """`TOPO-211`: the shards whose ordered replica set differs, with nodes gained and lost."""
+    """`TOPO-211`: the shards whose ordered replica set differs, with nodes gained and lost.
+
+    The replica set is the entries whose role is `replica` under `REPL-017`, which is the achieved
+    replica count `r` of `REPL-020` and not the configured factor.
+
+    `TOPO-213` fixes the order: the shards the second snapshot enumerates, in the order `shards`
+    gives for it under `PLACE-031`, then the shards only the first snapshot enumerates, in the order
+    `shards` gives for that one.  Sorting the identifiers as octets would read slot 10 before slot 2.
+    """
     from . import placement, routing as route_module
 
-    shards_before = set(placement.shards(before))
-    shards_after = set(placement.shards(after))
+    order_after = placement.shards(after)
+    order_before = placement.shards(before)
+    shards_before = set(order_before)
+    shards_after = set(order_after)
+    ordered = order_after + [s for s in order_before if s not in shards_after]
     rows = []
-    for shard in sorted(shards_before | shards_after):
+    for shard in ordered:
         def replicas(snapshot, present):
             if not present:
                 return []
             ordering = placement.candidates_for_shard(snapshot, shard, snapshot.placement_set)
-            entries, _, _, _ = route_module.build_preference_list(
+            entries, r, _, _ = route_module.build_preference_list(
                 snapshot, ordering, factor_of(snapshot))
-            return [e["node"] for e in entries][:factor_of(snapshot)]
+            return [e["node"] for e in entries[:r]]
 
         was = replicas(before, shard in shards_before)
         now = replicas(after, shard in shards_after)

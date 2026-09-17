@@ -5,12 +5,12 @@
   "generator": "conformance/generator",
   "counts": {
     "vectorFiles": 59,
-    "vectorCases": 638,
-    "topologyDocuments": 103,
+    "vectorCases": 640,
+    "topologyDocuments": 107,
     "scenarios": 14,
     "scenarioSteps": 147,
     "properties": 30,
-    "requirementsNamed": 437
+    "requirementsNamed": 438
   },
   "requirementsNamed": [
     "CFG-020",
@@ -447,6 +447,7 @@
     "TOPO-171",
     "TOPO-191",
     "TOPO-211",
+    "TOPO-213",
     "TOPO-221",
     "TOPO-231",
     "TOPO-241"
@@ -539,6 +540,38 @@
       "strategy": "slot",
       "nodeCount": 4,
       "digest": "ffdb65dd9fb5976bf5dcb760056c229d37619bd2788c6f3d490ef37bd4e8d5eb",
+      "valid": true
+    },
+    "topologies/delta-short-after.topology.json": {
+      "topologyId": "delta-short",
+      "epoch": 2,
+      "strategy": "slot",
+      "nodeCount": 4,
+      "digest": "f2b35272020dd00c035e28212ba1c392290b678bae212b189adab2e488cccdbc",
+      "valid": true
+    },
+    "topologies/delta-short-before.topology.json": {
+      "topologyId": "delta-short",
+      "epoch": 1,
+      "strategy": "slot",
+      "nodeCount": 4,
+      "digest": "0ffc0d19475d2ab6bdde9b20b5f86834ac4d718c5447b925d42f5d15afaea265",
+      "valid": true
+    },
+    "topologies/delta-wide-after.topology.json": {
+      "topologyId": "delta-wide",
+      "epoch": 2,
+      "strategy": "slot",
+      "nodeCount": 3,
+      "digest": "f044a4804070980c219eb14791bdd1c18c8474fcf3e50e2a92e6998c23fc7fd7",
+      "valid": true
+    },
+    "topologies/delta-wide-before.topology.json": {
+      "topologyId": "delta-wide",
+      "epoch": 1,
+      "strategy": "slot",
+      "nodeCount": 3,
+      "digest": "c5639d972d1e99b905220fbe451f3a6f99f962c464324e2f50d9003445841531",
       "valid": true
     },
     "topologies/directory-sparse.topology.json": {
@@ -2431,22 +2464,28 @@
       "file": "vectors/topology/ownership-delta.json",
       "vectorSet": "topology-ownership-delta",
       "kind": "ownershipDelta",
-      "description": "The ownership delta between two snapshots, the reorder-only case that gains and loses nothing, and the changes that make shard identity incomparable.",
+      "description": "The ownership delta between two snapshots, the reorder-only case that gains and loses nothing, the entry order over sixteen slots, the replica set under a shortfall, and the changes that make shard identity incomparable.",
       "topology": null,
-      "caseCount": 5,
+      "caseCount": 7,
       "requirements": [
         "ERR-050",
         "MOVE-241",
         "MOVE-251",
         "MOVE-271",
+        "PLACE-031",
+        "REPL-017",
+        "REPL-020",
         "RV-021",
         "SEC-013",
+        "SLOT-031",
+        "SPREAD-014",
         "TOPO-211",
+        "TOPO-213",
         "TOPO-221",
         "TOPO-231",
         "TOPO-241"
       ],
-      "sha256": "c45ddf170b529823567f8d1d4d34fdd8347d0ff40572d348ea51be492ddf2525"
+      "sha256": "c0590239f25615c726ec0c353afc9b8116b2c9a9706e90e0c6db768297198c41"
     },
     {
       "file": "vectors/validation/documents.json",

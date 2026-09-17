@@ -397,7 +397,7 @@ the identifiers the suite names. The table below is transcribed from it.
 | Section | Prefix | Stated | Covered | Uncovered |
 |---|---|---|---|---|
 | Configuration surface | `CFG-*` | 30 | 5 | 25 |
-| Core model | `CORE-*` | 53 | 10 | 43 |
+| Core model | `CORE-*` | 57 | 10 | 47 |
 |  | `HASH-*` | 19 | 15 | 4 |
 | Error taxonomy | `ERR-*` | 36 | 26 | 10 |
 | Observability | `OBS-*` | 32 | 4 | 28 |
@@ -409,7 +409,7 @@ the identifiers the suite names. The table below is transcribed from it.
 | Routing keys and placement | `DIR-*` | 11 | 11 | 0 |
 |  | `KEY-*` | 24 | 22 | 2 |
 |  | `OVR-*` | 28 | 27 | 1 |
-|  | `PLACE-*` | 45 | 39 | 6 |
+|  | `PLACE-*` | 46 | 39 | 7 |
 |  | `PROP-*` | 36 | 36 | 0 |
 |  | `RANGE-*` | 21 | 19 | 2 |
 |  | `RING-*` | 19 | 18 | 1 |
@@ -420,11 +420,11 @@ the identifiers the suite names. The table below is transcribed from it.
 |  | `MOVE-*` | 51 | 29 | 22 |
 |  | `RATE-*` | 15 | 10 | 5 |
 |  | `SPLIT-*` | 22 | 13 | 9 |
-|  | `TOPO-*` | 26 | 18 | 8 |
-| Total | | 663 | 437 | 226 |
+|  | `TOPO-*` | 28 | 19 | 9 |
+| Total | | 670 | 438 | 232 |
 
-The suite names 437 of the 663 requirements the specification states. The section below
-names what the remaining 226 are and why no data file carries them.
+The suite names 438 of the 670 requirements the specification states. The section below
+names what the remaining 232 are and why no data file carries them.
 
 ## Requirements without an executable test
 
@@ -453,12 +453,15 @@ observes the same answer whether the reference is read once or twice.
 
 ### Provider behaviour
 
-`CORE-080` through `CORE-101` state the provider contract, its two adaptation models, and its
-failure behaviour. The polling and reconciliation settings of `CFG-010`, the backoff of `CORE-100`
-and `ERR-033`, and the executor rule of `CFG-012` describe interaction with a provider over time. A
-provider is an interface an integrator implements and a vector carries no interface, so the suite
-carries the documents and the acceptance outcomes, which is the part that is agreed between callers;
-the shape and the timing are local to one caller and are tested per binding.
+`CORE-080` through `CORE-101` state the provider contract, its two adaptation models, its
+conditional fetch, and its failure behaviour. The polling and reconciliation settings of `CFG-010`,
+the backoff of `CORE-100` and `ERR-033`, and the executor rule of `CFG-012` describe interaction
+with a provider over time. A provider is an interface an integrator implements and a vector carries
+no interface, so the suite carries the documents and the acceptance outcomes, which is the part that
+is agreed between callers; the shape and the timing are local to one caller and are tested per
+binding. The source version of `CORE-084` is opaque by construction: its octets are a provider's
+own, two conforming providers choose different ones for the same document, and a case asserting one
+would assert a provider's internals rather than a library's output.
 
 Stage 2 of `TOPO-001`, schema validation, is covered: each case of `validation-documents` carries
 a `stage` of `schema` or `semantic`, and `conformance/generator/verify_schema.py` runs the
@@ -467,9 +470,12 @@ JSON reader's own behaviour and carries no vector.
 
 ### Placement cost
 
-`PLACE-070` through `PLACE-074` state the cost of each strategy, the products above which a warning
-event is emitted, and the integer width a product is computed in. `CFG-014` carries the three
-thresholds. A vector carries an output, and a cost is not one: the figures `PLACE-070` gives are
+`PLACE-070` through `PLACE-075` state the cost of each strategy, the products above which a warning
+event is emitted, the integer width a product is computed in, and the cost of one ownership delta.
+`CFG-014` carries the three thresholds. `TOPO-212`, which keeps the delta off the installation path,
+is uncovered for the same reason: a driver that installs a snapshot and then asks for a delta reads
+the same answer whether the library computed it eagerly or on the call, and only a profiler tells
+the two apart. A vector carries an output, and a cost is not one: the figures `PLACE-070` gives are
 bounds to within a constant factor rather than values, and the suite's largest topology is eleven
 nodes, so no document it ships crosses a threshold. The events of `PLACE-073` are outputs, and they
 are uncovered for the reason every other event is, which the section below gives.
@@ -545,7 +551,7 @@ and `RV-022` required an equality that holds only under the first reading while 
 implements the second. `RV-020` now names the hexadecimal and `PLACE-032` and `RV-022` state the
 decode.
 
-The specification states 663 requirement identifiers, each introduced as a backticked identifier
+The specification states 670 requirement identifiers, each introduced as a backticked identifier
 followed by a full stop at the start of a line, with no duplicate. `coverage.py` extracts them and
 `run.sh` fails where the suite names one the specification does not state.
 

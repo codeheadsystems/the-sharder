@@ -319,9 +319,9 @@ serve reads under `READ-*` and MUST differ from `route` only in the reordering `
 `CORE-032`. `snapshot` MUST answer with the snapshot in force, or with none where no document has
 been accepted. It MUST NOT block waiting for one.
 
-`CORE-033`. `refresh` MUST ask the provider for a document and MUST NOT install one that
-fails `TOPO-061`. It is the only call that performs provider work where the integrator
-supplies no scheduler under `CFG-012`.
+`CORE-033`. `refresh` MUST ask the provider for a document under `CORE-085` and MUST NOT install one
+that fails `TOPO-061`. An answer of `unchanged` under `CORE-086` completes the call. It is the only
+call that performs provider work where the integrator supplies no scheduler under `CFG-012`.
 
 `CORE-034`. `close` MUST release the provider subscription and MUST NOT invalidate a
 `RoutingDecision` a caller already holds.
@@ -501,20 +501,25 @@ whichever it declares.
 requirements that constrain what the library does with a document a provider delivers are `TOPO-*`.
 
 ```
-Document = the octets of a topology document, or a parsed form of them, CORE-083
+Document      = the octets of a topology document, or a parsed form of them, CORE-083
+SourceVersion = an opaque octet string the provider chooses, CORE-084
 
 interface TopologyProvider:
-    capabilities()               -> Capabilities
-    load()                       -> Result<Document, Error>   # present where pull is true
-    watch(sink: TopologySink)    -> Subscription              # present where push is true
+    capabilities()                     -> Capabilities
+    load(known: SourceVersion | none)  -> Result<Loaded, Error>  # present where pull is true
+    watch(sink: TopologySink)          -> Subscription           # present where push is true
     close()
 
 record Capabilities:
     pull: boolean                # the provider answers load on demand
     push: boolean                # the provider delivers through a sink
 
+Loaded = one of:
+    document(document: Document, version: SourceVersion | none)
+    unchanged                    # the source holds what known names, CORE-086
+
 interface TopologySink:
-    onDocument(document: Document)
+    onDocument(document: Document, version: SourceVersion | none)
     onError(error: Error)
 
 interface Subscription:
@@ -540,12 +545,44 @@ placement preparation MUST be performed by the library under `TOPO-001`. An impl
 let a provider validate, filter, repair, or reject a document on its behalf, and where a binding
 accepts a parsed form, the production of that form MUST apply `TOPO-002`.
 
+#### Conditional fetch
+
+A **source version** names, in the provider's own terms, the state of the source a document was read
+from. The library stores it, returns it on the next `load`, and reads nothing in it.
+
+`CORE-084`. A `SourceVersion` MUST be an opaque octet string whose meaning belongs to the provider
+that supplied it. An implementation MUST return it to that provider unchanged, MUST NOT parse it,
+MUST NOT order it, MUST NOT compare one against another, and MUST NOT let it reach an acceptance
+decision; the comparison of `TOPO-051` names the values that decide acceptance and a source version
+is not among them. An implementation MUST copy the octets it retains, MUST NOT retain a reference to
+a provider-supplied buffer after the call returns, and MUST report `providerError` under `ERR-033`
+for a value longer than 4096 octets.
+
+`CORE-085`. An implementation MUST pass as `known` the source version that accompanied the most
+recent document the provider delivered and `TOPO-061` accepted, and MUST pass none where it holds
+none. A document that `TOPO-001` abandons or `TOPO-061` rejects MUST leave the retained source
+version unchanged, so a source serving a document the library refuses is asked for that document
+again on the next `load` rather than reported as current.
+
+`CORE-086`. An answer of `unchanged` MUST mean that the source holds the document `known` names. An
+implementation MUST NOT enter any stage of `TOPO-001` for it, MUST refresh the freshness of the
+snapshot in force exactly as the no-op row of `TOPO-061` does, MUST emit `topology.unchanged` under
+`OBS-020`, and MUST leave the snapshot in force, the retained source version, and the snapshots
+retained under `TOPO-161` unchanged. An implementation MUST report `providerError` under `ERR-033`
+where a provider answers `unchanged` to a `load` it was given no source version for.
+
+`CORE-087`. Conditional fetch MUST be optional for a provider. A provider that supplies no source
+version MUST be passed none on every `load`, MUST NOT be required to answer `unchanged`, and MUST
+NOT be refused. An implementation MUST NOT synthesise a source version for such a provider and MUST
+NOT derive one from the document, the topology digest, or the epoch.
+
 #### Provider adaptation
 
 `CORE-090`. A provider declaring `pull` and not `push` MUST be adapted by polling. An implementation
-MUST call `load` at startup and then once every `pollIntervalMillis`, and MUST run every document it
-receives through `TOPO-001`. Where no executor is supplied it MUST NOT poll under `CFG-012`, and
-`refresh` under `CORE-033` is then the only path by which a document arrives.
+MUST call `load` at startup and then once every `pollIntervalMillis`, passing the source version
+`CORE-085` names, and MUST run every document it receives through `TOPO-001`. Where no executor is
+supplied it MUST NOT poll under `CFG-012`, and `refresh` under `CORE-033` is then the only path by
+which a document arrives.
 
 `CORE-091`. A provider declaring `push` and not `pull` MUST be adapted by subscription. An
 implementation MUST call `watch` at startup, and MUST have no snapshot in force until the first
@@ -556,12 +593,15 @@ document arrives within `initialTimeoutMillis` of the subscription.
 
 `CORE-092`. A provider declaring both `pull` and `push` MUST be subscribed and polled. An
 implementation MUST call `watch` at startup, MUST call `load` at startup and then once every
-`reconcileIntervalMillis` under `CFG-011`, and MUST treat a polled document and a pushed document
-alike.
+`reconcileIntervalMillis` under `CFG-011`, passing the source version `CORE-085` names, and MUST
+treat a polled document and a pushed document alike. A source version a subscription supplies and
+one a poll supplies are the same value to `CORE-085`, so a reconciling poll carries what the last
+pushed document named.
 
 `CORE-093`. A document delivered through `onDocument` MUST be processed on the unit of execution
 that called it, because the library creates none of its own under `CORE-060`. An implementation MUST
-serialise the pipeline under `TOPO-041` however a document arrives, MUST report a failure delivered
+serialise the pipeline under `TOPO-041` however a document arrives, MUST retain the source version
+`onDocument` carries under `CORE-085` as it retains a polled one, MUST report a failure delivered
 through `onError` as `providerError` under `ERR-033`, and MUST NOT hold a lock across a call into a
 provider or a subscription under `CORE-063`.
 
@@ -933,6 +973,7 @@ extended with the counts of the authored tables.
 | `slotCount` | the `slot` strategy's `slotCount` member, at most 1048576 under `SLOT-001` |
 | `rangeCount` | the count of entries in a `range` strategy's `ranges` array |
 | `entryCount` | the count of entries in a `directory` strategy's `entries` array |
+| `S` | the count of shards `shards` enumerates under `PLACE-031` |
 | `p` | the count of candidates a caller consumes from an ordering |
 
 A preparation figure is stated over the placement set of `PLACE-001` and a routing figure over the
@@ -1055,6 +1096,13 @@ any candidate ordering, any shard identifier, or any resident structure.
 node's virtual node count reaches the cap `PLACE-050` takes from the configuration, so the product
 reaches 2147483648 for two nodes at the default `rendezvous` cap of 1024 and rises with the cap in
 force, which overflows a signed 32-bit integer.
+
+`PLACE-075`. An implementation MUST bound the cost of one ownership delta under `TOPO-211` by two
+candidate orderings per shard, one under each snapshot, over the shards the two snapshots enumerate
+between them, each ordering costing what the routing table of `PLACE-070` states for its
+configuration at `p` of the effective replication factor. The figure is `2S` orderings, and it is a
+term of neither table above: `TOPO-212` keeps the delta off the installation path and a routing call
+computes none. Under `rendezvous` the delta walks nothing, because `PLACE-032` makes `shards` empty.
 
 ### Ring strategy
 
@@ -2407,6 +2455,9 @@ NOT define others.
 | `epoch` equal, digest differs | reject, topology conflict |
 | `epoch` above the epoch in force | accept and install |
 
+An answer of `unchanged` under `CORE-086` delivers no document and therefore reaches no row of this
+table. It refreshes freshness as the no-op row does and leaves everything else unchanged.
+
 `TOPO-071`. An implementation MUST accept a `minEpoch` value from the integrator and MUST reject any
 document whose `epoch` is below it, including the first document after a restart. Where `minEpoch`
 is unset, monotonicity begins at the first accepted document.
@@ -2465,9 +2516,24 @@ not yet published for routing.
 #### Ownership delta
 
 `TOPO-211`. An implementation MUST expose the ownership delta between two snapshots of the same
-`topologyId` as the set of shards whose ordered replica set differs, and for each such shard the
-nodes gained and the nodes lost. The replica set of a shard is the first `factor` entries of its
-preference list as specified in `REPL-*`.
+`topologyId` as an operation the integrator calls, answering the set of shards whose ordered replica
+set differs and, for each such shard, the nodes gained and the nodes lost. The replica set of a
+shard is the entries of its preference list whose role is `replica` under `REPL-017`, which are the
+first `r` entries, where `r` is the achieved replica count of `REPL-020`. Where a shortfall shortens
+the replica prefix, the entries beyond it are fallback tail entries under `REPL-013`, and an
+implementation MUST NOT report one as an owner gained, an owner lost, or a member of either replica
+set.
+
+`TOPO-212`. An implementation MUST NOT compute an ownership delta as a step of `TOPO-001`, as part
+of installing a snapshot, or as a precondition of a routing call reading an installed snapshot. The
+delta is computed where the integrator asks for it, `topology.delta` under `OBS-020` is emitted from
+that call, and `PLACE-075` bounds what the call costs.
+
+`TOPO-213`. The entries of an ownership delta MUST be ordered: first the entries for shards the
+second snapshot enumerates, in the order `shards` gives for that snapshot under `PLACE-031`, then
+the entries for shards only the first snapshot enumerates, in the order `shards` gives for it. An
+implementation MUST NOT order the entries by the octets of the shard identifier, which under `slot`
+disagrees with the ascending slot index of `SLOT-031` for every `slotCount` above 10.
 
 `TOPO-221`. Computing an ownership delta MUST be a pure function of the two snapshots. It MUST NOT
 read health, a clock, or any handoff state.
@@ -2544,8 +2610,9 @@ unsigned octets and `epoch` as an unsigned integer.
 
 `FENCE-081`. Where `relation` is `same`, `senderBehind`, or `senderAhead`, an implementation MUST
 compute `ownership` by evaluating the preference list for `routingKey` against the snapshot in force
-and reporting whether `selfId` appears within the first `factor` entries. It MUST set `currentOwner`
-to the first entry of that preference list.
+and reporting whether `selfId` appears among the entries whose role is `replica` under `REPL-017`.
+Those are the first `r` entries, where `r` is the achieved replica count of `REPL-020` and is below
+`factor` under a shortfall. It MUST set `currentOwner` to the first entry of that preference list.
 
 `FENCE-082`. Where `relation` is `identityMismatch`, `ownership` MUST be `unknown` and
 `currentOwner` MUST be absent. An implementation MUST NOT evaluate a preference list for
@@ -2560,11 +2627,11 @@ be absent, and `localToken` MUST be absent. No snapshot is in force, so no prefe
 `relation` is `same`, `senderBehind`, or `senderAhead`, `ownership` MUST be `owner` or `notOwner`.
 
 `FENCE-091`. An implementation MUST set `ownershipStable` to true when `relation` is `senderBehind`,
-the snapshot at the token's epoch is retained under `TOPO-161`, and `selfId` appears within the
-first `factor` entries of the preference list for `routingKey` under both that snapshot and the
-snapshot in force. In every other case `ownershipStable` MUST be false. Where `relation` is
-`senderBehind` and the token's epoch is not retained, `ownership` MUST be reported as computed and
-`ownershipStable` MUST be false.
+the snapshot at the token's epoch is retained under `TOPO-161`, and `selfId` appears among the
+entries whose role is `replica` in the preference list for `routingKey` under both that snapshot and
+the snapshot in force, which `FENCE-081` states. In every other case `ownershipStable` MUST be
+false. Where `relation` is `senderBehind` and the token's epoch is not retained, `ownership` MUST be
+reported as computed and `ownershipStable` MUST be false.
 
 `FENCE-101`. The check MUST be a pure function of the token, the routing key, the node identity, and
 the retained snapshots. It MUST NOT read health, a clock, randomness, or any handoff state, and MUST
@@ -2751,8 +2818,8 @@ MUST abort every handoff that has not yet reached `cutover` and MUST let every h
 or beyond run to a terminal state.
 
 `MOVE-101`. A plan MUST NOT be created, advanced, or superseded as a side effect of installing a
-snapshot. The library publishes the ownership delta and an event; the integrator decides whether to
-migrate.
+snapshot. The library emits `topology.installed` and exposes the ownership delta as the operation of
+`TOPO-211`; the integrator computes the delta and decides whether to migrate.
 
 #### Movement hook interface
 
@@ -3328,9 +3395,11 @@ adopted one, and for an epoch equal to the epoch in force whose digest differs, 
 below `minEpoch`, under `TOPO-061`. It is distinct from `staleSnapshot`: `staleDocument` describes
 an arriving document and `staleSnapshot` describes the snapshot in force.
 
-`ERR-033`. `providerError` MUST be raised where a provider reports a failure or fails to deliver
-within `initialTimeoutMillis`. It MUST NOT change the snapshot in force, MUST NOT change its
-freshness, and MUST be followed by the backoff of `CORE-100`.
+`ERR-033`. `providerError` MUST be raised where a provider reports a failure, fails to deliver
+within `initialTimeoutMillis`, answers `unchanged` to a `load` it was given no source version for
+under `CORE-086`, or supplies a source version longer than `CORE-084` permits. It MUST NOT change
+the snapshot in force, MUST NOT change its freshness, and MUST be followed by the backoff that
+`CORE-100` states.
 
 `ERR-034`. A document accepted as a no-op under `TOPO-061` MUST NOT produce a condition. It
 refreshes freshness and emits the event of `OBS-020`.
@@ -3461,7 +3530,7 @@ Counters.
 | `health.transitions` | `topology_id`, `from`, `to` | health state transitions |
 | `health.ejections` | `node` | entries into `unavailable` |
 | `health.ejections_refused` | `topology_id` | transitions the ceiling refused |
-| `topology.documents` | `topology_id`, `outcome` | documents processed |
+| `topology.documents` | `topology_id`, `outcome` | documents processed and `unchanged` answers |
 | `topology.weight_clamped` | `topology_id` | virtual node counts clamped |
 | `fencing.verdicts` | `relation`, `ownership`, `served` | recipient checks |
 | `fencing.redirects` | `topology_id` | redirects a caller followed |
@@ -3495,7 +3564,7 @@ Histograms.
 | `migration.cutover_window_millis` | `topology_id` | the interval of `MOVE-311` |
 
 `OBS-011`. `routing.decisions` MUST carry an `outcome` of `decided` or `failed`.
-`topology.documents` MUST carry an `outcome` of `installed`, `noop`, or `rejected`.
+`topology.documents` MUST carry an `outcome` of `installed`, `noop`, `unchanged`, or `rejected`.
 `routing.override_matched` MUST carry a `mode` of `pin`, `constrain`, or `both`.
 `routing.shortfall` MUST carry a `cause` of `nodes` or `domains`. `attempts.exhausted` MUST carry a
 `cause` of `preferenceList`, `attemptLimit`, or `retryBudget`.
@@ -3513,7 +3582,7 @@ at least the payload given. Every name carries the prefix `sharder.`, which the 
 |---|---|---|
 | `topology.installed` | a snapshot is installed | digest, node counts, prepare duration |
 | `topology.rejected` | a document is rejected | the condition, the epoch, the digest |
-| `topology.unchanged` | an equal epoch and digest arrives | digest |
+| `topology.unchanged` | a no-op document or an `unchanged` answer | the digest in force |
 | `topology.stale` | the snapshot passes `staleAfterMillis` | the age, the policy in force |
 | `topology.fresh` | a stale snapshot is confirmed | the age it reached |
 | `topology.provider_error` | a provider reports a failure | the condition, the backoff |
@@ -3523,7 +3592,7 @@ at least the payload given. Every name carries the prefix `sharder.`, which the 
 | `topology.ring_large` | a ring exceeds its token threshold | nodes, total, threshold |
 | `topology.derived_large` | a derived map exceeds its threshold | shards, product, threshold |
 | `topology.default_seed` | a zero seed meets multi-tenancy | the evidence, under `SEC-011` |
-| `topology.delta` | an ownership delta is computed | shards changed, gained, lost |
+| `topology.delta` | `TOPO-211` is called | shards changed, gained, lost |
 | `routing.shortfall` | a replica prefix is short | factor, achieved, cause, shard |
 | `routing.spread_relaxed` | a stage above 0 is chosen | relaxed levels, stage, shard |
 | `routing.filter_failed_open` | every entry is skipped | preference list length |

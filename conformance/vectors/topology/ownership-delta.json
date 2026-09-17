@@ -1,14 +1,20 @@
 {
   "vectorSet": "topology-ownership-delta",
   "kind": "ownershipDelta",
-  "description": "The ownership delta between two snapshots, the reorder-only case that gains and loses nothing, and the changes that make shard identity incomparable.",
+  "description": "The ownership delta between two snapshots, the reorder-only case that gains and loses nothing, the entry order over sixteen slots, the replica set under a shortfall, and the changes that make shard identity incomparable.",
   "requirements": [
     "ERR-050",
     "MOVE-241",
     "MOVE-251",
     "MOVE-271",
+    "PLACE-031",
+    "REPL-017",
+    "REPL-020",
     "SEC-013",
+    "SLOT-031",
+    "SPREAD-014",
     "TOPO-211",
+    "TOPO-213",
     "TOPO-221",
     "TOPO-231",
     "TOPO-241"
@@ -174,6 +180,252 @@
           "name": "planRefused",
           "cause": "incomparableShards"
         }
+      }
+    },
+    {
+      "name": "slot-index-order",
+      "requirements": [
+        "TOPO-211",
+        "TOPO-213",
+        "PLACE-031",
+        "SLOT-031"
+      ],
+      "before": "topologies/delta-wide-before.topology.json",
+      "after": "topologies/delta-wide-after.topology.json",
+      "note": "`TOPO-213`: the entries follow the ascending slot index `SLOT-031` enumerates, so slots 8 and 9 precede slot 10.  Ordering the shard identifiers as octets would put 10 first and is the divergence a `slotCount` at or below 10 cannot show.",
+      "expect": {
+        "shardsChanged": 8,
+        "delta": [
+          {
+            "shard": "8",
+            "before": [
+              "a",
+              "b"
+            ],
+            "after": [
+              "c",
+              "b"
+            ],
+            "gained": [
+              "c"
+            ],
+            "lost": [
+              "a"
+            ]
+          },
+          {
+            "shard": "9",
+            "before": [
+              "a",
+              "b"
+            ],
+            "after": [
+              "c",
+              "b"
+            ],
+            "gained": [
+              "c"
+            ],
+            "lost": [
+              "a"
+            ]
+          },
+          {
+            "shard": "10",
+            "before": [
+              "a",
+              "b"
+            ],
+            "after": [
+              "c",
+              "b"
+            ],
+            "gained": [
+              "c"
+            ],
+            "lost": [
+              "a"
+            ]
+          },
+          {
+            "shard": "11",
+            "before": [
+              "a",
+              "b"
+            ],
+            "after": [
+              "c",
+              "b"
+            ],
+            "gained": [
+              "c"
+            ],
+            "lost": [
+              "a"
+            ]
+          },
+          {
+            "shard": "12",
+            "before": [
+              "a",
+              "b"
+            ],
+            "after": [
+              "c",
+              "b"
+            ],
+            "gained": [
+              "c"
+            ],
+            "lost": [
+              "a"
+            ]
+          },
+          {
+            "shard": "13",
+            "before": [
+              "a",
+              "b"
+            ],
+            "after": [
+              "c",
+              "b"
+            ],
+            "gained": [
+              "c"
+            ],
+            "lost": [
+              "a"
+            ]
+          },
+          {
+            "shard": "14",
+            "before": [
+              "a",
+              "b"
+            ],
+            "after": [
+              "c",
+              "b"
+            ],
+            "gained": [
+              "c"
+            ],
+            "lost": [
+              "a"
+            ]
+          },
+          {
+            "shard": "15",
+            "before": [
+              "a",
+              "b"
+            ],
+            "after": [
+              "c",
+              "b"
+            ],
+            "gained": [
+              "c"
+            ],
+            "lost": [
+              "a"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "replica-prefix-short-of-factor",
+      "requirements": [
+        "TOPO-211",
+        "REPL-017",
+        "REPL-020",
+        "SPREAD-014"
+      ],
+      "before": "topologies/delta-short-before.topology.json",
+      "after": "topologies/delta-short-after.topology.json",
+      "note": "`TOPO-211`: `strict` over one zone level admits two replicas of the three the factor asks for, so the replica set is the two entries whose role is `replica` and the third preference list entry is a fallback under `REPL-013` rather than an owner.",
+      "expect": {
+        "shardsChanged": 4,
+        "delta": [
+          {
+            "shard": "0",
+            "before": [
+              "a",
+              "c"
+            ],
+            "after": [
+              "d",
+              "b"
+            ],
+            "gained": [
+              "b",
+              "d"
+            ],
+            "lost": [
+              "a",
+              "c"
+            ]
+          },
+          {
+            "shard": "1",
+            "before": [
+              "a",
+              "c"
+            ],
+            "after": [
+              "d",
+              "b"
+            ],
+            "gained": [
+              "b",
+              "d"
+            ],
+            "lost": [
+              "a",
+              "c"
+            ]
+          },
+          {
+            "shard": "2",
+            "before": [
+              "a",
+              "c"
+            ],
+            "after": [
+              "d",
+              "b"
+            ],
+            "gained": [
+              "b",
+              "d"
+            ],
+            "lost": [
+              "a",
+              "c"
+            ]
+          },
+          {
+            "shard": "3",
+            "before": [
+              "a",
+              "c"
+            ],
+            "after": [
+              "d",
+              "b"
+            ],
+            "gained": [
+              "b",
+              "d"
+            ],
+            "lost": [
+              "a",
+              "c"
+            ]
+          }
+        ]
       }
     },
     {

@@ -28,13 +28,19 @@ def relation(token, in_force):
 
 
 def replica_set(snapshot, routing_key_bytes):
-    """The first `factor` entries of the preference list, per `FENCE-081` and `TOPO-211`."""
+    """The entries whose role is `replica`, per `FENCE-081`, `REPL-017`, and `TOPO-211`.
+
+    That is the achieved replica count `r` of `REPL-020` and not the configured factor.  Where a
+    shortfall shortens the replica prefix the entries between `r` and the factor are fallback tail
+    entries under `REPL-013`, placed there because spread excluded them, and an owner is not one of
+    them.
+    """
     try:
         decision = routing.route(snapshot, routing_key_bytes)
     except routing.NoCandidate:
         return [], None
     entries = [e["node"] for e in decision["preferenceList"]]
-    return entries[:decision["factor"]], (entries[0] if entries else None)
+    return entries[:decision["replicaCount"]], (entries[0] if entries else None)
 
 
 def check(token, key, self_id, in_force, retained=None):

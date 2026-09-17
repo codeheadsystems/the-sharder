@@ -110,6 +110,9 @@ The corpus uses these terms as defined here and does not redefine them in passin
   The authority is outside the library.
 - **topology provider**. The plugin, conforming to the provider contract, that delivers topology
   documents from an authority to the library. Abbreviated provider.
+- **source version**. An opaque value a provider attaches to a document it delivers and the library
+  returns to that provider on its next request, so that a source that has not changed answers
+  without sending the document again.
 - **topology snapshot**. An immutable, validated topology held in memory and replaced as a whole.
   Abbreviated snapshot.
 - **stale snapshot**. A snapshot the library continues to serve after the provider has failed to
@@ -188,7 +191,7 @@ implements and four are internal.
    +------------+-------------+
                 | topology document
    +------------v-------------+
-   |  topology provider (SPI) |   pull: load()   push: watch()
+   |  topology provider (SPI) |   pull: load(known)   push: watch()
    +------------+-------------+
                 |
    +------------v-------------+
@@ -289,13 +292,13 @@ preference list and on which node owns the shard.
   +--------+--------+              +------------------+
            | epoch > N
            v
-  publish snapshot N+1 (atomic swap; in-flight calls finish on N)
+  publish snapshot N+1 (atomic swap; in-flight calls finish on N), emit topology.installed
            |
            v
-  ownership delta between N and N+1, published with an event
+  the integrator decides whether to migrate; the library computes nothing further
            |
            v
-  the integrator reads the delta and decides whether to migrate
+  the integrator asks for the ownership delta between N and N+1, and pays for it there
            |
            v
   the integrator calls plan(from, to, hooks, policy) -> migration plan
@@ -316,9 +319,12 @@ preference list and on which node owns the shard.
         cutover, verifying, cleanup, aborting -> failed
 ```
 
-Installing a snapshot publishes the ownership delta and an event, and starts nothing. A migration
-begins when the integrator calls `plan`, and a plan may target a snapshot that has been validated
-and not installed, which is how a handoff is prepared ahead of the epoch that will route to it.
+Installing a snapshot emits an event and starts nothing. The ownership delta is an operation the
+integrator calls, not a product of installation, because walking every shard under both snapshots
+costs a preference list evaluation per shard per snapshot and a caller that never migrates never
+needs one. A migration begins when the integrator calls `plan`, and a plan may target a snapshot
+that has been validated and not installed, which is how a handoff is prepared ahead of the epoch
+that will route to it.
 
 A provider that is unreachable produces no branch of its own: the snapshot in force stays in force,
 an event is emitted, and the snapshot is marked stale once the staleness bound passes.

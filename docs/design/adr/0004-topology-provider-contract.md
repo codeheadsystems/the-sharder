@@ -20,18 +20,28 @@ The provider contract carries both models and requires at least one.
 
 ```
 interface TopologyProvider:
-    capabilities() -> { pull: boolean, push: boolean }   # at least one is true
-    load() -> Result<TopologyDocument, ProviderError>    # present when pull is true
-    watch(sink: TopologySink) -> Subscription            # present when push is true
+    capabilities() -> { pull: boolean, push: boolean }      # at least one is true
+    load(known: SourceVersion | none)                       # present when pull is true
+        -> Result<Loaded, ProviderError>
+    watch(sink: TopologySink) -> Subscription               # present when push is true
     close()
 
+Loaded = one of:
+    document(document: TopologyDocument, version: SourceVersion | none)
+    unchanged
+
 interface TopologySink:
-    onDocument(document: TopologyDocument)
+    onDocument(document: TopologyDocument, version: SourceVersion | none)
     onError(error: ProviderError)
 
 interface Subscription:
     cancel()
 ```
+
+The source version and the `unchanged` answer are the conditional fetch of
+[`0048`](0048-conditional-fetch-in-the-provider-contract.md), which widened this contract before
+v0.1 published it. They are optional for a provider: one that supplies no version is passed none and
+never answers `unchanged`.
 
 The contract is normative and is stated in [`../10-specification.md`](../10-specification.md) as
 `CORE-080` through `CORE-101`: the three interfaces, the rule that at least one model is present,
@@ -43,8 +53,9 @@ monotonicity, and digesting belong to the sharder library, so a provider that re
 cannot place a corrupt topology into service.
 
 A pull-only provider is adapted by polling. The library calls `load` at startup and then every
-`pollInterval`, which defaults to 30 seconds, and raises a change notification when the topology
-digest differs from the snapshot in force.
+`pollInterval`, which defaults to 30 seconds, passing the version that accompanied the last accepted
+document, and raises a change notification when the topology digest differs from the snapshot in
+force.
 
 A push-only provider is adapted by waiting. The library subscribes at startup and waits up to
 `initialTimeout`, which defaults to 10 seconds, for the first document. Until a first valid document
@@ -88,18 +99,19 @@ An etcd adapter against this contract, in pseudocode.
 class EtcdTopologyProvider(client, key):
     capabilities() -> { pull: true, push: true }
 
-    load():
+    load(known):
         response = client.get(key)
         if response.empty: return Err(NOT_FOUND)
+        if known is not none and known == encode(response.revision): return Ok(unchanged)
         remember(response.revision)
-        return Ok(response.value)
+        return Ok(document(response.value, encode(response.revision)))
 
     watch(sink):
         stream = client.watch(key, fromRevision = lastRevision + 1)
         on event in stream:
-            if event.type == PUT:      sink.onDocument(event.value)
+            if event.type == PUT:      sink.onDocument(event.value, encode(event.revision))
             if event.type == DELETE:   sink.onError(NOT_FOUND)
-            if event.type == COMPACTED: sink.onDocument(load())
+            if event.type == COMPACTED: sink.onDocument(load(none))
             remember(event.revision)
         on stream failure as e:
             sink.onError(e)          # the library backs off and resubscribes
@@ -108,7 +120,9 @@ class EtcdTopologyProvider(client, key):
 
 The etcd revision is not the epoch. The epoch comes from the document, because it orders topologies
 rather than writes, and because a ZooKeeper adapter, a file, and an etcd cluster have to agree on
-the ordering of the same topology sequence.
+the ordering of the same topology sequence. The revision is a source version, which is the member
+the library hands back without reading, so the adapter compares it against the store it came from
+and nothing else does.
 
 ## Consequences
 

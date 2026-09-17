@@ -1,8 +1,8 @@
 {
   "specification": "docs/design/10-specification.md",
-  "statedRequirements": 663,
-  "coveredRequirements": 437,
-  "uncoveredRequirements": 226,
+  "statedRequirements": 670,
+  "coveredRequirements": 438,
+  "uncoveredRequirements": 232,
   "coveragePercent": 65,
   "identifiersNamedButNotStated": [],
   "byPrefix": [
@@ -43,7 +43,7 @@
     {
       "prefix": "CORE",
       "section": "Core model",
-      "stated": 53,
+      "stated": 57,
       "covered": 10,
       "uncovered": [
         "CORE-001",
@@ -83,6 +83,10 @@
         "CORE-081",
         "CORE-082",
         "CORE-083",
+        "CORE-084",
+        "CORE-085",
+        "CORE-086",
+        "CORE-087",
         "CORE-090",
         "CORE-091",
         "CORE-092",
@@ -90,7 +94,7 @@
         "CORE-100",
         "CORE-101"
       ],
-      "percent": 18
+      "percent": 17
     },
     {
       "prefix": "HASH",
@@ -280,7 +284,7 @@
     {
       "prefix": "PLACE",
       "section": "Routing keys and placement",
-      "stated": 45,
+      "stated": 46,
       "covered": 39,
       "uncovered": [
         "PLACE-004",
@@ -288,9 +292,10 @@
         "PLACE-071",
         "PLACE-072",
         "PLACE-073",
-        "PLACE-074"
+        "PLACE-074",
+        "PLACE-075"
       ],
-      "percent": 86
+      "percent": 84
     },
     {
       "prefix": "PROP",
@@ -439,8 +444,8 @@
     {
       "prefix": "TOPO",
       "section": "Topology change and rebalancing",
-      "stated": 26,
-      "covered": 18,
+      "stated": 28,
+      "covered": 19,
       "uncovered": [
         "TOPO-002",
         "TOPO-021",
@@ -449,9 +454,10 @@
         "TOPO-101",
         "TOPO-141",
         "TOPO-181",
-        "TOPO-201"
+        "TOPO-201",
+        "TOPO-212"
       ],
-      "percent": 69
+      "percent": 67
     }
   ],
   "coveredBy": {
@@ -606,7 +612,8 @@
       "vectors/adversarial/weight-zero.json",
       "vectors/replication/factor-exceeds-node-count.json",
       "vectors/replication/single-node.json",
-      "vectors/spread/all-nodes-one-domain-strict.json"
+      "vectors/spread/all-nodes-one-domain-strict.json",
+      "vectors/topology/ownership-delta.json"
     ],
     "REPL-021": [
       "properties/properties.json",
@@ -1235,7 +1242,8 @@
       "vectors/topology/ownership-delta.json"
     ],
     "PLACE-031": [
-      "vectors/placement/shard-enumeration.json"
+      "vectors/placement/shard-enumeration.json",
+      "vectors/topology/ownership-delta.json"
     ],
     "PLACE-032": [
       "vectors/placement/shard-enumeration.json"
@@ -1273,7 +1281,8 @@
     ],
     "SLOT-031": [
       "vectors/placement/shard-enumeration.json",
-      "vectors/slot/derived-assignment.json"
+      "vectors/slot/derived-assignment.json",
+      "vectors/topology/ownership-delta.json"
     ],
     "SLOT-032": [
       "vectors/placement/shard-enumeration.json"
@@ -1433,7 +1442,8 @@
     "REPL-017": [
       "properties/properties.json",
       "vectors/replication/fallback-tail.json",
-      "vectors/ring/derived-zoned.json"
+      "vectors/ring/derived-zoned.json",
+      "vectors/topology/ownership-delta.json"
     ],
     "SPREAD-021": [
       "properties/properties.json",
@@ -1615,7 +1625,8 @@
     ],
     "SPREAD-014": [
       "properties/properties.json",
-      "vectors/spread/all-nodes-one-domain-strict.json"
+      "vectors/spread/all-nodes-one-domain-strict.json",
+      "vectors/topology/ownership-delta.json"
     ],
     "PROP-050": [
       "properties/properties.json",
@@ -1659,6 +1670,9 @@
     ],
     "TOPO-211": [
       "scenarios/handoff-happy-path.json",
+      "vectors/topology/ownership-delta.json"
+    ],
+    "TOPO-213": [
       "vectors/topology/ownership-delta.json"
     ],
     "TOPO-221": [

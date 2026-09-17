@@ -124,7 +124,7 @@ that carry behaviour or that an integrator implements are interfaces.
 | Package | Artifact | Specification section | Principal types |
 |---|---|---|---|
 | `com.codeheadsystems.sharder` | api | Core model, Replication and failover | `Router`, `RouteOptions`, `RoutingDecision`, `PreferenceEntry`, `AttemptSequence`, `AffinityRequest`, `NodeId`, `ShardId`, `RoutingKey`, `NodeSet`, `Digest`, `MonotonicClock`, `Role`, `Shortfall` |
-| `com.codeheadsystems.sharder.topology` | api | Topology change and rebalancing | `TopologySnapshot`, `Node`, `AdministrativeState`, `FencingToken`, `ValidationError`, `OwnershipDelta`, `ShardChange`, `TopologyProvider`, `TopologySink`, `Subscription` |
+| `com.codeheadsystems.sharder.topology` | api | Topology change and rebalancing | `TopologySnapshot`, `Node`, `AdministrativeState`, `FencingToken`, `ValidationError`, `OwnershipDelta`, `ShardChange`, `TopologyProvider`, `TopologySink`, `Subscription`, `SourceVersion`, `Loaded` |
 | `com.codeheadsystems.sharder.placement` | api | Routing keys and placement | `PlacementStrategy`, `PreparedPlacement`, `CandidateCursor`, `StrategyKind` |
 | `com.codeheadsystems.sharder.health` | api | Node health state machine | `HealthView`, `HealthState`, `HealthSignal`, `Outcome`, `HintObserver` |
 | `com.codeheadsystems.sharder.fence` | api | Fencing | `Recipient`, `Verdict`, `Relation`, `Ownership`, `RecipientPolicy` |
@@ -585,8 +585,23 @@ public interface TopologyLoader {
 `TopologyLoader` is the home `TOPO-191` needs and does not name. Its result is admissible as a plan
 target under `TOPO-201` and is never installed.
 
-`OwnershipDelta.between(TopologySnapshot from, TopologySnapshot to)` is a static factory, because
-`TOPO-221` makes the delta a pure function of two snapshots and nothing of the router reaches it.
+```java
+public record OwnershipDelta(List<ShardChange> changes) {
+    public static OwnershipDelta between(TopologySnapshot from, TopologySnapshot to);   // TOPO-211
+}
+
+public record ShardChange(ShardId shard, List<NodeId> before, List<NodeId> after,
+                          List<NodeId> gained, List<NodeId> lost) { }
+```
+
+`OwnershipDelta.between` is a static factory, because `TOPO-221` makes the delta a pure function of
+two snapshots and nothing of the router reaches it. It is also the only way a delta is produced:
+`TOPO-212` keeps it off the installation path, so `Router` computes none when a snapshot is
+installed and an integrator who never migrates never pays the `2S` candidate orderings `PLACE-075`
+bounds it by. `before` and `after` hold the entries whose `Role` is `REPLICA`, which is the achieved
+replica count `r` and not the configured factor, so a replica the spread ladder could not place
+never appears as an owner. `changes` is ordered as `TOPO-213` states, by the target snapshot's
+shard enumeration and then by the source snapshot's.
 
 ### Routing decision
 
@@ -690,20 +705,32 @@ The built-in view is `SlidingWindowHealthView`, implementing `HEALTH-020` to `HE
 ### Topology provider
 
 `CORE-080` states the contract this renders, `CORE-081` the rule that at least one capability is
-true, and `CORE-090` to `CORE-101` the adaptation and the failure behaviour.
+true, `CORE-084` to `CORE-087` the conditional fetch, and `CORE-090` to `CORE-101` the adaptation
+and the failure behaviour.
 
 ```java
 public interface TopologyProvider extends AutoCloseable {
-    Capabilities capabilities();                    // at least one of the two is true
-    byte[] load();                                  // present where pull; throws on failure
-    Subscription watch(TopologySink sink);          // present where push
+    Capabilities capabilities();                        // at least one of the two is true
+    Loaded load(Optional<SourceVersion> known);         // present where pull; throws on failure
+    Subscription watch(TopologySink sink);              // present where push
     @Override void close();
 
     record Capabilities(boolean pull, boolean push) { }
 }
 
+public sealed interface Loaded {
+    record Document(byte[] document, Optional<SourceVersion> version) implements Loaded { }
+    record Unchanged() implements Loaded { }            // CORE-086
+}
+
+public final class SourceVersion {                      // CORE-084
+    public static SourceVersion of(byte[] octets);      // copied on the way in and out
+    public byte[] toByteArray();
+    public int length();                                // at most 4096
+}
+
 public interface TopologySink {
-    void onDocument(byte[] document);
+    void onDocument(byte[] document, Optional<SourceVersion> version);
     void onError(Throwable error);
 }
 
@@ -718,6 +745,16 @@ canonicalisation, digesting, monotonicity, and preparation are the library's, an
 constructs a snapshot. A provider that throws any `Throwable` has it caught, counted, reported as
 `providerError` with the original attached as the Java cause, and followed by the backoff of
 `CORE-100`, under `ERR-063`.
+
+`SourceVersion` is a value class over octets the provider chooses and the library never reads,
+under `CORE-084`. `FileTopologyProvider` builds one from the modification time and the size, an
+HTTP adapter from the entity tag it received, and an etcd adapter from the revision that
+[`adr/0004`](adr/0004-topology-provider-contract.md) distinguishes from the epoch. A provider with
+nothing to put in one returns `Optional.empty()` and is passed `Optional.empty()` on every `load`,
+under `CORE-087`, so conditional fetch costs a provider author who cannot support it nothing.
+`Loaded.Unchanged` answers a `load` whose `known` the source still holds; it refreshes freshness,
+emits `sharder.topology.unchanged`, and enters no stage of the load pipeline. Answering it for an
+empty `known` is `providerError`, under `CORE-086`.
 
 ### Fencing recipient
 
