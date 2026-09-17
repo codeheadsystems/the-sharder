@@ -382,7 +382,7 @@ the identifiers the suite names. The table below is transcribed from it.
 
 | Section | Prefix | Stated | Covered | Uncovered |
 |---|---|---|---|---|
-| Configuration surface | `CFG-*` | 29 | 5 | 24 |
+| Configuration surface | `CFG-*` | 30 | 5 | 25 |
 | Core model | `CORE-*` | 51 | 7 | 44 |
 |  | `HASH-*` | 19 | 15 | 4 |
 | Error taxonomy | `ERR-*` | 36 | 26 | 10 |
@@ -395,7 +395,7 @@ the identifiers the suite names. The table below is transcribed from it.
 | Routing keys and placement | `DIR-*` | 11 | 11 | 0 |
 |  | `KEY-*` | 24 | 22 | 2 |
 |  | `OVR-*` | 28 | 27 | 1 |
-|  | `PLACE-*` | 40 | 39 | 1 |
+|  | `PLACE-*` | 45 | 39 | 6 |
 |  | `PROP-*` | 36 | 36 | 0 |
 |  | `RANGE-*` | 20 | 18 | 2 |
 |  | `RING-*` | 18 | 17 | 1 |
@@ -407,10 +407,10 @@ the identifiers the suite names. The table below is transcribed from it.
 |  | `RATE-*` | 15 | 10 | 5 |
 |  | `SPLIT-*` | 22 | 13 | 9 |
 |  | `TOPO-*` | 26 | 18 | 8 |
-| Total | | 645 | 424 | 221 |
+| Total | | 651 | 424 | 227 |
 
-The suite names 424 of the 645 requirements the specification states. The section below
-names what the remaining 221 are and why no data file carries them.
+The suite names 424 of the 651 requirements the specification states. The section below
+names what the remaining 227 are and why no data file carries them.
 
 ## Requirements without an executable test
 
@@ -450,6 +450,15 @@ Stage 2 of `TOPO-001`, schema validation, is covered: each case of `validation-d
 a `stage` of `schema` or `semantic`, and `conformance/generator/verify_schema.py` runs the
 published schema over every document the suite ships. Stage 1, decoding the octets as JSON, is the
 JSON reader's own behaviour and carries no vector.
+
+### Placement cost
+
+`PLACE-070` through `PLACE-074` state the cost of each strategy, the products above which a warning
+event is emitted, and the integer width a product is computed in. `CFG-014` carries the three
+thresholds. A vector carries an output, and a cost is not one: the figures `PLACE-070` gives are
+bounds to within a constant factor rather than values, and the suite's largest topology is eleven
+nodes, so no document it ships crosses a threshold. The events of `PLACE-073` are outputs, and they
+are uncovered for the reason every other event is, which the section below gives.
 
 ### Observability
 
@@ -522,7 +531,7 @@ and `RV-022` required an equality that holds only under the first reading while 
 implements the second. `RV-020` now names the hexadecimal and `PLACE-032` and `RV-022` state the
 decode.
 
-The specification states 645 requirement identifiers, each introduced as a backticked identifier
+The specification states 651 requirement identifiers, each introduced as a backticked identifier
 followed by a full stop at the start of a line, with no duplicate. `coverage.py` extracts them and
 `run.sh` fails where the suite names one the specification does not state.
 

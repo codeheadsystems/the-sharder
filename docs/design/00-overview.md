@@ -364,6 +364,16 @@ The topology declares `strategy.kind` of `rendezvous` and `replication.factor` o
 placement moves only the keys of a departed node, and no others, which is the minimum any placement
 function can achieve.
 
+That movement property is bought with a routing cost that grows with the node set rather than with
+the key. A rendezvous routing call scores every eligible node at every one of its virtual node
+indices before any candidate is known, so its cost is the summed virtual node count, and that sum is
+the number a cache topology is sized against. The cost of every strategy is tabulated in
+[`10-specification.md`](10-specification.md#placement-cost-model), and the library emits
+`sharder.topology.rendezvous_large` at publication where the sum crosses
+`rendezvousWarnVirtualNodes`. A cache whose node set is large enough to cross it is placed by `ring`
+instead, which costs one hash evaluation and a search per routing call at any node count, at the
+price of a coarser movement bound.
+
 Staleness is tolerated by configuration: the snapshot in force continues to serve when the provider
 is unreachable, and the staleness policy that refuses to route against an old snapshot is not the
 default. Cache callers carry the fencing token but need not act on it.

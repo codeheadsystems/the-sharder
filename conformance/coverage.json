@@ -1,15 +1,15 @@
 {
   "specification": "docs/design/10-specification.md",
-  "statedRequirements": 645,
+  "statedRequirements": 651,
   "coveredRequirements": 424,
-  "uncoveredRequirements": 221,
+  "uncoveredRequirements": 227,
   "coveragePercent": 65,
   "identifiersNamedButNotStated": [],
   "byPrefix": [
     {
       "prefix": "CFG",
       "section": "Configuration surface",
-      "stated": 29,
+      "stated": 30,
       "covered": 5,
       "uncovered": [
         "CFG-001",
@@ -23,6 +23,7 @@
         "CFG-011",
         "CFG-012",
         "CFG-013",
+        "CFG-014",
         "CFG-022",
         "CFG-030",
         "CFG-031",
@@ -37,7 +38,7 @@
         "CFG-062",
         "CFG-063"
       ],
-      "percent": 17
+      "percent": 16
     },
     {
       "prefix": "CORE",
@@ -280,12 +281,17 @@
     {
       "prefix": "PLACE",
       "section": "Routing keys and placement",
-      "stated": 40,
+      "stated": 45,
       "covered": 39,
       "uncovered": [
-        "PLACE-004"
+        "PLACE-004",
+        "PLACE-070",
+        "PLACE-071",
+        "PLACE-072",
+        "PLACE-073",
+        "PLACE-074"
       ],
-      "percent": 97
+      "percent": 86
     },
     {
       "prefix": "PROP",

@@ -475,3 +475,11 @@ hash tags so that related keys land together.
 The keys `session:{u-9912}:profile` and `session:{u-9912}:cart` both transform to the routing key
 `u-9912` and share a preference list. `cache-08` is draining at weight 0, so it holds no keys at
 epoch 7 while remaining in the document for the epoch in which it is removed.
+
+`virtualNodesPerWeightUnit` of 8 sets the cost of a routing call as well as the granularity of the
+weighting. A rendezvous call scores every eligible node at every virtual node index, so this
+topology costs eighty hash evaluations per call, which is eight times the summed weight of the seven
+nodes that hold keys. The same multiplier over a thousand nodes of weight 1 costs eight thousand
+hash evaluations per call, and the library emits `sharder.topology.rendezvous_large` at publication
+once the sum crosses `rendezvousWarnVirtualNodes`. The cost of each strategy is tabulated in
+[`10-specification.md`](10-specification.md#placement-cost-model).

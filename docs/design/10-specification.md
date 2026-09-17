@@ -883,6 +883,138 @@ validated it, as `RANGE-015` is retained for the same reason.
 the `kind`, make the document invalid. Identity of matchers is a load-time rule under `TOPO-*`, and
 an implementation MUST NOT resolve such a collision at routing time.
 
+#### Placement cost model
+
+Cost decides which strategies a deployment of a given size can use, so it is stated per
+configuration here. The symbols are those [Placement properties](#placement-properties) uses,
+extended with the counts of the authored tables.
+
+| Symbol | Meaning |
+|---|---|
+| `N` | the count of nodes in the set the figure is stated over |
+| `v_i` | node `i`'s virtual node count under `PLACE-050` |
+| `V` | the sum of `v_j` over that set |
+| `t_i` | node `i`'s token count under `RING-001` or `RING-003` |
+| `T` | the sum of `t_j` over that set |
+| `slotCount` | the `slot` strategy's `slotCount` member, at most 1048576 under `SLOT-001` |
+| `rangeCount` | the count of entries in a `range` strategy's `ranges` array |
+| `entryCount` | the count of entries in a `directory` strategy's `entries` array |
+| `p` | the count of candidates a caller consumes from an ordering |
+
+A preparation figure is stated over the placement set of `PLACE-001` and a routing figure over the
+eligible node set of `PLACE-003`, so an override `constrain` changes the per-call figures and leaves
+the preparation figures unchanged. Hash evaluations, comparisons, and node references are counted
+separately, because a hash evaluation under `HASH-030` costs an order of magnitude more than either
+of the others.
+
+`PLACE-070`. An implementation MUST bound the cost of preparing a placement strategy, the cost of
+one routing call, and the resident size of the `PreparedPlacement` of `CORE-010` by the three tables
+below, except where `PLACE-072` moves a figure from one table to another. Each figure is an upper
+bound to within a constant factor that does not depend on the topology.
+
+Preparation, performed once per snapshot in stage 6 of `TOPO-001`.
+
+| Configuration | Cost |
+|---|---|
+| `ring` with `derived` | `T` hash evaluations and `T log T` comparisons |
+| `ring` with `explicit` | `T log T` comparisons and no hash evaluation |
+| `rendezvous` | `N` virtual node counts computed and no hash evaluation |
+| `slot` with `explicit` | `slotCount` index entries and no hash evaluation |
+| `slot` with `derived` | `slotCount * V` hash evaluations, `slotCount * N log N` comparisons |
+| `range` with `explicit` | `rangeCount log rangeCount` comparisons and no hash evaluation |
+| `range` with `derived` | `rangeCount * V` hash evaluations, `rangeCount * N log N` comparisons |
+| `directory` | `entryCount` index entries and no hash evaluation |
+
+One routing call, consuming a prefix of `p` candidates.
+
+| Configuration | Cost |
+|---|---|
+| `ring` with `derived` | 1 hash evaluation, `log T` comparisons, up to `T` entries walked |
+| `ring` with `explicit` | 1 hash evaluation, `log T` comparisons, up to `T` entries walked |
+| `rendezvous` | `V` hash evaluations and `N log p` comparisons |
+| `slot` with `explicit` | 1 hash evaluation, one lookup, and `N` references filtered |
+| `slot` with `derived` | 1 hash evaluation and one lookup |
+| `range` with `explicit` | `log rangeCount` comparisons and `N` references filtered |
+| `range` with `derived` | `log rangeCount` comparisons and one lookup |
+| `directory` | one lookup or `entryCount` comparisons, and `N` references filtered |
+
+Resident size of one prepared placement.
+
+| Configuration | Size |
+|---|---|
+| `ring` with `derived` | `T` ring entries and `N` nodes |
+| `ring` with `explicit` | `T` ring entries and `N` nodes |
+| `rendezvous` | `N` nodes |
+| `slot` with `explicit` | `slotCount` index entries and the authored table |
+| `slot` with `derived` | `slotCount * N` node references |
+| `range` with `explicit` | `rangeCount` bounds and the authored table |
+| `range` with `derived` | `rangeCount * N` node references |
+| `directory` | `entryCount` matchers and the authored table |
+
+Under `ring` the ring order of `RING-010` carries one entry per token, so it carries `T` entries and
+sorting it is `T log T` comparisons. Under `derived` each entry's token is one `ringToken`
+evaluation under `RING-001`; under `explicit` each is a decode under `RING-003`. A routing call
+computes one `keyHash` under `RING-020`, locates the owning entry, which `RING-025` permits by
+binary search, and walks under `RING-021`. The walk visits `T` entries to produce the whole
+ordering under `RING-022` and about `p * T / N` entries to produce a prefix of `p` where tokens are
+evenly spread.
+
+Under `rendezvous` a node's score is the largest `rvScore` over its virtual node indices under
+`RV-003`, and `RV-010` orders by that score, so every eligible node is scored at every index before
+any candidate is known. A routing call therefore costs `V` hash evaluations, and nothing in that
+term depends on the key beyond the framing of `HASH-030`. Preparation computes virtual node counts
+under `PLACE-050` and nothing further, because a score is a function of the routing key.
+
+Under `slot` a routing call reduces the key to a slot index with one `keyHash` and one remainder
+under `SLOT-001`. Under `explicit` the covering entry is unique under `SLOT-011` and the ordering is
+that entry's `nodes` array filtered under `PLACE-014`. Under `derived` the ordering for a slot is a
+rendezvous ordering over the slot index under `SLOT-021`, and `SLOT-031` enumerates `slotCount`
+slots, so computing every slot's ordering is `slotCount * V` hash evaluations.
+
+Under `range` a routing call locates the covering range by the bound comparison of `RANGE-011` and
+performs no hash evaluation, each comparison reading at most `maxKeyBytes` octets under `CFG-013`.
+Under `derived` the ordering for a range is a rendezvous ordering over the range's `shardId` under
+`RANGE-031`, so computing every range's ordering is `rangeCount * V` hash evaluations.
+
+Under `directory` a routing call evaluates the matcher table under `DIR-001` and the precedence of
+`PLACE-065`, and performs no hash evaluation. An `exact` match is one lookup where the table is
+indexed under `SEC-033`, and the longest matching `prefix` is `entryCount` comparisons over a table
+that is not.
+
+`PLACE-071`. Under `ring`, `slot`, `range`, and `directory` the lazy prefix property of `PLACE-015`
+removes the cost of the ordering a caller does not consume, which under `ring` is the walk beyond
+the `p` entries the caller reads. Under `rendezvous` it does not: `RV-003` and `RV-010` determine
+the first candidate from the scores of the whole eligible node set, so no prefix of the scoring
+answers the call. Laziness under `rendezvous` removes the `N log N` ordering term and leaves the `V`
+scoring term, which is the dominant one.
+
+`PLACE-072`. Under `slot` with `derived` assignment and `range` with `derived` assignment, an
+implementation MAY compute a shard's candidate ordering when it prepares the strategy or when it
+routes. Computing every shard's ordering at preparation costs `slotCount * V` or `rangeCount * V`
+hash evaluations, which `TOPO-021` places before installation and `TOPO-041` serialises. Computing a
+shard's ordering when it routes removes those terms from preparation, reduces the resident size to
+`N` nodes, and costs `V` hash evaluations and `N log p` comparisons per routing call. Both
+placements produce the ordering `PLACE-012` requires.
+
+`PLACE-073`. At snapshot publication an implementation MUST compute the products below over the
+placement set and MUST emit the named event where a product exceeds the threshold in force. Every
+name carries the prefix `sharder.`, which the table omits.
+
+| Configuration | Product | Threshold | Event |
+|---|---|---|---|
+| `rendezvous` | `V` | `rendezvousWarnVirtualNodes` | `topology.rendezvous_large` |
+| `ring` with `derived` | `T` | `ringWarnTokens` | `topology.ring_large` |
+| `slot` with `derived` | `slotCount * V` | `derivedWarnEvaluations` | `topology.derived_large` |
+| `range` with `derived` | `rangeCount * V` | `derivedWarnEvaluations` | `topology.derived_large` |
+
+Crossing a threshold MUST NOT be a validation failure, MUST NOT clamp any count, and MUST NOT change
+any candidate ordering, any shard identifier, or any resident structure.
+
+`PLACE-074`. An implementation MUST compute a product of `PLACE-073` in an integer type of at least
+64 bits, or by a saturating multiplication. `slotCount` reaches 1048576 under `SLOT-001` and a
+node's virtual node count reaches 1024 under `PLACE-050`, so the product reaches 2147483648 for two
+nodes at the maximum virtual node count, which overflows a signed 32-bit integer.
+
 ### Ring strategy
 
 #### Ring token derivation
@@ -3267,6 +3399,9 @@ at least the payload given. Every name carries the prefix `sharder.`, which the 
 | `topology.provider_error` | a provider reports a failure | the condition, the backoff |
 | `topology.weight_clamped` | a count is clamped | node, requested count, granted count |
 | `topology.directory_large` | a directory exceeds its threshold | entry count, threshold |
+| `topology.rendezvous_large` | a rendezvous set exceeds its threshold | nodes, total, threshold |
+| `topology.ring_large` | a ring exceeds its token threshold | nodes, total, threshold |
+| `topology.derived_large` | a derived map exceeds its threshold | shards, product, threshold |
 | `topology.default_seed` | a zero seed meets multi-tenancy | the evidence, under `SEC-011` |
 | `topology.delta` | an ownership delta is computed | shards changed, gained, lost |
 | `routing.shortfall` | a replica prefix is short | factor, achieved, cause, shard |
@@ -3462,6 +3597,9 @@ deployment manifest.
 | `retentionDepth` | 3 | previous snapshots retained for `FENCE-091` and plan checks |
 | `maxKeyBytes` | 65536 | ceiling on a key, above which a routing call answers `invalidArgument` |
 | `directoryWarnEntries` | 10000 | entry count above which the directory event is emitted |
+| `rendezvousWarnVirtualNodes` | 4096 | summed virtual node count above which the event is emitted |
+| `ringWarnTokens` | 1000000 | ring token total above which the event is emitted |
+| `derivedWarnEvaluations` | 100000000 | preparation product above which the event is emitted |
 
 `CFG-011`. `reconcileIntervalMillis` MUST be at least `pollIntervalMillis`. A provider that both
 pushes and pulls is reconciled rarely, because the push path carries the change.
@@ -3472,6 +3610,11 @@ under `CORE-033` is the only path by which a document arrives on a pull-only pro
 
 `CFG-013`. `maxKeyBytes` bounds the hash cost of one routing call. An implementation MUST compare
 the key length against it before applying the key transform, and MUST NOT truncate under `KEY-005`.
+
+`CFG-014`. `rendezvousWarnVirtualNodes`, `ringWarnTokens`, and `derivedWarnEvaluations` are the
+thresholds `PLACE-073` compares its products against. Each is evaluated once per accepted snapshot,
+and the value 0 MUST disable the event it governs. None of the three refuses a document, and
+`CFG-004` holds for each of them.
 
 ### Routing and failover settings
 
@@ -3676,8 +3819,15 @@ tenant's retries therefore consume a budget every tenant shares, and an integrat
 per-tenant budgets holds a router per tenant.
 
 `SEC-033`. An implementation MUST bound the cost of one routing call by `maxKeyBytes` under
-`CFG-013`, and SHOULD index `exact` matchers of a `directory` table and an `overrides` table so that
-matching cost does not grow linearly with the table for every key.
+`CFG-013` and by the eligible node set, within the figures `PLACE-070` gives. The dominant term
+differs by strategy. Under `ring` and `slot` it is the key: one hash evaluation over at most
+`maxKeyBytes` octets, and a search logarithmic in the prepared structure. Under `range` and
+`directory` it is the authored table, searched by comparisons each reading at most `maxKeyBytes`
+octets, with no hash evaluation. Under `rendezvous` it is the eligible node set: `V` hash
+evaluations under `RV-003`, independent of the key beyond one framing. Under `slot` and `range`
+with `derived` assignment the eligible node set dominates preparation rather than the routing call,
+under `PLACE-072`. An implementation SHOULD index `exact` matchers of a `directory` table and an
+`overrides` table so that matching cost does not grow linearly with the table for every key.
 
 `SEC-034`. An implementation MUST NOT allocate memory proportional to a caller-supplied value other
 than the key itself during a routing call. An `ExplainRecord` is proportional to the node set and is
