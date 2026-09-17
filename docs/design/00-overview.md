@@ -162,6 +162,12 @@ The corpus uses these terms as defined here and does not redefine them in passin
   copying a shard's contents or verifying a copy.
 - **handoff coordinator**. The component that drives a handoff through its states. Abbreviated
   coordinator.
+- **rebase**. Moving a plan onto a newer topology snapshot, one handoff at a time. A handoff whose
+  shard, source, and destination still hold under the newer snapshot continues from the state it is
+  in; the rest are aborted. A rebase moves no ownership and commits no cutover record.
+- **re-observation**. A single further call to the `observe` hook for a handoff whose cutover
+  outcome the library never established, which either resolves the handoff or leaves it where it
+  is.
 - **cutover**. The handoff state in which the source quiesces and the cutover record is committed,
   after a grace window where the hooks are advisory. The cutover instant is the transition out of
   it, from `cutover` to `verifying`, at which the destination becomes the authoritative replica for
@@ -317,6 +323,24 @@ preference list and on which node owns the shard.
 
      operator action required:
         cutover, verifying, cleanup, aborting -> failed
+
+  a newer epoch arrives while the plan is in flight:
+     the integrator calls onSnapshotInstalled(), which marks the plan rebase pending
+     and starts nothing; step() then admits no new handoff and no new cutover
+             |
+             v
+     the integrator calls rebase(to), and pays the per-shard placement there
+             |
+             v
+     per handoff, planned through catchingUp:
+        the shard, source, and destination still hold  -> rebased, state unchanged
+        they do not                                    -> aborted, compensation runs
+     per handoff, cutover onwards: unchanged, finishing under the epoch it began
+
+  the cutover outcome was never established:
+     the integrator calls reobserve(id), which calls observe() once
+        failed(undetermined) -> verifying, aborting, cutover, transferring, preparing
+        the store is still silent -> the handoff stays in failed(undetermined)
 ```
 
 Installing a snapshot emits an event and starts nothing. The ownership delta is an operation the
@@ -325,6 +349,14 @@ costs a preference list evaluation per shard per snapshot and a caller that neve
 needs one. A migration begins when the integrator calls `plan`, and a plan may target a snapshot
 that has been validated and not installed, which is how a handoff is prepared ahead of the epoch
 that will route to it.
+
+A rebalance large enough to matter outlives several epochs, because a fleet publishes an epoch
+whenever a node dies, is drained, or changes weight. A plan therefore follows the topology rather
+than pinning to the pair of epochs it was built from. A newer epoch marks the plan rebase pending,
+which starts no work and holds the plan short of any new cutover, and a rebase moves the handoffs
+whose shard, source, and destination still hold onto the newer snapshot while aborting the rest.
+The two calls are separated so that the cost of evaluating placement per shard falls where the
+integrator asks for it.
 
 A provider that is unreachable produces no branch of its own: the snapshot in force stays in force,
 an event is emitted, and the snapshot is marked stale once the staleness bound passes.

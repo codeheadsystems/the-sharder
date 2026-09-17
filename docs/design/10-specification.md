@@ -2741,14 +2741,14 @@ storage protocol.
 |---|---|---|
 | none | `planned` | plan construction admits the shard |
 | `planned` | `preparing` | the rate policy admits the handoff |
-| `planned` | `aborted` | abort requested, or the plan is superseded |
+| `planned` | `aborted` | abort requested, the plan is superseded, or a rebase drops the handoff |
 | `preparing` | `transferring` | `prepare` returns success |
-| `preparing` | `aborting` | abort requested, plan superseded, or attempts exhausted |
+| `preparing` | `aborting` | abort requested, plan superseded or rebased past it, or attempts exhausted |
 | `transferring` | `catchingUp` | `transfer` reports no bulk remaining |
-| `transferring` | `aborting` | abort requested, plan superseded, or attempts exhausted |
+| `transferring` | `aborting` | abort requested, plan superseded or rebased past it, or attempts exhausted |
 | `catchingUp` | `cutover` | `catchUp` reports a residue at or below `catchUpResidualThreshold` |
 | `catchingUp` | `transferring` | `catchUp` reports a residue above `reTransferResidualThreshold` |
-| `catchingUp` | `aborting` | abort requested, plan superseded, or attempts exhausted |
+| `catchingUp` | `aborting` | abort requested, plan superseded or rebased past it, or attempts exhausted |
 | `cutover` | `verifying` | `commitCutover` returns a cutover record |
 | `cutover` | `aborting` | `quiesce` fails and no cutover record exists |
 | `cutover` | `failed` | the outcome of `commitCutover` is undetermined at the deadline |
@@ -2758,9 +2758,19 @@ storage protocol.
 | `cleanup` | `failed` | `cleanup` attempts are exhausted |
 | `aborting` | `aborted` | `rollback` returns success |
 | `aborting` | `failed` | `rollback` attempts are exhausted |
+| `failed` | `verifying` | `reobserve` finds a cutover record for the handoff |
+| `failed` | `aborting` | `reobserve` finds a record that does not belong to the handoff |
+| `failed` | `cutover` | `reobserve` finds no record and the source quiesced |
+| `failed` | `transferring` | `reobserve` finds no record and the destination prepared |
+| `failed` | `preparing` | `reobserve` finds no record and the destination not prepared |
 
-`MOVE-031`. `complete`, `aborted`, and `failed` are terminal. An implementation MUST NOT transition
-out of a terminal state, and MUST require a new plan to retry the shard.
+The five rows leaving `failed` are admitted only under `MOVE-233`, only for the failure kind
+`undetermined`, and only from a call the integrator makes.
+
+`MOVE-031`. `complete`, `aborted`, and `failed` are terminal. An implementation MUST NOT
+transition out of a terminal state except under `MOVE-233`, and MUST require a new plan to retry
+the shard in every other case. No transition out of a terminal state may be automatic: the one
+exception is a call the integrator makes for one named handoff.
 
 `MOVE-041`. The cutover is the `cutover` to `verifying` transition. Before it the source is the
 authoritative owner of the shard; after it the destination is. An implementation MUST NOT treat any
@@ -2784,7 +2794,9 @@ interface MigrationPlan:
     handoffs()                  -> iterator<HandoffId>
     state(id: HandoffId)        -> HandoffState
     step(clock: MonotonicClock) -> StepOutcome
-    recover(clock: MonotonicClock) -> Result<unit, Error>
+    recover(clock: MonotonicClock) -> Result<RecoveryReport, Error>
+    reobserve(id: HandoffId, clock: MonotonicClock) -> Result<ReobserveOutcome, Error>
+    rebase(to: TopologySnapshot) -> Result<RebaseReport, Error>
     abort(id: HandoffId, reason: string)
     abortAll(reason: string)
     onSnapshotInstalled(snapshot: TopologySnapshot)
@@ -2812,14 +2824,85 @@ snapshots fail `TOPO-231`, when the target snapshot's epoch is not above the sou
 the strategy does not support orchestrated migration under `MOVE-241`, or when a destination named
 by the delta is outside the placement set of the target snapshot.
 
-`MOVE-091`. `onSnapshotInstalled` MUST supersede the plan when the installed snapshot's `epoch` is
-neither the plan's source epoch nor its target epoch, or when its `topologyId` differs. Superseding
-MUST abort every handoff that has not yet reached `cutover` and MUST let every handoff at `cutover`
-or beyond run to a terminal state.
+`MOVE-091`. `onSnapshotInstalled` MUST supersede the plan when the installed snapshot's
+`topologyId` differs from the plan's, or when the installed snapshot and the plan's source snapshot
+are not comparable under `TOPO-231`. Superseding MUST abort every handoff that has not yet reached
+`cutover` and MUST let every handoff at `cutover` or beyond run to a terminal state. Where neither
+condition holds and the installed snapshot's `epoch` is above the plan's target epoch,
+`onSnapshotInstalled` MUST instead mark the plan **rebase pending** against that snapshot. An
+installed snapshot whose `epoch` is at or below the plan's target epoch MUST leave the plan
+unchanged.
 
-`MOVE-101`. A plan MUST NOT be created, advanced, or superseded as a side effect of installing a
-snapshot. The library emits `topology.installed` and exposes the ownership delta as the operation of
-`TOPO-211`; the integrator computes the delta and decides whether to migrate.
+`MOVE-092`. Marking a plan rebase pending MUST NOT abort a handoff, MUST NOT evaluate a preference
+list, MUST NOT compute an ownership delta, and MUST NOT call a movement hook. The mark records the
+installed snapshot and nothing else. Where a plan is already rebase pending, a further
+`onSnapshotInstalled` above the recorded snapshot's epoch MUST replace the recorded snapshot.
+
+`MOVE-093`. While a plan is rebase pending, `step` MUST NOT move a handoff out of `planned` and
+MUST NOT move a handoff from `catchingUp` to `cutover`. Every other transition MUST remain
+available, and `abort`, `abortAll`, `recover`, and `reobserve` MUST remain admissible. `step` MUST
+answer `idle` where the mark is what leaves nothing admissible.
+
+`MOVE-094`. An implementation MUST expose a rebase with this shape.
+
+```
+rebase(to: TopologySnapshot) -> Result<RebaseReport, Error>
+
+RebaseReport = {
+    fromEpoch: Epoch,                  # the plan's target epoch before the rebase
+    toEpoch:   Epoch,                  # the plan's target epoch after it
+    rebased:   list<HandoffId>,
+    aborted:   list<HandoffId>,
+    unchanged: list<HandoffId>         # at `cutover` or beyond, or already terminal
+}
+```
+
+A rebase MUST clear the rebase-pending mark where `to` is the snapshot the mark records, and MUST
+leave the mark in place otherwise.
+
+`MOVE-095`. `rebase` MUST refuse, reporting `planRefused` under `ERR-050`, where `to` carries a
+`topologyId` other than the plan's, where `to` and the plan's source snapshot are not comparable
+under `TOPO-231`, or where `to`'s epoch is not above the plan's source epoch. A refused rebase MUST
+leave every handoff in the state it held and MUST NOT advance the plan's target epoch.
+
+`MOVE-096`. `rebase` MUST classify every handoff in `planned`, `preparing`, `transferring`, or
+`catchingUp`, and no other, by evaluating the replica set of that handoff's shard under `to` as
+`TOPO-211` defines it. A handoff is rebasable exactly when `to` enumerates its shard, its
+destination is a member of that shard's replica set under `to`, and its source is not. A rebasable
+handoff MUST be rebased and every other handoff of that group MUST be aborted. One rebase MUST cost
+at most one candidate ordering per handoff it classifies, taken under `to` alone, each ordering
+costing what the routing table of `PLACE-070` states for its configuration at `p` of the effective
+replication factor.
+
+`MOVE-097`. Rebasing a handoff MUST advance that handoff's target epoch to `to`'s epoch and MUST
+change nothing else about it. Its state, its attempt count, its step budget, and its accumulated
+measurements MUST be unchanged, and `rebase` MUST NOT call a movement hook for it.
+
+`MOVE-098`. Aborting a handoff under `MOVE-096` MUST follow `MOVE-411` and `MOVE-421`. A handoff in
+`planned` reaches `aborted` with no hook called, and one in `preparing`, `transferring`, or
+`catchingUp` reaches `aborting` and compensates, which `MOVE-481` requires under an epoch above the
+plan's target.
+
+`MOVE-099`. A handoff in `cutover`, `verifying`, `cleanup`, `aborting`, or a terminal state MUST
+NOT be rebased, and `rebase` MUST report it as unchanged. A handoff that entered `cutover` MUST keep
+the target epoch it held at that transition and MUST run to a terminal state under it. A plan's
+target epoch and a handoff's target epoch are therefore distinct after a rebase, and the `toEpoch`
+of the handoff context in `MOVE-111` MUST be the handoff's own.
+
+`MOVE-101`. A plan MUST NOT be created, advanced, superseded, or rebased as a side effect of
+installing a snapshot. The library emits `topology.installed` and exposes the ownership delta as the
+operation of `TOPO-211`; the integrator computes the delta and decides whether to migrate.
+
+`MOVE-102`. A plan's **rebase interval** is the set of epochs above its source epoch and at or
+below its target epoch. A cutover record belongs to a handoff of the plan exactly when the record's
+`shardId` is the handoff's shard, its `owner` is the handoff's destination, and its `epoch` lies in
+the rebase interval. `MOVE-191`, `MOVE-211`, and `MOVE-431` read the interval, and a plan that has
+never been rebased has an interval holding one epoch.
+
+`MOVE-103`. A rebase MUST NOT move authority. It MUST NOT commit a cutover record, MUST NOT reverse
+one, and MUST NOT change any fencing token a routing decision has carried. `MOVE-041`, `MOVE-281`,
+and `MOVE-291` hold across a rebase without variation, and a token remains evidence about a sender's
+snapshot rather than about a handoff.
 
 #### Movement hook interface
 
@@ -2836,7 +2919,7 @@ interface MovementHooks:
     verify(ctx)                      -> VerifyResult
     cleanup(ctx)                     -> HookResult
     rollback(ctx)                    -> HookResult
-    observe(ctx)                     -> Observation
+    observe(ctx)                     -> ObserveResult
 
 HandoffContext ctx = {
     shardId, topologyId, fromEpoch, toEpoch,
@@ -2860,10 +2943,16 @@ CutoverResult   = one of { committed(CutoverRecord), alreadyCommitted(CutoverRec
                            lost(CutoverRecord), undetermined, retryable(reason),
                            permanent(reason) }
 VerifyResult    = one of { matched, mismatched(detail), retryable(reason) }
+ObserveResult   = one of { observed(Observation), unavailable(reason), undetermined }
 Observation     = { cutoverRecord: CutoverRecord | none, destinationPrepared: boolean,
                     sourceQuiesced: boolean, sourceResidue: boolean }
 CutoverRecord   = { shardId, topologyId, epoch, owner: NodeId, opaque: bytes }
 ```
+
+`MOVE-112`. An answer of `unavailable` from `observe` states that the hook could not read the
+integrator's durable state. An answer of `undetermined` states that it read that state and the
+state does not establish whether a cutover record exists. An implementation MUST NOT treat the two
+as one answer, and MUST NOT derive either from a hook that returned an `Observation`.
 
 `MOVE-121`. Until the cutover, the source MUST answer reads and writes for the shard and the
 destination MUST refuse them with `currentOwner` set to the source. Whether the source also
@@ -2897,8 +2986,8 @@ the supplied clock.
 context, or, where `supportsVerify` is false, before `commitCutover` has returned a record. This
 ordering is what prevents the handoff from destroying the only surviving copy.
 
-`MOVE-191`. `rollback` MUST NOT be called after a cutover record exists for the shard at the plan's
-target epoch. Compensation after cutover is a new plan under a higher epoch.
+`MOVE-191`. `rollback` MUST NOT be called after a cutover record belonging to the handoff exists
+under `MOVE-102`. Compensation after cutover is a new plan under a higher epoch.
 
 #### Coordinator failure and recovery
 
@@ -2907,23 +2996,91 @@ implementation MUST treat the integrator's durable state, read through `observe`
 whenever the two disagree.
 
 `MOVE-211`. `recover` MUST call `observe` for every handoff whose state is not terminal, and MUST
-assign a state from the observation using this mapping.
+assign a state from an answer of `observed` using this mapping.
 
 | Observation | Resumed state |
 |---|---|
-| a record whose `owner` is the destination and `epoch` is the target epoch | `verifying` |
-| a record naming another owner, or another epoch | `aborting` |
+| a record belonging to the handoff under `MOVE-102` | `verifying` |
+| a record naming another owner, or an epoch outside the rebase interval | `aborting` |
 | no record, `sourceQuiesced` true | `cutover` |
 | no record, `destinationPrepared` true | `transferring` |
 | no record, `destinationPrepared` false | `preparing` |
 
-`MOVE-221`. A coordinator that restarts MUST rebuild its plan from the same two snapshots and MUST
-call `recover` before its first `step`. Rebuilding is safe because plan construction is a pure
-function of the two snapshots and the policy, and because every hook is idempotent.
+`MOVE-212`. A handoff resumed at `verifying` under `MOVE-211` MUST take the epoch of the observed
+record as its own target epoch. A handoff resumed at any other state keeps the plan's target epoch,
+which `MOVE-221` makes the epoch of the snapshot the plan was rebuilt against.
 
-`MOVE-231`. Where `observe` is unavailable or returns `undetermined` for a handoff in `cutover`, the
-coordinator MUST move that handoff to `failed` with the kind `undetermined` and MUST NOT call
-`cleanup`, `rollback`, or `commitCutover` for it again.
+`MOVE-221`. A coordinator that restarts MUST rebuild its plan from the same source snapshot and
+from the latest snapshot the plan was rebased onto, and MUST call `recover` before its first `step`.
+Rebuilding is safe because plan construction is a pure function of the two snapshots and the policy,
+because every hook is idempotent, and because `MOVE-102` recovers the rebase interval from the two
+epochs rather than from a record the coordinator kept.
+
+`MOVE-231`. Where `observe` answers `unavailable` for a handoff, `recover` MUST retry it across
+successive calls, up to `maxAttemptsPerStep` with the backoff of `RATE-051`, and MUST leave the
+handoff in the state it held until those attempts are spent. `recover` MUST NOT sleep, MUST NOT
+wait, and MUST NOT spin. Where the attempts are spent, or where `observe` answers `undetermined`, a
+handoff in `cutover` MUST move to `failed` with the kind `undetermined`, and a handoff in any other
+non-terminal state MUST stay in the state it held. A handoff in `failed` MUST NOT be passed to
+`cleanup`, `rollback`, or `commitCutover` while it remains there.
+
+`MOVE-232`. `recover` MUST answer a report with this shape.
+
+```
+RecoveryReport = {
+    resolved:         list<HandoffId>,
+    unresolved:       list<HandoffId>,
+    failed:           list<HandoffId>,
+    retryAfterMillis: u32
+}
+```
+
+`resolved` names the handoffs this call assigned a state to, `failed` names the handoffs it moved
+to `failed`, and `unresolved` names every other non-terminal handoff. `retryAfterMillis` is the
+`RATE-051` backoff of the earliest handoff whose attempts are not spent, or zero where none has
+attempts left. A report whose `unresolved` is non-empty MUST NOT prevent a
+later `recover`. `step` MUST NOT advance a handoff while its `observe` attempts are not spent, and
+MAY advance one whose attempts are spent from the state the coordinator holds.
+
+`MOVE-233`. An implementation MUST expose a re-observation with this shape.
+
+```
+reobserve(id: HandoffId, clock: MonotonicClock) -> Result<ReobserveOutcome, Error>
+
+ReobserveOutcome = one of { resumed(HandoffState), unresolved, refused(reason) }
+```
+
+It MUST admit exactly a handoff in `failed` whose kind is `undetermined` and which did not reach
+`failed` under `SPLIT-171`. It MUST answer `refused` for a handoff in any other state, for a handoff
+whose kind is `unverified`, `residue`, or `rollbackFailed`, and for a handoff that reached `failed`
+under `SPLIT-171`.
+
+`MOVE-234`. `reobserve` MUST call `observe` exactly once and MUST call no other movement hook.
+Where the answer is `observed`, it MUST assign a state by the mapping of `MOVE-211`, MUST apply
+`MOVE-212`, and MUST answer `resumed` with the assigned state. Where the answer is `unavailable` or
+`undetermined`, the handoff MUST stay in `failed` with the kind `undetermined` and `reobserve` MUST
+answer `unresolved`.
+
+`MOVE-235`. `reobserve` MUST NOT resume a handoff at `cutover` where the hooks declare
+`cutoverGuarantee` of `advisory`. Such a handoff MUST stay in `failed` with the kind `undetermined`
+and `reobserve` MUST answer `refused`. Where the declaration is `linearisable`, a resumption at
+`cutover` follows an observation that reports no record, and `MOVE-331` requires a fresh successful
+`quiesce` before the next `commitCutover`.
+
+`MOVE-236`. A handoff resumed by `reobserve` MUST obey `MOVE-181` and `MOVE-191` without variation.
+A resumption at `verifying` MUST NOT reach `cleanup` before `verify` has returned `matched`, and a
+resumption at `aborting` is admitted only where no cutover record belongs to the handoff under
+`MOVE-102`, which the observation that produced the resumption establishes.
+
+`MOVE-237`. `unverified` names a destination copy that did not match the source, `residue` names a
+source copy left in place after ownership moved, and `rollbackFailed` names a compensation that did
+not run. An implementation MUST NOT admit a re-observation for any of the three. `undetermined`
+names an outcome the library did not establish, and is the one kind `MOVE-233` admits.
+
+`MOVE-238`. `reobserve` MUST be idempotent in effect. A call answering `unresolved` or `refused`
+MUST change no state, and a handoff that reaches `failed` with the kind `undetermined` a second time
+MUST be admissible a second time. An implementation MUST NOT call `reobserve` from `step`, from
+`recover`, or from any other call of its own.
 
 #### Strategy applicability
 
@@ -3018,9 +3175,10 @@ calling a hook. No hook has run, so nothing is to compensate.
 to `aborting` and MUST call `rollback`, whose duty is to release the destination's partial copy and
 any scratch state `prepare` created. The source is untouched throughout, so the abort loses nothing.
 
-`MOVE-431`. An abort requested in `cutover` MUST be admitted only while no cutover record exists.
-The coordinator MUST call `observe` before admitting it. Where a record exists, the abort MUST be
-refused and the handoff MUST roll forward.
+`MOVE-431`. An abort requested in `cutover` MUST be admitted only while no cutover record
+belonging to the handoff exists under `MOVE-102`. The coordinator MUST call `observe` before
+admitting it, and MUST refuse the abort where the answer is `unavailable` or `undetermined`. Where a
+record exists, the abort MUST be refused and the handoff MUST roll forward.
 
 `MOVE-441`. An abort MUST NOT be admitted in `verifying`, `cleanup`, `complete`, `aborted`, or
 `failed`. Ownership has already moved, and moving it back is a topology change rather than an abort.
@@ -3223,10 +3381,11 @@ refuse to sequence one where that node is not a replica of every shard named.
 `SPLIT-161`. A split whose children keep the parent's replica set is a local step alone, with no
 handoff. The ownership delta for that shard names no node gained and no node lost.
 
-`SPLIT-171`. A split MUST NOT run under a plan that a snapshot install has superseded. Where the
+`SPLIT-171`. A split MUST NOT run under a plan that a snapshot install has superseded, and MUST
+NOT run under a plan that a rebase has moved to a target snapshot naming other shards. Where the
 local split step has already succeeded, the shard identity of the source snapshot no longer matches
 the data, so the plan MUST move its remaining handoffs to `failed` with the kind `undetermined`
-rather than roll back.
+rather than roll back. `MOVE-233` does not admit a re-observation for a handoff failed this way.
 
 #### In-flight requests across a split
 
@@ -3343,7 +3502,7 @@ response MUST be this one.
 | `redirectExhausted` | surface the failure; a `retryBudget` cause means the cluster is shedding |
 | `planRefused` | correct the snapshots or the policy member named in `cause` |
 | `quiesced` | retry after the window, which `cutoverGraceMillis` bounds |
-| `handoffFailed` | operator action, directed by the failure kind in `cause` |
+| `handoffFailed` | operator action, directed by the failure kind in `cause`; `undetermined` takes a re-observation |
 
 ### Routing conditions
 
@@ -3440,16 +3599,18 @@ routing conditions and does not govern these.
 ### Migration conditions
 
 `ERR-050`. `planRefused` MUST be raised by `plan` under `MOVE-081`, `MOVE-251`, `MOVE-371`,
-`RATE-021`, and `SPLIT-091`. It MUST carry a `cause` from the closed set `incomparableShards`,
-`epochNotAdvancing`, `strategyUnsupported`, `destinationOutsidePlacementSet`, `unalignedRanges`,
-`policyInvalid`, and `guaranteeTooWeak`.
+`RATE-021`, and `SPLIT-091`, and by `rebase` under `MOVE-095`. It MUST carry a `cause` from the
+closed set `incomparableShards`, `epochNotAdvancing`, `strategyUnsupported`,
+`destinationOutsidePlacementSet`, `unalignedRanges`, `policyInvalid`, `guaranteeTooWeak`, and
+`topologyMismatch`.
 
 `ERR-051`. `quiesced` MUST be raised for a write to a shard between the success of `quiesce` and the
 return of `commitCutover`, under `MOVE-311`. It MUST be reported as retryable at both the source and
 the destination, and MUST NOT be raised for a read the source still answers.
 
 `ERR-052`. `handoffFailed` MUST be raised where a handoff reaches `failed`, and MUST carry a `cause`
-of exactly one of `unverified`, `residue`, `undetermined`, and `rollbackFailed`, under `MOVE-011`.
+of exactly one of `unverified`, `residue`, `undetermined`, and `rollbackFailed`, under `MOVE-011`. A
+`cause` of `undetermined` is the one `MOVE-233` admits for a re-observation.
 
 `ERR-053`. A handoff that reaches `aborted` MUST NOT produce a condition. An abort is an outcome the
 integrator requested or a plan supersession, and it is reported through the event of `OBS-020`.
@@ -3606,6 +3767,9 @@ at least the payload given. Every name carries the prefix `sharder.`, which the 
 | `migration.cutover_committed` | a record is committed | shard, source, destination, window |
 | `migration.failed` | a handoff reaches `failed` | shard, kind, source, destination |
 | `migration.superseded` | a plan is superseded | epoch, aborted count, finishing count |
+| `migration.rebase_pending` | a plan is marked under `MOVE-091` | the installed epoch, the target |
+| `migration.rebased` | `rebase` returns a report | the report of `MOVE-094` |
+| `migration.reobserved` | `reobserve` returns | handoff, shard, answer, resumed state |
 | `shard.split_advice` | a split threshold is crossed | shard, threshold, value, addressable |
 | `shard.hot` | a shard is hot under `OBS-031` | shard, observed share, expected share |
 | `shard.key_skew` | key skew is detected | shard, hottest key requests, requests |

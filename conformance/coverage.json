@@ -1,9 +1,9 @@
 {
   "specification": "docs/design/10-specification.md",
-  "statedRequirements": 670,
-  "coveredRequirements": 438,
-  "uncoveredRequirements": 232,
-  "coveragePercent": 65,
+  "statedRequirements": 689,
+  "coveredRequirements": 458,
+  "uncoveredRequirements": 231,
+  "coveragePercent": 66,
   "identifiersNamedButNotStated": [],
   "byPrefix": [
     {
@@ -381,8 +381,8 @@
     {
       "prefix": "MOVE",
       "section": "Topology change and rebalancing",
-      "stated": 51,
-      "covered": 29,
+      "stated": 70,
+      "covered": 49,
       "uncovered": [
         "MOVE-061",
         "MOVE-062",
@@ -396,7 +396,6 @@
         "MOVE-301",
         "MOVE-311",
         "MOVE-321",
-        "MOVE-331",
         "MOVE-341",
         "MOVE-351",
         "MOVE-361",
@@ -407,7 +406,7 @@
         "MOVE-411",
         "MOVE-431"
       ],
-      "percent": 56
+      "percent": 70
     },
     {
       "prefix": "RATE",
@@ -904,6 +903,7 @@
       "vectors/formulas/migration-rate.json"
     ],
     "ERR-050": [
+      "scenarios/rebase-drops-a-handoff.json",
       "vectors/formulas/migration-rate.json",
       "vectors/split/lineage.json",
       "vectors/topology/ownership-delta.json"
@@ -934,6 +934,7 @@
       "vectors/formulas/migration-rate.json"
     ],
     "RATE-051": [
+      "scenarios/coordinator-death-and-recovery.json",
       "vectors/formulas/migration-rate.json"
     ],
     "RATE-101": [
@@ -1614,6 +1615,7 @@
       "vectors/split/lineage.json"
     ],
     "SPLIT-171": [
+      "scenarios/undetermined-resolves-both-ways.json",
       "vectors/split/lineage.json"
     ],
     "SPREAD-010": [
@@ -1670,6 +1672,7 @@
     ],
     "TOPO-211": [
       "scenarios/handoff-happy-path.json",
+      "scenarios/rebalance-survives-unrelated-epoch.json",
       "vectors/topology/ownership-delta.json"
     ],
     "TOPO-213": [
@@ -1680,6 +1683,8 @@
       "vectors/topology/ownership-delta.json"
     ],
     "TOPO-231": [
+      "scenarios/plan-superseded-by-new-epoch.json",
+      "scenarios/rebase-drops-a-handoff.json",
       "vectors/topology/ownership-delta.json"
     ],
     "TOPO-241": [
@@ -1826,7 +1831,8 @@
     ],
     "MOVE-211": [
       "properties/properties.json",
-      "scenarios/coordinator-death-and-recovery.json"
+      "scenarios/coordinator-death-and-recovery.json",
+      "scenarios/undetermined-resolves-both-ways.json"
     ],
     "MOVE-221": [
       "properties/properties.json",
@@ -1839,19 +1845,22 @@
     ],
     "MOVE-011": [
       "properties/properties.json",
-      "scenarios/handoff-failure-kinds.json"
+      "scenarios/handoff-failure-kinds.json",
+      "scenarios/undetermined-resolves-both-ways.json"
     ],
     "MOVE-021": [
       "properties/properties.json",
       "scenarios/abort-during-catching-up.json",
       "scenarios/handoff-failure-kinds.json",
       "scenarios/handoff-happy-path.json",
-      "scenarios/node-dies-mid-migration.json"
+      "scenarios/node-dies-mid-migration.json",
+      "scenarios/undetermined-resolves-both-ways.json"
     ],
     "MOVE-031": [
       "properties/properties.json",
       "scenarios/handoff-failure-kinds.json",
-      "scenarios/handoff-happy-path.json"
+      "scenarios/handoff-happy-path.json",
+      "scenarios/undetermined-resolves-both-ways.json"
     ],
     "MOVE-441": [
       "properties/properties.json"
@@ -2012,7 +2021,8 @@
       "scenarios/handoff-happy-path.json"
     ],
     "MOVE-181": [
-      "scenarios/handoff-happy-path.json"
+      "scenarios/handoff-happy-path.json",
+      "scenarios/undetermined-resolves-both-ways.json"
     ],
     "HEALTH-005": [
       "scenarios/failover-and-recovery.json",
@@ -2033,14 +2043,28 @@
     ],
     "MOVE-421": [
       "scenarios/abort-during-catching-up.json",
-      "scenarios/node-dies-mid-migration.json"
+      "scenarios/node-dies-mid-migration.json",
+      "scenarios/rebase-drops-a-handoff.json"
     ],
     "MOVE-481": [
       "scenarios/node-dies-mid-migration.json",
-      "scenarios/plan-superseded-by-new-epoch.json"
+      "scenarios/plan-superseded-by-new-epoch.json",
+      "scenarios/rebase-drops-a-handoff.json"
+    ],
+    "MOVE-112": [
+      "scenarios/coordinator-death-and-recovery.json",
+      "scenarios/undetermined-resolves-both-ways.json"
+    ],
+    "MOVE-212": [
+      "scenarios/coordinator-death-and-recovery.json",
+      "scenarios/undetermined-resolves-both-ways.json"
+    ],
+    "MOVE-232": [
+      "scenarios/coordinator-death-and-recovery.json"
     ],
     "ERR-052": [
-      "scenarios/handoff-failure-kinds.json"
+      "scenarios/handoff-failure-kinds.json",
+      "scenarios/undetermined-resolves-both-ways.json"
     ],
     "ERR-053": [
       "scenarios/handoff-failure-kinds.json"
@@ -2052,10 +2076,20 @@
       "scenarios/handoff-failure-kinds.json"
     ],
     "MOVE-091": [
-      "scenarios/plan-superseded-by-new-epoch.json"
+      "scenarios/plan-superseded-by-new-epoch.json",
+      "scenarios/rebalance-survives-unrelated-epoch.json"
+    ],
+    "MOVE-092": [
+      "scenarios/plan-superseded-by-new-epoch.json",
+      "scenarios/rebalance-survives-unrelated-epoch.json"
+    ],
+    "MOVE-093": [
+      "scenarios/plan-superseded-by-new-epoch.json",
+      "scenarios/rebalance-survives-unrelated-epoch.json"
     ],
     "MOVE-101": [
-      "scenarios/plan-superseded-by-new-epoch.json"
+      "scenarios/plan-superseded-by-new-epoch.json",
+      "scenarios/rebalance-survives-unrelated-epoch.json"
     ],
     "TOPO-111": [
       "scenarios/plan-superseded-by-new-epoch.json"
@@ -2063,8 +2097,59 @@
     "TOPO-131": [
       "scenarios/plan-superseded-by-new-epoch.json"
     ],
+    "MOVE-094": [
+      "scenarios/rebalance-survives-unrelated-epoch.json",
+      "scenarios/rebase-drops-a-handoff.json"
+    ],
+    "MOVE-096": [
+      "scenarios/rebalance-survives-unrelated-epoch.json",
+      "scenarios/rebase-drops-a-handoff.json"
+    ],
+    "MOVE-097": [
+      "scenarios/rebalance-survives-unrelated-epoch.json",
+      "scenarios/rebase-drops-a-handoff.json"
+    ],
+    "MOVE-102": [
+      "scenarios/rebalance-survives-unrelated-epoch.json",
+      "scenarios/rebase-drops-a-handoff.json",
+      "scenarios/undetermined-resolves-both-ways.json"
+    ],
+    "MOVE-103": [
+      "scenarios/rebalance-survives-unrelated-epoch.json"
+    ],
     "RATE-001": [
-      "scenarios/migration-rate-control.json"
+      "scenarios/migration-rate-control.json",
+      "scenarios/rebalance-survives-unrelated-epoch.json"
+    ],
+    "MOVE-095": [
+      "scenarios/rebase-drops-a-handoff.json"
+    ],
+    "MOVE-098": [
+      "scenarios/rebase-drops-a-handoff.json"
+    ],
+    "MOVE-099": [
+      "scenarios/rebase-drops-a-handoff.json"
+    ],
+    "MOVE-233": [
+      "scenarios/undetermined-resolves-both-ways.json"
+    ],
+    "MOVE-234": [
+      "scenarios/undetermined-resolves-both-ways.json"
+    ],
+    "MOVE-235": [
+      "scenarios/undetermined-resolves-both-ways.json"
+    ],
+    "MOVE-236": [
+      "scenarios/undetermined-resolves-both-ways.json"
+    ],
+    "MOVE-237": [
+      "scenarios/undetermined-resolves-both-ways.json"
+    ],
+    "MOVE-238": [
+      "scenarios/undetermined-resolves-both-ways.json"
+    ],
+    "MOVE-331": [
+      "scenarios/undetermined-resolves-both-ways.json"
     ],
     "RATE-011": [
       "scenarios/migration-rate-control.json"

@@ -41,10 +41,10 @@ owning interface. `OQ-01`, the provider contract's absence from the normative su
 ## Release v0.2
 
 The second release implements the migration surface: the handoff coordinator, the eleven-state
-machine, the movement hook interface, idempotence and recovery, concurrent ownership and the cutover
-record, abort and rollback, rate control and backpressure, and range split and merge lineage. It
-reaches the `migration` conformance level, which carries the fourteen simulation scenarios and the
-split lineage vectors.
+machine, the movement hook interface, idempotence and recovery, plan rebase onto a newer snapshot,
+concurrent ownership and the cutover record, abort and rollback, rate control and backpressure, and
+range split and merge lineage. It reaches the `migration` conformance level, which carries the
+seventeen simulation scenarios and the split lineage vectors.
 
 The specification, the conformance scenarios, and the Java binding for that surface are complete at
 v0.1 and unimplemented. `sharder-migrate` is a separate artifact, so an integrator who never

@@ -1,7 +1,7 @@
 {
   "suite": "sharder simulation scenarios",
-  "scenarioCount": 14,
-  "stepCount": 147,
+  "scenarioCount": 17,
+  "stepCount": 242,
   "requirementsCovered": [
     "CFG-040",
     "CORE-053",
@@ -13,6 +13,7 @@
     "ERR-043",
     "ERR-044",
     "ERR-045",
+    "ERR-050",
     "ERR-052",
     "ERR-053",
     "FAIL-001",
@@ -66,7 +67,18 @@
     "MOVE-051",
     "MOVE-071",
     "MOVE-091",
+    "MOVE-092",
+    "MOVE-093",
+    "MOVE-094",
+    "MOVE-095",
+    "MOVE-096",
+    "MOVE-097",
+    "MOVE-098",
+    "MOVE-099",
     "MOVE-101",
+    "MOVE-102",
+    "MOVE-103",
+    "MOVE-112",
     "MOVE-121",
     "MOVE-131",
     "MOVE-151",
@@ -75,9 +87,18 @@
     "MOVE-181",
     "MOVE-201",
     "MOVE-211",
+    "MOVE-212",
     "MOVE-221",
     "MOVE-231",
+    "MOVE-232",
+    "MOVE-233",
+    "MOVE-234",
+    "MOVE-235",
+    "MOVE-236",
+    "MOVE-237",
+    "MOVE-238",
     "MOVE-241",
+    "MOVE-331",
     "MOVE-421",
     "MOVE-451",
     "MOVE-461",
@@ -89,11 +110,13 @@
     "PROP-045",
     "RATE-001",
     "RATE-011",
+    "RATE-051",
     "RATE-071",
     "RATE-081",
     "RATE-091",
     "RATE-111",
     "SEC-031",
+    "SPLIT-171",
     "TOPO-051",
     "TOPO-061",
     "TOPO-081",
@@ -104,7 +127,8 @@
     "TOPO-161",
     "TOPO-171",
     "TOPO-211",
-    "TOPO-221"
+    "TOPO-221",
+    "TOPO-231"
   ],
   "scenarios": [
     {
@@ -238,15 +262,19 @@
     {
       "file": "scenarios/coordinator-death-and-recovery.json",
       "scenario": "coordinator-death-and-recovery",
-      "description": "The coordinator dies in each non-terminal state and rebuilds its plan.  The resumed state is a function of the integrator's durable observation, never of the coordinator's own record.",
-      "stepCount": 31,
+      "description": "The coordinator dies in each non-terminal state and rebuilds its plan.  The resumed state is a function of the integrator's durable observation, never of the coordinator's own record.  An observation that could not be taken is retried rather than treated as an answer.",
+      "stepCount": 37,
       "requirements": [
+        "MOVE-112",
         "MOVE-151",
         "MOVE-161",
         "MOVE-201",
         "MOVE-211",
+        "MOVE-212",
         "MOVE-221",
-        "MOVE-231"
+        "MOVE-231",
+        "MOVE-232",
+        "RATE-051"
       ]
     },
     {
@@ -268,14 +296,80 @@
     {
       "file": "scenarios/plan-superseded-by-new-epoch.json",
       "scenario": "plan-superseded-by-new-epoch",
-      "description": "A third epoch arrives while three handoffs are in flight.  The plan is superseded, pre-cutover handoffs abort, and the handoff past cutover runs on.",
-      "stepCount": 9,
+      "description": "A third epoch arrives while three handoffs are in flight.  A comparable epoch marks the plan rebase pending and aborts nothing; an incomparable one supersedes it, pre-cutover handoffs abort, and the handoff past cutover runs on.",
+      "stepCount": 11,
       "requirements": [
         "MOVE-091",
+        "MOVE-092",
+        "MOVE-093",
         "MOVE-101",
         "MOVE-481",
         "TOPO-111",
-        "TOPO-131"
+        "TOPO-131",
+        "TOPO-231"
+      ]
+    },
+    {
+      "file": "scenarios/rebalance-survives-unrelated-epoch.json",
+      "scenario": "rebalance-survives-unrelated-epoch",
+      "description": "A node joins the fleet while a two-shard rebalance is in flight.  The plan is marked rebase pending rather than superseded, admits no new work until the integrator rebases it, and then finishes under the newer epoch.",
+      "stepCount": 20,
+      "requirements": [
+        "MOVE-091",
+        "MOVE-092",
+        "MOVE-093",
+        "MOVE-094",
+        "MOVE-096",
+        "MOVE-097",
+        "MOVE-101",
+        "MOVE-102",
+        "MOVE-103",
+        "RATE-001",
+        "TOPO-211"
+      ]
+    },
+    {
+      "file": "scenarios/rebase-drops-a-handoff.json",
+      "scenario": "rebase-drops-a-handoff",
+      "description": "An epoch arrives that reverses one of two moves in flight.  The handoff whose shard, source, and destination no longer hold is aborted and compensated; the other rebases and completes.  Three refusals cover the rebase preconditions.",
+      "stepCount": 18,
+      "requirements": [
+        "ERR-050",
+        "MOVE-094",
+        "MOVE-095",
+        "MOVE-096",
+        "MOVE-097",
+        "MOVE-098",
+        "MOVE-099",
+        "MOVE-102",
+        "MOVE-421",
+        "MOVE-481",
+        "TOPO-231"
+      ]
+    },
+    {
+      "file": "scenarios/undetermined-resolves-both-ways.json",
+      "scenario": "undetermined-resolves-both-ways",
+      "description": "A cutover whose outcome the library never established is looked at again.  The same failure resolves to `verifying` where the record landed, to `cutover` where it did not, and to `aborting` where another destination won.  The three failure kinds that need an operator are refused, as is an advisory resumption at `cutover`.",
+      "stepCount": 49,
+      "requirements": [
+        "ERR-052",
+        "MOVE-011",
+        "MOVE-021",
+        "MOVE-031",
+        "MOVE-102",
+        "MOVE-112",
+        "MOVE-181",
+        "MOVE-211",
+        "MOVE-212",
+        "MOVE-233",
+        "MOVE-234",
+        "MOVE-235",
+        "MOVE-236",
+        "MOVE-237",
+        "MOVE-238",
+        "MOVE-331",
+        "SPLIT-171"
       ]
     },
     {

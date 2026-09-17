@@ -378,7 +378,10 @@ compares the result field by field, as it does for a vector case.
 | `abort-during-catching-up` | an abort in `catchingUp`, and a second abort |
 | `coordinator-death-and-recovery` | death in each non-terminal state, against each observation |
 | `handoff-failure-kinds` | each of the four kinds of `MOVE-011` and the terminal state rule |
-| `plan-superseded-by-new-epoch` | a third epoch arriving with three handoffs in flight |
+| `plan-superseded-by-new-epoch` | a third epoch arriving with three handoffs in flight, comparable and not |
+| `rebalance-survives-unrelated-epoch` | a node joining mid-rebalance, the rebase-pending interlock, and a rebase |
+| `rebase-drops-a-handoff` | an epoch reversing one move of two, and the three rebase refusals |
+| `undetermined-resolves-both-ways` | a cutover outcome the library never established, resolved later each way |
 | `migration-rate-control` | the concurrency bounds and both backpressure levels |
 | `failover-and-recovery` | ejection, probation admission, and return to `available` |
 | `health-filter-fails-open` | every replica ejected, and the filter returning the whole list |
@@ -386,7 +389,9 @@ compares the result field by field, as it does for a vector case.
 
 The handoff scenarios drive a coordinator whose transition table is `MOVE-021` transcribed as data
 and whose recovery mapping is `MOVE-211` transcribed as data, so a state sequence in a scenario file
-is the table's output rather than an author's reading of it.
+is the table's output rather than an author's reading of it. The rebase classification of
+`MOVE-096` reads the replica sets the reference computes from the two snapshots, so a handoff that
+rebases in a scenario file rebases because the placement says so.
 
 ## Requirement coverage
 
@@ -417,14 +422,14 @@ the identifiers the suite names. The table below is transcribed from it.
 |  | `SLOT-*` | 17 | 16 | 1 |
 | Security and multi-tenancy | `SEC-*` | 20 | 7 | 13 |
 | Topology change and rebalancing | `FENCE-*` | 27 | 24 | 3 |
-|  | `MOVE-*` | 51 | 29 | 22 |
+|  | `MOVE-*` | 70 | 49 | 21 |
 |  | `RATE-*` | 15 | 10 | 5 |
 |  | `SPLIT-*` | 22 | 13 | 9 |
 |  | `TOPO-*` | 28 | 19 | 9 |
-| Total | | 670 | 438 | 232 |
+| Total | | 689 | 458 | 231 |
 
-The suite names 438 of the 670 requirements the specification states. The section below
-names what the remaining 232 are and why no data file carries them.
+The suite names 458 of the 689 requirements the specification states. The section below
+names what the remaining 231 are and why no data file carries them.
 
 ## Requirements without an executable test
 
@@ -502,7 +507,9 @@ absence of a wall-clock read. `RATE-021`, `RATE-041`, `RATE-051`, `RATE-071`, `R
 none of `budgetUnit`, `unitsMoved`, `bulkRemaining`, `residue`, or the opaque member of a cutover
 record. `MOVE-281` through `MOVE-401` describe the concurrent-holding window, which is a property of
 the integrator's storage rather than of the library. The suite covers the sequencing rules around
-them, `MOVE-151` through `MOVE-231`, because a state sequence is an output.
+them, `MOVE-151` through `MOVE-238`, because a state sequence is an output. `MOVE-091` through
+`MOVE-103` are the same case: a rebase is a classification of each handoff against a snapshot, and
+both the classification and the state it leaves are outputs.
 
 ### Configuration and security
 
@@ -551,7 +558,7 @@ and `RV-022` required an equality that holds only under the first reading while 
 implements the second. `RV-020` now names the hexadecimal and `PLACE-032` and `RV-022` state the
 decode.
 
-The specification states 670 requirement identifiers, each introduced as a backticked identifier
+The specification states 689 requirement identifiers, each introduced as a backticked identifier
 followed by a full stop at the start of a line, with no duplicate. `coverage.py` extracts them and
 `run.sh` fails where the suite names one the specification does not state.
 

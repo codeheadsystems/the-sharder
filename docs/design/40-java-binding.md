@@ -132,7 +132,7 @@ that carry behaviour or that an integrator implements are interfaces.
 | `com.codeheadsystems.sharder.observe` | api | Observability | `MetricsRegistry`, `Labels`, `MetricsView`, `EventSink`, `Event`, `Severity`, `ExplainRecord`, `Exclusion`, `ShardMetricsSource`, `ShardReport` |
 | `com.codeheadsystems.sharder.config` | api | Configuration surface | `RouterConfig`, `ProviderSettings`, `RoutingSettings`, `HealthSettings`, `FencingSettings`, `ObservabilitySettings`, `ConfigurationView` |
 | `com.codeheadsystems.sharder.core` | core | the whole of it | `Sharder`, `TopologyLoader`, `InMemoryTopologyProvider` |
-| `com.codeheadsystems.sharder.migrate` | migrate | Shard ownership handoff, Migration rate control, Range splits and merges | `HandoffCoordinator`, `MigrationPlan`, `MigrationPolicy`, `MovementHooks`, `HandoffContext`, `HandoffState`, `HandoffId`, `HookResult`, `CutoverResult`, `StepOutcome`, `PressureGauge` |
+| `com.codeheadsystems.sharder.migrate` | migrate | Shard ownership handoff, Migration rate control, Range splits and merges | `HandoffCoordinator`, `MigrationPlan`, `MigrationPolicy`, `MovementHooks`, `HandoffContext`, `HandoffState`, `HandoffId`, `HookResult`, `CutoverResult`, `ObserveResult`, `StepOutcome`, `RebaseReport`, `RecoveryReport`, `ReobserveOutcome`, `PressureGauge` |
 | `com.codeheadsystems.sharder.provider.file` | provider-file | Topology provider contract | `FileTopologyProvider` |
 | `com.codeheadsystems.sharder.conformance` | conformance | the conformance suite | `ConformanceSuite`, `VectorSource`, `VectorManifest`, `ConformanceLevel`, `ConformanceReport` |
 
@@ -426,6 +426,8 @@ is an enum.
 | `HookResult`, `MOVE-111` | sealed interface, records `Success`, `Deferred`, `Retryable`, `Permanent` |
 | `CutoverResult`, `MOVE-111` | sealed interface, six records |
 | `VerifyResult`, `MOVE-111` | sealed interface, three records |
+| `ObserveResult`, `MOVE-111` | sealed interface, records `Observed`, `Unavailable`, `Undetermined` |
+| `ReobserveOutcome`, `MOVE-233` | sealed interface, records `Resumed`, `Unresolved`, `Refused` |
 | `StepOutcome`, `MOVE-061` | sealed interface, five records |
 | `PressureScope`, `RATE-061` | sealed interface, records `Cluster` and `Node` |
 | `HealthState`, `Outcome`, `Relation`, `Ownership`, `HandoffState`, `Role` | enums |
@@ -450,6 +452,18 @@ HandoffState next = switch (hooks.commitCutover(ctx)) {
     case CutoverResult.Undetermined u     -> fail(FailureKind.UNDETERMINED); // MOVE-231
     case CutoverResult.Retryable r        -> retry(r);
     case CutoverResult.Permanent p        -> fail(FailureKind.UNDETERMINED);
+};
+```
+
+`FailureKind.UNDETERMINED` is the one kind a later call leaves, under `MOVE-237`. `reobserve`
+switches over `ObserveResult` the same way, assigns a state from the `MOVE-211` mapping on
+`Observed`, and returns `Unresolved` on the other two without touching the handoff.
+
+```java
+ReobserveOutcome outcome = switch (hooks.observe(ctx)) {
+    case ObserveResult.Observed o           -> resume(resumedState(o));     // MOVE-234
+    case ObserveResult.Unavailable ignored  -> new ReobserveOutcome.Unresolved();
+    case ObserveResult.Undetermined ignored -> new ReobserveOutcome.Unresolved();
 };
 ```
 
@@ -848,12 +862,20 @@ public interface MigrationPlan {
     Iterator<HandoffId> handoffs();
     HandoffState state(HandoffId id);
     StepOutcome step(MonotonicClock clock);                                 // MOVE-071
-    void recover(MonotonicClock clock);                                     // MOVE-211
+    RecoveryReport recover(MonotonicClock clock);                           // MOVE-211, MOVE-232
+    ReobserveOutcome reobserve(HandoffId id, MonotonicClock clock);         // MOVE-233
+    RebaseReport rebase(TopologySnapshot to);                               // MOVE-094
     void abort(HandoffId id, String reason);
     void abortAll(String reason);
     void onSnapshotInstalled(TopologySnapshot snapshot);                    // MOVE-091
     Map<HandoffState, Integer> summary();
 }
+
+public record RecoveryReport(List<HandoffId> resolved, List<HandoffId> unresolved,
+                             List<HandoffId> failed, int retryAfterMillis) { }
+
+public record RebaseReport(long fromEpoch, long toEpoch, List<HandoffId> rebased,
+                           List<HandoffId> aborted, List<HandoffId> unchanged) { }
 ```
 
 `MovementHooks` is declared in `sharder-migrate` rather than in `sharder-api`, because only a
@@ -863,6 +885,15 @@ consumer of `sharder-migrate` implements it. It carries `splitLocal` and `mergeL
 `step` takes the clock per call, as `MOVE-061` writes it, although the router already holds a
 monotonic source from `CORE-004`. `MOVE-062` makes the supplied clock the source the plan reads for
 the duration of the call.
+
+`rebase` and `reobserve` are calls the integrator makes and never calls the library makes of itself.
+`onSnapshotInstalled` performs the comparisons of `MOVE-091` and no placement work, so the
+per-shard cost of following a newer epoch falls inside `rebase`, where `MOVE-096` bounds it at one
+candidate ordering per handoff.
+
+`recover` and `reobserve` return a value rather than throwing, because an unresolved handoff is an
+outcome the integrator acts on rather than a failure of the call. A refused `rebase` raises
+`PlanRefusedException`, which `MOVE-095` maps to `planRefused`.
 
 ## Error model
 
@@ -1159,7 +1190,7 @@ references the installation path maintains.
 | `TopologySnapshot`, `PreparedPlacement`, `Node` | any number | final fields, no escaping array |
 | `RoutingDecision`, `ExplainRecord`, `FencingToken`, `Verdict` | any number | records over copied collections |
 | `HealthView` | any number | `stateOf` reads a volatile per-node state record; `report` and `advance` take one lock |
-| `MigrationPlan` | any number | `step` claims one handoff by compare-and-set |
+| `MigrationPlan` | any number | `step` claims one handoff by compare-and-set; `rebase` takes the plan lock |
 | `AttemptSequence` | one thread | thread-confined, asserted under `-ea` |
 | `CandidateCursor` | one thread | thread-confined, asserted under `-ea` |
 
@@ -1173,6 +1204,13 @@ counter of `HEALTH-051` with an atomic increment, taking no lock.
 `MigrationPlan.step` claims a handoff with a compare-and-set on a per-handoff claim flag, calls at
 most one hook with no monitor held, and releases the claim. That satisfies `MOVE-071` and
 `CORE-063` together, and it is what lets an integrator drive a plan from a pool of threads.
+
+`rebase` takes a lock over the whole plan, because `MOVE-096` classifies every pre-cutover handoff
+against one snapshot and `MOVE-097` advances the plan's target epoch once. A `step` that holds a
+handoff claim runs to its hook's return, and `rebase` waits for the claim rather than interrupting
+it. `MOVE-093` is what keeps the interval between the mark and the rebase safe: no handoff leaves
+`planned` and none reaches `cutover`, so the classification sees no state a concurrent `step`
+created.
 
 The retry budget of `FAIL-030` is one per router across every key under `FAIL-033`. Its sliding
 window is a small array of `LongAdder` counters, so accounting a first attempt costs no contended
@@ -1195,6 +1233,9 @@ Where `executor` is unset, the library polls nothing and advances no timer of it
 | `Router.refresh()` | one pull from the provider and one pass of the load pipeline |
 | `HealthView.advance(now)` | the ejection, probation, and window timers of `HEALTH-044` to `HEALTH-047` |
 | `MigrationPlan.step(clock)` | one handoff by one hook, under `MOVE-071` |
+| `MigrationPlan.recover(clock)` | one `observe` per non-terminal handoff, under `MOVE-211` |
+| `MigrationPlan.rebase(to)` | one replica set evaluation per pre-cutover handoff, under `MOVE-096` |
+| `MigrationPlan.reobserve(id, clock)` | exactly one `observe`, under `MOVE-234` |
 
 A push provider needs no executor. It delivers on its own thread into `TopologySink.onDocument`, and
 the load pipeline runs on that thread.

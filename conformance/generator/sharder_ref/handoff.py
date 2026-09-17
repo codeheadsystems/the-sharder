@@ -41,16 +41,49 @@ TRANSITIONS = {
     ("cleanup", "attemptsExhausted"): "failed",
     ("aborting", "rollbackSuccess"): "aborted",
     ("aborting", "attemptsExhausted"): "failed",
+    # `MOVE-021`, the five rows leaving `failed`.  Admitted only from `reobserve`, under
+    # `MOVE-233`, and only for the failure kind `undetermined`.
+    ("failed", "reobserveRecordForHandoff"): "verifying",
+    ("failed", "reobserveRecordAnotherOwnerOrEpoch"): "aborting",
+    ("failed", "reobserveNoRecordSourceQuiesced"): "cutover",
+    ("failed", "reobserveNoRecordDestinationPrepared"): "transferring",
+    ("failed", "reobserveNoRecordDestinationNotPrepared"): "preparing",
 }
 
-# `MOVE-211`, exactly.  observation -> resumed state
+# `MOVE-233`: the one failure kind a re-observation admits.  `MOVE-237` states why the other
+# three do not: each names a duty outside the library.
+REOBSERVABLE_KIND = "undetermined"
+
+# `MOVE-231` and `RATE-011`: `recover` retries an `unavailable` observation this many times
+# before a handoff in `cutover` reaches `failed`.
+MAX_ATTEMPTS_PER_STEP = 5
+RETRY_BACKOFF_BASE_MILLIS = 1000
+RETRY_BACKOFF_CAP_MILLIS = 60000
+
+
+def retry_backoff(attempt):
+    """`RATE-051`, by integer arithmetic."""
+    return min(RETRY_BACKOFF_BASE_MILLIS * (2 ** (attempt - 1)), RETRY_BACKOFF_CAP_MILLIS)
+
+# `MOVE-211`, exactly.  observation -> resumed state.  The first two rows read the rebase
+# interval of `MOVE-102`: a record belongs to a handoff when its owner is the destination and its
+# epoch lies above the plan's source epoch and at or below the plan's target epoch.
 RECOVERY = [
-    ("recordOwnedByDestinationAtTargetEpoch", "verifying"),
-    ("recordNamesAnotherOwnerOrEpoch", "aborting"),
+    ("recordBelongingToHandoff", "verifying"),
+    ("recordNotBelongingToHandoff", "aborting"),
     ("noRecordSourceQuiesced", "cutover"),
     ("noRecordDestinationPrepared", "transferring"),
     ("noRecordDestinationNotPrepared", "preparing"),
 ]
+
+# The trigger each recovery row corresponds to when `reobserve` applies it, under `MOVE-234`.
+REOBSERVE_TRIGGER = {
+    "verifying": "reobserveRecordForHandoff",
+    "aborting": "reobserveRecordAnotherOwnerOrEpoch",
+    "cutover": "reobserveNoRecordSourceQuiesced",
+    "transferring": "reobserveNoRecordDestinationPrepared",
+    "preparing": "reobserveNoRecordDestinationNotPrepared",
+}
 
 FAILURE_KIND_FOR_TRIGGER = {
     ("verifying", "verifyMismatch"): "unverified",
@@ -66,7 +99,7 @@ class HandoffError(Exception):
 
 
 class Handoff:
-    def __init__(self, handoff_id, shard, source, destination):
+    def __init__(self, handoff_id, shard, source, destination, target_epoch=None):
         self.id = handoff_id
         self.shard = shard
         self.source = source
@@ -75,6 +108,14 @@ class Handoff:
         self.failure_kind = None
         self.cutover_record = None
         self.history = []
+        # `MOVE-099`: a handoff carries its own target epoch, which a rebase advances while the
+        # handoff is short of `cutover` and never afterwards.  It is the `toEpoch` of the handoff
+        # context in `MOVE-111`.
+        self.target_epoch = target_epoch
+        # `MOVE-231`: consecutive `unavailable` answers from `observe` during `recover`.
+        self.observe_attempts = 0
+        # `SPLIT-171`: a handoff failed after a local split, which `MOVE-233` does not admit.
+        self.failed_under_split = False
 
     def apply(self, trigger, at=None):
         key = (self.state, trigger)
@@ -91,11 +132,18 @@ class Handoff:
 class Plan:
     """A migration plan over one ownership delta."""
 
-    def __init__(self, source_epoch, target_epoch, topology_id, handoffs, policy=None):
+    def __init__(self, source_epoch, target_epoch, topology_id, handoffs, policy=None,
+                 guarantee="linearisable"):
         self.source_epoch = source_epoch
         self.target_epoch = target_epoch
         self.topology_id = topology_id
+        self.guarantee = guarantee
+        # `MOVE-092`: the snapshot a later install recorded, and nothing else.
+        self.rebase_pending = None
         self.handoffs = {h.id: h for h in handoffs}
+        for handoff in self.handoffs.values():
+            if handoff.target_epoch is None:
+                handoff.target_epoch = target_epoch
         self.policy = dict({"maxConcurrentHandoffs": 4,
                             "maxConcurrentPerSourceNode": 1,
                             "maxConcurrentPerDestinationNode": 1,
@@ -104,6 +152,18 @@ class Plan:
 
     def state(self, handoff_id):
         return self.handoffs[handoff_id].state
+
+    def rebase_interval(self):
+        """`MOVE-102`: the epochs above the source epoch and at or below the target epoch."""
+        return {"above": self.source_epoch, "throughInclusive": self.target_epoch}
+
+    def record_belongs(self, handoff, record):
+        """`MOVE-102`: whether a cutover record belongs to a handoff of this plan."""
+        if record is None:
+            return False
+        return (record.get("shardId") == handoff.shard
+                and record.get("owner") == handoff.destination
+                and self.source_epoch < record.get("epoch", 0) <= self.target_epoch)
 
     def summary(self):
         counts = {}
@@ -135,6 +195,12 @@ class Plan:
         handoff = self.handoffs[handoff_id]
         if handoff.state in TERMINAL:
             raise HandoffError("%s is terminal (MOVE-031)" % handoff.state)
+        if self.rebase_pending is not None and trigger in (
+                "admittedByRatePolicy", "residueAtOrBelowThreshold"):
+            # `MOVE-093`: while a rebase is pending no handoff leaves `planned` and none reaches
+            # `cutover`.  Every other transition stays available so that work already begun
+            # finishes.
+            return {"outcome": "idle", "reason": "rebasePending"}
         if trigger == "admittedByRatePolicy":
             if pressure != "none":
                 # `RATE-081` and `RATE-091`: neither level moves a handoff out of `planned`.
@@ -170,37 +236,108 @@ class Plan:
             return {"outcome": "advanced", "state": handoff.apply("quiesceFailedNoRecord", at)}
         return {"outcome": "advanced", "state": handoff.apply("abort", at)}
 
-    def recover(self, observations, at=None):
-        """`MOVE-211`: assign a state from each non-terminal handoff's observation."""
-        resumed = {}
+    def resolve_observation(self, handoff, observation):
+        """Reduce an observation to a row of `MOVE-211`.
+
+        A symbolic observation names its row directly.  An observation given as a record and
+        three booleans is classified against the rebase interval of `MOVE-102`, which is the
+        amendment a rebase makes to the mapping.
+        """
         mapping = dict(RECOVERY)
-        for handoff_id, observation in observations.items():
+        if isinstance(observation, str):
+            if observation not in mapping:
+                raise HandoffError("unknown observation %r (MOVE-211)" % (observation,))
+            return observation, mapping[observation]
+        record = observation.get("cutoverRecord")
+        if record is not None:
+            if self.record_belongs(handoff, record):
+                return "recordBelongingToHandoff", "verifying"
+            return "recordNotBelongingToHandoff", "aborting"
+        if observation.get("sourceQuiesced"):
+            return "noRecordSourceQuiesced", "cutover"
+        if observation.get("destinationPrepared"):
+            return "noRecordDestinationPrepared", "transferring"
+        return "noRecordDestinationNotPrepared", "preparing"
+
+    def recover(self, observations, at=None):
+        """`MOVE-211`, `MOVE-212`, `MOVE-231`, and `MOVE-232`.
+
+        An answer of `unavailable` is retried across successive calls rather than failing the
+        handoff on the first one, and only a handoff in `cutover` reaches `failed` once the
+        attempts are spent.  `recover` never sleeps; it reports the backoff and returns.
+        """
+        report = {"resolved": [], "unresolved": [], "failed": [], "retryAfterMillis": 0}
+        backoffs = []
+        for handoff_id in sorted(observations):
+            observation = observations[handoff_id]
             handoff = self.handoffs[handoff_id]
             if handoff.state in TERMINAL:
                 continue
-            if observation == "unavailable" and handoff.state == "cutover":
-                handoff.state = "failed"                             # `MOVE-231`
-                handoff.failure_kind = "undetermined"
-                resumed[handoff_id] = "failed"
+            if observation == "unavailable":
+                handoff.observe_attempts += 1
+                if handoff.observe_attempts < MAX_ATTEMPTS_PER_STEP:
+                    report["unresolved"].append(handoff_id)
+                    backoffs.append(retry_backoff(handoff.observe_attempts))
+                    continue
+                observation = "undetermined"                          # attempts are spent
+            if observation == "undetermined":
+                if handoff.state == "cutover":
+                    handoff.state = "failed"                          # `MOVE-231`
+                    handoff.failure_kind = "undetermined"
+                    handoff.history.append({"from": "cutover", "to": "failed",
+                                            "trigger": "observeUndetermined", "at": at})
+                    report["failed"].append(handoff_id)
+                else:
+                    report["unresolved"].append(handoff_id)
                 continue
-            if observation not in mapping:
-                raise HandoffError("unknown observation %r (MOVE-211)" % (observation,))
-            handoff.state = mapping[observation]
+            handoff.observe_attempts = 0
+            trigger, resumed_state = self.resolve_observation(handoff, observation)
+            handoff.state = resumed_state
+            if resumed_state == "verifying" and not isinstance(observation, str):
+                # `MOVE-212`: a handoff resumed at `verifying` takes the record's epoch.
+                handoff.target_epoch = observation["cutoverRecord"]["epoch"]
             handoff.history.append({"from": "recovered", "to": handoff.state,
-                                    "trigger": observation, "at": at})
-            resumed[handoff_id] = handoff.state
-        return resumed
+                                    "trigger": trigger, "at": at})
+            report["resolved"].append(handoff_id)
+        report["retryAfterMillis"] = min(backoffs) if backoffs else 0
+        return report
 
-    def on_snapshot_installed(self, topology_id, epoch, at=None):
-        """`MOVE-091`: supersede unless the epoch is the plan's source or target."""
-        if topology_id == self.topology_id and epoch in (self.source_epoch, self.target_epoch):
-            return {"superseded": False, "aborted": [], "finishing": []}
+    def reobserve(self, handoff_id, observation, at=None):
+        """`MOVE-233` through `MOVE-238`: one further `observe` for one named handoff."""
+        handoff = self.handoffs[handoff_id]
+        if handoff.state != "failed":
+            return {"outcome": "refused", "reason": "notFailed", "state": handoff.state}
+        if handoff.failure_kind != REOBSERVABLE_KIND:
+            # `MOVE-237`: the other three kinds name a duty outside the library.
+            return {"outcome": "refused", "reason": "failureKindNotRecoverable",
+                    "state": handoff.state, "failureKind": handoff.failure_kind}
+        if handoff.failed_under_split:
+            # `SPLIT-171`: the shard identity no longer names the data.
+            return {"outcome": "refused", "reason": "shardIdentityGone", "state": handoff.state}
+        if observation in ("unavailable", "undetermined"):
+            # `MOVE-234`: the handoff stays where it is and no state changes.
+            return {"outcome": "unresolved", "state": handoff.state,
+                    "failureKind": handoff.failure_kind}
+        trigger, resumed_state = self.resolve_observation(handoff, observation)
+        if resumed_state == "cutover" and self.guarantee == "advisory":
+            # `MOVE-235`: an advisory store cannot establish that no record was written, so a
+            # resumption that would call `commitCutover` again is refused.
+            return {"outcome": "refused", "reason": "advisoryCutoverGuarantee",
+                    "state": handoff.state, "failureKind": handoff.failure_kind}
+        handoff.failure_kind = None
+        handoff.apply(REOBSERVE_TRIGGER[resumed_state], at)
+        if resumed_state == "verifying" and not isinstance(observation, str):
+            handoff.target_epoch = observation["cutoverRecord"]["epoch"]   # `MOVE-212`
+        return {"outcome": "resumed", "state": handoff.state,
+                "observationRow": trigger}
+
+    def supersede(self, epoch, at=None):
+        """`MOVE-091`: abort everything short of `cutover` and let the rest finish."""
         aborted, finishing = [], []
         for handoff in self.handoffs.values():
             if handoff.state in TERMINAL:
                 continue
             if handoff.state in ("cutover", "verifying", "cleanup"):
-                # `MOVE-091`: a handoff at cutover or beyond runs to a terminal state.
                 finishing.append(handoff.id)
             elif handoff.state == "aborting":
                 # Compensation is already running; `MOVE-491` makes a further abort a no-op.
@@ -212,6 +349,68 @@ class Plan:
                             "abortedCount": len(aborted), "finishingCount": len(finishing),
                             "at": at})
         return {"superseded": True, "aborted": sorted(aborted), "finishing": sorted(finishing)}
+
+    def on_snapshot_installed(self, topology_id, epoch, at=None, comparable=True):
+        """`MOVE-091` and `MOVE-092`.
+
+        A differing `topologyId`, or shard identity that `TOPO-231` refuses, supersedes the plan.
+        Every other epoch above the plan's target marks the plan rebase pending and does nothing
+        else: no abort, no preference list, no hook.  An epoch at or below the target leaves the
+        plan alone.
+        """
+        if topology_id != self.topology_id or not comparable:
+            return dict(self.supersede(epoch, at), rebasePending=None)
+        if epoch <= self.target_epoch:
+            return {"superseded": False, "aborted": [], "finishing": [],
+                    "rebasePending": self.rebase_pending}
+        if self.rebase_pending is None or epoch > self.rebase_pending:
+            self.rebase_pending = epoch
+        self.events.append({"event": "sharder.migration.rebase_pending", "epoch": epoch,
+                            "targetEpoch": self.target_epoch, "at": at})
+        return {"superseded": False, "aborted": [], "finishing": [],
+                "rebasePending": self.rebase_pending}
+
+    def rebase(self, topology_id, epoch, replica_sets, at=None, comparable=True):
+        """`MOVE-094` through `MOVE-099`: move the plan onto a newer snapshot, per handoff.
+
+        `replica_sets` maps each shard the target snapshot enumerates to its replica set under
+        that snapshot, which is what `MOVE-096` classifies each handoff against.
+        """
+        if topology_id != self.topology_id:
+            return {"outcome": "refused", "condition": {"code": 401, "name": "planRefused",
+                                                        "cause": "topologyMismatch"}}
+        if not comparable:
+            return {"outcome": "refused", "condition": {"code": 401, "name": "planRefused",
+                                                        "cause": "incomparableShards"}}
+        if epoch <= self.source_epoch:
+            return {"outcome": "refused", "condition": {"code": 401, "name": "planRefused",
+                                                        "cause": "epochNotAdvancing"}}
+        rebased, aborted, unchanged = [], [], []
+        for handoff in sorted(self.handoffs.values(), key=lambda h: h.id):
+            if handoff.state in TERMINAL or handoff.state in ("cutover", "verifying", "cleanup",
+                                                              "aborting"):
+                unchanged.append(handoff.id)                          # `MOVE-099`
+                continue
+            replicas = replica_sets.get(handoff.shard)
+            holds = (replicas is not None
+                     and handoff.destination in replicas
+                     and handoff.source not in replicas)
+            if holds:
+                handoff.target_epoch = epoch                          # `MOVE-097`
+                handoff.history.append({"from": handoff.state, "to": handoff.state,
+                                        "trigger": "rebased", "at": at})
+                rebased.append(handoff.id)
+            else:
+                handoff.apply("abort", at)                            # `MOVE-098`
+                aborted.append(handoff.id)
+        report = {"fromEpoch": self.target_epoch, "toEpoch": epoch, "rebased": rebased,
+                  "aborted": aborted, "unchanged": unchanged}
+        self.target_epoch = epoch
+        if self.rebase_pending is not None and self.rebase_pending <= epoch:
+            self.rebase_pending = None
+        self.events.append(dict({"event": "sharder.migration.rebased", "at": at}, **report))
+        return {"outcome": "rebased", "report": report,
+                "rebaseInterval": self.rebase_interval()}
 
 
 def ownership_delta(before, after, factor_of):

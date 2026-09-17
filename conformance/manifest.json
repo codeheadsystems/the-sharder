@@ -6,11 +6,11 @@
   "counts": {
     "vectorFiles": 59,
     "vectorCases": 640,
-    "topologyDocuments": 107,
-    "scenarios": 14,
-    "scenarioSteps": 147,
+    "topologyDocuments": 111,
+    "scenarios": 17,
+    "scenarioSteps": 242,
     "properties": 30,
-    "requirementsNamed": 438
+    "requirementsNamed": 458
   },
   "requirementsNamed": [
     "CFG-020",
@@ -169,7 +169,18 @@
     "MOVE-051",
     "MOVE-071",
     "MOVE-091",
+    "MOVE-092",
+    "MOVE-093",
+    "MOVE-094",
+    "MOVE-095",
+    "MOVE-096",
+    "MOVE-097",
+    "MOVE-098",
+    "MOVE-099",
     "MOVE-101",
+    "MOVE-102",
+    "MOVE-103",
+    "MOVE-112",
     "MOVE-121",
     "MOVE-131",
     "MOVE-151",
@@ -178,11 +189,20 @@
     "MOVE-181",
     "MOVE-201",
     "MOVE-211",
+    "MOVE-212",
     "MOVE-221",
     "MOVE-231",
+    "MOVE-232",
+    "MOVE-233",
+    "MOVE-234",
+    "MOVE-235",
+    "MOVE-236",
+    "MOVE-237",
+    "MOVE-238",
     "MOVE-241",
     "MOVE-251",
     "MOVE-271",
+    "MOVE-331",
     "MOVE-421",
     "MOVE-441",
     "MOVE-451",
@@ -1108,6 +1128,38 @@
       "strategy": "rendezvous",
       "nodeCount": 6,
       "digest": "4fd4967e2c7e9f5f85fefe32e0b9f7905064edcd0b643c5125c2cebf21b697d1",
+      "valid": true
+    },
+    "topologies/rebalance-epoch-10.topology.json": {
+      "topologyId": "rebalance",
+      "epoch": 10,
+      "strategy": "range",
+      "nodeCount": 6,
+      "digest": "af4228bbb41fbeda16a250ffbd16a8fdffa0a4c3af09bc43560b6e80f4c91ed0",
+      "valid": true
+    },
+    "topologies/rebalance-epoch-11.topology.json": {
+      "topologyId": "rebalance",
+      "epoch": 11,
+      "strategy": "range",
+      "nodeCount": 6,
+      "digest": "ec67c896ceaf1ec4b610ac0aefc03de0e1e762713033759cf786772adbde1440",
+      "valid": true
+    },
+    "topologies/rebalance-epoch-12.topology.json": {
+      "topologyId": "rebalance",
+      "epoch": 12,
+      "strategy": "range",
+      "nodeCount": 7,
+      "digest": "666e82872e122d45fa2dcb2cf209e33f3ed8a9cd41975017da539b4809f98dea",
+      "valid": true
+    },
+    "topologies/rebalance-epoch-13.topology.json": {
+      "topologyId": "rebalance",
+      "epoch": 13,
+      "strategy": "range",
+      "nodeCount": 7,
+      "digest": "b716beb338a737742fcc4e5484adb8c9be635a58a1f0f420d32fffdca662aa20",
       "valid": true
     },
     "topologies/rendezvous-cache.topology.json": {
@@ -2639,15 +2691,19 @@
     {
       "file": "scenarios/coordinator-death-and-recovery.json",
       "scenario": "coordinator-death-and-recovery",
-      "description": "The coordinator dies in each non-terminal state and rebuilds its plan.  The resumed state is a function of the integrator's durable observation, never of the coordinator's own record.",
-      "stepCount": 31,
+      "description": "The coordinator dies in each non-terminal state and rebuilds its plan.  The resumed state is a function of the integrator's durable observation, never of the coordinator's own record.  An observation that could not be taken is retried rather than treated as an answer.",
+      "stepCount": 37,
       "requirements": [
+        "MOVE-112",
         "MOVE-151",
         "MOVE-161",
         "MOVE-201",
         "MOVE-211",
+        "MOVE-212",
         "MOVE-221",
-        "MOVE-231"
+        "MOVE-231",
+        "MOVE-232",
+        "RATE-051"
       ]
     },
     {
@@ -2669,14 +2725,80 @@
     {
       "file": "scenarios/plan-superseded-by-new-epoch.json",
       "scenario": "plan-superseded-by-new-epoch",
-      "description": "A third epoch arrives while three handoffs are in flight.  The plan is superseded, pre-cutover handoffs abort, and the handoff past cutover runs on.",
-      "stepCount": 9,
+      "description": "A third epoch arrives while three handoffs are in flight.  A comparable epoch marks the plan rebase pending and aborts nothing; an incomparable one supersedes it, pre-cutover handoffs abort, and the handoff past cutover runs on.",
+      "stepCount": 11,
       "requirements": [
         "MOVE-091",
+        "MOVE-092",
+        "MOVE-093",
         "MOVE-101",
         "MOVE-481",
         "TOPO-111",
-        "TOPO-131"
+        "TOPO-131",
+        "TOPO-231"
+      ]
+    },
+    {
+      "file": "scenarios/rebalance-survives-unrelated-epoch.json",
+      "scenario": "rebalance-survives-unrelated-epoch",
+      "description": "A node joins the fleet while a two-shard rebalance is in flight.  The plan is marked rebase pending rather than superseded, admits no new work until the integrator rebases it, and then finishes under the newer epoch.",
+      "stepCount": 20,
+      "requirements": [
+        "MOVE-091",
+        "MOVE-092",
+        "MOVE-093",
+        "MOVE-094",
+        "MOVE-096",
+        "MOVE-097",
+        "MOVE-101",
+        "MOVE-102",
+        "MOVE-103",
+        "RATE-001",
+        "TOPO-211"
+      ]
+    },
+    {
+      "file": "scenarios/rebase-drops-a-handoff.json",
+      "scenario": "rebase-drops-a-handoff",
+      "description": "An epoch arrives that reverses one of two moves in flight.  The handoff whose shard, source, and destination no longer hold is aborted and compensated; the other rebases and completes.  Three refusals cover the rebase preconditions.",
+      "stepCount": 18,
+      "requirements": [
+        "ERR-050",
+        "MOVE-094",
+        "MOVE-095",
+        "MOVE-096",
+        "MOVE-097",
+        "MOVE-098",
+        "MOVE-099",
+        "MOVE-102",
+        "MOVE-421",
+        "MOVE-481",
+        "TOPO-231"
+      ]
+    },
+    {
+      "file": "scenarios/undetermined-resolves-both-ways.json",
+      "scenario": "undetermined-resolves-both-ways",
+      "description": "A cutover whose outcome the library never established is looked at again.  The same failure resolves to `verifying` where the record landed, to `cutover` where it did not, and to `aborting` where another destination won.  The three failure kinds that need an operator are refused, as is an advisory resumption at `cutover`.",
+      "stepCount": 49,
+      "requirements": [
+        "ERR-052",
+        "MOVE-011",
+        "MOVE-021",
+        "MOVE-031",
+        "MOVE-102",
+        "MOVE-112",
+        "MOVE-181",
+        "MOVE-211",
+        "MOVE-212",
+        "MOVE-233",
+        "MOVE-234",
+        "MOVE-235",
+        "MOVE-236",
+        "MOVE-237",
+        "MOVE-238",
+        "MOVE-331",
+        "SPLIT-171"
       ]
     },
     {

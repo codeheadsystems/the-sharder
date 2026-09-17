@@ -1,12 +1,15 @@
 {
   "scenario": "plan-superseded-by-new-epoch",
-  "description": "A third epoch arrives while three handoffs are in flight.  The plan is superseded, pre-cutover handoffs abort, and the handoff past cutover runs on.",
+  "description": "A third epoch arrives while three handoffs are in flight.  A comparable epoch marks the plan rebase pending and aborts nothing; an incomparable one supersedes it, pre-cutover handoffs abort, and the handoff past cutover runs on.",
   "requirements": [
     "MOVE-091",
+    "MOVE-092",
+    "MOVE-093",
     "MOVE-101",
     "MOVE-481",
     "TOPO-111",
-    "TOPO-131"
+    "TOPO-131",
+    "TOPO-231"
   ],
   "deterministic": true,
   "setup": {},
@@ -121,7 +124,41 @@
       "topologyId": "migration",
       "epoch": 4,
       "at": 50000,
-      "note": "`MOVE-091`: an epoch that is neither the plan's source nor its target supersedes the plan.  Handoffs at `cutover` or beyond run to a terminal state.",
+      "note": "`MOVE-091`: a comparable epoch above the plan's target marks the plan rebase pending and aborts nothing",
+      "expect": {
+        "result": {
+          "superseded": false,
+          "aborted": [],
+          "finishing": [],
+          "rebasePending": 4
+        },
+        "states": {
+          "h-a": "verifying",
+          "h-b": "transferring",
+          "h-c": "planned"
+        }
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-c",
+      "trigger": "admittedByRatePolicy",
+      "at": 50100,
+      "note": "`MOVE-093`: no handoff leaves `planned` while a rebase is pending",
+      "expect": {
+        "outcome": {
+          "outcome": "idle",
+          "reason": "rebasePending"
+        },
+        "state": "planned"
+      }
+    },
+    {
+      "action": "snapshotInstalled",
+      "topologyId": "some-other-cluster",
+      "epoch": 9,
+      "at": 60000,
+      "note": "`MOVE-091`: a differing `topologyId` supersedes the plan.  Handoffs at `cutover` or beyond run to a terminal state.",
       "expect": {
         "result": {
           "superseded": true,
@@ -131,7 +168,8 @@
           ],
           "finishing": [
             "h-a"
-          ]
+          ],
+          "rebasePending": null
         },
         "states": {
           "h-a": "verifying",

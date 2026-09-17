@@ -1,0 +1,355 @@
+{
+  "scenario": "rebase-drops-a-handoff",
+  "description": "An epoch arrives that reverses one of two moves in flight.  The handoff whose shard, source, and destination no longer hold is aborted and compensated; the other rebases and completes.  Three refusals cover the rebase preconditions.",
+  "requirements": [
+    "ERR-050",
+    "MOVE-094",
+    "MOVE-095",
+    "MOVE-096",
+    "MOVE-097",
+    "MOVE-098",
+    "MOVE-099",
+    "MOVE-102",
+    "MOVE-421",
+    "MOVE-481",
+    "TOPO-231"
+  ],
+  "deterministic": true,
+  "setup": {},
+  "steps": [
+    {
+      "action": "handoffStep",
+      "handoff": "h-r0",
+      "trigger": "admittedByRatePolicy",
+      "at": 1000,
+      "expect": {
+        "outcome": {
+          "outcome": "advanced",
+          "id": "h-r0",
+          "fromState": "planned",
+          "toState": "preparing"
+        },
+        "state": "preparing"
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-r0",
+      "trigger": "prepareSuccess",
+      "at": 1100,
+      "expect": {
+        "outcome": {
+          "outcome": "advanced",
+          "id": "h-r0",
+          "fromState": "preparing",
+          "toState": "transferring"
+        },
+        "state": "transferring"
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-r1",
+      "trigger": "admittedByRatePolicy",
+      "at": 2000,
+      "expect": {
+        "outcome": {
+          "outcome": "advanced",
+          "id": "h-r1",
+          "fromState": "planned",
+          "toState": "preparing"
+        },
+        "state": "preparing"
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-r1",
+      "trigger": "prepareSuccess",
+      "at": 2100,
+      "expect": {
+        "outcome": {
+          "outcome": "advanced",
+          "id": "h-r1",
+          "fromState": "preparing",
+          "toState": "transferring"
+        },
+        "state": "transferring"
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-r1",
+      "trigger": "noBulkRemaining",
+      "at": 2200,
+      "expect": {
+        "outcome": {
+          "outcome": "advanced",
+          "id": "h-r1",
+          "fromState": "transferring",
+          "toState": "catchingUp"
+        },
+        "state": "catchingUp"
+      }
+    },
+    {
+      "action": "rebase",
+      "name": "foreignIdentifier",
+      "topologyId": "some-other-cluster",
+      "epoch": 13,
+      "comparable": true,
+      "at": 5000,
+      "note": "`MOVE-095`: a differing `topologyId` refuses with `topologyMismatch`",
+      "expect": {
+        "result": {
+          "outcome": "refused",
+          "condition": {
+            "code": 401,
+            "name": "planRefused",
+            "cause": "topologyMismatch"
+          }
+        },
+        "states": {
+          "h-r0": "transferring",
+          "h-r1": "catchingUp"
+        }
+      }
+    },
+    {
+      "action": "rebase",
+      "name": "incomparableShards",
+      "topologyId": "rebalance",
+      "epoch": 13,
+      "comparable": false,
+      "at": 5000,
+      "note": "`MOVE-095`: `TOPO-231` gates a rebase exactly as it gates a plan",
+      "expect": {
+        "result": {
+          "outcome": "refused",
+          "condition": {
+            "code": 401,
+            "name": "planRefused",
+            "cause": "incomparableShards"
+          }
+        },
+        "states": {
+          "h-r0": "transferring",
+          "h-r1": "catchingUp"
+        }
+      }
+    },
+    {
+      "action": "rebase",
+      "name": "epochNotAdvancing",
+      "topologyId": "rebalance",
+      "epoch": 10,
+      "comparable": true,
+      "at": 5000,
+      "note": "`MOVE-095`: a target at or below the plan's source epoch refuses",
+      "expect": {
+        "result": {
+          "outcome": "refused",
+          "condition": {
+            "code": 401,
+            "name": "planRefused",
+            "cause": "epochNotAdvancing"
+          }
+        },
+        "states": {
+          "h-r0": "transferring",
+          "h-r1": "catchingUp"
+        }
+      }
+    },
+    {
+      "action": "snapshotInstalled",
+      "topology": "topologies/rebalance-epoch-13.topology.json",
+      "topologyId": "rebalance",
+      "epoch": 13,
+      "at": 6000,
+      "expect": {
+        "result": {
+          "superseded": false,
+          "aborted": [],
+          "finishing": [],
+          "rebasePending": 13
+        },
+        "states": {
+          "h-r0": "transferring",
+          "h-r1": "catchingUp"
+        }
+      }
+    },
+    {
+      "action": "rebase",
+      "to": "topologies/rebalance-epoch-13.topology.json",
+      "at": 7000,
+      "replicaSets": {
+        "r0": [
+          "n5",
+          "n2"
+        ],
+        "r1": [
+          "n2",
+          "n3"
+        ],
+        "r2": [
+          "n3",
+          "n4"
+        ],
+        "r3": [
+          "n4",
+          "n1"
+        ]
+      },
+      "note": "`MOVE-096`: epoch 13 returns `r1` to its source, so that handoff's triple no longer holds and `MOVE-098` compensates it while `r0` rebases",
+      "expect": {
+        "result": {
+          "outcome": "rebased",
+          "report": {
+            "fromEpoch": 11,
+            "toEpoch": 13,
+            "rebased": [
+              "h-r0"
+            ],
+            "aborted": [
+              "h-r1"
+            ],
+            "unchanged": []
+          },
+          "rebaseInterval": {
+            "above": 10,
+            "throughInclusive": 13
+          }
+        },
+        "states": {
+          "h-r0": "transferring",
+          "h-r1": "aborting"
+        },
+        "targetEpochs": {
+          "h-r0": 13,
+          "h-r1": 11
+        }
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-r1",
+      "trigger": "rollbackSuccess",
+      "at": 8000,
+      "expect": {
+        "outcome": {
+          "outcome": "settled",
+          "id": "h-r1",
+          "terminalState": "aborted",
+          "failureKind": null
+        },
+        "state": "aborted"
+      }
+    },
+    {
+      "action": "routeInView",
+      "view": "target",
+      "topology": "topologies/rebalance-epoch-13.topology.json",
+      "key": {
+        "encoding": "base16",
+        "value": "50"
+      },
+      "note": "`MOVE-098` and `MOVE-421`: the source of the aborted handoff is untouched, and epoch 13 routes the key to it",
+      "expect": {
+        "shard": "r1",
+        "token": {
+          "topologyId": "rebalance",
+          "epoch": 13
+        },
+        "preferenceList": [
+          "n2",
+          "n3"
+        ],
+        "replicaCount": 2
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-r0",
+      "trigger": "noBulkRemaining",
+      "at": 9000,
+      "expect": {
+        "outcome": {
+          "outcome": "advanced",
+          "id": "h-r0",
+          "fromState": "transferring",
+          "toState": "catchingUp"
+        },
+        "state": "catchingUp"
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-r0",
+      "trigger": "residueAtOrBelowThreshold",
+      "at": 9100,
+      "expect": {
+        "outcome": {
+          "outcome": "advanced",
+          "id": "h-r0",
+          "fromState": "catchingUp",
+          "toState": "cutover"
+        },
+        "state": "cutover"
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-r0",
+      "trigger": "cutoverCommitted",
+      "at": 9200,
+      "expect": {
+        "outcome": {
+          "outcome": "advanced",
+          "id": "h-r0",
+          "fromState": "cutover",
+          "toState": "verifying"
+        },
+        "state": "verifying"
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-r0",
+      "trigger": "verifySuccess",
+      "at": 9300,
+      "expect": {
+        "outcome": {
+          "outcome": "advanced",
+          "id": "h-r0",
+          "fromState": "verifying",
+          "toState": "cleanup"
+        },
+        "state": "cleanup"
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-r0",
+      "trigger": "cleanupSuccess",
+      "at": 9400,
+      "expect": {
+        "outcome": {
+          "outcome": "settled",
+          "id": "h-r0",
+          "terminalState": "complete",
+          "failureKind": null
+        },
+        "state": "complete"
+      }
+    },
+    {
+      "action": "expectSummary",
+      "expect": {
+        "complete": 1,
+        "aborted": 1
+      }
+    }
+  ]
+}

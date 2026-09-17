@@ -1,13 +1,17 @@
 {
   "scenario": "coordinator-death-and-recovery",
-  "description": "The coordinator dies in each non-terminal state and rebuilds its plan.  The resumed state is a function of the integrator's durable observation, never of the coordinator's own record.",
+  "description": "The coordinator dies in each non-terminal state and rebuilds its plan.  The resumed state is a function of the integrator's durable observation, never of the coordinator's own record.  An observation that could not be taken is retried rather than treated as an answer.",
   "requirements": [
+    "MOVE-112",
     "MOVE-151",
     "MOVE-161",
     "MOVE-201",
     "MOVE-211",
+    "MOVE-212",
     "MOVE-221",
-    "MOVE-231"
+    "MOVE-231",
+    "MOVE-232",
+    "RATE-051"
   ],
   "deterministic": true,
   "setup": {},
@@ -20,9 +24,17 @@
       ],
       "observation": "noRecordDestinationNotPrepared",
       "at": 20000,
-      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "note": "`MOVE-221`: the plan is rebuilt from the source snapshot and the latest snapshot it was rebased onto, and `recover` runs before the first `step`",
       "expect": {
-        "resumedState": "preparing"
+        "resumedState": "preparing",
+        "report": {
+          "resolved": [
+            "h-r1"
+          ],
+          "unresolved": [],
+          "failed": [],
+          "retryAfterMillis": 0
+        }
       }
     },
     {
@@ -33,9 +45,17 @@
       ],
       "observation": "noRecordDestinationPrepared",
       "at": 20000,
-      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "note": "`MOVE-221`: the plan is rebuilt from the source snapshot and the latest snapshot it was rebased onto, and `recover` runs before the first `step`",
       "expect": {
-        "resumedState": "transferring"
+        "resumedState": "transferring",
+        "report": {
+          "resolved": [
+            "h-r1"
+          ],
+          "unresolved": [],
+          "failed": [],
+          "retryAfterMillis": 0
+        }
       }
     },
     {
@@ -46,9 +66,17 @@
       ],
       "observation": "noRecordSourceQuiesced",
       "at": 20000,
-      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "note": "`MOVE-221`: the plan is rebuilt from the source snapshot and the latest snapshot it was rebased onto, and `recover` runs before the first `step`",
       "expect": {
-        "resumedState": "cutover"
+        "resumedState": "cutover",
+        "report": {
+          "resolved": [
+            "h-r1"
+          ],
+          "unresolved": [],
+          "failed": [],
+          "retryAfterMillis": 0
+        }
       }
     },
     {
@@ -57,11 +85,19 @@
       "triggersBeforeDeath": [
         "admittedByRatePolicy"
       ],
-      "observation": "recordOwnedByDestinationAtTargetEpoch",
+      "observation": "recordBelongingToHandoff",
       "at": 20000,
-      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "note": "`MOVE-221`: the plan is rebuilt from the source snapshot and the latest snapshot it was rebased onto, and `recover` runs before the first `step`",
       "expect": {
-        "resumedState": "verifying"
+        "resumedState": "verifying",
+        "report": {
+          "resolved": [
+            "h-r1"
+          ],
+          "unresolved": [],
+          "failed": [],
+          "retryAfterMillis": 0
+        }
       }
     },
     {
@@ -70,11 +106,19 @@
       "triggersBeforeDeath": [
         "admittedByRatePolicy"
       ],
-      "observation": "recordNamesAnotherOwnerOrEpoch",
+      "observation": "recordNotBelongingToHandoff",
       "at": 20000,
-      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "note": "`MOVE-221`: the plan is rebuilt from the source snapshot and the latest snapshot it was rebased onto, and `recover` runs before the first `step`",
       "expect": {
-        "resumedState": "aborting"
+        "resumedState": "aborting",
+        "report": {
+          "resolved": [
+            "h-r1"
+          ],
+          "unresolved": [],
+          "failed": [],
+          "retryAfterMillis": 0
+        }
       }
     },
     {
@@ -86,9 +130,17 @@
       ],
       "observation": "noRecordDestinationNotPrepared",
       "at": 20000,
-      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "note": "`MOVE-221`: the plan is rebuilt from the source snapshot and the latest snapshot it was rebased onto, and `recover` runs before the first `step`",
       "expect": {
-        "resumedState": "preparing"
+        "resumedState": "preparing",
+        "report": {
+          "resolved": [
+            "h-r1"
+          ],
+          "unresolved": [],
+          "failed": [],
+          "retryAfterMillis": 0
+        }
       }
     },
     {
@@ -100,9 +152,17 @@
       ],
       "observation": "noRecordDestinationPrepared",
       "at": 20000,
-      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "note": "`MOVE-221`: the plan is rebuilt from the source snapshot and the latest snapshot it was rebased onto, and `recover` runs before the first `step`",
       "expect": {
-        "resumedState": "transferring"
+        "resumedState": "transferring",
+        "report": {
+          "resolved": [
+            "h-r1"
+          ],
+          "unresolved": [],
+          "failed": [],
+          "retryAfterMillis": 0
+        }
       }
     },
     {
@@ -114,9 +174,17 @@
       ],
       "observation": "noRecordSourceQuiesced",
       "at": 20000,
-      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "note": "`MOVE-221`: the plan is rebuilt from the source snapshot and the latest snapshot it was rebased onto, and `recover` runs before the first `step`",
       "expect": {
-        "resumedState": "cutover"
+        "resumedState": "cutover",
+        "report": {
+          "resolved": [
+            "h-r1"
+          ],
+          "unresolved": [],
+          "failed": [],
+          "retryAfterMillis": 0
+        }
       }
     },
     {
@@ -126,11 +194,19 @@
         "admittedByRatePolicy",
         "prepareSuccess"
       ],
-      "observation": "recordOwnedByDestinationAtTargetEpoch",
+      "observation": "recordBelongingToHandoff",
       "at": 20000,
-      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "note": "`MOVE-221`: the plan is rebuilt from the source snapshot and the latest snapshot it was rebased onto, and `recover` runs before the first `step`",
       "expect": {
-        "resumedState": "verifying"
+        "resumedState": "verifying",
+        "report": {
+          "resolved": [
+            "h-r1"
+          ],
+          "unresolved": [],
+          "failed": [],
+          "retryAfterMillis": 0
+        }
       }
     },
     {
@@ -140,11 +216,19 @@
         "admittedByRatePolicy",
         "prepareSuccess"
       ],
-      "observation": "recordNamesAnotherOwnerOrEpoch",
+      "observation": "recordNotBelongingToHandoff",
       "at": 20000,
-      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "note": "`MOVE-221`: the plan is rebuilt from the source snapshot and the latest snapshot it was rebased onto, and `recover` runs before the first `step`",
       "expect": {
-        "resumedState": "aborting"
+        "resumedState": "aborting",
+        "report": {
+          "resolved": [
+            "h-r1"
+          ],
+          "unresolved": [],
+          "failed": [],
+          "retryAfterMillis": 0
+        }
       }
     },
     {
@@ -157,9 +241,17 @@
       ],
       "observation": "noRecordDestinationNotPrepared",
       "at": 20000,
-      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "note": "`MOVE-221`: the plan is rebuilt from the source snapshot and the latest snapshot it was rebased onto, and `recover` runs before the first `step`",
       "expect": {
-        "resumedState": "preparing"
+        "resumedState": "preparing",
+        "report": {
+          "resolved": [
+            "h-r1"
+          ],
+          "unresolved": [],
+          "failed": [],
+          "retryAfterMillis": 0
+        }
       }
     },
     {
@@ -172,9 +264,17 @@
       ],
       "observation": "noRecordDestinationPrepared",
       "at": 20000,
-      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "note": "`MOVE-221`: the plan is rebuilt from the source snapshot and the latest snapshot it was rebased onto, and `recover` runs before the first `step`",
       "expect": {
-        "resumedState": "transferring"
+        "resumedState": "transferring",
+        "report": {
+          "resolved": [
+            "h-r1"
+          ],
+          "unresolved": [],
+          "failed": [],
+          "retryAfterMillis": 0
+        }
       }
     },
     {
@@ -187,9 +287,17 @@
       ],
       "observation": "noRecordSourceQuiesced",
       "at": 20000,
-      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "note": "`MOVE-221`: the plan is rebuilt from the source snapshot and the latest snapshot it was rebased onto, and `recover` runs before the first `step`",
       "expect": {
-        "resumedState": "cutover"
+        "resumedState": "cutover",
+        "report": {
+          "resolved": [
+            "h-r1"
+          ],
+          "unresolved": [],
+          "failed": [],
+          "retryAfterMillis": 0
+        }
       }
     },
     {
@@ -200,11 +308,19 @@
         "prepareSuccess",
         "noBulkRemaining"
       ],
-      "observation": "recordOwnedByDestinationAtTargetEpoch",
+      "observation": "recordBelongingToHandoff",
       "at": 20000,
-      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "note": "`MOVE-221`: the plan is rebuilt from the source snapshot and the latest snapshot it was rebased onto, and `recover` runs before the first `step`",
       "expect": {
-        "resumedState": "verifying"
+        "resumedState": "verifying",
+        "report": {
+          "resolved": [
+            "h-r1"
+          ],
+          "unresolved": [],
+          "failed": [],
+          "retryAfterMillis": 0
+        }
       }
     },
     {
@@ -215,11 +331,19 @@
         "prepareSuccess",
         "noBulkRemaining"
       ],
-      "observation": "recordNamesAnotherOwnerOrEpoch",
+      "observation": "recordNotBelongingToHandoff",
       "at": 20000,
-      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "note": "`MOVE-221`: the plan is rebuilt from the source snapshot and the latest snapshot it was rebased onto, and `recover` runs before the first `step`",
       "expect": {
-        "resumedState": "aborting"
+        "resumedState": "aborting",
+        "report": {
+          "resolved": [
+            "h-r1"
+          ],
+          "unresolved": [],
+          "failed": [],
+          "retryAfterMillis": 0
+        }
       }
     },
     {
@@ -233,9 +357,17 @@
       ],
       "observation": "noRecordDestinationNotPrepared",
       "at": 20000,
-      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "note": "`MOVE-221`: the plan is rebuilt from the source snapshot and the latest snapshot it was rebased onto, and `recover` runs before the first `step`",
       "expect": {
-        "resumedState": "preparing"
+        "resumedState": "preparing",
+        "report": {
+          "resolved": [
+            "h-r1"
+          ],
+          "unresolved": [],
+          "failed": [],
+          "retryAfterMillis": 0
+        }
       }
     },
     {
@@ -249,9 +381,17 @@
       ],
       "observation": "noRecordDestinationPrepared",
       "at": 20000,
-      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "note": "`MOVE-221`: the plan is rebuilt from the source snapshot and the latest snapshot it was rebased onto, and `recover` runs before the first `step`",
       "expect": {
-        "resumedState": "transferring"
+        "resumedState": "transferring",
+        "report": {
+          "resolved": [
+            "h-r1"
+          ],
+          "unresolved": [],
+          "failed": [],
+          "retryAfterMillis": 0
+        }
       }
     },
     {
@@ -265,9 +405,17 @@
       ],
       "observation": "noRecordSourceQuiesced",
       "at": 20000,
-      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "note": "`MOVE-221`: the plan is rebuilt from the source snapshot and the latest snapshot it was rebased onto, and `recover` runs before the first `step`",
       "expect": {
-        "resumedState": "cutover"
+        "resumedState": "cutover",
+        "report": {
+          "resolved": [
+            "h-r1"
+          ],
+          "unresolved": [],
+          "failed": [],
+          "retryAfterMillis": 0
+        }
       }
     },
     {
@@ -279,11 +427,19 @@
         "noBulkRemaining",
         "residueAtOrBelowThreshold"
       ],
-      "observation": "recordOwnedByDestinationAtTargetEpoch",
+      "observation": "recordBelongingToHandoff",
       "at": 20000,
-      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "note": "`MOVE-221`: the plan is rebuilt from the source snapshot and the latest snapshot it was rebased onto, and `recover` runs before the first `step`",
       "expect": {
-        "resumedState": "verifying"
+        "resumedState": "verifying",
+        "report": {
+          "resolved": [
+            "h-r1"
+          ],
+          "unresolved": [],
+          "failed": [],
+          "retryAfterMillis": 0
+        }
       }
     },
     {
@@ -295,11 +451,19 @@
         "noBulkRemaining",
         "residueAtOrBelowThreshold"
       ],
-      "observation": "recordNamesAnotherOwnerOrEpoch",
+      "observation": "recordNotBelongingToHandoff",
       "at": 20000,
-      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "note": "`MOVE-221`: the plan is rebuilt from the source snapshot and the latest snapshot it was rebased onto, and `recover` runs before the first `step`",
       "expect": {
-        "resumedState": "aborting"
+        "resumedState": "aborting",
+        "report": {
+          "resolved": [
+            "h-r1"
+          ],
+          "unresolved": [],
+          "failed": [],
+          "retryAfterMillis": 0
+        }
       }
     },
     {
@@ -314,9 +478,17 @@
       ],
       "observation": "noRecordDestinationNotPrepared",
       "at": 20000,
-      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "note": "`MOVE-221`: the plan is rebuilt from the source snapshot and the latest snapshot it was rebased onto, and `recover` runs before the first `step`",
       "expect": {
-        "resumedState": "preparing"
+        "resumedState": "preparing",
+        "report": {
+          "resolved": [
+            "h-r1"
+          ],
+          "unresolved": [],
+          "failed": [],
+          "retryAfterMillis": 0
+        }
       }
     },
     {
@@ -331,9 +503,17 @@
       ],
       "observation": "noRecordDestinationPrepared",
       "at": 20000,
-      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "note": "`MOVE-221`: the plan is rebuilt from the source snapshot and the latest snapshot it was rebased onto, and `recover` runs before the first `step`",
       "expect": {
-        "resumedState": "transferring"
+        "resumedState": "transferring",
+        "report": {
+          "resolved": [
+            "h-r1"
+          ],
+          "unresolved": [],
+          "failed": [],
+          "retryAfterMillis": 0
+        }
       }
     },
     {
@@ -348,9 +528,17 @@
       ],
       "observation": "noRecordSourceQuiesced",
       "at": 20000,
-      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "note": "`MOVE-221`: the plan is rebuilt from the source snapshot and the latest snapshot it was rebased onto, and `recover` runs before the first `step`",
       "expect": {
-        "resumedState": "cutover"
+        "resumedState": "cutover",
+        "report": {
+          "resolved": [
+            "h-r1"
+          ],
+          "unresolved": [],
+          "failed": [],
+          "retryAfterMillis": 0
+        }
       }
     },
     {
@@ -363,11 +551,19 @@
         "residueAtOrBelowThreshold",
         "cutoverCommitted"
       ],
-      "observation": "recordOwnedByDestinationAtTargetEpoch",
+      "observation": "recordBelongingToHandoff",
       "at": 20000,
-      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "note": "`MOVE-221`: the plan is rebuilt from the source snapshot and the latest snapshot it was rebased onto, and `recover` runs before the first `step`",
       "expect": {
-        "resumedState": "verifying"
+        "resumedState": "verifying",
+        "report": {
+          "resolved": [
+            "h-r1"
+          ],
+          "unresolved": [],
+          "failed": [],
+          "retryAfterMillis": 0
+        }
       }
     },
     {
@@ -380,11 +576,19 @@
         "residueAtOrBelowThreshold",
         "cutoverCommitted"
       ],
-      "observation": "recordNamesAnotherOwnerOrEpoch",
+      "observation": "recordNotBelongingToHandoff",
       "at": 20000,
-      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "note": "`MOVE-221`: the plan is rebuilt from the source snapshot and the latest snapshot it was rebased onto, and `recover` runs before the first `step`",
       "expect": {
-        "resumedState": "aborting"
+        "resumedState": "aborting",
+        "report": {
+          "resolved": [
+            "h-r1"
+          ],
+          "unresolved": [],
+          "failed": [],
+          "retryAfterMillis": 0
+        }
       }
     },
     {
@@ -400,9 +604,17 @@
       ],
       "observation": "noRecordDestinationNotPrepared",
       "at": 20000,
-      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "note": "`MOVE-221`: the plan is rebuilt from the source snapshot and the latest snapshot it was rebased onto, and `recover` runs before the first `step`",
       "expect": {
-        "resumedState": "preparing"
+        "resumedState": "preparing",
+        "report": {
+          "resolved": [
+            "h-r1"
+          ],
+          "unresolved": [],
+          "failed": [],
+          "retryAfterMillis": 0
+        }
       }
     },
     {
@@ -418,9 +630,17 @@
       ],
       "observation": "noRecordDestinationPrepared",
       "at": 20000,
-      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "note": "`MOVE-221`: the plan is rebuilt from the source snapshot and the latest snapshot it was rebased onto, and `recover` runs before the first `step`",
       "expect": {
-        "resumedState": "transferring"
+        "resumedState": "transferring",
+        "report": {
+          "resolved": [
+            "h-r1"
+          ],
+          "unresolved": [],
+          "failed": [],
+          "retryAfterMillis": 0
+        }
       }
     },
     {
@@ -436,9 +656,17 @@
       ],
       "observation": "noRecordSourceQuiesced",
       "at": 20000,
-      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "note": "`MOVE-221`: the plan is rebuilt from the source snapshot and the latest snapshot it was rebased onto, and `recover` runs before the first `step`",
       "expect": {
-        "resumedState": "cutover"
+        "resumedState": "cutover",
+        "report": {
+          "resolved": [
+            "h-r1"
+          ],
+          "unresolved": [],
+          "failed": [],
+          "retryAfterMillis": 0
+        }
       }
     },
     {
@@ -452,11 +680,19 @@
         "cutoverCommitted",
         "verifySuccess"
       ],
-      "observation": "recordOwnedByDestinationAtTargetEpoch",
+      "observation": "recordBelongingToHandoff",
       "at": 20000,
-      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "note": "`MOVE-221`: the plan is rebuilt from the source snapshot and the latest snapshot it was rebased onto, and `recover` runs before the first `step`",
       "expect": {
-        "resumedState": "verifying"
+        "resumedState": "verifying",
+        "report": {
+          "resolved": [
+            "h-r1"
+          ],
+          "unresolved": [],
+          "failed": [],
+          "retryAfterMillis": 0
+        }
       }
     },
     {
@@ -470,11 +706,19 @@
         "cutoverCommitted",
         "verifySuccess"
       ],
-      "observation": "recordNamesAnotherOwnerOrEpoch",
+      "observation": "recordNotBelongingToHandoff",
       "at": 20000,
-      "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and `recover` runs before the first `step`",
+      "note": "`MOVE-221`: the plan is rebuilt from the source snapshot and the latest snapshot it was rebased onto, and `recover` runs before the first `step`",
       "expect": {
-        "resumedState": "aborting"
+        "resumedState": "aborting",
+        "report": {
+          "resolved": [
+            "h-r1"
+          ],
+          "unresolved": [],
+          "failed": [],
+          "retryAfterMillis": 0
+        }
       }
     },
     {
@@ -487,11 +731,173 @@
         "residueAtOrBelowThreshold"
       ],
       "observation": "unavailable",
-      "at": 30000,
-      "note": "`MOVE-231`: an unavailable or undetermined observation in `cutover` fails the handoff and forbids any further `cleanup`, `rollback`, or `commitCutover`",
+      "observeAttempt": 1,
+      "at": 31000,
+      "note": "`MOVE-231`: an `unavailable` observation is retried under `maxAttemptsPerStep` with the backoff of `RATE-051`, and the handoff stays where it is until the attempts are spent",
+      "expect": {
+        "resumedState": "cutover",
+        "report": {
+          "resolved": [],
+          "unresolved": [
+            "h-r1"
+          ],
+          "failed": [],
+          "retryAfterMillis": 1000
+        },
+        "failureKind": null
+      }
+    },
+    {
+      "action": "coordinatorRestart",
+      "diedInState": "cutover",
+      "triggersBeforeDeath": [
+        "admittedByRatePolicy",
+        "prepareSuccess",
+        "noBulkRemaining",
+        "residueAtOrBelowThreshold"
+      ],
+      "observation": "unavailable",
+      "observeAttempt": 2,
+      "at": 32000,
+      "note": "`MOVE-231`: an `unavailable` observation is retried under `maxAttemptsPerStep` with the backoff of `RATE-051`, and the handoff stays where it is until the attempts are spent",
+      "expect": {
+        "resumedState": "cutover",
+        "report": {
+          "resolved": [],
+          "unresolved": [
+            "h-r1"
+          ],
+          "failed": [],
+          "retryAfterMillis": 2000
+        },
+        "failureKind": null
+      }
+    },
+    {
+      "action": "coordinatorRestart",
+      "diedInState": "cutover",
+      "triggersBeforeDeath": [
+        "admittedByRatePolicy",
+        "prepareSuccess",
+        "noBulkRemaining",
+        "residueAtOrBelowThreshold"
+      ],
+      "observation": "unavailable",
+      "observeAttempt": 3,
+      "at": 33000,
+      "note": "`MOVE-231`: an `unavailable` observation is retried under `maxAttemptsPerStep` with the backoff of `RATE-051`, and the handoff stays where it is until the attempts are spent",
+      "expect": {
+        "resumedState": "cutover",
+        "report": {
+          "resolved": [],
+          "unresolved": [
+            "h-r1"
+          ],
+          "failed": [],
+          "retryAfterMillis": 4000
+        },
+        "failureKind": null
+      }
+    },
+    {
+      "action": "coordinatorRestart",
+      "diedInState": "cutover",
+      "triggersBeforeDeath": [
+        "admittedByRatePolicy",
+        "prepareSuccess",
+        "noBulkRemaining",
+        "residueAtOrBelowThreshold"
+      ],
+      "observation": "unavailable",
+      "observeAttempt": 4,
+      "at": 34000,
+      "note": "`MOVE-231`: an `unavailable` observation is retried under `maxAttemptsPerStep` with the backoff of `RATE-051`, and the handoff stays where it is until the attempts are spent",
+      "expect": {
+        "resumedState": "cutover",
+        "report": {
+          "resolved": [],
+          "unresolved": [
+            "h-r1"
+          ],
+          "failed": [],
+          "retryAfterMillis": 8000
+        },
+        "failureKind": null
+      }
+    },
+    {
+      "action": "coordinatorRestart",
+      "diedInState": "cutover",
+      "triggersBeforeDeath": [
+        "admittedByRatePolicy",
+        "prepareSuccess",
+        "noBulkRemaining",
+        "residueAtOrBelowThreshold"
+      ],
+      "observation": "unavailable",
+      "observeAttempt": 5,
+      "at": 35000,
+      "note": "`MOVE-231`: an `unavailable` observation is retried under `maxAttemptsPerStep` with the backoff of `RATE-051`, and the handoff stays where it is until the attempts are spent",
       "expect": {
         "resumedState": "failed",
+        "report": {
+          "resolved": [],
+          "unresolved": [],
+          "failed": [
+            "h-r1"
+          ],
+          "retryAfterMillis": 0
+        },
         "failureKind": "undetermined"
+      }
+    },
+    {
+      "action": "coordinatorRestart",
+      "diedInState": "cutover",
+      "triggersBeforeDeath": [
+        "admittedByRatePolicy",
+        "prepareSuccess",
+        "noBulkRemaining",
+        "residueAtOrBelowThreshold"
+      ],
+      "observation": "undetermined",
+      "at": 40000,
+      "note": "`MOVE-112`: `undetermined` states that the durable state was read and does not establish whether a record exists, which is not the same answer as `unavailable`",
+      "expect": {
+        "resumedState": "failed",
+        "report": {
+          "resolved": [],
+          "unresolved": [],
+          "failed": [
+            "h-r1"
+          ],
+          "retryAfterMillis": 0
+        },
+        "failureKind": "undetermined"
+      }
+    },
+    {
+      "action": "coordinatorRestart",
+      "diedInState": "transferring",
+      "triggersBeforeDeath": [
+        "admittedByRatePolicy",
+        "prepareSuccess"
+      ],
+      "observation": "unavailable",
+      "observeAttempt": 5,
+      "at": 55000,
+      "note": "`MOVE-231`: a handoff outside `cutover` whose attempts are spent stays in the state it held and is reported as unresolved",
+      "expect": {
+        "resumedState": "transferring",
+        "report": {
+          "resolved": [],
+          "unresolved": [
+            "h-r1"
+          ],
+          "failed": [],
+          "retryAfterMillis": 0
+        },
+        "failureKind": null
       }
     }
   ]

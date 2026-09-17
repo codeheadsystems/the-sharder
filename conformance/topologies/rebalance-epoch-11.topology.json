@@ -1,0 +1,97 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "rebalance",
+  "epoch": 11,
+  "domainLevels": [
+    "zone"
+  ],
+  "replication": {
+    "factor": 2
+  },
+  "strategy": {
+    "kind": "range",
+    "assignment": "explicit",
+    "ranges": [
+      {
+        "shardId": "r0",
+        "start": null,
+        "end": "40",
+        "nodes": [
+          "n5",
+          "n2"
+        ]
+      },
+      {
+        "shardId": "r1",
+        "start": "40",
+        "end": "80",
+        "nodes": [
+          "n2",
+          "n6"
+        ]
+      },
+      {
+        "shardId": "r2",
+        "start": "80",
+        "end": "c0",
+        "nodes": [
+          "n3",
+          "n4"
+        ]
+      },
+      {
+        "shardId": "r3",
+        "start": "c0",
+        "end": null,
+        "nodes": [
+          "n4",
+          "n1"
+        ]
+      }
+    ]
+  },
+  "nodes": [
+    {
+      "id": "n1",
+      "domains": {
+        "zone": "za"
+      },
+      "address": "10.1.0.1:7000"
+    },
+    {
+      "id": "n2",
+      "domains": {
+        "zone": "zb"
+      },
+      "address": "10.1.0.2:7000"
+    },
+    {
+      "id": "n3",
+      "domains": {
+        "zone": "zc"
+      },
+      "address": "10.1.0.3:7000"
+    },
+    {
+      "id": "n4",
+      "domains": {
+        "zone": "zd"
+      },
+      "address": "10.1.0.4:7000"
+    },
+    {
+      "id": "n5",
+      "domains": {
+        "zone": "ze"
+      },
+      "address": "10.1.0.5:7000"
+    },
+    {
+      "id": "n6",
+      "domains": {
+        "zone": "zf"
+      },
+      "address": "10.1.0.6:7000"
+    }
+  ]
+}

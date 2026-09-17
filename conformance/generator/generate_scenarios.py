@@ -85,6 +85,48 @@ EPOCH5_ROLLBACK = cluster(5, ["n2", "n3"], n4_state="draining")
 
 PROBE_KEY = bytes([0x50])     # falls in r1 under every epoch above
 
+# A second, larger family for the rebase scenarios.  A rebalance over it outlives the epoch it
+# was planned against, which is the case `MOVE-091` through `MOVE-099` exist for.
+FLEET_ZONES = ["za", "zb", "zc", "zd", "ze", "zf", "zg"]
+
+
+def fleet(epoch, ranges, node_count=6):
+    return {
+        "formatVersion": "1.0",
+        "topologyId": "rebalance",
+        "epoch": epoch,
+        "domainLevels": ["zone"],
+        "replication": {"factor": 2},
+        "strategy": {
+            "kind": "range",
+            "assignment": "explicit",
+            "ranges": [{"shardId": shard, "start": start, "end": end, "nodes": nodes}
+                       for shard, start, end, nodes in ranges],
+        },
+        "nodes": [{"id": "n%d" % i, "domains": {"zone": FLEET_ZONES[i - 1]},
+                   "address": "10.1.0.%d:7000" % i}
+                  for i in range(1, node_count + 1)],
+    }
+
+
+# Epoch 10 is the plan's source and epoch 11 its target: `r0` moves from n1 to n5 and `r1` from
+# n3 to n6.
+FLEET_RANGES_10 = [("r0", None, "40", ["n1", "n2"]), ("r1", "40", "80", ["n2", "n3"]),
+                   ("r2", "80", "c0", ["n3", "n4"]), ("r3", "c0", None, ["n4", "n1"])]
+FLEET_RANGES_11 = [("r0", None, "40", ["n5", "n2"]), ("r1", "40", "80", ["n2", "n6"]),
+                   ("r2", "80", "c0", ["n3", "n4"]), ("r3", "c0", None, ["n4", "n1"])]
+# Epoch 12 is the ordinary fleet event the review names: a node joins and nothing is reassigned.
+# Every shard's replica set is the one epoch 11 gives, so both handoffs still hold.
+FLEET_RANGES_12 = FLEET_RANGES_11
+# Epoch 13 returns `r1` to n3, so that handoff's triple no longer holds and it cannot rebase.
+FLEET_RANGES_13 = [("r0", None, "40", ["n5", "n2"]), ("r1", "40", "80", ["n2", "n3"]),
+                   ("r2", "80", "c0", ["n3", "n4"]), ("r3", "c0", None, ["n4", "n1"])]
+
+FLEET10 = fleet(10, FLEET_RANGES_10)
+FLEET11 = fleet(11, FLEET_RANGES_11)
+FLEET12 = fleet(12, FLEET_RANGES_12, node_count=7)
+FLEET13 = fleet(13, FLEET_RANGES_13, node_count=7)
+
 
 def snapshots():
     return {name: Snapshot(document) for name, document in {
@@ -99,6 +141,29 @@ for _name, _doc in [("migration-epoch-1", EPOCH1), ("migration-epoch-2", EPOCH2)
                     ("migration-epoch-3", EPOCH3), ("migration-epoch-4", EPOCH4),
                     ("migration-epoch-5-rollback", EPOCH5_ROLLBACK)]:
     topology(_name, _doc)
+
+FLEET = {}
+for _name, _doc in [("rebalance-epoch-10", FLEET10), ("rebalance-epoch-11", FLEET11),
+                    ("rebalance-epoch-12", FLEET12), ("rebalance-epoch-13", FLEET13)]:
+    FLEET[_name] = Snapshot(_doc)
+    topology(_name, _doc)
+
+
+def replica_sets(snapshot):
+    """The replica set of every shard the snapshot enumerates, under `TOPO-211`.
+
+    This is what `MOVE-096` classifies a handoff against: the handoff holds under the snapshot
+    when its destination is a member and its source is not.
+    """
+    from sharder_ref import placement as placement_module
+    sets = {}
+    for shard in placement_module.shards(snapshot):
+        ordering = placement_module.candidates_for_shard(snapshot, shard,
+                                                         snapshot.placement_set)
+        entries, count, _, _ = routing.build_preference_list(snapshot, ordering,
+                                                             snapshot.factor)
+        sets[shard] = [entry["node"] for entry in entries[:count]]
+    return sets
 
 
 def route_expect(snapshot, key):
@@ -515,48 +580,95 @@ def build_coordinator_death_scenarios():
         ("cleanup", HAPPY_PATH[:6]),
     ]
     observations = ["noRecordDestinationNotPrepared", "noRecordDestinationPrepared",
-                    "noRecordSourceQuiesced", "recordOwnedByDestinationAtTargetEpoch",
-                    "recordNamesAnotherOwnerOrEpoch"]
+                    "noRecordSourceQuiesced", "recordBelongingToHandoff",
+                    "recordNotBelongingToHandoff"]
     for died_in, triggers in reached:
         for observation in observations:
             plan = one_handoff()
             for index, trigger in enumerate(triggers):
                 plan.step("h-r1", trigger, at=1000 + index * 100)
             assert plan.state("h-r1") == died_in
-            resumed = plan.recover({"h-r1": observation}, at=20000)
+            report = plan.recover({"h-r1": observation}, at=20000)
             steps.append({
                 "action": "coordinatorRestart",
                 "diedInState": died_in,
                 "triggersBeforeDeath": triggers,
                 "observation": observation,
                 "at": 20000,
-                "note": "`MOVE-221`: the plan is rebuilt from the same two snapshots and "
-                        "`recover` runs before the first `step`",
-                "expect": {"resumedState": resumed["h-r1"]},
+                "note": "`MOVE-221`: the plan is rebuilt from the source snapshot and the "
+                        "latest snapshot it was rebased onto, and `recover` runs before the "
+                        "first `step`",
+                "expect": {"resumedState": plan.state("h-r1"), "report": report},
             })
 
+    # `MOVE-231`: an `unavailable` answer is retried across successive `recover` calls, and
+    # only a handoff in `cutover` whose attempts are spent reaches `failed`.
     plan = one_handoff()
     for index, trigger in enumerate(HAPPY_PATH[:4]):
         plan.step("h-r1", trigger, at=1000 + index * 100)
     assert plan.state("h-r1") == "cutover"
-    resumed = plan.recover({"h-r1": "unavailable"}, at=30000)
+    for attempt in range(1, 6):
+        at = 30000 + attempt * 1000
+        report = plan.recover({"h-r1": "unavailable"}, at=at)
+        steps.append({
+            "action": "coordinatorRestart",
+            "diedInState": "cutover",
+            "triggersBeforeDeath": HAPPY_PATH[:4],
+            "observation": "unavailable",
+            "observeAttempt": attempt,
+            "at": at,
+            "note": "`MOVE-231`: an `unavailable` observation is retried under "
+                    "`maxAttemptsPerStep` with the backoff of `RATE-051`, and the handoff stays "
+                    "where it is until the attempts are spent",
+            "expect": {"resumedState": plan.state("h-r1"), "report": report,
+                       "failureKind": plan.handoffs["h-r1"].failure_kind},
+        })
+    assert plan.state("h-r1") == "failed"
+
+    # A definite `undetermined` answer fails a handoff in `cutover` on the first call.
+    plan = one_handoff()
+    for index, trigger in enumerate(HAPPY_PATH[:4]):
+        plan.step("h-r1", trigger, at=1000 + index * 100)
+    report = plan.recover({"h-r1": "undetermined"}, at=40000)
     steps.append({
         "action": "coordinatorRestart",
         "diedInState": "cutover",
         "triggersBeforeDeath": HAPPY_PATH[:4],
+        "observation": "undetermined",
+        "at": 40000,
+        "note": "`MOVE-112`: `undetermined` states that the durable state was read and does not "
+                "establish whether a record exists, which is not the same answer as "
+                "`unavailable`",
+        "expect": {"resumedState": plan.state("h-r1"), "report": report,
+                   "failureKind": plan.handoffs["h-r1"].failure_kind},
+    })
+
+    # An `unavailable` answer for a handoff short of `cutover` never fails it.
+    plan = one_handoff()
+    plan.step("h-r1", "admittedByRatePolicy", at=1000)
+    plan.step("h-r1", "prepareSuccess", at=1100)
+    for attempt in range(1, 6):
+        report = plan.recover({"h-r1": "unavailable"}, at=50000 + attempt * 1000)
+    steps.append({
+        "action": "coordinatorRestart",
+        "diedInState": "transferring",
+        "triggersBeforeDeath": ["admittedByRatePolicy", "prepareSuccess"],
         "observation": "unavailable",
-        "at": 30000,
-        "note": "`MOVE-231`: an unavailable or undetermined observation in `cutover` fails the "
-                "handoff and forbids any further `cleanup`, `rollback`, or `commitCutover`",
-        "expect": {"resumedState": resumed["h-r1"],
+        "observeAttempt": 5,
+        "at": 55000,
+        "note": "`MOVE-231`: a handoff outside `cutover` whose attempts are spent stays in the "
+                "state it held and is reported as unresolved",
+        "expect": {"resumedState": plan.state("h-r1"), "report": report,
                    "failureKind": plan.handoffs["h-r1"].failure_kind},
     })
 
     register("coordinator-death-and-recovery",
              "The coordinator dies in each non-terminal state and rebuilds its plan.  The "
              "resumed state is a function of the integrator's durable observation, never of the "
-             "coordinator's own record.",
-             ["MOVE-201", "MOVE-211", "MOVE-221", "MOVE-231", "MOVE-151", "MOVE-161"], steps)
+             "coordinator's own record.  An observation that could not be taken is retried "
+             "rather than treated as an answer.",
+             ["MOVE-201", "MOVE-211", "MOVE-212", "MOVE-221", "MOVE-231", "MOVE-232",
+              "MOVE-112", "MOVE-151", "MOVE-161", "RATE-051"], steps)
 
 
 def build_failure_kind_scenarios():
@@ -625,20 +737,40 @@ def build_supersession_scenario():
             steps.append({"action": "handoffStep", "handoff": handoff_id, "trigger": trigger,
                           "at": 1000 + index * 100,
                           "expect": {"outcome": outcome, "state": plan.state(handoff_id)}})
+    # A comparable epoch above the target marks the plan rather than superseding it, and the
+    # mark holds `step` short of any new work under `MOVE-093`.
     result = plan.on_snapshot_installed("migration", 4, at=50000)
     steps.append({
         "action": "snapshotInstalled",
         "topologyId": "migration", "epoch": 4, "at": 50000,
-        "note": "`MOVE-091`: an epoch that is neither the plan's source nor its target "
-                "supersedes the plan.  Handoffs at `cutover` or beyond run to a terminal state.",
+        "note": "`MOVE-091`: a comparable epoch above the plan's target marks the plan rebase "
+                "pending and aborts nothing",
+        "expect": {"result": result, "states": {k: v.state for k, v in
+                                                sorted(plan.handoffs.items())}},
+    })
+    outcome = plan.step("h-c", "admittedByRatePolicy", at=50100)
+    steps.append({"action": "handoffStep", "handoff": "h-c",
+                  "trigger": "admittedByRatePolicy", "at": 50100,
+                  "note": "`MOVE-093`: no handoff leaves `planned` while a rebase is pending",
+                  "expect": {"outcome": outcome, "state": plan.state("h-c")}})
+
+    # A foreign identifier supersedes, because two identifiers are not comparable at all.
+    result = plan.on_snapshot_installed("some-other-cluster", 9, at=60000)
+    steps.append({
+        "action": "snapshotInstalled",
+        "topologyId": "some-other-cluster", "epoch": 9, "at": 60000,
+        "note": "`MOVE-091`: a differing `topologyId` supersedes the plan.  Handoffs at "
+                "`cutover` or beyond run to a terminal state.",
         "expect": {"result": result, "states": {k: v.state for k, v in
                                                 sorted(plan.handoffs.items())}},
     })
     steps.append({"action": "expectSummary", "expect": plan.summary()})
     register("plan-superseded-by-new-epoch",
-             "A third epoch arrives while three handoffs are in flight.  The plan is superseded, "
-             "pre-cutover handoffs abort, and the handoff past cutover runs on.",
-             ["MOVE-091", "MOVE-101", "MOVE-481", "TOPO-111", "TOPO-131"], steps)
+             "A third epoch arrives while three handoffs are in flight.  A comparable epoch "
+             "marks the plan rebase pending and aborts nothing; an incomparable one supersedes "
+             "it, pre-cutover handoffs abort, and the handoff past cutover runs on.",
+             ["MOVE-091", "MOVE-092", "MOVE-093", "MOVE-101", "MOVE-481", "TOPO-111",
+              "TOPO-131", "TOPO-231"], steps)
 
 
 def build_concurrency_scenario():
@@ -851,6 +983,339 @@ def build_ejection_ceiling_scenario():
     _ = snapshot
 
 
+# ------------------------------------------------------------------- rebase across an epoch
+
+FLEET_PATH = "topologies/rebalance-epoch-%d.topology.json"
+
+
+def fleet_plan():
+    """The plan the delta between epoch 10 and epoch 11 produces."""
+    rows = ownership_delta(FLEET["rebalance-epoch-10"], FLEET["rebalance-epoch-11"],
+                           lambda s: s.factor)
+    handoffs = []
+    for row in rows:
+        for gained in row["gained"]:
+            for lost in row["lost"]:
+                handoffs.append(Handoff("h-%s" % row["shard"], row["shard"], lost, gained))
+    return Plan(10, 11, "rebalance", handoffs), rows
+
+
+def fleet_step(plan, steps, handoff_id, triggers, at_base):
+    for index, trigger in enumerate(triggers):
+        at = at_base + index * 100
+        outcome = plan.step(handoff_id, trigger, at=at)
+        steps.append({"action": "handoffStep", "handoff": handoff_id, "trigger": trigger,
+                      "at": at, "expect": {"outcome": outcome, "state": plan.state(handoff_id)}})
+
+
+def build_rebase_survives_scenario():
+    plan, rows = fleet_plan()
+    steps = [{
+        "action": "ownershipDelta",
+        "from": FLEET_PATH % 10, "to": FLEET_PATH % 11,
+        "expect": {"shardsChanged": len(rows), "delta": rows},
+    }, {
+        "action": "plan",
+        "from": FLEET_PATH % 10, "to": FLEET_PATH % 11,
+        "policy": plan.policy,
+        "expect": {"handoffs": [{"id": h.id, "shard": h.shard, "source": h.source,
+                                 "destination": h.destination, "state": h.state,
+                                 "targetEpoch": h.target_epoch}
+                                for h in sorted(plan.handoffs.values(), key=lambda x: x.id)],
+                   "guarantee": "linearisable",
+                   "rebaseInterval": plan.rebase_interval()},
+    }]
+    fleet_step(plan, steps, "h-r0", ["admittedByRatePolicy", "prepareSuccess",
+                                     "noBulkRemaining"], 1000)
+    fleet_step(plan, steps, "h-r1", ["admittedByRatePolicy", "prepareSuccess"], 2000)
+
+    # A node joins.  Nothing is reassigned, and today's rule would abort both handoffs.
+    result = plan.on_snapshot_installed("rebalance", 12, at=10000)
+    steps.append({
+        "action": "snapshotInstalled",
+        "topology": FLEET_PATH % 12, "topologyId": "rebalance", "epoch": 12, "at": 10000,
+        "note": "`MOVE-091` and `MOVE-092`: the epoch is comparable and above the plan's "
+                "target, so the plan is marked rebase pending, no handoff is aborted, and no "
+                "preference list is evaluated",
+        "expect": {"result": result, "states": {k: v.state for k, v in
+                                                sorted(plan.handoffs.items())}},
+    })
+    outcome = plan.step("h-r0", "residueAtOrBelowThreshold", at=10100)
+    steps.append({"action": "handoffStep", "handoff": "h-r0",
+                  "trigger": "residueAtOrBelowThreshold", "at": 10100,
+                  "note": "`MOVE-093`: a rebase-pending plan admits no handoff into `cutover`",
+                  "expect": {"outcome": outcome, "state": plan.state("h-r0")}})
+
+    sets = replica_sets(FLEET["rebalance-epoch-12"])
+    result = plan.rebase("rebalance", 12, sets, at=11000)
+    steps.append({
+        "action": "rebase",
+        "to": FLEET_PATH % 12, "at": 11000,
+        "replicaSets": sets,
+        "note": "`MOVE-096`: every handoff's shard, source, and destination still hold under "
+                "epoch 12, so every one of them rebases and keeps the state it was in",
+        "expect": {"result": result,
+                   "states": {k: v.state for k, v in sorted(plan.handoffs.items())},
+                   "targetEpochs": {k: v.target_epoch
+                                    for k, v in sorted(plan.handoffs.items())}},
+    })
+
+    # The rebalance finishes under the epoch that arrived after it started.
+    fleet_step(plan, steps, "h-r0", ["residueAtOrBelowThreshold", "cutoverCommitted",
+                                     "verifySuccess", "cleanupSuccess"], 12000)
+    fleet_step(plan, steps, "h-r1", ["noBulkRemaining", "residueAtOrBelowThreshold",
+                                     "cutoverCommitted", "verifySuccess", "cleanupSuccess"],
+               13000)
+    steps.append({"action": "expectSummary", "expect": plan.summary()})
+    register("rebalance-survives-unrelated-epoch",
+             "A node joins the fleet while a two-shard rebalance is in flight.  The plan is "
+             "marked rebase pending rather than superseded, admits no new work until the "
+             "integrator rebases it, and then finishes under the newer epoch.",
+             ["TOPO-211", "MOVE-091", "MOVE-092", "MOVE-093", "MOVE-094", "MOVE-096",
+              "MOVE-097", "MOVE-101", "MOVE-102", "MOVE-103", "RATE-001"], steps)
+
+
+def build_rebase_drops_handoff_scenario():
+    plan, _ = fleet_plan()
+    steps = []
+    fleet_step(plan, steps, "h-r0", ["admittedByRatePolicy", "prepareSuccess"], 1000)
+    fleet_step(plan, steps, "h-r1", ["admittedByRatePolicy", "prepareSuccess",
+                                     "noBulkRemaining"], 2000)
+
+    # Three refusals, before any admissible rebase.
+    for label, topology_id, epoch, comparable, note in [
+        ("foreignIdentifier", "some-other-cluster", 13, True,
+         "`MOVE-095`: a differing `topologyId` refuses with `topologyMismatch`"),
+        ("incomparableShards", "rebalance", 13, False,
+         "`MOVE-095`: `TOPO-231` gates a rebase exactly as it gates a plan"),
+        ("epochNotAdvancing", "rebalance", 10, True,
+         "`MOVE-095`: a target at or below the plan's source epoch refuses"),
+    ]:
+        refused = plan.rebase(topology_id, epoch, {}, at=5000, comparable=comparable)
+        steps.append({
+            "action": "rebase", "name": label, "topologyId": topology_id, "epoch": epoch,
+            "comparable": comparable, "at": 5000, "note": note,
+            "expect": {"result": refused,
+                       "states": {k: v.state for k, v in sorted(plan.handoffs.items())}},
+        })
+
+    result = plan.on_snapshot_installed("rebalance", 13, at=6000)
+    steps.append({
+        "action": "snapshotInstalled",
+        "topology": FLEET_PATH % 13, "topologyId": "rebalance", "epoch": 13, "at": 6000,
+        "expect": {"result": result, "states": {k: v.state for k, v in
+                                               sorted(plan.handoffs.items())}},
+    })
+
+    sets = replica_sets(FLEET["rebalance-epoch-13"])
+    result = plan.rebase("rebalance", 13, sets, at=7000)
+    steps.append({
+        "action": "rebase",
+        "to": FLEET_PATH % 13, "at": 7000,
+        "replicaSets": sets,
+        "note": "`MOVE-096`: epoch 13 returns `r1` to its source, so that handoff's triple no "
+                "longer holds and `MOVE-098` compensates it while `r0` rebases",
+        "expect": {"result": result,
+                   "states": {k: v.state for k, v in sorted(plan.handoffs.items())},
+                   "targetEpochs": {k: v.target_epoch
+                                    for k, v in sorted(plan.handoffs.items())}},
+    })
+    fleet_step(plan, steps, "h-r1", ["rollbackSuccess"], 8000)
+    steps.append({
+        "action": "routeInView", "view": "target",
+        "topology": FLEET_PATH % 13,
+        "key": key_spec(bytes([0x50]), "base16"),
+        "note": "`MOVE-098` and `MOVE-421`: the source of the aborted handoff is untouched, and "
+                "epoch 13 routes the key to it",
+        "expect": route_expect(FLEET["rebalance-epoch-13"], bytes([0x50])),
+    })
+    fleet_step(plan, steps, "h-r0", ["noBulkRemaining", "residueAtOrBelowThreshold",
+                                     "cutoverCommitted", "verifySuccess", "cleanupSuccess"],
+               9000)
+    steps.append({"action": "expectSummary", "expect": plan.summary()})
+    register("rebase-drops-a-handoff",
+             "An epoch arrives that reverses one of two moves in flight.  The handoff whose "
+             "shard, source, and destination no longer hold is aborted and compensated; the "
+             "other rebases and completes.  Three refusals cover the rebase preconditions.",
+             ["MOVE-094", "MOVE-095", "MOVE-096", "MOVE-097", "MOVE-098", "MOVE-099",
+              "MOVE-102", "MOVE-421", "MOVE-481", "TOPO-231", "ERR-050"], steps)
+
+
+# ------------------------------------------------- re-observation after an undetermined cutover
+
+def record(owner, epoch, shard="r1"):
+    return {"shardId": shard, "topologyId": "migration", "epoch": epoch, "owner": owner,
+            "opaque": ""}
+
+
+def observation(cutover_record=None, prepared=True, quiesced=True, residue=False):
+    return {"cutoverRecord": cutover_record, "destinationPrepared": prepared,
+            "sourceQuiesced": quiesced, "sourceResidue": residue}
+
+
+def to_undetermined(plan, steps, at_base):
+    """`MOVE-021`: drive the single handoff to `failed` with the kind `undetermined`."""
+    for index, trigger in enumerate(HAPPY_PATH[:4] + ["commitUndetermined"]):
+        at = at_base + index * 100
+        outcome = plan.step("h-r1", trigger, at=at)
+        steps.append({"action": "handoffStep", "handoff": "h-r1", "trigger": trigger, "at": at,
+                      "expect": {"outcome": outcome, "state": plan.state("h-r1")}})
+
+
+def build_undetermined_recovery_scenario():
+    steps = []
+
+    # The cutover did land.  A later observation says so, and the handoff completes.
+    plan = one_handoff()
+    to_undetermined(plan, steps, 1000)
+    outcome = plan.reobserve("h-r1", observation(record("n4", 2)), at=20000)
+    steps.append({
+        "action": "reobserve", "handoff": "h-r1", "at": 20000,
+        "observation": observation(record("n4", 2)),
+        "note": "`MOVE-234`: the record belongs to the handoff under `MOVE-102`, so the mapping "
+                "of `MOVE-211` resumes it at `verifying`",
+        "expect": {"outcome": outcome, "state": plan.state("h-r1"),
+                   "targetEpoch": plan.handoffs["h-r1"].target_epoch},
+    })
+    for index, trigger in enumerate(["verifySuccess", "cleanupSuccess"]):
+        at = 21000 + index * 100
+        result = plan.step("h-r1", trigger, at=at)
+        steps.append({"action": "handoffStep", "handoff": "h-r1", "trigger": trigger, "at": at,
+                      "note": "`MOVE-236`: `cleanup` still never precedes a successful `verify`",
+                      "expect": {"outcome": result, "state": plan.state("h-r1")}})
+    steps.append({"action": "expectSummary", "name": "recordExisted", "expect": plan.summary()})
+
+    # The cutover did not land.  The store is silent once, then answers, and the handoff
+    # re-enters `cutover`, where `MOVE-331` requires a fresh `quiesce`.
+    plan = one_handoff()
+    to_undetermined(plan, steps, 30000)
+    outcome = plan.reobserve("h-r1", "unavailable", at=31000)
+    steps.append({
+        "action": "reobserve", "handoff": "h-r1", "at": 31000, "observation": "unavailable",
+        "note": "`MOVE-234`: an `unavailable` answer leaves the handoff where it is and "
+                "`MOVE-238` makes the call free of effect",
+        "expect": {"outcome": outcome, "state": plan.state("h-r1"),
+                   "failureKind": plan.handoffs["h-r1"].failure_kind},
+    })
+    outcome = plan.reobserve("h-r1", observation(None, quiesced=True), at=32000)
+    steps.append({
+        "action": "reobserve", "handoff": "h-r1", "at": 32000,
+        "observation": observation(None, quiesced=True),
+        "note": "`MOVE-235`: the hooks declare `linearisable`, so an observation reporting no "
+                "record resumes the handoff at `cutover`, and `MOVE-331` requires a fresh "
+                "successful `quiesce` before the next `commitCutover`",
+        "expect": {"outcome": outcome, "state": plan.state("h-r1")},
+    })
+    for index, trigger in enumerate(["cutoverCommitted", "verifySuccess", "cleanupSuccess"]):
+        at = 33000 + index * 100
+        result = plan.step("h-r1", trigger, at=at)
+        steps.append({"action": "handoffStep", "handoff": "h-r1", "trigger": trigger, "at": at,
+                      "expect": {"outcome": result, "state": plan.state("h-r1")}})
+    steps.append({"action": "expectSummary", "name": "noRecord", "expect": plan.summary()})
+
+    # Another destination won.  The observation says so and the handoff compensates.
+    plan = one_handoff()
+    to_undetermined(plan, steps, 40000)
+    outcome = plan.reobserve("h-r1", observation(record("n3", 2)), at=41000)
+    steps.append({
+        "action": "reobserve", "handoff": "h-r1", "at": 41000,
+        "observation": observation(record("n3", 2)),
+        "note": "`MOVE-102`: the record names another owner, so it does not belong to this "
+                "handoff and `MOVE-236` admits the compensation",
+        "expect": {"outcome": outcome, "state": plan.state("h-r1")},
+    })
+    # A record outside the rebase interval is the same case.
+    plan = one_handoff()
+    to_undetermined(plan, steps, 45000)
+    outcome = plan.reobserve("h-r1", observation(record("n4", 7)), at=46000)
+    steps.append({
+        "action": "reobserve", "handoff": "h-r1", "at": 46000,
+        "observation": observation(record("n4", 7)),
+        "note": "`MOVE-102`: the plan's rebase interval is the epochs above 1 and at or below "
+                "2, so a record at epoch 7 belongs to another plan",
+        "expect": {"outcome": outcome, "state": plan.state("h-r1"),
+                   "rebaseInterval": plan.rebase_interval()},
+    })
+
+    # Under `advisory` hooks a resumption at `cutover` is refused.
+    plan = Plan(1, 2, "migration", [Handoff("h-r1", "r1", "n2", "n4")], guarantee="advisory")
+    to_undetermined(plan, steps, 50000)
+    outcome = plan.reobserve("h-r1", observation(None, quiesced=True), at=51000)
+    steps.append({
+        "action": "reobserve", "handoff": "h-r1", "at": 51000, "guarantee": "advisory",
+        "observation": observation(None, quiesced=True),
+        "note": "`MOVE-235`: an advisory store cannot establish that no record was written, so "
+                "a resumption that would call `commitCutover` again is refused",
+        "expect": {"outcome": outcome, "state": plan.state("h-r1"),
+                   "failureKind": plan.handoffs["h-r1"].failure_kind},
+    })
+    outcome = plan.reobserve("h-r1", observation(record("n4", 2)), at=52000)
+    steps.append({
+        "action": "reobserve", "handoff": "h-r1", "at": 52000, "guarantee": "advisory",
+        "observation": observation(record("n4", 2)),
+        "note": "an advisory store that does name a record is believed, because the record and "
+                "not the epoch is the authority under `MOVE-281`",
+        "expect": {"outcome": outcome, "state": plan.state("h-r1")},
+    })
+
+    # `MOVE-237`: the other three kinds are refused.
+    for kind, triggers in [
+        ("unverified", HAPPY_PATH[:5] + ["verifyMismatch"]),
+        ("residue", HAPPY_PATH[:6] + ["attemptsExhausted"]),
+        ("rollbackFailed", ["admittedByRatePolicy", "prepareSuccess", "abort",
+                            "attemptsExhausted"]),
+    ]:
+        plan = one_handoff()
+        for index, trigger in enumerate(triggers):
+            plan.step("h-r1", trigger, at=60000 + index * 100)
+        assert plan.handoffs["h-r1"].failure_kind == kind
+        outcome = plan.reobserve("h-r1", observation(record("n4", 2)), at=61000)
+        steps.append({
+            "action": "reobserve", "handoff": "h-r1", "failureKind": kind, "at": 61000,
+            "triggers": triggers,
+            "observation": observation(record("n4", 2)),
+            "note": "`MOVE-237`: each of these kinds names a duty outside the library, which a "
+                    "further observation cannot discharge",
+            "expect": {"outcome": outcome, "state": plan.state("h-r1"),
+                       "failureKind": plan.handoffs["h-r1"].failure_kind},
+        })
+
+    # `MOVE-233`: a handoff that is not in `failed` is refused.
+    plan = one_handoff()
+    plan.step("h-r1", "admittedByRatePolicy", at=70000)
+    outcome = plan.reobserve("h-r1", observation(record("n4", 2)), at=70100)
+    steps.append({
+        "action": "reobserve", "handoff": "h-r1", "at": 70100,
+        "observation": observation(record("n4", 2)),
+        "note": "`MOVE-233`: a re-observation is admitted only from `failed`",
+        "expect": {"outcome": outcome, "state": plan.state("h-r1")},
+    })
+
+    # `SPLIT-171`: a handoff failed after a local split keeps no shard identity to observe.
+    plan = one_handoff()
+    to_undetermined(plan, steps, 80000)
+    plan.handoffs["h-r1"].failed_under_split = True
+    outcome = plan.reobserve("h-r1", observation(record("n4", 2)), at=81000)
+    steps.append({
+        "action": "reobserve", "handoff": "h-r1", "at": 81000, "failedUnderSplit": True,
+        "observation": observation(record("n4", 2)),
+        "note": "`SPLIT-171`: the shard identity of the source snapshot no longer names the "
+                "data, so `MOVE-233` refuses",
+        "expect": {"outcome": outcome, "state": plan.state("h-r1"),
+                   "failureKind": plan.handoffs["h-r1"].failure_kind},
+    })
+
+    register("undetermined-resolves-both-ways",
+             "A cutover whose outcome the library never established is looked at again.  The "
+             "same failure resolves to `verifying` where the record landed, to `cutover` where "
+             "it did not, and to `aborting` where another destination won.  The three failure "
+             "kinds that need an operator are refused, as is an advisory resumption at "
+             "`cutover`.",
+             ["MOVE-011", "MOVE-021", "MOVE-031", "MOVE-102", "MOVE-112", "MOVE-181",
+              "MOVE-211", "MOVE-212", "MOVE-233", "MOVE-234", "MOVE-235", "MOVE-236",
+              "MOVE-237", "MOVE-238", "MOVE-331", "SPLIT-171", "ERR-052"], steps)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--out", default=str(HERE.parent))
@@ -867,6 +1332,9 @@ def main():
     build_coordinator_death_scenarios()
     build_failure_kind_scenarios()
     build_supersession_scenario()
+    build_rebase_survives_scenario()
+    build_rebase_drops_handoff_scenario()
+    build_undetermined_recovery_scenario()
     build_concurrency_scenario()
     build_failover_scenario()
     build_filter_fails_open_scenario()
