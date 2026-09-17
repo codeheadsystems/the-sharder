@@ -3,6 +3,8 @@
   "kind": "routing",
   "description": "Slot placement under derived assignment: the ordering is the rendezvous ordering over the slot index, so two keys in one slot order identically.",
   "requirements": [
+    "CORE-046",
+    "CORE-047",
     "PLACE-042",
     "SLOT-020",
     "SLOT-021",
@@ -57,6 +59,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -106,6 +109,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -155,6 +159,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -204,6 +209,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -253,6 +259,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -302,6 +309,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -351,6 +359,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -400,6 +409,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -449,6 +459,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -498,6 +509,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -547,6 +559,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -596,6 +609,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",

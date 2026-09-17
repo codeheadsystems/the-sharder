@@ -3,6 +3,8 @@
   "kind": "routing",
   "description": "The same empty topology under `ring`, where the ring order itself is empty.",
   "requirements": [
+    "CORE-046",
+    "CORE-047",
     "ERR-020",
     "PLACE-005",
     "RING-024"

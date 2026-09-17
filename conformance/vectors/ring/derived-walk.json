@@ -4,6 +4,8 @@
   "description": "The ring walk under derived tokens: every eligible node appears exactly once, in ring order from the owning entry, wrapping once.",
   "requirements": [
     "CORE-040",
+    "CORE-046",
+    "CORE-047",
     "PLACE-013",
     "PLACE-017",
     "RING-001",
@@ -69,6 +71,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -122,6 +125,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -176,6 +180,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -228,6 +233,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -282,6 +288,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -336,6 +343,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -390,6 +398,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -444,6 +453,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -498,6 +508,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -552,6 +563,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -606,6 +618,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -660,6 +673,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -714,6 +728,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -768,6 +783,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -822,6 +838,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -876,6 +893,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",

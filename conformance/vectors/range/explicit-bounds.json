@@ -3,6 +3,8 @@
   "kind": "routing",
   "description": "Unsigned bytewise bound comparison over half-open intervals, including the prefix rule and the half-open endpoints.",
   "requirements": [
+    "CORE-046",
+    "CORE-047",
     "RANGE-001",
     "RANGE-002",
     "RANGE-003",
@@ -54,6 +56,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -94,6 +97,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -135,6 +139,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -175,6 +180,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -216,6 +222,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -258,6 +265,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -299,6 +307,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -339,6 +348,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",

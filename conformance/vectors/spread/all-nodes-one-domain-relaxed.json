@@ -3,6 +3,8 @@
   "kind": "routing",
   "description": "Every node in one failure domain under `relaxed`: the builder degrades to distinctness alone and reports the relaxed level.",
   "requirements": [
+    "CORE-046",
+    "CORE-047",
     "SPREAD-001",
     "SPREAD-010",
     "SPREAD-011",
@@ -63,6 +65,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 4,
         "relaxedLevels": [
           "zone"
         ],
@@ -120,6 +123,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 4,
         "relaxedLevels": [
           "zone"
         ],
@@ -177,6 +181,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 4,
         "relaxedLevels": [
           "zone"
         ],
@@ -234,6 +239,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 4,
         "relaxedLevels": [
           "zone"
         ],
@@ -291,6 +297,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 4,
         "relaxedLevels": [
           "zone"
         ],

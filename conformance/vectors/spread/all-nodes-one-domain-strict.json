@@ -3,6 +3,8 @@
   "kind": "routing",
   "description": "The same node set under `strict`: a shorter replica prefix rather than a degraded spread.",
   "requirements": [
+    "CORE-046",
+    "CORE-047",
     "REPL-020",
     "REPL-021",
     "SPREAD-014",
@@ -59,6 +61,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 4,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "domains",
@@ -113,6 +116,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 4,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "domains",
@@ -167,6 +171,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 4,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "domains",
@@ -221,6 +226,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 4,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "domains",
@@ -275,6 +281,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 4,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "domains",

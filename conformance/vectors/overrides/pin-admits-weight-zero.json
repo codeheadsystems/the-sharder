@@ -3,6 +3,8 @@
   "kind": "routing",
   "description": "A node of weight 0 places nothing under a derived assignment and still serves a pin.",
   "requirements": [
+    "CORE-046",
+    "CORE-047",
     "OVR-010",
     "PLACE-042",
     "PLACE-043"
@@ -46,6 +48,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -83,6 +86,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 1,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "nodes",

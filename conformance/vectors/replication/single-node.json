@@ -3,6 +3,8 @@
   "kind": "routing",
   "description": "A topology of one node at factor 3.",
   "requirements": [
+    "CORE-046",
+    "CORE-047",
     "REPL-020",
     "REPL-021",
     "REPL-025",
@@ -41,6 +43,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 1,
         "relaxedLevels": [
           "zone"
         ],
@@ -79,6 +82,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 1,
         "relaxedLevels": [
           "zone"
         ],
@@ -117,6 +121,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 1,
         "relaxedLevels": [
           "zone"
         ],

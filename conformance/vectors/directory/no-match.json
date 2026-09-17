@@ -3,6 +3,8 @@
   "kind": "routing",
   "description": "A routing key that no directory entry matches, and an entry whose every node is outside the placement set.",
   "requirements": [
+    "CORE-046",
+    "CORE-047",
     "DIR-010",
     "DIR-011",
     "DIR-012",
@@ -44,6 +46,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 1,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -84,6 +87,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",

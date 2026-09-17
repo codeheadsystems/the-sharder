@@ -3,6 +3,8 @@
   "kind": "routing",
   "description": "Ring placement under authored tokens, including a node of weight 0 that carries tokens and therefore appears in the ordering.",
   "requirements": [
+    "CORE-046",
+    "CORE-047",
     "PLACE-043",
     "PLACE-044",
     "RING-003",
@@ -55,6 +57,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -102,6 +105,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -149,6 +153,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -196,6 +201,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -244,6 +250,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -292,6 +299,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -340,6 +348,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -388,6 +397,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -436,6 +446,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -484,6 +495,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -532,6 +544,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -580,6 +593,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -628,6 +642,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",

@@ -1,7 +1,7 @@
 {
   "suite": "sharder simulation scenarios",
   "scenarioCount": 14,
-  "stepCount": 142,
+  "stepCount": 147,
   "requirementsCovered": [
     "CFG-040",
     "CORE-053",
@@ -21,6 +21,8 @@
     "FAIL-004",
     "FAIL-012",
     "FAIL-013",
+    "FAIL-030",
+    "FAIL-031",
     "FENCE-041",
     "FENCE-051",
     "FENCE-061",
@@ -39,6 +41,8 @@
     "FENCE-181",
     "FENCE-191",
     "FENCE-211",
+    "FENCE-221",
+    "FENCE-231",
     "HEALTH-004",
     "HEALTH-005",
     "HEALTH-020",
@@ -168,15 +172,19 @@
     {
       "file": "scenarios/redirect-walk-depth-limit.json",
       "scenario": "redirect-walk-depth-limit",
-      "description": "A caller follows `currentOwner` refusals, and the walk terminates at the redirect bound or on revisiting a node it already attempted.",
-      "stepCount": 5,
+      "description": "A caller follows `currentOwner` refusals, and the walk terminates at the redirect bound, on revisiting a node it already attempted, on an identity its own snapshot does not carry, or where the retry budget refuses the redirect.",
+      "stepCount": 10,
       "requirements": [
         "CFG-040",
         "ERR-043",
+        "FAIL-030",
+        "FAIL-031",
         "FENCE-171",
         "FENCE-181",
         "FENCE-191",
-        "FENCE-211"
+        "FENCE-211",
+        "FENCE-221",
+        "FENCE-231"
       ]
     },
     {

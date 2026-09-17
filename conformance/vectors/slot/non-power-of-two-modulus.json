@@ -3,6 +3,8 @@
   "kind": "routing",
   "description": "`keyHash mod slotCount` at a slot count of 7, which a bitwise mask cannot reproduce.",
   "requirements": [
+    "CORE-046",
+    "CORE-047",
     "PROP-024",
     "SLOT-001",
     "SLOT-002",
@@ -53,6 +55,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -101,6 +104,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -149,6 +153,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -197,6 +202,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -245,6 +251,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -293,6 +300,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -341,6 +349,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -389,6 +398,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -437,6 +447,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -485,6 +496,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -533,6 +545,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -581,6 +594,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -629,6 +643,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -677,6 +692,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",

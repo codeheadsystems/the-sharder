@@ -3,6 +3,8 @@
   "kind": "routing",
   "description": "Three spread levels, factor 4, and a node set that forces the relaxation ladder past stage 0.  Stage k of `SPREAD-010` enforces the finest m-k levels, which `SPREAD-018` makes equivalent to enforcing `spread[k]` alone, so the chosen stage is the coarsest level at which a full replica prefix exists.  `vectors/spread/relaxation-stages.json` records each stage separately.",
   "requirements": [
+    "CORE-046",
+    "CORE-047",
     "REPL-013",
     "SPREAD-005",
     "SPREAD-010",
@@ -83,6 +85,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "relaxedLevels": [
           "region",
           "zone"
@@ -155,6 +158,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "relaxedLevels": [
           "region",
           "zone"
@@ -227,6 +231,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "relaxedLevels": [
           "region",
           "zone"
@@ -299,6 +304,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "relaxedLevels": [
           "region",
           "zone"
@@ -371,6 +377,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "relaxedLevels": [
           "region",
           "zone"
@@ -443,6 +450,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "relaxedLevels": [
           "region",
           "zone"
@@ -515,6 +523,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "relaxedLevels": [
           "region",
           "zone"
@@ -587,6 +596,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "relaxedLevels": [
           "region",
           "zone"
@@ -659,6 +669,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "relaxedLevels": [
           "region",
           "zone"
@@ -731,6 +742,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "relaxedLevels": [
           "region",
           "zone"
@@ -803,6 +815,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "relaxedLevels": [
           "region",
           "zone"
@@ -875,6 +888,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "relaxedLevels": [
           "region",
           "zone"

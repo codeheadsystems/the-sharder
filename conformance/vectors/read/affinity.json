@@ -3,6 +3,7 @@
   "kind": "readAffinity",
   "description": "`routeForRead` partitions the first `window` entries towards a domain path, stably, and leaves everything at or beyond `window` untouched.",
   "requirements": [
+    "CORE-046",
     "READ-001",
     "READ-010",
     "READ-012",
@@ -101,6 +102,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "replicaCount": 4,
         "shard": "726561642d30"
       }
@@ -191,6 +193,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "replicaCount": 4,
         "shard": "726561642d30"
       }
@@ -281,6 +284,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "replicaCount": 4,
         "shard": "726561642d30"
       }
@@ -371,6 +375,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "replicaCount": 4,
         "shard": "726561642d30"
       }
@@ -462,6 +467,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "replicaCount": 4,
         "shard": "726561642d30"
       }
@@ -553,6 +559,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "replicaCount": 4,
         "shard": "726561642d30"
       }
@@ -644,6 +651,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "replicaCount": 4,
         "shard": "726561642d30"
       }
@@ -734,6 +742,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "replicaCount": 4,
         "shard": "726561642d31"
       }
@@ -824,6 +833,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "replicaCount": 4,
         "shard": "726561642d31"
       }
@@ -914,6 +924,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "replicaCount": 4,
         "shard": "726561642d31"
       }
@@ -1004,6 +1015,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "replicaCount": 4,
         "shard": "726561642d31"
       }
@@ -1095,6 +1107,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "replicaCount": 4,
         "shard": "726561642d31"
       }
@@ -1186,6 +1199,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "replicaCount": 4,
         "shard": "726561642d31"
       }
@@ -1277,6 +1291,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "replicaCount": 4,
         "shard": "726561642d31"
       }
@@ -1367,6 +1382,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "replicaCount": 4,
         "shard": "726561642d32"
       }
@@ -1457,6 +1473,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "replicaCount": 4,
         "shard": "726561642d32"
       }
@@ -1547,6 +1564,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "replicaCount": 4,
         "shard": "726561642d32"
       }
@@ -1637,6 +1655,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "replicaCount": 4,
         "shard": "726561642d32"
       }
@@ -1728,6 +1747,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "replicaCount": 4,
         "shard": "726561642d32"
       }
@@ -1819,6 +1839,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "replicaCount": 4,
         "shard": "726561642d32"
       }
@@ -1910,6 +1931,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "replicaCount": 4,
         "shard": "726561642d32"
       }
@@ -2000,6 +2022,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "replicaCount": 4,
         "shard": "726561642d33"
       }
@@ -2090,6 +2113,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "replicaCount": 4,
         "shard": "726561642d33"
       }
@@ -2180,6 +2204,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "replicaCount": 4,
         "shard": "726561642d33"
       }
@@ -2270,6 +2295,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "replicaCount": 4,
         "shard": "726561642d33"
       }
@@ -2361,6 +2387,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "replicaCount": 4,
         "shard": "726561642d33"
       }
@@ -2452,6 +2479,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "replicaCount": 4,
         "shard": "726561642d33"
       }
@@ -2543,6 +2571,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "replicaCount": 4,
         "shard": "726561642d33"
       }
@@ -2633,6 +2662,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "replicaCount": 4,
         "shard": "726561642d34"
       }
@@ -2723,6 +2753,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "replicaCount": 4,
         "shard": "726561642d34"
       }
@@ -2813,6 +2844,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "replicaCount": 4,
         "shard": "726561642d34"
       }
@@ -2903,6 +2935,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "replicaCount": 4,
         "shard": "726561642d34"
       }
@@ -2994,6 +3027,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "replicaCount": 4,
         "shard": "726561642d34"
       }
@@ -3085,6 +3119,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "replicaCount": 4,
         "shard": "726561642d34"
       }
@@ -3176,6 +3211,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "replicaCount": 4,
         "shard": "726561642d34"
       }
@@ -3266,6 +3302,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "replicaCount": 4,
         "shard": "726561642d35"
       }
@@ -3356,6 +3393,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "replicaCount": 4,
         "shard": "726561642d35"
       }
@@ -3446,6 +3484,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "replicaCount": 4,
         "shard": "726561642d35"
       }
@@ -3536,6 +3575,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "replicaCount": 4,
         "shard": "726561642d35"
       }
@@ -3627,6 +3667,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "replicaCount": 4,
         "shard": "726561642d35"
       }
@@ -3718,6 +3759,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "replicaCount": 4,
         "shard": "726561642d35"
       }
@@ -3809,6 +3851,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 6,
         "replicaCount": 4,
         "shard": "726561642d35"
       }

@@ -57,6 +57,9 @@ The corpus uses these terms as defined here and does not redefine them in passin
   are the deterministic fallback tail.
 - **candidate ordering**. The total ordering over eligible nodes that a placement strategy produces
   for a routing key, before replication rules are applied.
+- **materialised prefix**. The portion of a preference list a routing decision carries: the replicas
+  and the attempts the resolved attempt limit permits, whichever is longer. The rest of the list is
+  computed on demand.
 - **fallback tail**. The portion of a preference list beyond position `r`, the achieved replica
   count, walked when a replica is unreachable. Under a replication shortfall `r` is below `n`, so
   the tail begins earlier than the replication factor alone would place it.
@@ -127,9 +130,11 @@ The corpus uses these terms as defined here and does not redefine them in passin
 - **read affinity**. An explicitly requested reordering of the replicas of a preference list towards
   a named failure domain path, available on a separate read call. It changes neither ownership nor
   the replica set, and the write path keeps the unreordered list.
-- **routing decision**. The result of a routing call: the preference list with each entry's role and
-  position, the shard the key was selected for, the effective replication factor, the achieved
-  replica count, and the fencing token of the snapshot used.
+- **routing decision**. The result of a routing call: a bounded prefix of the preference list with
+  each entry's role and position, the shard the key was selected for, the effective replication
+  factor, the achieved replica count, and the fencing token of the snapshot used. The prefix spans
+  the replicas and the attempts the resolved limit permits, and the whole list is answered on
+  demand.
 - **explain record**. The structured account of how a routing decision was reached, listing the
   routing key, the matched override, the strategy inputs, the candidate ordering, and every node
   excluded with the reason for exclusion.

@@ -3,6 +3,8 @@
   "kind": "routing",
   "description": "An empty `nodes` array is valid at load time and yields no candidate at route time.",
   "requirements": [
+    "CORE-046",
+    "CORE-047",
     "ERR-020",
     "ERR-021",
     "PLACE-005"

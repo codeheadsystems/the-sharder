@@ -3,6 +3,8 @@
   "kind": "routing",
   "description": "The tenant routing example of `20-topology-format.md`, with the key transform, an exact pin, and a residency constraint.",
   "requirements": [
+    "CORE-046",
+    "CORE-047",
     "KEY-041",
     "OVR-001",
     "OVR-002",
@@ -58,6 +60,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -104,6 +107,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -159,6 +163,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -212,6 +217,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -252,6 +258,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -308,6 +315,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -361,6 +369,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -414,6 +423,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -467,6 +477,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -520,6 +531,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -573,6 +585,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",

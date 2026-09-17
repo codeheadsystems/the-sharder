@@ -1,7 +1,7 @@
 {
   "specification": "docs/design/10-specification.md",
-  "statedRequirements": 658,
-  "coveredRequirements": 432,
+  "statedRequirements": 663,
+  "coveredRequirements": 437,
   "uncoveredRequirements": 226,
   "coveragePercent": 65,
   "identifiersNamedButNotStated": [],
@@ -43,8 +43,8 @@
     {
       "prefix": "CORE",
       "section": "Core model",
-      "stated": 51,
-      "covered": 8,
+      "stated": 53,
+      "covered": 10,
       "uncovered": [
         "CORE-001",
         "CORE-010",
@@ -90,7 +90,7 @@
         "CORE-100",
         "CORE-101"
       ],
-      "percent": 15
+      "percent": 18
     },
     {
       "prefix": "HASH",
@@ -164,8 +164,8 @@
     {
       "prefix": "FAIL",
       "section": "Replication and failover",
-      "stated": 29,
-      "covered": 15,
+      "stated": 30,
+      "covered": 16,
       "uncovered": [
         "FAIL-005",
         "FAIL-010",
@@ -182,7 +182,7 @@
         "FAIL-044",
         "FAIL-045"
       ],
-      "percent": 51
+      "percent": 53
     },
     {
       "prefix": "HEALTH",
@@ -364,8 +364,8 @@
     {
       "prefix": "FENCE",
       "section": "Topology change and rebalancing",
-      "stated": 25,
-      "covered": 22,
+      "stated": 27,
+      "covered": 24,
       "uncovered": [
         "FENCE-011",
         "FENCE-161",
@@ -491,6 +491,73 @@
     "SLOT-023": [
       "vectors/adversarial/colliding-keys.json",
       "vectors/slot/derived-assignment.json"
+    ],
+    "CORE-046": [
+      "vectors/adversarial/empty-topology-ring.json",
+      "vectors/adversarial/empty-topology.json",
+      "vectors/adversarial/weight-zero-all.json",
+      "vectors/adversarial/weight-zero.json",
+      "vectors/directory/matcher-precedence.json",
+      "vectors/directory/no-match.json",
+      "vectors/overrides/pin-admits-weight-zero.json",
+      "vectors/overrides/precedence-and-composition.json",
+      "vectors/range/derived-assignment.json",
+      "vectors/range/explicit-bounds.json",
+      "vectors/read/affinity.json",
+      "vectors/rendezvous/cache-hash-tags.json",
+      "vectors/rendezvous/ordering.json",
+      "vectors/rendezvous/tenant-router.json",
+      "vectors/rendezvous/virtual-node-cap.json",
+      "vectors/replication/factor-exceeds-node-count.json",
+      "vectors/replication/fallback-tail.json",
+      "vectors/replication/single-node.json",
+      "vectors/ring/administrative-states.json",
+      "vectors/ring/derived-walk.json",
+      "vectors/ring/derived-zoned.json",
+      "vectors/ring/explicit-tokens.json",
+      "vectors/ring/non-default-seed.json",
+      "vectors/ring/weight-zero.json",
+      "vectors/slot/derived-assignment.json",
+      "vectors/slot/explicit-assignment.json",
+      "vectors/slot/non-power-of-two-modulus.json",
+      "vectors/spread/all-nodes-one-domain-relaxed.json",
+      "vectors/spread/all-nodes-one-domain-strict.json",
+      "vectors/spread/applies-to-pinned-ordering.json",
+      "vectors/spread/degradation-ladder.json",
+      "vectors/spread/skipped-level.json"
+    ],
+    "CORE-047": [
+      "vectors/adversarial/empty-topology-ring.json",
+      "vectors/adversarial/empty-topology.json",
+      "vectors/adversarial/weight-zero-all.json",
+      "vectors/adversarial/weight-zero.json",
+      "vectors/directory/matcher-precedence.json",
+      "vectors/directory/no-match.json",
+      "vectors/overrides/pin-admits-weight-zero.json",
+      "vectors/overrides/precedence-and-composition.json",
+      "vectors/range/derived-assignment.json",
+      "vectors/range/explicit-bounds.json",
+      "vectors/rendezvous/cache-hash-tags.json",
+      "vectors/rendezvous/ordering.json",
+      "vectors/rendezvous/tenant-router.json",
+      "vectors/rendezvous/virtual-node-cap.json",
+      "vectors/replication/factor-exceeds-node-count.json",
+      "vectors/replication/fallback-tail.json",
+      "vectors/replication/single-node.json",
+      "vectors/ring/administrative-states.json",
+      "vectors/ring/derived-walk.json",
+      "vectors/ring/derived-zoned.json",
+      "vectors/ring/explicit-tokens.json",
+      "vectors/ring/non-default-seed.json",
+      "vectors/ring/weight-zero.json",
+      "vectors/slot/derived-assignment.json",
+      "vectors/slot/explicit-assignment.json",
+      "vectors/slot/non-power-of-two-modulus.json",
+      "vectors/spread/all-nodes-one-domain-relaxed.json",
+      "vectors/spread/all-nodes-one-domain-strict.json",
+      "vectors/spread/applies-to-pinned-ordering.json",
+      "vectors/spread/degradation-ladder.json",
+      "vectors/spread/skipped-level.json"
     ],
     "ERR-020": [
       "vectors/adversarial/empty-topology-ring.json",
@@ -775,9 +842,11 @@
       "vectors/formulas/failover.json"
     ],
     "FAIL-030": [
+      "scenarios/redirect-walk-depth-limit.json",
       "vectors/formulas/failover.json"
     ],
     "FAIL-031": [
+      "scenarios/redirect-walk-depth-limit.json",
       "vectors/formulas/failover.json"
     ],
     "FAIL-032": [
@@ -1813,6 +1882,9 @@
       "scenarios/failover-and-recovery.json",
       "scenarios/health-filter-fails-open.json"
     ],
+    "FAIL-014": [
+      "properties/properties.json"
+    ],
     "ERR-032": [
       "scenarios/topology-rollback.json"
     ],
@@ -1898,6 +1970,12 @@
       "scenarios/redirect-walk-depth-limit.json"
     ],
     "FENCE-211": [
+      "scenarios/redirect-walk-depth-limit.json"
+    ],
+    "FENCE-221": [
+      "scenarios/redirect-walk-depth-limit.json"
+    ],
+    "FENCE-231": [
       "scenarios/redirect-walk-depth-limit.json"
     ],
     "MOVE-001": [

@@ -55,7 +55,7 @@ unknown kind fails rather than skipping the file.
 | `keyTransform` | a key | the routing key |
 | `digest` | a document | the canonical form, its length, and the digest |
 | `validation` | a document | validity, the rules broken, and the errors |
-| `routing` | a key | the whole routing decision, or the condition raised |
+| `routing` | a key | the whole routing decision, the preference list behind it, or the condition raised |
 | `shards` | a topology | `shards()`, `shardOf`, and `candidatesForShard` |
 | `readAffinity` | a key and an affinity request | the preference list and the reordered list |
 | `permutation` | a document and its permutation | the orderings, asserted equal |
@@ -102,6 +102,7 @@ A `routing` case carries either `expect` or `expectError`, never both.
   "replicaCount": 1,
   "candidates": ["cluster-us-2", "cluster-us-1"],
   "preferenceList": [ { "node": "cluster-us-2", "position": 0, "role": "replica" } ],
+  "materialisedEntries": 2,
   "relaxedLevels": [],
   "spreadStage": 0,
   "shortfall": "none",
@@ -112,6 +113,12 @@ A `routing` case carries either `expect` or `expectError`, never both.
 ```json
 "expectError": { "code": 101, "name": "noCandidate", "cause": "constraintExcludedAll" }
 ```
+
+`preferenceList` is the whole list of `REPL-014`, which `CORE-047` answers on demand, and
+`materialisedEntries` is the count of entries `CORE-046` bounds the decision's own `entries` at. A
+port compares `preferenceList` against the accessor and `materialisedEntries` against the length of
+the decision's `entries`, so a port that materialises the whole ordering on every call fails the
+second while passing the first.
 
 `spreadStage` is the relaxation stage `SPREAD-012` selects. It is not a member of `RoutingDecision`,
 which reports the relaxed levels rather than the stage index, and it is carried in the vector
@@ -390,11 +397,11 @@ the identifiers the suite names. The table below is transcribed from it.
 | Section | Prefix | Stated | Covered | Uncovered |
 |---|---|---|---|---|
 | Configuration surface | `CFG-*` | 30 | 5 | 25 |
-| Core model | `CORE-*` | 51 | 8 | 43 |
+| Core model | `CORE-*` | 53 | 10 | 43 |
 |  | `HASH-*` | 19 | 15 | 4 |
 | Error taxonomy | `ERR-*` | 36 | 26 | 10 |
 | Observability | `OBS-*` | 32 | 4 | 28 |
-| Replication and failover | `FAIL-*` | 29 | 15 | 14 |
+| Replication and failover | `FAIL-*` | 30 | 16 | 14 |
 |  | `HEALTH-*` | 40 | 19 | 21 |
 |  | `READ-*` | 12 | 9 | 3 |
 |  | `REPL-*` | 20 | 15 | 5 |
@@ -409,14 +416,14 @@ the identifiers the suite names. The table below is transcribed from it.
 |  | `RV-*` | 11 | 11 | 0 |
 |  | `SLOT-*` | 17 | 16 | 1 |
 | Security and multi-tenancy | `SEC-*` | 20 | 7 | 13 |
-| Topology change and rebalancing | `FENCE-*` | 25 | 22 | 3 |
+| Topology change and rebalancing | `FENCE-*` | 27 | 24 | 3 |
 |  | `MOVE-*` | 51 | 29 | 22 |
 |  | `RATE-*` | 15 | 10 | 5 |
 |  | `SPLIT-*` | 22 | 13 | 9 |
 |  | `TOPO-*` | 26 | 18 | 8 |
-| Total | | 658 | 432 | 226 |
+| Total | | 663 | 437 | 226 |
 
-The suite names 432 of the 658 requirements the specification states. The section below
+The suite names 437 of the 663 requirements the specification states. The section below
 names what the remaining 226 are and why no data file carries them.
 
 ## Requirements without an executable test
@@ -538,7 +545,7 @@ and `RV-022` required an equality that holds only under the first reading while 
 implements the second. `RV-020` now names the hexadecimal and `PLACE-032` and `RV-022` state the
 decode.
 
-The specification states 658 requirement identifiers, each introduced as a backticked identifier
+The specification states 663 requirement identifiers, each introduced as a backticked identifier
 followed by a full stop at the start of a line, with no duplicate. `coverage.py` extracts them and
 `run.sh` fails where the suite names one the specification does not state.
 

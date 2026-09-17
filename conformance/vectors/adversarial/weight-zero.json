@@ -3,6 +3,8 @@
   "kind": "routing",
   "description": "Nodes of weight 0 stay in the placement set, receive no virtual node, and never reach a candidate ordering under a derived assignment.",
   "requirements": [
+    "CORE-046",
+    "CORE-047",
     "PLACE-042",
     "PLACE-043",
     "REPL-020",
@@ -47,6 +49,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -89,6 +92,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -131,6 +135,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -173,6 +178,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",

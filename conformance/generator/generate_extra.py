@@ -451,7 +451,7 @@ def build_ring_and_pin_cases(root):
                       "key": key_spec(key), "expect": decision})
     emit(root, "vectors/ring/weight-zero.json", "ring-weight-zero", "routing",
          "A node of weight 0 under derived token assignment owns no token and never appears.",
-         ["RING-001", "RING-002", "PLACE-042", "PLACE-043"], cases,
+         ["RING-001", "RING-002", "PLACE-042", "PLACE-043", "CORE-046", "CORE-047"], cases,
          topology="topologies/ring-weight-zero.topology.json")
 
     snapshot = Snapshot(RING_PINNED)
@@ -494,7 +494,7 @@ def build_ring_and_pin_cases(root):
     emit(root, "vectors/spread/applies-to-pinned-ordering.json",
          "spread-applies-to-pinned-ordering", "routing",
          "A pin is exempt from the balance and movement bounds and is not exempt from spread.",
-         ["SPREAD-004", "OVR-013", "PROP-050", "REPL-013"], cases,
+         ["SPREAD-004", "OVR-013", "PROP-050", "REPL-013", "CORE-046", "CORE-047"], cases,
          topology="topologies/spread-pinned.topology.json")
 
 

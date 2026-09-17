@@ -459,7 +459,8 @@ def run_scenarios(root, verbose):
                     checked += 1
                 elif action == "redirectWalk":
                     result = fencing.redirect_walk(step["start"], step["refusals"],
-                                                   step["maxRedirects"])
+                                                   step["maxRedirects"], step.get("nodes"),
+                                                   step.get("budget"))
                     compare(action + "." + step["name"], result, step["expect"])
                     checked += 1
                 else:

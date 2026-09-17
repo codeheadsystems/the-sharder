@@ -522,19 +522,20 @@ PROPERTIES = [
     {
         "id": "P-ATTEMPT-001",
         "name": "Attempt sequence subsequence",
-        "requirements": ["FAIL-002", "FAIL-003", "FAIL-004", "FAIL-012"],
+        "requirements": ["FAIL-002", "FAIL-003", "FAIL-004", "FAIL-012", "FAIL-014"],
         "level": "core",
-        "statement": "The attempt sequence is an order-preserving subsequence of the preference "
-                     "list.  The primary is the head of the preference list whatever its health "
-                     "state.  A non-empty preference list never yields an empty attempt "
-                     "sequence.",
+        "statement": "The attempt sequence is an order-preserving subsequence of the whole "
+                     "preference list and not of the materialised prefix the decision carries.  "
+                     "The primary is the head of the preference list whatever its health state.  "
+                     "A non-empty preference list never yields an empty attempt sequence.",
         "quantifier": "for every topology, every key of the sample, and every assignment of "
                       "health states",
         "sample": dict(SAMPLE, count=1000),
         "check": {"form": "invariant",
                   "statement": "attemptSequence is a subsequence of preferenceList; "
                                "primary == preferenceList[0]; attemptSequence is non-empty "
-                               "wherever preferenceList is"},
+                               "wherever preferenceList is; an entry beyond materialisedEntries "
+                               "is attemptable where the health filter admits it"},
         "witness": "scenarios/health-filter-fails-open.json",
     },
 ]

@@ -3,6 +3,8 @@
   "kind": "routing",
   "description": "Ring placement under a non-default hash seed.  Every other vector in the suite uses the sixteen zero octets.",
   "requirements": [
+    "CORE-046",
+    "CORE-047",
     "SEC-010",
     "SEC-011",
     "SEC-012"
@@ -58,6 +60,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 4,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -112,6 +115,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 4,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -166,6 +170,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 4,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -220,6 +225,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 4,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -274,6 +280,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 4,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -328,6 +335,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 4,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",

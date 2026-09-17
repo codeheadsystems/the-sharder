@@ -3,6 +3,8 @@
   "kind": "routing",
   "description": "A node of weight 0 under derived token assignment owns no token and never appears.",
   "requirements": [
+    "CORE-046",
+    "CORE-047",
     "PLACE-042",
     "PLACE-043",
     "RING-001",
@@ -44,6 +46,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -85,6 +88,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -126,6 +130,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -167,6 +172,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -208,6 +214,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -249,6 +256,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",

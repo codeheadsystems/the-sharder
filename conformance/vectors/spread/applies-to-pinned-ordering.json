@@ -3,6 +3,8 @@
   "kind": "routing",
   "description": "A pin is exempt from the balance and movement bounds and is not exempt from spread.",
   "requirements": [
+    "CORE-046",
+    "CORE-047",
     "OVR-013",
     "PROP-050",
     "REPL-013",
@@ -58,6 +60,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 4,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -116,6 +119,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 4,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",

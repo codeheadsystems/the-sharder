@@ -336,7 +336,7 @@ record PreferenceEntry:
     node        : NodeId
     position    : u32                             # zero-based, REPL-017
     role        : one of { replica, fallback }    # REPL-017
-    health      : HealthState                     # at the instant of the decision, FAIL-013
+    health      : HealthState                     # when the entry was materialised, FAIL-013
     attemptable : boolean                         # HEALTH-005
 
 record RoutingDecision:
@@ -347,7 +347,7 @@ record RoutingDecision:
     replicaCount    : u32                         # the achieved replica count r, REPL-020
     primary         : NodeId                      # the head of entries, CORE-042
     attemptLimit    : u32                         # resolved at route time, FAIL-021 and FAIL-022
-    entries         : list<PreferenceEntry>       # the preference list, unreordered, READ-016
+    entries         : list<PreferenceEntry>       # a prefix of the list, unreordered, CORE-046
     ordered         : list<PreferenceEntry>       # after read affinity; equals entries otherwise
     relaxedLevels   : list<string>                # SPREAD-015
     shortfall       : one of { none, nodes, domains }   # REPL-021
@@ -372,6 +372,30 @@ produced the decision.
 
 `CORE-045`. `attemptLimit` MUST be the limit `FAIL-022` resolves for the decision. `attempts` MUST
 take the limit from the decision and MUST NOT resolve it again.
+
+`CORE-046`. `entries` MUST hold a prefix of the preference list of `REPL-014`. The length of that
+prefix, the **materialised prefix**, MUST be the lesser of the length of the preference list and the
+greater of the achieved replica count `r` and the attempt limit `FAIL-022` resolves before its
+clamp. `entries` MUST NOT hold an entry beyond it. A routing call MUST NOT compute one except where
+`FAIL-012` and `FAIL-014` require it, and MUST NOT read a health state for a node named by no entry
+it computes. The length MUST be a function of the snapshot, the routing key, and the resolved limit
+alone. Two callers whose health views differ therefore materialise the same entries. `ordered` MUST
+hold the same prefix after the reordering of `READ-013`, which `READ-012` confines to the first `r`
+positions.
+
+`CORE-047`. A routing decision MUST expose the whole preference list on demand.
+
+```
+preferenceList(decision: RoutingDecision) -> list<PreferenceEntry>
+```
+
+It MUST answer the preference list `REPL-014` defines, complete, with the roles and positions of
+`REPL-017`, computed from the snapshot the decision was taken against and the decision's
+`routingKey`. An entry beyond the materialised prefix MUST carry the health state read at the
+instant of the call. The call MUST NOT change the decision, MUST NOT change a snapshot, a health
+state, or a retry budget, and MUST be safe for any number of units of execution under `CORE-056`. A
+routing call MUST NOT make it. A routing decision MUST retain the snapshot it was computed from,
+which `TOPO-101` makes immutable and `CORE-055` keeps readable.
 
 ### Snapshot visibility
 
@@ -991,9 +1015,15 @@ Under `directory` a routing call evaluates the matcher table under `DIR-001` and
 indexed under `SEC-033`, and the longest matching `prefix` is `entryCount` comparisons over a table
 that is not.
 
-`PLACE-071`. Under `ring`, `slot`, `range`, and `directory` the lazy prefix property of `PLACE-015`
-removes the cost of the ordering a caller does not consume, which under `ring` is the walk beyond
-the `p` entries the caller reads. Under `rendezvous` it does not: `RV-003` and `RV-010` determine
+`PLACE-071`. The routing decision bounds `p`. `CORE-046` materialises the greater of the achieved
+replica count and the resolved attempt limit, and `FAIL-014` extends the walk only where the health
+filter skips an entry, so `p` is that bound raised by the count of entries skipped. `p` reaches the
+whole ordering only where `FAIL-012` fails the filter open, which requires every entry to be
+skipped. `CORE-047` and `OBS-046` are the two surfaces that consume the whole ordering
+unconditionally, and a routing call makes neither.
+Under `ring`, `slot`, `range`, and `directory` the lazy prefix property of `PLACE-015` removes the
+cost of the ordering a caller does not consume, which under `ring` is the walk beyond the `p`
+entries the caller reads. Under `rendezvous` it does not: `RV-003` and `RV-010` determine
 the first candidate from the scores of the whole eligible node set, so no prefix of the scoring
 answers the call. Laziness under `rendezvous` removes the `N log N` ordering term and leaves the `V`
 scoring term, which is the dominant one.
@@ -2131,9 +2161,16 @@ key belongs to. None of these is a caller-supplied input to a routing call.
 list. Where every entry is skipped, the attempt sequence MUST be the whole preference list, ordered
 as the preference list orders it, and the routing decision MUST record that the filter failed open.
 
-`FAIL-013`. The routing decision MUST expose the preference list, each entry's role, each entry's
-position, and each entry's health state at the instant the decision was made. A caller that needs
-the unfiltered list MUST be able to obtain it from the decision.
+`FAIL-013`. The routing decision MUST expose the entries of its materialised prefix under
+`CORE-046`, each entry's role, each entry's position, and each entry's health state at the instant
+the entry was materialised. A caller that needs the whole unfiltered list MUST be able to obtain it
+from the decision under `CORE-047`, without supplying the key and without a second routing call.
+
+`FAIL-014`. The attempt sequence MUST be drawn from the whole preference list and MUST NOT be
+confined to the materialised prefix. Where the health filter skips an entry of that prefix, an
+implementation MUST continue along the preference list until the attempt sequence holds as many
+attemptable entries as the resolved attempt limit permits or the preference list is spent.
+Continuing MUST NOT change `entries`, whose length `CORE-046` fixes.
 
 ### Attempt depth and exhaustion
 
@@ -2144,8 +2181,8 @@ attempt a node, and MUST NOT retry anything.
 rather than in preference list positions. The attempt sequence MUST be truncated to that limit.
 
 `FAIL-022`. The attempt limit in force for a routing decision MUST be resolved in this order: the
-value `RouteOptions` supplies, where it supplies one; otherwise the configured `attemptLimit` of
-`CFG-020`. Where the integrator configures no value, `CFG-020` supplies `n + 2` against the
+value `RouteOptions` supplies, where it supplies one; otherwise the configured `attemptLimit`
+of `CFG-020`. Where the integrator configures no value, `CFG-020` supplies `n + 2` against the
 decision's effective replication factor. The resolved limit MUST be clamped to the length of the
 attempt sequence. An implementation MUST NOT consult the configured setting where `RouteOptions`
 supplies a limit, and MUST NOT bypass the configured setting where it does not. A topology at factor
@@ -2159,10 +2196,12 @@ interface AttemptSequence:
     next() -> NodeId | exhausted
     recordOutcome(node: NodeId, outcome: Outcome, at: Instant)
     remaining() -> u32
+    followRedirect(owner: NodeId, at: Instant) -> Result<NodeId, Error>
 ```
 
 `next` answers the next attemptable entry in preference list order, or `exhausted`. `recordOutcome`
 forwards a `HealthSignal` to the health view and accounts the attempt against the retry budget.
+`followRedirect` is the redirect walk of `FENCE-221`.
 
 `FAIL-024`. `next` MUST answer `exhausted` when the attempt limit is reached, when the retry budget
 refuses a further attempt, or when the preference list is spent, whichever comes first.
@@ -2170,12 +2209,12 @@ refuses a further attempt, or when the preference list is spent, whichever comes
 `FAIL-025`. An exhausted attempt sequence and an empty preference list MUST be distinct conditions.
 An empty eligible node set, or a strategy that matches no entry, yields the no-candidate condition
 (`ERR-*`). An attempt sequence that runs out after at least one attempt yields the exhaustion
-condition (`ERR-*`), which carries the preference list, the attempted node identities in order, the
-outcome recorded for each, and the fencing token.
+condition (`ERR-*`), which carries the decision's materialised prefix under `CORE-046`, the
+attempted node identities in order, the outcome recorded for each, and the fencing token.
 
-`FAIL-026`. Exhaustion MUST emit an event carrying the attempted count, the preference list length,
-the shard identifier where the strategy names shards, and the fencing token. `REPL-023` applies to
-it unchanged.
+`FAIL-026`. Exhaustion MUST emit an event carrying the attempted count, the materialised prefix
+length, the shard identifier where the strategy names shards, and the fencing token. `REPL-023`
+applies to it unchanged.
 
 `FAIL-027`. An implementation MUST NOT wait, sleep, or back off inside a routing call. Spacing
 between attempts belongs to the caller.
@@ -2187,7 +2226,7 @@ cannot multiply the request rate the cluster sees.
 
 `FAIL-030`. An implementation MUST account, over a sliding window of `retryBudgetWindowMillis`, the
 count of first attempts and the count of retries. The first `next` of an attempt sequence is a first
-attempt; every later `next` is a retry.
+attempt; every later `next` is a retry, and a redirect followed under `FENCE-221` is a retry.
 
 `FAIL-031`. A retry MUST be permitted exactly when this holds over the window, evaluated in unsigned
 integer arithmetic.
@@ -2562,8 +2601,9 @@ only where they do not. A destination that has not committed cutover MUST refuse
 #### Caller behaviour when fenced
 
 `FENCE-171`. A caller that receives a refusal naming a `currentOwner` MAY retry the request against
-that node. It MUST resolve the node's address from the `nodes` list of its own snapshot, which
-includes nodes outside the placement set, and MUST refuse to retry where the identity is absent.
+that node, and MUST NOT follow a redirect that `FENCE-221` refuses. It MUST resolve the node's
+address from the `nodes` list of its own snapshot, which includes nodes outside the placement set,
+and MUST refuse to retry where the identity is absent.
 
 `FENCE-181`. A caller MUST NOT follow more than a bounded number of such redirects for one request.
 The bound is an integer supplied by the integrator and defaults to 2.
@@ -2575,8 +2615,29 @@ request. A redirect that names an already attempted node MUST terminate the walk
 SHOULD request a topology refresh before retrying, and MUST NOT install that epoch on the strength
 of the refusal.
 
-`FENCE-211`. A caller that exhausts its redirect bound MUST surface the condition in `ERR-*` and
-MUST NOT fall back to an arbitrary node.
+`FENCE-211`. A caller whose redirect walk is refused under `FENCE-221` MUST surface the condition in
+`ERR-*` and MUST NOT fall back to an arbitrary node.
+
+`FENCE-221`. An implementation MUST expose the redirect walk on the attempt sequence of `FAIL-023`,
+which holds the identities already attempted for the request, the bound of `CFG-040`, and the retry
+budget of `FAIL-030`.
+
+```
+followRedirect(owner: NodeId, at: Instant) -> Result<NodeId, Error>
+```
+
+It MUST answer `owner` where the walk continues, and MUST otherwise answer the redirect-exhaustion
+condition of `ERR-043` carrying the cause that requirement names. It MUST evaluate the refusals in
+this order: the bound of `FENCE-181`, an identity already attempted under `FENCE-191`, an identity
+absent from the snapshot's `nodes` under `FENCE-171`, and last the retry budget of `FAIL-031`. A
+walk refused for one of the first three reasons MUST NOT be accounted against the budget.
+
+`FENCE-231`. A followed redirect MUST be accounted against the retry budget of `FAIL-030` as a
+retry, and MUST NOT count against the attempt limit of `FAIL-021`. `maxRedirects` bounds the
+redirect walk, the attempt limit bounds the preference list walk, and the retry budget spans both. A
+redirect is never a first attempt, so `FAIL-032` does not exempt one. Where the budget refuses a
+redirect, an implementation MUST count the refusal in `sharder.attempts.retries_refused` and MUST
+NOT count the redirect in `sharder.fencing.redirects`.
 
 ### Shard ownership handoff
 
@@ -3212,7 +3273,7 @@ response MUST be this one.
 | `notOwner` | retry at `currentOwner`, bounded by `maxRedirects` |
 | `epochMismatch` | refresh the topology, then retry |
 | `identityMismatch` | operator action; epochs under two identifiers are incomparable |
-| `redirectExhausted` | surface the failure; do not fall back to an arbitrary node |
+| `redirectExhausted` | surface the failure; a `retryBudget` cause means the cluster is shedding |
 | `planRefused` | correct the snapshots or the policy member named in `cause` |
 | `quiesced` | retry after the window, which `cutoverGraceMillis` bounds |
 | `handoffFailed` | operator action, directed by the failure kind in `cause` |
@@ -3235,9 +3296,9 @@ topology under `explicit` token assignment in which no eligible node carries a t
 total over the cases of `ERR-020`, so an implementation MUST NOT report `noCandidate` with no cause.
 
 `ERR-022`. `exhausted` MUST be raised where the attempt sequence answers `exhausted` after at least
-one attempt, under `FAIL-025`. It MUST carry the preference list, the attempted node identities in
-order, the outcome recorded for each, and a `cause` from the closed set `preferenceList`,
-`attemptLimit`, and `retryBudget`, under `FAIL-034`.
+one attempt, under `FAIL-025`. It MUST carry the decision's materialised prefix under `CORE-046`,
+the attempted node identities in order, the outcome recorded for each, and a `cause` from the closed
+set `preferenceList`, `attemptLimit`, and `retryBudget`, under `FAIL-034`.
 
 `ERR-023`. `unready` MUST be raised where a routing call, an explain call, or a recipient check runs
 with no snapshot in force. A recipient whose verdict has `relation` of `unknownEpoch` MUST report
@@ -3289,8 +3350,14 @@ the recipient's `localToken` and a `cause` of `senderBehind` or `senderAhead`.
 `ERR-042`. `identityMismatch` MUST be raised where a verdict has `relation` of `identityMismatch`
 under `FENCE-111`. It MUST NOT be reported as `epochMismatch`, because no refresh resolves it.
 
-`ERR-043`. `redirectExhausted` MUST be raised where a caller reaches `maxRedirects` under
-`FENCE-181` or is redirected to a node it has already attempted under `FENCE-191`.
+`ERR-043`. `redirectExhausted` MUST be raised where the redirect walk of `FENCE-221` refuses to
+continue. It MUST carry a `cause` from the closed set `boundReached`, `revisitedNode`,
+`unknownNode`, and `retryBudget`: `boundReached` where the caller has followed `maxRedirects`
+redirects under `FENCE-181`, `revisitedNode` where the redirect names a node already attempted for
+the request under `FENCE-191`, `unknownNode` where the redirect names an identity absent from the
+caller's snapshot under `FENCE-171`, and `retryBudget` where the budget of `FAIL-031` refuses the
+redirect under `FENCE-231`. The set is total over the ways the walk ends without a node, so an
+implementation MUST NOT report `redirectExhausted` with no cause.
 
 `ERR-044`. An unfenced request that `strict` refuses MUST be reported as `epochMismatch` with a
 `cause` of `unfenced`, under `FENCE-041`.
@@ -3390,7 +3457,7 @@ Counters.
 | `routing.errors` | `topology_id`, `code` | conditions raised, by numeric code |
 | `attempts.total` | `topology_id`, `role`, `outcome` | attempts recorded |
 | `attempts.exhausted` | `topology_id`, `cause` | exhaustions by cause |
-| `attempts.retries_refused` | `topology_id` | retries the budget refused |
+| `attempts.retries_refused` | `topology_id` | retries and redirects the budget refused |
 | `health.transitions` | `topology_id`, `from`, `to` | health state transitions |
 | `health.ejections` | `node` | entries into `unavailable` |
 | `health.ejections_refused` | `topology_id` | transitions the ceiling refused |
@@ -3421,7 +3488,7 @@ Histograms.
 | Name | Labels | Meaning |
 |---|---|---|
 | `routing.duration_millis` | `topology_id` | time spent in a routing call |
-| `routing.preference_list_length` | `topology_id` | length of the preference list |
+| `routing.preference_list_length` | `topology_id` | length of the materialised prefix |
 | `routing.replica_count` | `topology_id` | the achieved replica count `r` |
 | `topology.prepare_duration_millis` | `topology_id` | time in stage 6 of `TOPO-001` |
 | `migration.hook_duration_millis` | `hook`, `outcome` | time in each movement hook |

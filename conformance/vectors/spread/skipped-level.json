@@ -3,6 +3,8 @@
   "kind": "routing",
   "description": "`domainLevels` of region, zone, and rack with a `spread` of rack alone.  A domain path under `SPREAD-006` spans every declared level through the level compared, so two nodes in rack `k1` under different zones occupy distinct rack domains and both may hold a replica.  A port that scoped the path to `replication.spread` would compare the rack identifier alone and skip the second of them.",
   "requirements": [
+    "CORE-046",
+    "CORE-047",
     "REPL-013",
     "SPREAD-001",
     "SPREAD-005",
@@ -72,6 +74,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 4,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -134,6 +137,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 4,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -196,6 +200,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 4,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -258,6 +263,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 4,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -320,6 +326,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 4,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -382,6 +389,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 4,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -444,6 +452,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 4,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -506,6 +515,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 4,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -568,6 +578,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 4,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",

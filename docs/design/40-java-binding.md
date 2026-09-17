@@ -607,10 +607,12 @@ public record RoutingDecision(
         Shortfall shortfall,
         boolean filterFailedOpen,
         Optional<MatchedOverride> matchedOverride,
-        Optional<ExplainRecord> explain) {
+        Optional<ExplainRecord> explain,
+        TopologySnapshot snapshot) {
 
-    public PreferenceEntry primary();        // CORE-042, the head of entries
+    public PreferenceEntry primary();            // CORE-042, the head of entries
     public boolean isEmpty();
+    public List<PreferenceEntry> preferenceList();   // CORE-047, the whole list, recomputed
 }
 
 public record MatchedOverride(int index, OverrideMode mode) { }   // PIN, CONSTRAIN, BOTH
@@ -621,6 +623,17 @@ accessor over the head of `entries` rather than as a second stored field. `attem
 member `CORE-045` requires: the value `RouteOptions` supplied or that `FAIL-022` defaulted, carried
 on the decision because `Router.attempts(decision)` has no other path to it and `CORE-041` forbids
 the router holding per-decision state.
+
+`entries` is the materialised prefix of `CORE-046` and not the whole preference list: its length is
+the lesser of the length of the preference list and the greater of `replicaCount` and the attempt
+limit before its clamp, which at factor 3 with the defaults is five entries over a cluster of any
+size. `preferenceList()` answers the whole list under `CORE-047`. It recomputes from `snapshot` and
+`routingKey`, allocates its result on each call, and belongs off the routing path; an
+`AttemptSequence` walks past the prefix under `FAIL-014` without it.
+
+`snapshot` renders the retention `CORE-047` requires rather than a member of `CORE-040`. A snapshot
+is immutable under `TOPO-101` and shared, so the component is one reference, and `CORE-053` already
+tied the decision to it.
 
 The record's compact constructor copies `entries`, `ordered`, and `relaxedLevels`. The decision
 carries no key, no address, no tags, no override note, and no metadata, under `CORE-043`.
@@ -633,6 +646,8 @@ public interface AttemptSequence {
     void recordOutcome(NodeId node, Outcome outcome, long at);
     void recordOutcome(NodeId node, Outcome outcome);               // reads the supplied clock
     int remaining();
+    NodeId followRedirect(NodeId owner, long at);                   // FENCE-221
+    NodeId followRedirect(NodeId owner);                            // reads the supplied clock
 }
 ```
 
@@ -640,6 +655,12 @@ An attempt sequence belongs to one request and one unit of execution under `CORE
 synchronized, and the thread-owner assertion of the candidate cursor applies to it unchanged.
 `next` never waits, sleeps, or backs off, under `FAIL-027`; spacing between attempts belongs to the
 caller.
+
+`followRedirect` is the redirect walk. It answers the node to retry at, or raises
+`RedirectExhaustedException` carrying the cause of `ERR-043`, which is the idiom `ERR-060` fixes for
+every condition. It sits here rather than on `Recipient` because the walk reads the identities this
+sequence has already attempted, the bound of `CFG-040`, and the retry budget, and `FENCE-231` makes
+a followed redirect a retry against that budget.
 
 ### Health surface
 
@@ -884,9 +905,12 @@ public final class NoCandidateException extends RoutingException {
 }
 public final class ExhaustedException extends RoutingException {
     public ExhaustedCause reason();                 // ERR-022
-    public List<PreferenceEntry> preferenceList();
+    public List<PreferenceEntry> entries();         // CORE-046, the materialised prefix
     public List<NodeId> attempted();
     public List<Outcome> outcomes();
+}
+public final class RedirectExhaustedException extends RecipientException {
+    public RedirectExhaustedCause reason();         // ERR-043, a closed enum of four
 }
 public final class NotOwnerException extends RecipientException {
     public NodeId currentOwner();                   // ERR-040
@@ -1209,7 +1233,7 @@ conformance report, with the level and the declaration, and is not reported as a
 | hash | frames the fields the vector gives and compares the 64-bit output, through the qualified export of `core.internal.hash` |
 | canonicalisation | canonicalises the document and compares the byte sequence and the digest |
 | validation | runs `TopologyLoader.validate` and compares the accept or reject outcome and, on reject, the `ValidationError` set |
-| routing | installs the document, routes each key, and compares the routing key, the shard, the candidate ordering, the preference list, the roles, and the fencing token |
+| routing | installs the document, routes each key, and compares the routing key, the shard, the candidate ordering, the preference list, the roles, the materialised prefix length, and the fencing token |
 | property | evaluates the bounds of `PROP-*` over a sample the vector specifies |
 | simulation | interprets a scenario as a sequence of steps against a router and a settable clock |
 
@@ -1319,9 +1343,11 @@ on demand and on a nightly job on fixed hardware, and a regression is read from 
 
 One placement gate does run in `check`. A test measures the allocation of a `route` call with
 `ThreadMXBean.getThreadAllocatedBytes` and fails above a stated ceiling with headroom. It runs at
-factor 3 over a hundred-node ring and at factor 3 over a rendezvous topology whose summed virtual
-node count is 8000. A candidate cursor quietly turned into a materialised list, or a `Labels` turned
-into a `Map`, shows up there and nowhere else.
+factor 3 over a hundred-node ring, at factor 3 over a thousand-node ring, and at factor 3 over a
+rendezvous topology whose summed virtual node count is 8000. The two ring sizes take one ceiling
+between them, because `CORE-046` makes the decision five entries wide at either size: a candidate
+cursor quietly turned into a materialised list, or a decision that carried the whole preference
+list, shows up as the gap between them, and a `Labels` turned into a `Map` shows up in both.
 
 The rendezvous shape is in the gate because it is where a per-evaluation allocation inside the hash
 is expensive: at 8000 evaluations per routing call, a `SipHash24` or a `Frame` that allocated once
@@ -1343,3 +1369,4 @@ gate sees it.
 | [`adr/0035-manifest-driven-conformance-harness.md`](adr/0035-manifest-driven-conformance-harness.md) | dynamic tests, the manifest coupling, and the vector artifact |
 | [`adr/0040-cryptographic-primitive-sourcing-policy.md`](adr/0040-cryptographic-primitive-sourcing-policy.md) | where a cryptographic primitive comes from, and the SipHash-2-4 exception |
 | [`adr/0041-exact-product-comparison-surface.md`](adr/0041-exact-product-comparison-surface.md) | the two exact wide comparisons, and the operand ranges that decide their width |
+| [`adr/0046-bounded-routing-decision-surface.md`](adr/0046-bounded-routing-decision-surface.md) | what a decision materialises, and the accessor that answers the rest |

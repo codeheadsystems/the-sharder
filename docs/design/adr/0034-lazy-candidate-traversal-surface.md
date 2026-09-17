@@ -1,6 +1,13 @@
 # 0034. Lazy candidate traversal surface
 
-Status: accepted. Date: 2026-09-16.
+Status: accepted, with the decision surface that consumes the cursor settled by
+[`0046`](0046-bounded-routing-decision-surface.md). Date: 2026-09-16.
+
+The consequence below, that a builder at factor 3 over a thousand-node ring computes nothing beyond
+the entries it needs, held of the builder and not of the routing call that contained it: `CORE-040`
+required the whole candidate ordering on the decision, so the only routing-path consumer of the
+cursor drained it. `0046` bounds what the decision materialises, and the consequence holds as
+written.
 
 ## Context
 

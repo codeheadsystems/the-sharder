@@ -1,6 +1,8 @@
 """Override evaluation, preference list construction, spread degradation, and the decision.
 
-Covers `OVR-*`, `REPL-*`, `SPREAD-*`, and the `READ-*` reordering.  Health filtering is not
+Covers `OVR-*`, `REPL-*`, `SPREAD-*`, and the `READ-*` reordering.  `preferenceList` is the whole
+list `REPL-014` defines and `CORE-047` answers on demand; `materialisedEntries` is the count
+`CORE-046` bounds the decision's own `entries` at.  Health filtering is not
 modelled: a golden vector asserts the preference list, which `REPL-016` makes a pure function of
 the snapshot and the routing key, and the attempt sequence belongs to the property and scenario
 layers.
@@ -153,7 +155,18 @@ def read_affinity_reorder(snapshot, entries, r, level, path, window):
             for i, e in enumerate(merged)]
 
 
-def route(snapshot, key: bytes, affinity=None):
+def materialised_entries(entries, r, n, attempt_limit=None):
+    """`CORE-046`: the length of the prefix a routing decision carries.
+
+    The bound is the lesser of the preference list length and the greater of the achieved replica
+    count and the attempt limit `FAIL-022` resolves before its clamp.  No health view is modelled
+    here, and `CORE-046` makes the bound independent of one.
+    """
+    limit = n + 2 if attempt_limit is None else attempt_limit
+    return min(len(entries), max(r, limit))
+
+
+def route(snapshot, key: bytes, affinity=None, attempt_limit=None):
     """Compute the routing decision for `key` against `snapshot`."""
     routing_key = routing_key_of(snapshot, key)
     index, entry = match_override(snapshot, routing_key)
@@ -182,6 +195,7 @@ def route(snapshot, key: bytes, affinity=None):
         "replicaCount": r,
         "candidates": ordering,
         "preferenceList": entries,
+        "materialisedEntries": materialised_entries(entries, r, n, attempt_limit),
         "relaxedLevels": relaxed,
         "spreadStage": stage,
         "shortfall": shortfall,

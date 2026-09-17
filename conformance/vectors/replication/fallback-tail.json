@@ -3,6 +3,8 @@
   "kind": "routing",
   "description": "The fallback tail is the candidate ordering with the replica prefix removed, in candidate ordering order, and carries no spread property.",
   "requirements": [
+    "CORE-046",
+    "CORE-047",
     "REPL-013",
     "REPL-014",
     "REPL-015",
@@ -74,6 +76,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 5,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -142,6 +145,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 5,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -210,6 +214,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 5,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -278,6 +283,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 5,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -346,6 +352,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 5,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -414,6 +421,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 5,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",

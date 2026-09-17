@@ -1,6 +1,12 @@
 # 0017. Failover depth and substitution
 
-Status: accepted. Date: 2026-09-16.
+Status: accepted, with the exhaustion payload narrowed by
+[`0046`](0046-bounded-routing-decision-surface.md). Date: 2026-09-16.
+
+The exhaustion condition below carries the decision's materialised prefix rather than the whole
+preference list, because `0046` bounds what a decision materialises. The attempt walk itself is
+unchanged: `FAIL-014` keeps it drawn from the whole list, and the filter still fails open over all
+of it.
 
 ## Context
 

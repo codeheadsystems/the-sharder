@@ -3,6 +3,8 @@
   "kind": "routing",
   "description": "Directory evaluation and the reachable clauses of the matcher precedence rule.",
   "requirements": [
+    "CORE-046",
+    "CORE-047",
     "DIR-001",
     "DIR-002",
     "DIR-003",
@@ -49,6 +51,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 1,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "nodes",
@@ -85,6 +88,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 1,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "nodes",
@@ -119,6 +123,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 1,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "nodes",
@@ -155,6 +160,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 1,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "nodes",
@@ -189,6 +195,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 1,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "nodes",
@@ -224,6 +231,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 1,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "nodes",
@@ -259,6 +267,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 1,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "nodes",

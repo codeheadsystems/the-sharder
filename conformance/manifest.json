@@ -8,9 +8,9 @@
     "vectorCases": 638,
     "topologyDocuments": 103,
     "scenarios": 14,
-    "scenarioSteps": 142,
+    "scenarioSteps": 147,
     "properties": 30,
-    "requirementsNamed": 432
+    "requirementsNamed": 437
   },
   "requirementsNamed": [
     "CFG-020",
@@ -25,6 +25,8 @@
     "CORE-020",
     "CORE-040",
     "CORE-045",
+    "CORE-046",
+    "CORE-047",
     "CORE-053",
     "DIR-001",
     "DIR-002",
@@ -70,6 +72,7 @@
     "FAIL-011",
     "FAIL-012",
     "FAIL-013",
+    "FAIL-014",
     "FAIL-021",
     "FAIL-022",
     "FAIL-030",
@@ -100,6 +103,8 @@
     "FENCE-181",
     "FENCE-191",
     "FENCE-211",
+    "FENCE-221",
+    "FENCE-231",
     "HASH-001",
     "HASH-002",
     "HASH-003",
@@ -1301,11 +1306,13 @@
       "topology": "topologies/empty-nodes-ring.topology.json",
       "caseCount": 1,
       "requirements": [
+        "CORE-046",
+        "CORE-047",
         "ERR-020",
         "PLACE-005",
         "RING-024"
       ],
-      "sha256": "326f5a6b610f8e11d1c7b62e3acfe50dbc75feda228f5fa2c33c2046c2c3e404"
+      "sha256": "2fb0e18f4a22c6e386e529edbdb47993b0ee28e0706ce8edb85aa4b9251114fc"
     },
     {
       "file": "vectors/adversarial/empty-topology.json",
@@ -1315,11 +1322,13 @@
       "topology": "topologies/empty-nodes.topology.json",
       "caseCount": 2,
       "requirements": [
+        "CORE-046",
+        "CORE-047",
         "ERR-020",
         "ERR-021",
         "PLACE-005"
       ],
-      "sha256": "fb381a7f3f7e5b9b65f5b9a40b2f0dd417385292fca8151faaed79616501f1ab"
+      "sha256": "2f15d7e558a9c816a07f664c263a7c3d930dfd1d37f76709455c0bc55ca4b2cf"
     },
     {
       "file": "vectors/adversarial/weight-zero-all.json",
@@ -1329,12 +1338,14 @@
       "topology": "topologies/weight-zero-all.topology.json",
       "caseCount": 1,
       "requirements": [
+        "CORE-046",
+        "CORE-047",
         "ERR-020",
         "ERR-021",
         "RV-002",
         "RV-012"
       ],
-      "sha256": "320131147e4c9158610cc1f43c2cf9ecdbc04149f04b9a45e7aa359c5da2cb9d"
+      "sha256": "f99bde882d86fd354eb10f76dbcf250be1f29c9394dc3ea0da87c743727ad739"
     },
     {
       "file": "vectors/adversarial/weight-zero.json",
@@ -1344,13 +1355,15 @@
       "topology": "topologies/weight-zero.topology.json",
       "caseCount": 4,
       "requirements": [
+        "CORE-046",
+        "CORE-047",
         "PLACE-042",
         "PLACE-043",
         "REPL-020",
         "REPL-021",
         "RV-002"
       ],
-      "sha256": "a71d1c90105cdaf379338f00b9e877b578024a82b849a67552afbf13d74731ac"
+      "sha256": "0d6a16fe7fbe8bb04794c78556e6761c4a92bf280675540fef3e5d5e228a7e94"
     },
     {
       "file": "vectors/determinism/node-array-permutation.json",
@@ -1411,6 +1424,8 @@
       "topology": "topologies/directory-tenants.topology.json",
       "caseCount": 7,
       "requirements": [
+        "CORE-046",
+        "CORE-047",
         "DIR-001",
         "DIR-002",
         "DIR-003",
@@ -1424,7 +1439,7 @@
         "PLACE-064",
         "PLACE-065"
       ],
-      "sha256": "267449a184c9b71f63c7ba961f20e3ee9b448023e99552aab09d82a89ca8addd"
+      "sha256": "97c1e143873a1b594a2cff425595653b04c685755d422b2bfe75a262ee77deef"
     },
     {
       "file": "vectors/directory/no-match.json",
@@ -1434,6 +1449,8 @@
       "topology": "topologies/directory-sparse.topology.json",
       "caseCount": 4,
       "requirements": [
+        "CORE-046",
+        "CORE-047",
         "DIR-003",
         "DIR-010",
         "DIR-011",
@@ -1445,7 +1462,7 @@
         "PLACE-014",
         "REPL-005"
       ],
-      "sha256": "b688e0df29a2ad0375d8e16077f941a5a8a3433029683f18a206ec69b5fe48fe"
+      "sha256": "6bebac292d3311be4bd61913e396487645bb23fd260629929356355b004c24f9"
     },
     {
       "file": "vectors/errors/taxonomy.json",
@@ -1715,11 +1732,13 @@
       "topology": "topologies/weight-zero-pinned.topology.json",
       "caseCount": 2,
       "requirements": [
+        "CORE-046",
+        "CORE-047",
         "OVR-010",
         "PLACE-042",
         "PLACE-043"
       ],
-      "sha256": "33267cb8d3a5098d87543292c90766ebfd736f67df10265e8b9f2243d2db9137"
+      "sha256": "4f95ae97450206864d1570e5923712e2578ada33c8a755a425a09fe026cc3bc4"
     },
     {
       "file": "vectors/overrides/pin-keeps-shard.json",
@@ -1744,6 +1763,8 @@
       "topology": "topologies/overrides-precedence.topology.json",
       "caseCount": 8,
       "requirements": [
+        "CORE-046",
+        "CORE-047",
         "ERR-020",
         "ERR-021",
         "OVR-001",
@@ -1775,7 +1796,7 @@
         "REPL-003",
         "REPL-005"
       ],
-      "sha256": "0a44a097fb369c3f6377e99018f2b897034dcf1c9bb9bd18fb5fc532fbb90e2f"
+      "sha256": "dd974e80263fe7935d4a7be9cf9e9d02770b51635462a6a81bb86f88fcfaa395"
     },
     {
       "file": "vectors/placement/document-defaults.json",
@@ -1878,13 +1899,15 @@
       "topology": "topologies/range-derived.topology.json",
       "caseCount": 8,
       "requirements": [
+        "CORE-046",
+        "CORE-047",
         "RANGE-030",
         "RANGE-031",
         "RANGE-032",
         "RANGE-033",
         "RANGE-040"
       ],
-      "sha256": "3483e2477a2871c522c8a5e23b691b5f12d66a8d7cf774b1c5339c1f2dffc25c"
+      "sha256": "934ceaa7af5d3532fbbf778c0eb29b3d3c3cebbb5b9f6558951a78959377d8e0"
     },
     {
       "file": "vectors/range/explicit-bounds.json",
@@ -1894,6 +1917,8 @@
       "topology": "topologies/range-explicit.topology.json",
       "caseCount": 8,
       "requirements": [
+        "CORE-046",
+        "CORE-047",
         "RANGE-001",
         "RANGE-002",
         "RANGE-003",
@@ -1906,7 +1931,7 @@
         "RANGE-020",
         "RANGE-040"
       ],
-      "sha256": "33f3f5ee30a90efc8b6474da15c7b4bea6ac5abd2d9245c6296857a18dde3f5a"
+      "sha256": "87302e14dfdbac4548b056da1a7d5c47e6781a36f856f095b37cdc78183b502d"
     },
     {
       "file": "vectors/read/affinity.json",
@@ -1916,6 +1941,7 @@
       "topology": "topologies/read-affinity.topology.json",
       "caseCount": 42,
       "requirements": [
+        "CORE-046",
         "READ-001",
         "READ-010",
         "READ-012",
@@ -1927,7 +1953,7 @@
         "READ-023",
         "SPREAD-006"
       ],
-      "sha256": "06c9f8b8a097810dee465922ff4908e2487633e44fab54b03b8662cf1d743ab5"
+      "sha256": "6b3b0af156acf29082aa78cc2ab691f0255ddb9a398e99bcc79ddba97b73c484"
     },
     {
       "file": "vectors/rendezvous/cache-hash-tags.json",
@@ -1937,6 +1963,8 @@
       "topology": "topologies/rendezvous-cache.topology.json",
       "caseCount": 12,
       "requirements": [
+        "CORE-046",
+        "CORE-047",
         "KEY-030",
         "KEY-031",
         "PLACE-010",
@@ -1945,7 +1973,7 @@
         "RV-001",
         "RV-010"
       ],
-      "sha256": "e33737277c56fd163d089aeab7959aec25ab89dc542c7f749995caf0b1c37d09"
+      "sha256": "2aab4908c34df2187f44d1f52a92361fb9b63dd7d4138648e3fdbe485554c41a"
     },
     {
       "file": "vectors/rendezvous/ordering.json",
@@ -1955,6 +1983,8 @@
       "topology": "topologies/rendezvous-plain.topology.json",
       "caseCount": 15,
       "requirements": [
+        "CORE-046",
+        "CORE-047",
         "KEY-004",
         "PLACE-020",
         "PLACE-023",
@@ -1967,7 +1997,7 @@
         "RV-020",
         "RV-021"
       ],
-      "sha256": "bab657c662b44a39a9ffb9a014273fcd281edaabcf0f88f05f2ef4a5322195e5"
+      "sha256": "86f75c5118c4c0ed7f63a7ec165ed8b90a75e14f9a0fdf8a95f83ec12264ceaa"
     },
     {
       "file": "vectors/rendezvous/tenant-router.json",
@@ -1977,6 +2007,8 @@
       "topology": "topologies/rendezvous-tenant.topology.json",
       "caseCount": 11,
       "requirements": [
+        "CORE-046",
+        "CORE-047",
         "KEY-041",
         "OVR-001",
         "OVR-002",
@@ -1992,7 +2024,7 @@
         "REPL-002",
         "RV-010"
       ],
-      "sha256": "4c2669cadc5373559712deab1a2e56a20d22b145ea3e68070a49ebd2b1f577c9"
+      "sha256": "b8245a7ad8a0b4616b36cc96c44fdd88919a0232445b7cd5a064e5f4e346190c"
     },
     {
       "file": "vectors/rendezvous/virtual-node-cap.json",
@@ -2002,13 +2034,15 @@
       "topology": "topologies/rendezvous-capped.topology.json",
       "caseCount": 8,
       "requirements": [
+        "CORE-046",
+        "CORE-047",
         "PLACE-050",
         "PLACE-051",
         "PLACE-052",
         "PLACE-054",
         "RV-001"
       ],
-      "sha256": "b644708afbbfea8963905139cff203973eec9c0038adba4cb0cffe3a06bce0c5"
+      "sha256": "58c45af9989bf2bd9e674d40471e1ef6128dfc785cfcaa5d99ccff6ea7a91539"
     },
     {
       "file": "vectors/replication/factor-exceeds-node-count.json",
@@ -2018,13 +2052,15 @@
       "topology": "topologies/factor-exceeds-nodes.topology.json",
       "caseCount": 5,
       "requirements": [
+        "CORE-046",
+        "CORE-047",
         "ERR-009",
         "REPL-011",
         "REPL-020",
         "REPL-021",
         "REPL-025"
       ],
-      "sha256": "87cc1ba2d868c76ed743227fdfc0046a7db4fef915a92af6c0aa1cd7fb0f794e"
+      "sha256": "cdd2b8f6930d33915b685585266e6bdba89f75b5bb6a81439d353e6006374c2d"
     },
     {
       "file": "vectors/replication/fallback-tail.json",
@@ -2034,13 +2070,15 @@
       "topology": "topologies/ring-zoned.topology.json",
       "caseCount": 6,
       "requirements": [
+        "CORE-046",
+        "CORE-047",
         "REPL-013",
         "REPL-014",
         "REPL-015",
         "REPL-017",
         "SPREAD-021"
       ],
-      "sha256": "2c25cfd16626b661f7f2ef6fb8ba862602146d203ae7b1d70923f3aa45346e3b"
+      "sha256": "e2ff4ccce898a3e8374ef6ce359c1b2e65553dfe427785a73a442acfe3ca7dae"
     },
     {
       "file": "vectors/replication/single-node.json",
@@ -2050,12 +2088,14 @@
       "topology": "topologies/single-node.topology.json",
       "caseCount": 3,
       "requirements": [
+        "CORE-046",
+        "CORE-047",
         "REPL-020",
         "REPL-021",
         "REPL-025",
         "SPREAD-013"
       ],
-      "sha256": "161f37f22e912ae728d839613da0cc30ff4dcd39669218184de94be1cdb1d8d7"
+      "sha256": "440d085ff293b975b6c6a513e5a4bdb2705813b77ce41cdb41b859f6b29aaf91"
     },
     {
       "file": "vectors/ring/administrative-states.json",
@@ -2065,11 +2105,13 @@
       "topology": "topologies/ring-admin-states.topology.json",
       "caseCount": 6,
       "requirements": [
+        "CORE-046",
+        "CORE-047",
         "PLACE-001",
         "PLACE-002",
         "RING-005"
       ],
-      "sha256": "37b877874b515ead63a41187096b36a02c74fbf7bbcaf409f7a189766aa1203b"
+      "sha256": "1646d4c0d8de6b5cdb2fa1ec9a2be70a6b8b0b74d72d4687170fc7221ab1557f"
     },
     {
       "file": "vectors/ring/derived-walk.json",
@@ -2080,6 +2122,8 @@
       "caseCount": 16,
       "requirements": [
         "CORE-040",
+        "CORE-046",
+        "CORE-047",
         "KEY-004",
         "PLACE-013",
         "PLACE-017",
@@ -2094,7 +2138,7 @@
         "RING-030",
         "TOPO-151"
       ],
-      "sha256": "091824aeaf5afd2bcf31323ded5193c3c4b77fd3228f8804f0723d10348536eb"
+      "sha256": "2997ad761dbba8268e9e1059de72e3a0b65c279ff9634c2033e392f35072f813"
     },
     {
       "file": "vectors/ring/derived-zoned.json",
@@ -2104,6 +2148,8 @@
       "topology": "topologies/ring-zoned.topology.json",
       "caseCount": 10,
       "requirements": [
+        "CORE-046",
+        "CORE-047",
         "PLACE-041",
         "PLACE-050",
         "REPL-012",
@@ -2117,7 +2163,7 @@
         "SPREAD-012",
         "SPREAD-015"
       ],
-      "sha256": "a42e9f0ab5090b491d5b3091e580bf6061029d4333fda9292896615047182f8c"
+      "sha256": "98b9887d03903ec4f96bbedc5828ba8f9b2efa3c6cbba4d3d3a35a866802cd70"
     },
     {
       "file": "vectors/ring/explicit-tokens.json",
@@ -2127,6 +2173,8 @@
       "topology": "topologies/ring-explicit.topology.json",
       "caseCount": 13,
       "requirements": [
+        "CORE-046",
+        "CORE-047",
         "PLACE-043",
         "PLACE-044",
         "RING-003",
@@ -2135,7 +2183,7 @@
         "RING-020",
         "RING-021"
       ],
-      "sha256": "a13837dd81f29c0952c0806717d1b5fa7bc8a1390eb19f24922c2c6c7c33a593"
+      "sha256": "f82491e79bc46fbeb928c37ba2afa6af81fe9d9e84a2a9acf2f87b2e42299940"
     },
     {
       "file": "vectors/ring/non-default-seed.json",
@@ -2145,11 +2193,13 @@
       "topology": "topologies/ring-seeded.topology.json",
       "caseCount": 6,
       "requirements": [
+        "CORE-046",
+        "CORE-047",
         "SEC-010",
         "SEC-011",
         "SEC-012"
       ],
-      "sha256": "1451f8179889cf44ae5ae321537745dade75c52fcfbf1a2c6dc1b5fe398746c4"
+      "sha256": "53e6ee21bb6c58fe41080327542674bdc0f6a13429a60816410b3b4ea7916560"
     },
     {
       "file": "vectors/ring/weight-zero.json",
@@ -2159,12 +2209,14 @@
       "topology": "topologies/ring-weight-zero.topology.json",
       "caseCount": 6,
       "requirements": [
+        "CORE-046",
+        "CORE-047",
         "PLACE-042",
         "PLACE-043",
         "RING-001",
         "RING-002"
       ],
-      "sha256": "9d101203e2febe24748cc253e4da570451ac81924177717a4d2d29592f81f5be"
+      "sha256": "42edc0c32ada87d59b15f597b2a3425b25b801476cb3e88e631c10e484fe34d3"
     },
     {
       "file": "vectors/slot/derived-assignment.json",
@@ -2174,6 +2226,8 @@
       "topology": "topologies/slot-derived.topology.json",
       "caseCount": 12,
       "requirements": [
+        "CORE-046",
+        "CORE-047",
         "PLACE-042",
         "SLOT-020",
         "SLOT-021",
@@ -2182,7 +2236,7 @@
         "SLOT-030",
         "SLOT-031"
       ],
-      "sha256": "08020a8a93313a4bb4c340b57e28f7d606303cb0ff36c3677487d3a496a433a1"
+      "sha256": "9f4dd50c67265ea590bd0807a840d5fe139ee7e87c8d08f75b3a6dc36b65ffee"
     },
     {
       "file": "vectors/slot/explicit-assignment.json",
@@ -2192,6 +2246,8 @@
       "topology": "topologies/slot-explicit.topology.json",
       "caseCount": 12,
       "requirements": [
+        "CORE-046",
+        "CORE-047",
         "PLACE-013",
         "PLACE-014",
         "SLOT-001",
@@ -2203,7 +2259,7 @@
         "SLOT-014",
         "SLOT-030"
       ],
-      "sha256": "e9838cb95cc567af8309aaca960010feeff114c9e126e65869d5f189f2808705"
+      "sha256": "101f8d0c7d18a6494056f00fcb01af93245acc4d71c63844d7b3397ecf827599"
     },
     {
       "file": "vectors/slot/non-power-of-two-modulus.json",
@@ -2213,12 +2269,14 @@
       "topology": "topologies/slot-small.topology.json",
       "caseCount": 14,
       "requirements": [
+        "CORE-046",
+        "CORE-047",
         "PROP-024",
         "SLOT-001",
         "SLOT-002",
         "SLOT-003"
       ],
-      "sha256": "9f8d5c5353427ab4d1d3372f2e3b16445b6d58dce4253468fa3e6b19ac7eeee3"
+      "sha256": "ef452d64cbfc04718dc5302d63785c6ee4373c443d4b67b8742adbf44c892ee3"
     },
     {
       "file": "vectors/split/lineage.json",
@@ -2254,6 +2312,8 @@
       "topology": "topologies/one-domain-relaxed.topology.json",
       "caseCount": 5,
       "requirements": [
+        "CORE-046",
+        "CORE-047",
         "SPREAD-001",
         "SPREAD-010",
         "SPREAD-011",
@@ -2262,7 +2322,7 @@
         "SPREAD-015",
         "SPREAD-021"
       ],
-      "sha256": "9b4652b7bc0398f8b935c6ce2fb72e0c028920334c90cefe98c87738b00b1357"
+      "sha256": "da58d736f9050c98d3470ff891b9db7fff943e02c58d780d576ce80c63ed8cc7"
     },
     {
       "file": "vectors/spread/all-nodes-one-domain-strict.json",
@@ -2272,12 +2332,14 @@
       "topology": "topologies/one-domain-strict.topology.json",
       "caseCount": 5,
       "requirements": [
+        "CORE-046",
+        "CORE-047",
         "REPL-020",
         "REPL-021",
         "SPREAD-014",
         "SPREAD-015"
       ],
-      "sha256": "aafc95cd1f65878ade8e4c5a4e1af780598d11c7da7c09cd5b412b10d76143c2"
+      "sha256": "927e8a0feef3803ca15a064b5299817773922c8c634ea2fd533c4b6544abc4eb"
     },
     {
       "file": "vectors/spread/applies-to-pinned-ordering.json",
@@ -2287,12 +2349,14 @@
       "topology": "topologies/spread-pinned.topology.json",
       "caseCount": 2,
       "requirements": [
+        "CORE-046",
+        "CORE-047",
         "OVR-013",
         "PROP-050",
         "REPL-013",
         "SPREAD-004"
       ],
-      "sha256": "976f7e1f90cdf2e0e664c578eb3d7bc1a05eab4f8eed14464628cb600cd7a290"
+      "sha256": "3d64b1410e71d17d4c82a37d2d716dbfa08198de12aa3e22e1820b8addc5483b"
     },
     {
       "file": "vectors/spread/degradation-ladder.json",
@@ -2302,6 +2366,8 @@
       "topology": "topologies/spread-ladder.topology.json",
       "caseCount": 12,
       "requirements": [
+        "CORE-046",
+        "CORE-047",
         "REPL-013",
         "SPREAD-005",
         "SPREAD-010",
@@ -2316,7 +2382,7 @@
         "SPREAD-020",
         "SPREAD-021"
       ],
-      "sha256": "c1b07b7bb2b49310887b5a88aeaac56e489eabcf6c326da2cefecb8c7e27a020"
+      "sha256": "1304b51d1d30bb86d422fb2b722b5366b26c2dbda221f53455a77e3965cc9f37"
     },
     {
       "file": "vectors/spread/relaxation-stages.json",
@@ -2347,6 +2413,8 @@
       "topology": "topologies/spread-skipped-level.topology.json",
       "caseCount": 9,
       "requirements": [
+        "CORE-046",
+        "CORE-047",
         "REPL-013",
         "SPREAD-001",
         "SPREAD-005",
@@ -2357,7 +2425,7 @@
         "SPREAD-015",
         "SPREAD-021"
       ],
-      "sha256": "5c64c5d3e146a971edc4df091bfd7ef064a346e330ed7e69b729565c0212d80d"
+      "sha256": "5efe701b239f87950b0158520773106c08cd3840b6dd76f90c57356b4a6fc459"
     },
     {
       "file": "vectors/topology/ownership-delta.json",
@@ -2466,15 +2534,19 @@
     {
       "file": "scenarios/redirect-walk-depth-limit.json",
       "scenario": "redirect-walk-depth-limit",
-      "description": "A caller follows `currentOwner` refusals, and the walk terminates at the redirect bound or on revisiting a node it already attempted.",
-      "stepCount": 5,
+      "description": "A caller follows `currentOwner` refusals, and the walk terminates at the redirect bound, on revisiting a node it already attempted, on an identity its own snapshot does not carry, or where the retry budget refuses the redirect.",
+      "stepCount": 10,
       "requirements": [
         "CFG-040",
         "ERR-043",
+        "FAIL-030",
+        "FAIL-031",
         "FENCE-171",
         "FENCE-181",
         "FENCE-191",
-        "FENCE-211"
+        "FENCE-211",
+        "FENCE-221",
+        "FENCE-231"
       ]
     },
     {
@@ -2981,7 +3053,8 @@
         "FAIL-002",
         "FAIL-003",
         "FAIL-004",
-        "FAIL-012"
+        "FAIL-012",
+        "FAIL-014"
       ],
       "witness": "scenarios/health-filter-fails-open.json"
     }

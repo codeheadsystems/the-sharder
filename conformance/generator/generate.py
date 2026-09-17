@@ -120,8 +120,15 @@ def routing_case(snapshot, key, name, requirements, note=None, encoding="utf8"):
     return case
 
 
+# Every routing case carries the whole preference list, which `CORE-047` answers on demand, and
+# the count of entries the decision itself materialises, which `CORE-046` bounds.  Both are
+# properties of the set rather than of one case, so `routing_set` names them for every set.
+ROUTING_SET_REQUIREMENTS = ["CORE-046", "CORE-047"]
+
+
 def routing_set(out, path, vector_set, description, topology_name, requirements, cases):
     snapshot = SNAPSHOTS[topology_name]
+    requirements = list(requirements) + ROUTING_SET_REQUIREMENTS
     payload = {
         "vectorSet": vector_set,
         "kind": "routing",
@@ -1012,6 +1019,7 @@ def build_read_affinity_vectors(out):
                 "expect": {
                     "preferenceList": decision["preferenceList"],
                     "ordered": decision["ordered"],
+                    "materialisedEntries": decision["materialisedEntries"],
                     "replicaCount": decision["replicaCount"],
                     "shard": decision["shard"],
                 },
@@ -1020,7 +1028,7 @@ def build_read_affinity_vectors(out):
                "`routeForRead` partitions the first `window` entries towards a domain path, "
                "stably, and leaves everything at or beyond `window` untouched.",
                ["READ-001", "READ-010", "READ-012", "READ-013", "READ-014", "READ-015",
-                "READ-016", "READ-022", "READ-023", "SPREAD-006"], cases,
+                "READ-016", "READ-022", "READ-023", "SPREAD-006", "CORE-046"], cases,
                topology="topologies/read-affinity.topology.json")
 
 

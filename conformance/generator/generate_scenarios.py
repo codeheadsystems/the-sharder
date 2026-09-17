@@ -343,19 +343,40 @@ def build_split_view_scenario():
               "FENCE-141", "ERR-040", "ERR-041", "ERR-045", "CORE-053", "TOPO-121"], steps)
 
 
+REDIRECT_NODES = ["n1", "n2", "n3", "n4"]
+
+# The retry budget window a redirect is accounted against, under `FENCE-231`.  `percent` and
+# `minimum` are the defaults of `FAIL-035`.
+def redirect_budget(first_attempts, retries):
+    return {"firstAttempts": first_attempts, "retries": retries, "percent": 20, "minimum": 3}
+
+
 def build_redirect_scenario():
     steps = []
-    for name, refusals, bound, note in [
-        ("served-immediately", {"n2": None}, 2, "the first node serves"),
-        ("one-redirect", {"n2": "n4", "n4": None}, 2, "one hop"),
-        ("bound-reached", {"n2": "n4", "n4": "n3", "n3": "n1", "n1": None}, 2,
+    for name, refusals, bound, known, budget, note in [
+        ("served-immediately", {"n2": None}, 2, None, None, "the first node serves"),
+        ("one-redirect", {"n2": "n4", "n4": None}, 2, None, None, "one hop"),
+        ("bound-reached", {"n2": "n4", "n4": "n3", "n3": "n1", "n1": None}, 2, None, None,
          "`FENCE-181`: the walk stops at `maxRedirects`, defaulting to 2"),
-        ("revisited-node", {"n2": "n4", "n4": "n2"}, 5,
+        ("revisited-node", {"n2": "n4", "n4": "n2"}, 5, None, None,
          "`FENCE-191`: a redirect naming an already attempted node terminates the walk"),
-        ("bound-zero", {"n2": "n4"}, 0, "a bound of 0 permits no redirect at all"),
+        ("bound-zero", {"n2": "n4"}, 0, None, None, "a bound of 0 permits no redirect at all"),
+        ("unknown-node", {"n2": "n9"}, 2, REDIRECT_NODES, None,
+         "`FENCE-171`: the named identity is absent from the caller's own `nodes` list"),
+        ("budget-permits", {"n2": "n4", "n4": "n3", "n3": None}, 5, REDIRECT_NODES,
+         redirect_budget(100, 0),
+         "`FENCE-231`: each followed redirect is a retry, and the window has room for both"),
+        ("budget-refuses-second", {"n2": "n4", "n4": "n3", "n3": None}, 5, REDIRECT_NODES,
+         redirect_budget(10, 5),
+         "the first redirect spends the window and the second is refused"),
+        ("budget-refuses-first", {"n2": "n4", "n4": None}, 5, REDIRECT_NODES,
+         redirect_budget(0, 4),
+         "`FAIL-032` exempts a first attempt and not a redirect, so the walk never starts"),
+        ("bound-before-budget", {"n2": "n4"}, 0, REDIRECT_NODES, redirect_budget(0, 4),
+         "`FENCE-221`: the bound is evaluated before the budget, so the budget is not spent"),
     ]:
-        result = fencing.redirect_walk("n2", refusals, bound)
-        steps.append({
+        result = fencing.redirect_walk("n2", refusals, bound, known, budget)
+        step = {
             "action": "redirectWalk",
             "name": name,
             "start": "n2",
@@ -363,11 +384,18 @@ def build_redirect_scenario():
             "maxRedirects": bound,
             "note": note,
             "expect": result,
-        })
+        }
+        if known is not None:
+            step["nodes"] = known
+        if budget is not None:
+            step["budget"] = budget
+        steps.append(step)
     register("redirect-walk-depth-limit",
              "A caller follows `currentOwner` refusals, and the walk terminates at the redirect "
-             "bound or on revisiting a node it already attempted.",
-             ["FENCE-171", "FENCE-181", "FENCE-191", "FENCE-211", "ERR-043", "CFG-040"], steps)
+             "bound, on revisiting a node it already attempted, on an identity its own snapshot "
+             "does not carry, or where the retry budget refuses the redirect.",
+             ["FENCE-171", "FENCE-181", "FENCE-191", "FENCE-211", "FENCE-221", "FENCE-231",
+              "FAIL-030", "FAIL-031", "ERR-043", "CFG-040"], steps)
 
 
 # ---------------------------------------------------------------------- migration

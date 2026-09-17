@@ -3,6 +3,8 @@
   "kind": "routing",
   "description": "Ring placement with weights, two domain levels, factor 3, and a zone spread. Exercises the preference list builder over a ring candidate ordering.",
   "requirements": [
+    "CORE-046",
+    "CORE-047",
     "PLACE-041",
     "PLACE-050",
     "REPL-012",
@@ -79,6 +81,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 5,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -146,6 +149,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 5,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -213,6 +217,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 5,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -280,6 +285,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 5,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -347,6 +353,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 5,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -414,6 +421,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 5,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -481,6 +489,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 5,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -548,6 +557,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 5,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -615,6 +625,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 5,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -682,6 +693,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 5,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",

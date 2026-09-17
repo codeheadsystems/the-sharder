@@ -3,6 +3,8 @@
   "kind": "routing",
   "description": "Slot placement under an authored assignment table, at the Redis Cluster slot count.  The covering entry's `nodes` array is the candidate ordering.",
   "requirements": [
+    "CORE-046",
+    "CORE-047",
     "PLACE-013",
     "PLACE-014",
     "SLOT-001",
@@ -55,6 +57,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -99,6 +102,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -143,6 +147,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -187,6 +192,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -231,6 +237,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -275,6 +282,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -319,6 +327,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -363,6 +372,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -407,6 +417,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -451,6 +462,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -495,6 +507,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -539,6 +552,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",

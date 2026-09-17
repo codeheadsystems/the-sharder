@@ -3,6 +3,8 @@
   "kind": "routing",
   "description": "A replication factor above the eligible node count produces a shorter replica prefix, never a repeated node, and never a failed call.",
   "requirements": [
+    "CORE-046",
+    "CORE-047",
     "ERR-009",
     "REPL-011",
     "REPL-020",
@@ -55,6 +57,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [
           "zone"
         ],
@@ -106,6 +109,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [
           "zone"
         ],
@@ -157,6 +161,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [
           "zone"
         ],
@@ -208,6 +213,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [
           "zone"
         ],
@@ -259,6 +265,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [
           "zone"
         ],

@@ -1,6 +1,12 @@
 # 0039. Placement cost model and warning thresholds
 
-Status: accepted. Date: 2026-09-16.
+Status: accepted, with `PLACE-071` extended by
+[`0046`](0046-bounded-routing-decision-surface.md). Date: 2026-09-16.
+
+`PLACE-071` as written here described where laziness helps and did not say what bounds `p`. The
+routing decision consumed the whole ordering, so `p` was the eligible node count under `ring` as
+well as under `rendezvous`. `0046` bounds what the decision materialises, and `PLACE-071` now names
+that bound.
 
 ## Context
 

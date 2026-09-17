@@ -3,7 +3,7 @@
 Every rule here is a table the specification states.  Nothing is inferred.
 """
 
-from . import routing
+from . import formulas, routing
 
 RELATION_IDENTITY_MISMATCH = "identityMismatch"
 RELATION_UNKNOWN_EPOCH = "unknownEpoch"
@@ -97,27 +97,48 @@ def policy_outcome(verdict, policy, fenced=True):
     return None
 
 
-def redirect_walk(start, refusals, max_redirects):
-    """`FENCE-171`, `FENCE-181`, `FENCE-191`, and `ERR-043`.
+def redirect_walk(start, refusals, max_redirects, known=None, budget=None):
+    """`FENCE-171`, `FENCE-181`, `FENCE-191`, `FENCE-221`, `FENCE-231`, and `ERR-043`.
 
     `refusals` maps a node identity to the `currentOwner` it names, or to `None` where it serves.
-    Returns the attempted identities in order and the terminal outcome.
+    `known` is the caller's `nodes` list, or `None` where every named identity is present.  `budget`
+    is the retry budget window as `{firstAttempts, retries, percent, minimum}`, or `None` where no
+    budget is modelled.
+
+    `FENCE-221` fixes the order of the refusals: the bound, an already attempted identity, an
+    absent identity, and last the retry budget.  Returns the attempted identities in order and the
+    terminal outcome.
     """
     attempted = [start]
     followed = 0
     node = start
+    retries = 0 if budget is None else budget["retries"]
+
+    def refused(cause):
+        result = {"attempted": attempted, "outcome": "redirectExhausted", "cause": cause,
+                  "redirectsFollowed": followed,
+                  "condition": {"code": 304, "name": "redirectExhausted"}}
+        if budget is not None:
+            result["budgetRetries"] = retries
+        return result
+
     while True:
         owner = refusals.get(node, None)
         if owner is None:
-            return {"attempted": attempted, "outcome": "served", "redirectsFollowed": followed}
+            result = {"attempted": attempted, "outcome": "served", "redirectsFollowed": followed}
+            if budget is not None:
+                result["budgetRetries"] = retries
+            return result
         if followed >= max_redirects:
-            return {"attempted": attempted, "outcome": "redirectExhausted",
-                    "cause": "boundReached", "redirectsFollowed": followed,
-                    "condition": {"code": 304, "name": "redirectExhausted"}}
+            return refused("boundReached")
         if owner in attempted:
-            return {"attempted": attempted, "outcome": "redirectExhausted",
-                    "cause": "revisitedNode", "redirectsFollowed": followed,
-                    "condition": {"code": 304, "name": "redirectExhausted"}}
+            return refused("revisitedNode")
+        if known is not None and owner not in known:
+            return refused("unknownNode")
+        if budget is not None and not formulas.retry_permitted(
+                retries, budget["firstAttempts"], budget["percent"], budget["minimum"]):
+            return refused("retryBudget")
         attempted.append(owner)
         followed += 1
+        retries += 1
         node = owner

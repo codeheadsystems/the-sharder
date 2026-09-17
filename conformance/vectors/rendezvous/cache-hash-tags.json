@@ -3,6 +3,8 @@
   "kind": "routing",
   "description": "The cache example of `20-topology-format.md`: Redis-compatible hash tags, mixed weights, and a draining node at weight 0.",
   "requirements": [
+    "CORE-046",
+    "CORE-047",
     "KEY-030",
     "KEY-031",
     "PLACE-042",
@@ -79,6 +81,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 4,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -151,6 +154,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 4,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -221,6 +225,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 4,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -293,6 +298,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 4,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -364,6 +370,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 4,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -435,6 +442,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 4,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -506,6 +514,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 4,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -577,6 +586,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 4,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -648,6 +658,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 4,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -719,6 +730,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 4,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -790,6 +802,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 4,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -861,6 +874,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 4,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",

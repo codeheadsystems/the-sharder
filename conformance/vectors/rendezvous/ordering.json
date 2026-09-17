@@ -3,6 +3,8 @@
   "kind": "routing",
   "description": "Rendezvous ordering by descending score with the node identity tie-break, at one virtual node per node.",
   "requirements": [
+    "CORE-046",
+    "CORE-047",
     "PLACE-020",
     "PLACE-023",
     "RV-001",
@@ -71,6 +73,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 5,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -131,6 +134,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 5,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -191,6 +195,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 5,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -251,6 +256,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 5,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -311,6 +317,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 5,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -371,6 +378,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 5,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -431,6 +439,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 5,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -491,6 +500,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 5,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -551,6 +561,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 5,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -611,6 +622,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 5,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -671,6 +683,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 5,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -731,6 +744,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 5,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -791,6 +805,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 5,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -851,6 +866,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 5,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -910,6 +926,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 5,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",

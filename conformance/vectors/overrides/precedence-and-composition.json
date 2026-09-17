@@ -3,6 +3,8 @@
   "kind": "routing",
   "description": "Override matching, pinning, constraints, their composition, and the override replication factor.",
   "requirements": [
+    "CORE-046",
+    "CORE-047",
     "OVR-001",
     "OVR-002",
     "OVR-003",
@@ -79,6 +81,7 @@
             "role": "fallback"
           }
         ],
+        "materialisedEntries": 3,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -118,6 +121,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 1,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "nodes",
@@ -163,6 +167,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -207,6 +212,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -244,6 +250,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 1,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "nodes",
@@ -326,6 +333,7 @@
             "role": "replica"
           }
         ],
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
