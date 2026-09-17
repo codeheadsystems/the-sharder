@@ -116,14 +116,25 @@ An implementation MUST NOT compare either as text.
 construction. An implementation MUST NOT read a wall clock, MUST NOT read a process-wide default
 clock, and MUST NOT require the source to be shared with any other component.
 
-`CORE-005`. Where this specification states a comparison between two products of integers, the
+`CORE-005`. Where this specification states a comparison between products of integers, the
 comparison MUST hold over the exact products. An implementation MUST evaluate it in an integer type
-wide enough to hold both products, or by a rule that agrees with the exact comparison over the whole
-range of its operands, and MUST NOT let a product wrap. `PLACE-051`, `HEALTH-034`, `FAIL-031`,
-`OBS-031`, and `SPLIT-041` each state such a comparison, as does every inequality of `PROP-*`. The
-products of `OBS-031` and `SPLIT-041` exceed 64 bits within the declared range of their operands,
-because `SPLIT-021` types every member of a `ShardReport` as a u64, so a 64-bit multiplication is
-not sufficient for either.
+wide enough to hold both sides, or by a rule that agrees with the exact comparison over the whole
+range of its operands, and MUST NOT let a product or a sum of products wrap. `HEALTH-034`,
+`FAIL-031`, `OBS-031`, and `SPLIT-041` each state such a comparison, as does every inequality of
+`PROP-*`. Two of the four are not a single product on each side: the left side of `OBS-031` is a
+product of three operands, and the right side of `FAIL-031` is a sum of two products.
+
+The operand ranges differ, and they decide the width each comparison needs.
+
+| Requirement | Operand range | Width |
+|---|---|---|
+| `HEALTH-034` | two counts over the placement set, and a percentage `CFG-031` holds at or below 100 | neither side reaches 2^38, so 64 bits are sufficient |
+| `FAIL-031` | the window counts of `FAIL-030`, which this specification does not bound, and two settings | 64 bits are sufficient only where an implementation bounds the counts it holds |
+| `OBS-031` | `shardRequests` and `totalRequests` are u64 under `SPLIT-021`, and `shardCount` reaches 1048576 under `SLOT-001` | the left side reaches 91 bits, so 64 bits are not sufficient |
+| `SPLIT-041` | `hottestKeyRequests` and `requests` are u64 under `SPLIT-021` | the left side reaches 71 bits, so 64 bits are not sufficient |
+
+`PLACE-051` and `PLACE-074` compare one product against one value rather than two products against
+each other, and each states the width it needs.
 
 ### Hash construction
 
@@ -1012,8 +1023,9 @@ any candidate ordering, any shard identifier, or any resident structure.
 
 `PLACE-074`. An implementation MUST compute a product of `PLACE-073` in an integer type of at least
 64 bits, or by a saturating multiplication. `slotCount` reaches 1048576 under `SLOT-001` and a
-node's virtual node count reaches 1024 under `PLACE-050`, so the product reaches 2147483648 for two
-nodes at the maximum virtual node count, which overflows a signed 32-bit integer.
+node's virtual node count reaches the cap `PLACE-050` takes from the configuration, so the product
+reaches 2147483648 for two nodes at the default `rendezvous` cap of 1024 and rises with the cap in
+force, which overflows a signed 32-bit integer.
 
 ### Ring strategy
 

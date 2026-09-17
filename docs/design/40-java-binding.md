@@ -186,12 +186,16 @@ The sanctioned operations are these, and no others.
 | render as sixteen hexadecimal digits | `HexFormat.of().toHexDigits(value)` |
 | parse sixteen hexadecimal digits | `Long.parseUnsignedLong(text, 16)` |
 | widen for reporting | `Long.toUnsignedString(value)` |
+| compare two products, as `CORE-005` needs | `U64.compareProducts(a, b, c, d)` |
+| high half of a product | `Math.unsignedMultiplyHigh(a, b)` |
 
 These forms are forbidden on an unsigned 64-bit value, and a build check refuses them in
 `core.internal.hash` and `core.internal.placement`.
 
 - The relational operators `<`, `<=`, `>`, and `>=`.
 - `Long.compare`, `Math.max`, `Math.min`, and `Long.signum`.
+- `Math.multiplyHigh`, whose high half is the signed one. The unsigned form is
+  `Math.unsignedMultiplyHigh`, and the two disagree for every operand at or above 2^63.
 - `Comparator.comparingLong` and `Comparator.naturalOrder`. This is the sharpest trap of the set,
   because the comparator a ring or a rendezvous ordering wants is the one an author reaches for
   first and it is signed.
@@ -209,6 +213,8 @@ static long max(long a, long b);
 static long mod(long value, long divisor);
 static String toHex(long value);
 static long parseHex(CharSequence text);
+static int compareProducts(long a, long b, long c, long d);              // CORE-005
+static int compareProductToSum(long a, long b, long c, long d, long e);  // CORE-005
 static final Comparator<RingEntry> RING_LESS;       // RING-010
 static final Comparator<ScoredNode> RV_LESS;        // RV-010
 ```
@@ -235,32 +241,92 @@ deadline had already passed.
 
 Indices, counts, weights, slot identifiers, replication factors, percentages, and millisecond
 durations are `int`. Every one of them is bounded below 2^31 by the specification or by the format,
-so the ordinary signed operations are correct.
+so the ordinary signed operations are correct. The window counts of `FAIL-030` are the one
+exception and are `long`, for the reason "Exact product comparisons" below gives.
 
 | Quantity | Bound |
 |---|---|
 | `weight` | 1000000, `PLACE-040` |
 | `slotCount` | 1048576, `SLOT-001` |
-| a virtual node count | 4096, `PLACE-050` |
+| a virtual node count | 65536, `PLACE-050` against `topology-v1.schema.json` |
+| `perWeightUnit` | 4096 under `ring`, 1024 under `rendezvous`, 1 under `slot` and `range` |
 | `factor`, `position`, `attemptLimit`, `unitsMoved` | bounded by the node count or the policy |
 | every `Millis` setting | bounded by `CFG-003` validation at construction |
 
+`PLACE-050` takes a derived count's cap from `maxTokensPerNode` under `ring` and from
+`maxVirtualNodesPerNode` under `rendezvous`. Their defaults are 4096 and 1024 and
+`topology-v1.schema.json` caps both members at 65536, so a configured virtual node count reaches
+65536 and the `int` holding it is bounded by the schema rather than by the default.
+
 Two products escape 32 bits and are computed in `long`.
 
-- `weight * perWeightUnit` under `PLACE-051` reaches 4096000000. The product is formed in `long`,
-  compared against the cap in `long`, and narrowed only after `Math.min`.
+- `weight * perWeightUnit` under `PLACE-051` reaches 4096000000, at a `weight` of 1000000 and a
+  `tokensPerWeightUnit` of 4096. The product is formed in `long`, compared against the cap in
+  `long`, and narrowed only after `Math.min`.
 - The retry backoff of `RATE-051`, `retryBackoffBaseMillis * 2^(attempt - 1)`, is computed as the
   cap where the shift exceeds 62 and as the shifted value otherwise.
 
-Four threshold comparisons in the specification are products compared against products, and
-`CORE-005` requires each to hold over the exact products: `HEALTH-034`, `FAIL-031`, `OBS-031`, and
-`SPLIT-041`. The last two take operands `SPLIT-021` types as u64, so their products exceed a `long`
-within the declared range. All four are evaluated through one helper that compares `a * b` against
-`c * d` in 128 bits using `Math.multiplyHigh`, so a threshold never inverts under overflow.
+### Exact product comparisons
+
+`CORE-005` requires four threshold comparisons to hold over the exact products: `HEALTH-034`,
+`FAIL-031`, `OBS-031`, and `SPLIT-041`. Their operand ranges differ, so one is evaluated in `long`
+and three go through an unsigned 128-bit surface.
+
+`HEALTH-034` compares `(ejected + 1) * 100` against `maxEjectionPercent * placementSetSize`. Both
+counts are `int` under the rule above and `CFG-031` refuses a `maxEjectionPercent` above 100, so
+neither side reaches 2^38. Both are formed in `long` and compared with the signed operators.
 
 ```java
-static int compareProducts(long a, long b, long c, long d);   // sign of (a*b - c*d), exact
+boolean refused = (ejected + 1L) * 100L > (long) maxEjectionPercent * (long) placementSetSize;
 ```
+
+The other three do not fit. `OBS-031` and `SPLIT-041` take operands `SPLIT-021` types as u64, and
+`FAIL-031` compares window counts that an accounting window of several days carries past 2^31, which
+is why the binding holds them as `long` rather than as `int`.
+
+Two static methods on `U64` carry the three. Each reads every operand as an unsigned 64-bit value,
+forms each product in 128 bits with `Math.unsignedMultiplyHigh`, and allocates nothing.
+
+```java
+static int compareProducts(long a, long b, long c, long d);              // sign of a*b - c*d
+static int compareProductToSum(long a, long b, long c, long d, long e);  // sign of a*b - (c*d + e)
+```
+
+Both are total. The product of two unsigned 64-bit values is at most 2^128 - 2^65 + 1, so the
+further unsigned 64-bit addend of `compareProductToSum` cannot carry the sum past 2^128 - 1, and
+neither helper has an operand combination it refuses.
+
+The primitive is `Math.unsignedMultiplyHigh` and not `Math.multiplyHigh`. `Math.multiplyHigh` is a
+signed operation and returns the wrong high half for any operand at or above 2^63: it answers -1 for
+`multiplyHigh(-1L, 50L)` where the unsigned form answers 49. The suite already carries an input that
+separates them. In `keySkew/9223372036854775808-18446744073709551615` of
+`vectors/formulas/detection-and-fencing.json`, `hottestKeyRequests` is 2^63 and `requests` is
+2^64 - 1, and the signed form answers false where the vector expects true.
+
+A left-hand side that names three operands folds its two small factors into one operand before it
+reaches a helper, which is what keeps the surface at two products rather than three. `OBS-031`
+compares `shardRequests * shardCount * 100` against `totalRequests * hotShardFactorPercent`, and
+`shardCount` is an `int`, so `shardCount * 100L` is exact in `long` and the comparison is a product
+against a product. The three call sites are these.
+
+```java
+// FAIL-031
+boolean permitted = U64.compareProductToSum(
+        retries, 100L, retryBudgetPercent, firstAttempts, 100L * retryBudgetMinimum) <= 0;
+
+// OBS-031
+boolean hot = U64.compareProducts(
+        shardRequests, (long) shardCount * 100L, totalRequests, hotShardFactorPercent) >= 0;
+
+// SPLIT-041
+boolean skewed = U64.compareProducts(
+        hottestKeyRequests, 100L, requests, keySkewPercent) >= 0;
+```
+
+`PLACE-051` and `PLACE-074` compare one product against one value rather than two products against
+each other, and each states the width it needs, so neither reaches a helper. `PLACE-051` is the
+`weight * perWeightUnit` above, and `PLACE-074` is the warning-threshold product of `PLACE-073`,
+computed in `long`.
 
 ### Floating point
 
@@ -869,7 +935,7 @@ The features the design depends on, and the release that finalised each.
 | Pattern matching for `switch` | 21 | exhaustive handling of every sealed result type with no default branch |
 | Record patterns | 21 | destructuring a `CutoverResult` and a `StepOutcome` in one step |
 | `Arrays.compareUnsigned` | 9 | `PLACE-020` node identity comparison and `RANGE-001` bound comparison |
-| `Math.multiplyHigh` | 9 | the exact product comparison of `HEALTH-034`, `FAIL-031`, `OBS-031`, `SPLIT-041` |
+| `Math.unsignedMultiplyHigh` | 18 | the exact product comparison of `FAIL-031`, `OBS-031`, `SPLIT-041` |
 | `Long.compareUnsigned`, `Long.remainderUnsigned` | 8 | every unsigned 64-bit operation |
 
 Java 21 is a long-term-support release with a support window that outlasts several versions of this
@@ -1226,8 +1292,8 @@ design or argues for it is not a property a regular expression sees.
 `verifyUnsignedComparisons` reads the compiled classes of the `core.internal.hash` and
 `core.internal.placement` packages and fails on a signed comparison of a 64-bit value. It refuses
 the `LCMP` opcode, an invocation of `Long.compare`, `Math.max(long, long)`, `Math.min(long, long)`,
-`Long.signum`, or `Comparator.comparingLong`, and a conversion from `long` to `double` or
-`float`.
+`Long.signum`, `Math.multiplyHigh`, or `Comparator.comparingLong`, and a conversion from `long` to
+`double` or `float`.
 
 The allowlist is a method list in `buildSrc`, not an annotation and not a comment, so adding to it
 is a change somebody reviews. It holds the epoch and instant comparisons named under "Epoch and
@@ -1276,3 +1342,4 @@ gate sees it.
 | [`adr/0034-lazy-candidate-traversal-surface.md`](adr/0034-lazy-candidate-traversal-surface.md) | the candidate cursor against `Iterator` and `Stream` |
 | [`adr/0035-manifest-driven-conformance-harness.md`](adr/0035-manifest-driven-conformance-harness.md) | dynamic tests, the manifest coupling, and the vector artifact |
 | [`adr/0040-cryptographic-primitive-sourcing-policy.md`](adr/0040-cryptographic-primitive-sourcing-policy.md) | where a cryptographic primitive comes from, and the SipHash-2-4 exception |
+| [`adr/0041-exact-product-comparison-surface.md`](adr/0041-exact-product-comparison-surface.md) | the two exact wide comparisons, and the operand ranges that decide their width |

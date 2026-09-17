@@ -16,7 +16,8 @@ import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-DEFAULT_SPEC = HERE.parent.parent / "docs/design/10-specification.md"
+REPOSITORY_ROOT = HERE.parent.parent
+DEFAULT_SPEC = REPOSITORY_ROOT / "docs/design/10-specification.md"
 
 # A requirement is introduced as a backticked identifier followed by a full stop at the start of
 # a line, which is how `10-specification.md` states every one of them.
@@ -49,6 +50,15 @@ SECTION_OF_PREFIX = {
     "CFG": "Configuration surface",
     "SEC": "Security and multi-tenancy",
 }
+
+
+def repository_path(path: Path):
+    """Name a path as the repository names it, whatever the checkout directory is called."""
+    resolved = Path(path).resolve()
+    try:
+        return resolved.relative_to(REPOSITORY_ROOT).as_posix()
+    except ValueError:
+        return resolved.as_posix()
 
 
 def specification_requirements(path: Path):
@@ -133,7 +143,7 @@ def main():
         })
 
     payload = {
-        "specification": args.spec.split("sharder/")[-1],
+        "specification": repository_path(args.spec),
         "statedRequirements": len(stated),
         "coveredRequirements": sum(r["covered"] for r in rows),
         "uncoveredRequirements": sum(r["stated"] - r["covered"] for r in rows),
