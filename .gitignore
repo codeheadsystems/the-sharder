@@ -1,0 +1,14 @@
+# IDE and editor state
+.idea/
+.vscode/
+*.iml
+*.swp
+
+# Python bytecode from the conformance generator
+__pycache__/
+*.pyc
+
+# Build output
+build/
+target/
+.gradle/
