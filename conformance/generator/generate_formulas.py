@@ -141,10 +141,28 @@ def build_failover_formulas(root):
             "expect": formulas.default_attempt_limit(factor, length),
         })
 
+    for supplied, configured, factor, length in [
+            (None, None, 3, 10), (None, 5, 3, 10), (7, 5, 3, 10), (None, 5, 3, 4),
+            (1, None, 3, 10), (None, 12, 1, 6)]:
+        cases.append({
+            "name": "resolvedAttemptLimit/%s-%s-%d-%d"
+                    % ("none" if supplied is None else supplied,
+                       "none" if configured is None else configured, factor, length),
+            "requirements": ["CORE-045", "FAIL-021", "FAIL-022", "CFG-020"],
+            "formula": "resolvedAttemptLimit",
+            "inputs": {"routeOptionsAttemptLimit": supplied,
+                       "configuredAttemptLimit": configured,
+                       "factor": factor, "attemptSequenceLength": length},
+            "note": "the call's limit, else the configured one, else `n + 2`, then clamped to "
+                    "the attempt sequence length",
+            "expect": formulas.resolved_attempt_limit(supplied, configured, factor, length),
+        })
+
     emit(root, "vectors/formulas/failover.json", "formulas-failover",
-         "The retry budget and the default attempt limit.",
-         ["CORE-005", "FAIL-021", "FAIL-022", "FAIL-030", "FAIL-031", "FAIL-032", "FAIL-033",
-          "FAIL-034", "FAIL-035", "CFG-020", "CFG-021"], cases)
+         "The retry budget, the default attempt limit, and the order in which a routing call "
+         "resolves the limit it carries.",
+         ["CORE-005", "CORE-045", "FAIL-021", "FAIL-022", "FAIL-030", "FAIL-031", "FAIL-032",
+          "FAIL-033", "FAIL-034", "FAIL-035", "CFG-020", "CFG-021"], cases)
 
 
 def build_rate_formulas(root):

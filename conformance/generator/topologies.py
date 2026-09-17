@@ -360,6 +360,27 @@ SPREAD_LADDER = {
     ],
 }
 
+# `SPREAD-006` scopes a domain path to `domainLevels` and not to `replication.spread`, so a
+# `spread` that names only the finest level still compares the whole declared path.  Racks `k1` and
+# `k9` are reused across zones and regions here, so the two readings of the scope disagree: under
+# the declared scope `a1` and `a2` sit in different rack domains, and under a scope taken from
+# `spread` they share rack `k1`.
+SPREAD_SKIPPED_LEVEL = {
+    "formatVersion": "1.0",
+    "topologyId": "spread-skipped-level",
+    "epoch": 1,
+    "domainLevels": ["region", "zone", "rack"],
+    "replication": {"factor": 2, "spread": ["rack"], "spreadPolicy": "relaxed"},
+    "strategy": {"kind": "rendezvous"},
+    "nodes": [
+        _node("a1", domains={"region": "r1", "zone": "z1", "rack": "k1"}),
+        _node("a2", domains={"region": "r1", "zone": "z2", "rack": "k1"}),
+        _node("b1", domains={"region": "r2", "zone": "z3", "rack": "k1"}),
+        _node("b2", domains={"region": "r2", "zone": "z3", "rack": "k9"}),
+        _node("c1", domains={"region": "r1", "zone": "z1", "rack": "k9"}),
+    ],
+}
+
 WEIGHT_ZERO = {
     "formatVersion": "1.0",
     "topologyId": "weight-zero",
@@ -630,6 +651,14 @@ INVALID_DOCUMENTS = {
                                  "nodes": ["n1"]},
                                 {"shardId": "r0", "start": "40", "end": None,
                                  "nodes": ["n1"]}]},
+        "nodes": [_node("n1")],
+    },
+    "range-explicit-missing-nodes": {
+        "formatVersion": "1.0", "topologyId": "invalid-range-missing-nodes", "epoch": 1,
+        "strategy": {"kind": "range", "assignment": "explicit",
+                     "ranges": [{"shardId": "r0", "start": None, "end": "40",
+                                 "nodes": ["n1"]},
+                                {"shardId": "r1", "start": "40", "end": None}]},
         "nodes": [_node("n1")],
     },
     "directory-unknown-node": {

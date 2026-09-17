@@ -4,13 +4,13 @@
   "design": "docs/design/30-conformance.md",
   "generator": "conformance/generator",
   "counts": {
-    "vectorFiles": 58,
-    "vectorCases": 600,
-    "topologyDocuments": 97,
+    "vectorFiles": 59,
+    "vectorCases": 638,
+    "topologyDocuments": 103,
     "scenarios": 14,
-    "scenarioSteps": 141,
+    "scenarioSteps": 142,
     "properties": 30,
-    "requirementsNamed": 424
+    "requirementsNamed": 432
   },
   "requirementsNamed": [
     "CFG-020",
@@ -24,6 +24,7 @@
     "CORE-005",
     "CORE-020",
     "CORE-040",
+    "CORE-045",
     "CORE-053",
     "DIR-001",
     "DIR-002",
@@ -85,6 +86,9 @@
     "FENCE-061",
     "FENCE-071",
     "FENCE-081",
+    "FENCE-082",
+    "FENCE-083",
+    "FENCE-084",
     "FENCE-091",
     "FENCE-101",
     "FENCE-111",
@@ -298,6 +302,7 @@
     "RANGE-013",
     "RANGE-020",
     "RANGE-021",
+    "RANGE-022",
     "RANGE-030",
     "RANGE-031",
     "RANGE-032",
@@ -344,6 +349,7 @@
     "RING-003",
     "RING-004",
     "RING-005",
+    "RING-006",
     "RING-010",
     "RING-011",
     "RING-013",
@@ -386,6 +392,7 @@
     "SLOT-021",
     "SLOT-022",
     "SLOT-023",
+    "SLOT-024",
     "SLOT-030",
     "SLOT-031",
     "SLOT-032",
@@ -407,6 +414,7 @@
     "SPREAD-003",
     "SPREAD-004",
     "SPREAD-005",
+    "SPREAD-006",
     "SPREAD-010",
     "SPREAD-011",
     "SPREAD-012",
@@ -654,6 +662,14 @@
       "strategy": "range",
       "nodeCount": 1,
       "digest": "f45ec7ef76d5eb3806b040f8323e1d17858dfa262d2b6beef99d54285dcfe2c0",
+      "valid": false
+    },
+    "topologies/invalid/range-explicit-missing-nodes.topology.json": {
+      "topologyId": "invalid-range-missing-nodes",
+      "epoch": 1,
+      "strategy": "range",
+      "nodeCount": 1,
+      "digest": "169128a7ff01af6d76c118d76c3b56b36de79e82639213c8b1a0a7a7e11ac148",
       "valid": false
     },
     "topologies/invalid/range-first-start-not-null.topology.json": {
@@ -1000,6 +1016,22 @@
       "digest": "f2609780f639e23c817877c929f2d1c28fc3605ef1a22d1ce09b8dbeb83f71fb",
       "valid": true
     },
+    "topologies/range-assignment-named.topology.json": {
+      "topologyId": "range-assignment-named",
+      "epoch": 9,
+      "strategy": "range",
+      "nodeCount": 3,
+      "digest": "7194394c5702d5a55bc391d3d0845a080f2f099ce75d0064ba3bf71ba4b51b2c",
+      "valid": true
+    },
+    "topologies/range-assignment-omitted.topology.json": {
+      "topologyId": "range-assignment-omitted",
+      "epoch": 9,
+      "strategy": "range",
+      "nodeCount": 3,
+      "digest": "a4f2ee259ae566d6eebe161b15a5f18cb830689329ba79041526ed7dcf270dc6",
+      "valid": true
+    },
     "topologies/range-derived.topology.json": {
       "topologyId": "range-derived",
       "epoch": 3,
@@ -1152,6 +1184,22 @@
       "digest": "c95f340f1c68aeeff2dd0afe3320884ac006832ddea99b63ef08057ab44a12fc",
       "valid": true
     },
+    "topologies/slot-assignment-named.topology.json": {
+      "topologyId": "slot-assignment-named",
+      "epoch": 2,
+      "strategy": "slot",
+      "nodeCount": 4,
+      "digest": "5a6c5b5da2fd6e916dfa23b59022a0f5565d27f1cd5470d9fb81d83aaed6c6b5",
+      "valid": true
+    },
+    "topologies/slot-assignment-omitted.topology.json": {
+      "topologyId": "slot-assignment-omitted",
+      "epoch": 2,
+      "strategy": "slot",
+      "nodeCount": 4,
+      "digest": "729e327265994b3c76d2060bf9962efa3c1f11dff72dc21f4abd10ccca7b0690",
+      "valid": true
+    },
     "topologies/slot-derived.topology.json": {
       "topologyId": "slot-derived",
       "epoch": 2,
@@ -1190,6 +1238,14 @@
       "strategy": "rendezvous",
       "nodeCount": 4,
       "digest": "e86bcb4493b8a7779c155333892d569dbcf9f4ed8684efa763be5044a9377710",
+      "valid": true
+    },
+    "topologies/spread-skipped-level.topology.json": {
+      "topologyId": "spread-skipped-level",
+      "epoch": 1,
+      "strategy": "rendezvous",
+      "nodeCount": 5,
+      "digest": "d7eab398cdfbd76294877480aa1ea8d1da24a973a8d69e7765776c7f8338dcba",
       "valid": true
     },
     "topologies/weight-zero-all.topology.json": {
@@ -1339,13 +1395,13 @@
       "kind": "digest",
       "description": "RFC 8785 canonical form and the SHA-256 topology digest of every document the suite uses.",
       "topology": null,
-      "caseCount": 43,
+      "caseCount": 44,
       "requirements": [
         "CORE-020",
         "TOPO-001",
         "TOPO-061"
       ],
-      "sha256": "5a52c59c263ef75e6ef24cfc214aed5cbf595eb3181fb8fd6b4fbe4966c15a1a"
+      "sha256": "9fc12298d0869faf58ec6fd916b36a5d3ed25569ad684c43065fe6049842488a"
     },
     {
       "file": "vectors/directory/matcher-precedence.json",
@@ -1439,13 +1495,14 @@
       "file": "vectors/formulas/failover.json",
       "vectorSet": "formulas-failover",
       "kind": "formula",
-      "description": "The retry budget and the default attempt limit.",
+      "description": "The retry budget, the default attempt limit, and the order in which a routing call resolves the limit it carries.",
       "topology": null,
-      "caseCount": 15,
+      "caseCount": 21,
       "requirements": [
         "CFG-020",
         "CFG-021",
         "CORE-005",
+        "CORE-045",
         "FAIL-021",
         "FAIL-022",
         "FAIL-030",
@@ -1455,7 +1512,7 @@
         "FAIL-034",
         "FAIL-035"
       ],
-      "sha256": "ec3b5f68d503540b5415a750f567252155c9a21410bda3227055d8046740d234"
+      "sha256": "52b428fa5991555523b24e2647612cb640faa76cfb10a9782932d700a0d9c1a2"
     },
     {
       "file": "vectors/formulas/health.json",
@@ -1724,9 +1781,9 @@
       "file": "vectors/placement/document-defaults.json",
       "vectorSet": "placement-document-defaults",
       "kind": "defaults",
-      "description": "A document that omits every optional member and one that writes every default out produce identical orderings, and weight changes nothing under an authored assignment.",
+      "description": "A document that omits every optional member and one that writes every default out produce identical orderings, weight changes nothing under an authored assignment, and an omitted `assignment` takes the default its strategy gives: `derived` under `slot` and `explicit` under `range`.",
       "topology": null,
-      "caseCount": 2,
+      "caseCount": 4,
       "requirements": [
         "DIR-004",
         "KEY-010",
@@ -1734,12 +1791,15 @@
         "PLACE-044",
         "PLACE-050",
         "RANGE-021",
+        "RANGE-022",
         "REPL-001",
         "RING-001",
+        "RING-006",
         "SLOT-014",
+        "SLOT-024",
         "SPREAD-003"
       ],
-      "sha256": "8777759aec4bdcf68aee7035ff3f7d54d52e39b001bd3c56a38bc54e53c35d9a"
+      "sha256": "e7bd9df528a94f9015c1d868743f13b0bfb140fad8c77ad8283e7aeea2b834d0"
     },
     {
       "file": "vectors/placement/identity-comparison.json",
@@ -1854,7 +1914,7 @@
       "kind": "readAffinity",
       "description": "`routeForRead` partitions the first `window` entries towards a domain path, stably, and leaves everything at or beyond `window` untouched.",
       "topology": "topologies/read-affinity.topology.json",
-      "caseCount": 24,
+      "caseCount": 42,
       "requirements": [
         "READ-001",
         "READ-010",
@@ -1864,9 +1924,10 @@
         "READ-015",
         "READ-016",
         "READ-022",
-        "READ-023"
+        "READ-023",
+        "SPREAD-006"
       ],
-      "sha256": "7f5d7efbec4b1ccdcac54ad5f6491956d84779ae79dcba5b156944e6e8168739"
+      "sha256": "06c9f8b8a097810dee465922ff4908e2487633e44fab54b03b8662cf1d743ab5"
     },
     {
       "file": "vectors/rendezvous/cache-hash-tags.json",
@@ -2279,6 +2340,26 @@
       "sha256": "64aa6d4b6b1c635ae2cdf44d2e4e5b80c977d52eb4a088f0db804cf17de2e86b"
     },
     {
+      "file": "vectors/spread/skipped-level.json",
+      "vectorSet": "spread-skipped-level",
+      "kind": "routing",
+      "description": "`domainLevels` of region, zone, and rack with a `spread` of rack alone.  A domain path under `SPREAD-006` spans every declared level through the level compared, so two nodes in rack `k1` under different zones occupy distinct rack domains and both may hold a replica.  A port that scoped the path to `replication.spread` would compare the rack identifier alone and skip the second of them.",
+      "topology": "topologies/spread-skipped-level.topology.json",
+      "caseCount": 9,
+      "requirements": [
+        "REPL-013",
+        "SPREAD-001",
+        "SPREAD-005",
+        "SPREAD-006",
+        "SPREAD-010",
+        "SPREAD-011",
+        "SPREAD-012",
+        "SPREAD-015",
+        "SPREAD-021"
+      ],
+      "sha256": "5c64c5d3e146a971edc4df091bfd7ef064a346e330ed7e69b729565c0212d80d"
+    },
+    {
       "file": "vectors/topology/ownership-delta.json",
       "vectorSet": "topology-ownership-delta",
       "kind": "ownershipDelta",
@@ -2305,7 +2386,7 @@
       "kind": "validation",
       "description": "Documents that fail a load-time rule, each with the rules it breaks, and every valid document in the suite as a negative control.  A port reports every error rather than the first, under `ERR-030`.",
       "topology": null,
-      "caseCount": 64,
+      "caseCount": 66,
       "requirements": [
         "ERR-030",
         "OVR-015",
@@ -2316,7 +2397,7 @@
         "TOPO-011",
         "TOPO-191"
       ],
-      "sha256": "284e97106cc5668e5e6d1ae0c0a34f15fb57c46ef881747dd8ef71924e13b2d4"
+      "sha256": "3a1facddb7896551a7a3d92aeedf1bca5feeb79bf34ada83821931a5c43379d0"
     }
   ],
   "scenarios": [
@@ -2338,8 +2419,8 @@
     {
       "file": "scenarios/caller-three-epochs-stale.json",
       "scenario": "caller-three-epochs-stale",
-      "description": "A caller routes against epoch 1 while the recipient holds epoch 4.  Covers every recipient relation, both policies, a retained and an unretained token epoch, an unfenced request, and a sender ahead of the recipient.",
-      "stepCount": 15,
+      "description": "A caller routes against epoch 1 while the recipient holds epoch 4.  Covers every recipient relation, both policies, a retained and an unretained token epoch, an unfenced request, a sender ahead of the recipient, and the two relations under which ownership is `unknown`.",
+      "stepCount": 16,
       "requirements": [
         "ERR-040",
         "ERR-041",
@@ -2349,6 +2430,9 @@
         "FENCE-061",
         "FENCE-071",
         "FENCE-081",
+        "FENCE-082",
+        "FENCE-083",
+        "FENCE-084",
         "FENCE-091",
         "FENCE-111",
         "FENCE-121",

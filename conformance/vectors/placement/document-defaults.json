@@ -1,15 +1,18 @@
 {
   "vectorSet": "placement-document-defaults",
   "kind": "defaults",
-  "description": "A document that omits every optional member and one that writes every default out produce identical orderings, and weight changes nothing under an authored assignment.",
+  "description": "A document that omits every optional member and one that writes every default out produce identical orderings, weight changes nothing under an authored assignment, and an omitted `assignment` takes the default its strategy gives: `derived` under `slot` and `explicit` under `range`.",
   "requirements": [
     "DIR-004",
     "KEY-010",
     "PLACE-040",
     "PLACE-044",
     "RANGE-021",
+    "RANGE-022",
     "REPL-001",
+    "RING-006",
     "SLOT-014",
+    "SLOT-024",
     "SPREAD-003"
   ],
   "cases": [
@@ -21,11 +24,12 @@
         "REPL-001",
         "SPREAD-003",
         "RING-001",
+        "RING-006",
         "PLACE-050"
       ],
       "omittedDocument": "topologies/defaults-omitted.topology.json",
       "explicitDocument": "topologies/defaults-explicit.topology.json",
-      "note": "a document omitting every optional member routes identically to one writing every default out.  `weight` defaults to 1, `replication.factor` to 1, `keyTransform` to `none`, and the ring sizing fields to 4 and 4096.",
+      "note": "a document omitting every optional member routes identically to one writing every default out.  `weight` defaults to 1, `replication.factor` to 1, `keyTransform` to `none`, `tokenAssignment` to `derived` under `RING-006`, and the ring sizing fields to 4 and 4096.",
       "expect": {
         "identical": true,
         "rows": [
@@ -174,6 +178,120 @@
             "key": {
               "encoding": "utf8",
               "value": "zzz"
+            },
+            "candidates": [
+              "n3",
+              "n1"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "slot-assignment-default",
+      "requirements": [
+        "SLOT-024",
+        "PLACE-040"
+      ],
+      "omittedDocument": "topologies/slot-assignment-omitted.topology.json",
+      "explicitDocument": "topologies/slot-assignment-named.topology.json",
+      "note": "a `slot` document that omits `assignment` routes as one naming `derived`.  The two strategies default opposite ways, so the mode cannot be carried across from the other.",
+      "expect": {
+        "identical": true,
+        "rows": [
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "slot-a"
+            },
+            "candidates": [
+              "s3",
+              "s1",
+              "s2"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "slot-b"
+            },
+            "candidates": [
+              "s3",
+              "s2",
+              "s1"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "slot-c"
+            },
+            "candidates": [
+              "s2",
+              "s1",
+              "s3"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "slot-d"
+            },
+            "candidates": [
+              "s2",
+              "s3",
+              "s1"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "range-assignment-default",
+      "requirements": [
+        "RANGE-022",
+        "PLACE-040"
+      ],
+      "omittedDocument": "topologies/range-assignment-omitted.topology.json",
+      "explicitDocument": "topologies/range-assignment-named.topology.json",
+      "note": "a `range` document that omits `assignment` routes as one naming `explicit`.  The two strategies default opposite ways, so the mode cannot be carried across from the other.",
+      "expect": {
+        "identical": true,
+        "rows": [
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "a"
+            },
+            "candidates": [
+              "n1",
+              "n2"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "m"
+            },
+            "candidates": [
+              "n2",
+              "n3"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "zzz"
+            },
+            "candidates": [
+              "n3",
+              "n1"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "z\u0000"
             },
             "candidates": [
               "n3",

@@ -85,8 +85,12 @@ declares its own names, such as `["datacentre", "hall", "row", "cabinet", "chass
 with no failure domain structure declares an empty list or omits the member.
 
 Two nodes share a failure domain at a level when their domain identifiers agree at that level and at
-every coarser level. Identifiers are compared as byte sequences and are scoped to their level, so a
-rack named `r01` in one zone and a rack named `r01` in another are distinct racks.
+every coarser level of `domainLevels`. Identifiers are compared as byte sequences and are scoped to
+their level, so a rack named `r01` in one zone and a rack named `r01` in another are distinct racks.
+
+The span is `domainLevels` and never `replication.spread`. A topology declaring
+`["region", "zone", "rack"]` and spreading over `["rack"]` alone still compares the whole triple, so
+the two racks named `r01` above remain distinct under that spread.
 
 ## Replication settings
 
@@ -130,6 +134,24 @@ which is `:`, and `count` of 1, the key `acme:orders:99` gives the routing key `
 
 The `strategy` member selects one of five kinds and configures it. Placement arithmetic for each
 kind is specified in [`10-specification.md`](10-specification.md); the fields are given here.
+
+Three kinds carry a member that selects between a derived assignment and an authored one, and each
+has its own default.
+
+| Kind | Member | Mode where the member is absent |
+|---|---|---|
+| `ring` | `tokenAssignment` | `derived` |
+| `slot` | `assignment` | `derived` |
+| `range` | `assignment` | `explicit` |
+
+The defaults follow the shape of a document that carries nothing beyond the members its kind
+requires. A `ring` or `slot` document requires no authored assignment at all, so an absent member
+names no owners and the owners are derived. A `range` document requires `ranges`, and a range is
+authored with the `nodes` member that names its owners, so an absent member leaves that authored
+list in force. The validation rules refuse the mismatched document in both directions: a `slot`
+document carrying `assignments` under `derived` is invalid, and a `range` document omitting `nodes`
+under `explicit` is invalid, so a document whose author meant the other mode is rejected rather than
+routed against the wrong one.
 
 ### Ring strategy
 
@@ -346,6 +368,7 @@ Strategy rules.
   less than its non-null `end` under unsigned bytewise comparison.
 - `range` shard identifiers are unique.
 - `range` with `assignment` of `derived` carries no `nodes` member on any range.
+- `range` with `assignment` of `explicit` carries a `nodes` member on every range.
 - Every node identity referenced by an assignment, a range, a directory entry, or an override exists
   in `nodes`.
 

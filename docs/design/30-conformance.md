@@ -229,6 +229,13 @@ the entries each admits, and the stage the builder chooses, which makes the ladd
 rather than an assertion about it. `distinctStageOutcomes` counts the rungs that differ, and
 `SPREAD-018` makes it `m + 1` where the topology carries a distinct domain at each named level.
 
+`vectors/spread/skipped-level.json` fixes the scope of a domain path. Its topology declares three
+levels, spreads over the finest one alone, and reuses rack identifiers across zones and regions, so
+four of its nine cases place two replicas carrying one rack identifier under distinct rack paths.
+A port that read `SPREAD-006` as spanning `replication.spread` rather than `domainLevels` cannot
+produce those four. `vectors/read/affinity.json` fixes the same scope for `READ-013` with cases at
+a level whose coarser level `replication.spread` does not name.
+
 ### Adversarial vectors
 
 Each adversarial case the design calls for has a vector set.
@@ -383,7 +390,7 @@ the identifiers the suite names. The table below is transcribed from it.
 | Section | Prefix | Stated | Covered | Uncovered |
 |---|---|---|---|---|
 | Configuration surface | `CFG-*` | 30 | 5 | 25 |
-| Core model | `CORE-*` | 51 | 7 | 44 |
+| Core model | `CORE-*` | 51 | 8 | 43 |
 |  | `HASH-*` | 19 | 15 | 4 |
 | Error taxonomy | `ERR-*` | 36 | 26 | 10 |
 | Observability | `OBS-*` | 32 | 4 | 28 |
@@ -391,26 +398,26 @@ the identifiers the suite names. The table below is transcribed from it.
 |  | `HEALTH-*` | 40 | 19 | 21 |
 |  | `READ-*` | 12 | 9 | 3 |
 |  | `REPL-*` | 20 | 15 | 5 |
-|  | `SPREAD-*` | 17 | 17 | 0 |
+|  | `SPREAD-*` | 18 | 18 | 0 |
 | Routing keys and placement | `DIR-*` | 11 | 11 | 0 |
 |  | `KEY-*` | 24 | 22 | 2 |
 |  | `OVR-*` | 28 | 27 | 1 |
 |  | `PLACE-*` | 45 | 39 | 6 |
 |  | `PROP-*` | 36 | 36 | 0 |
-|  | `RANGE-*` | 20 | 18 | 2 |
-|  | `RING-*` | 18 | 17 | 1 |
+|  | `RANGE-*` | 21 | 19 | 2 |
+|  | `RING-*` | 19 | 18 | 1 |
 |  | `RV-*` | 11 | 11 | 0 |
-|  | `SLOT-*` | 16 | 15 | 1 |
+|  | `SLOT-*` | 17 | 16 | 1 |
 | Security and multi-tenancy | `SEC-*` | 20 | 7 | 13 |
-| Topology change and rebalancing | `FENCE-*` | 22 | 19 | 3 |
+| Topology change and rebalancing | `FENCE-*` | 25 | 22 | 3 |
 |  | `MOVE-*` | 51 | 29 | 22 |
 |  | `RATE-*` | 15 | 10 | 5 |
 |  | `SPLIT-*` | 22 | 13 | 9 |
 |  | `TOPO-*` | 26 | 18 | 8 |
-| Total | | 651 | 424 | 227 |
+| Total | | 658 | 432 | 226 |
 
-The suite names 424 of the 651 requirements the specification states. The section below
-names what the remaining 227 are and why no data file carries them.
+The suite names 432 of the 658 requirements the specification states. The section below
+names what the remaining 226 are and why no data file carries them.
 
 ## Requirements without an executable test
 
@@ -531,7 +538,7 @@ and `RV-022` required an equality that holds only under the first reading while 
 implements the second. `RV-020` now names the hexadecimal and `PLACE-032` and `RV-022` state the
 decode.
 
-The specification states 651 requirement identifiers, each introduced as a backticked identifier
+The specification states 658 requirement identifiers, each introduced as a backticked identifier
 followed by a full stop at the start of a line, with no duplicate. `coverage.py` extracts them and
 `run.sh` fails where the suite names one the specification does not state.
 

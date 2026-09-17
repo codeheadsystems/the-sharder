@@ -1,0 +1,62 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "spread-skipped-level",
+  "epoch": 1,
+  "domainLevels": [
+    "region",
+    "zone",
+    "rack"
+  ],
+  "replication": {
+    "factor": 2,
+    "spread": [
+      "rack"
+    ],
+    "spreadPolicy": "relaxed"
+  },
+  "strategy": {
+    "kind": "rendezvous"
+  },
+  "nodes": [
+    {
+      "id": "a1",
+      "domains": {
+        "region": "r1",
+        "zone": "z1",
+        "rack": "k1"
+      }
+    },
+    {
+      "id": "a2",
+      "domains": {
+        "region": "r1",
+        "zone": "z2",
+        "rack": "k1"
+      }
+    },
+    {
+      "id": "b1",
+      "domains": {
+        "region": "r2",
+        "zone": "z3",
+        "rack": "k1"
+      }
+    },
+    {
+      "id": "b2",
+      "domains": {
+        "region": "r2",
+        "zone": "z3",
+        "rack": "k9"
+      }
+    },
+    {
+      "id": "c1",
+      "domains": {
+        "region": "r1",
+        "zone": "z1",
+        "rack": "k9"
+      }
+    }
+  ]
+}

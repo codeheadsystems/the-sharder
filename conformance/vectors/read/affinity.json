@@ -11,7 +11,8 @@
     "READ-015",
     "READ-016",
     "READ-022",
-    "READ-023"
+    "READ-023",
+    "SPREAD-006"
   ],
   "cases": [
     {
@@ -21,7 +22,8 @@
         "READ-013",
         "READ-014",
         "READ-016",
-        "READ-023"
+        "READ-023",
+        "SPREAD-006"
       ],
       "key": {
         "encoding": "utf8",
@@ -110,7 +112,8 @@
         "READ-013",
         "READ-014",
         "READ-016",
-        "READ-023"
+        "READ-023",
+        "SPREAD-006"
       ],
       "key": {
         "encoding": "utf8",
@@ -199,7 +202,8 @@
         "READ-013",
         "READ-014",
         "READ-016",
-        "READ-023"
+        "READ-023",
+        "SPREAD-006"
       ],
       "key": {
         "encoding": "utf8",
@@ -288,7 +292,8 @@
         "READ-013",
         "READ-014",
         "READ-016",
-        "READ-023"
+        "READ-023",
+        "SPREAD-006"
       ],
       "key": {
         "encoding": "utf8",
@@ -371,13 +376,287 @@
       }
     },
     {
+      "name": "read-0/zone-eu-a",
+      "requirements": [
+        "READ-012",
+        "READ-013",
+        "READ-014",
+        "READ-016",
+        "READ-023",
+        "SPREAD-006"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "read-0"
+      },
+      "affinity": {
+        "level": "zone",
+        "path": [
+          "eu",
+          "a"
+        ],
+        "window": null
+      },
+      "expect": {
+        "preferenceList": [
+          {
+            "node": "ap-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "us-a",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "ordered": [
+          {
+            "node": "eu-a",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "us-a",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "replicaCount": 4,
+        "shard": "726561642d30"
+      }
+    },
+    {
+      "name": "read-0/zone-us-a",
+      "requirements": [
+        "READ-012",
+        "READ-013",
+        "READ-014",
+        "READ-016",
+        "READ-023",
+        "SPREAD-006"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "read-0"
+      },
+      "affinity": {
+        "level": "zone",
+        "path": [
+          "us",
+          "a"
+        ],
+        "window": null
+      },
+      "expect": {
+        "preferenceList": [
+          {
+            "node": "ap-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "us-a",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "ordered": [
+          {
+            "node": "ap-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "us-a",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "replicaCount": 4,
+        "shard": "726561642d30"
+      }
+    },
+    {
+      "name": "read-0/zone-ap-b",
+      "requirements": [
+        "READ-012",
+        "READ-013",
+        "READ-014",
+        "READ-016",
+        "READ-023",
+        "SPREAD-006"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "read-0"
+      },
+      "affinity": {
+        "level": "zone",
+        "path": [
+          "ap",
+          "b"
+        ],
+        "window": null
+      },
+      "expect": {
+        "preferenceList": [
+          {
+            "node": "ap-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "us-a",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "ordered": [
+          {
+            "node": "ap-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "us-a",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "replicaCount": 4,
+        "shard": "726561642d30"
+      }
+    },
+    {
       "name": "read-1/eu",
       "requirements": [
         "READ-012",
         "READ-013",
         "READ-014",
         "READ-016",
-        "READ-023"
+        "READ-023",
+        "SPREAD-006"
       ],
       "key": {
         "encoding": "utf8",
@@ -466,7 +745,8 @@
         "READ-013",
         "READ-014",
         "READ-016",
-        "READ-023"
+        "READ-023",
+        "SPREAD-006"
       ],
       "key": {
         "encoding": "utf8",
@@ -555,7 +835,8 @@
         "READ-013",
         "READ-014",
         "READ-016",
-        "READ-023"
+        "READ-023",
+        "SPREAD-006"
       ],
       "key": {
         "encoding": "utf8",
@@ -644,7 +925,8 @@
         "READ-013",
         "READ-014",
         "READ-016",
-        "READ-023"
+        "READ-023",
+        "SPREAD-006"
       ],
       "key": {
         "encoding": "utf8",
@@ -727,13 +1009,287 @@
       }
     },
     {
+      "name": "read-1/zone-eu-a",
+      "requirements": [
+        "READ-012",
+        "READ-013",
+        "READ-014",
+        "READ-016",
+        "READ-023",
+        "SPREAD-006"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "read-1"
+      },
+      "affinity": {
+        "level": "zone",
+        "path": [
+          "eu",
+          "a"
+        ],
+        "window": null
+      },
+      "expect": {
+        "preferenceList": [
+          {
+            "node": "us-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "ordered": [
+          {
+            "node": "eu-a",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "replicaCount": 4,
+        "shard": "726561642d31"
+      }
+    },
+    {
+      "name": "read-1/zone-us-a",
+      "requirements": [
+        "READ-012",
+        "READ-013",
+        "READ-014",
+        "READ-016",
+        "READ-023",
+        "SPREAD-006"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "read-1"
+      },
+      "affinity": {
+        "level": "zone",
+        "path": [
+          "us",
+          "a"
+        ],
+        "window": null
+      },
+      "expect": {
+        "preferenceList": [
+          {
+            "node": "us-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "ordered": [
+          {
+            "node": "us-a",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "replicaCount": 4,
+        "shard": "726561642d31"
+      }
+    },
+    {
+      "name": "read-1/zone-ap-b",
+      "requirements": [
+        "READ-012",
+        "READ-013",
+        "READ-014",
+        "READ-016",
+        "READ-023",
+        "SPREAD-006"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "read-1"
+      },
+      "affinity": {
+        "level": "zone",
+        "path": [
+          "ap",
+          "b"
+        ],
+        "window": null
+      },
+      "expect": {
+        "preferenceList": [
+          {
+            "node": "us-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "ordered": [
+          {
+            "node": "ap-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "replicaCount": 4,
+        "shard": "726561642d31"
+      }
+    },
+    {
       "name": "read-2/eu",
       "requirements": [
         "READ-012",
         "READ-013",
         "READ-014",
         "READ-016",
-        "READ-023"
+        "READ-023",
+        "SPREAD-006"
       ],
       "key": {
         "encoding": "utf8",
@@ -822,7 +1378,8 @@
         "READ-013",
         "READ-014",
         "READ-016",
-        "READ-023"
+        "READ-023",
+        "SPREAD-006"
       ],
       "key": {
         "encoding": "utf8",
@@ -911,7 +1468,8 @@
         "READ-013",
         "READ-014",
         "READ-016",
-        "READ-023"
+        "READ-023",
+        "SPREAD-006"
       ],
       "key": {
         "encoding": "utf8",
@@ -1000,7 +1558,8 @@
         "READ-013",
         "READ-014",
         "READ-016",
-        "READ-023"
+        "READ-023",
+        "SPREAD-006"
       ],
       "key": {
         "encoding": "utf8",
@@ -1083,13 +1642,287 @@
       }
     },
     {
+      "name": "read-2/zone-eu-a",
+      "requirements": [
+        "READ-012",
+        "READ-013",
+        "READ-014",
+        "READ-016",
+        "READ-023",
+        "SPREAD-006"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "read-2"
+      },
+      "affinity": {
+        "level": "zone",
+        "path": [
+          "eu",
+          "a"
+        ],
+        "window": null
+      },
+      "expect": {
+        "preferenceList": [
+          {
+            "node": "us-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "ordered": [
+          {
+            "node": "eu-a",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "replicaCount": 4,
+        "shard": "726561642d32"
+      }
+    },
+    {
+      "name": "read-2/zone-us-a",
+      "requirements": [
+        "READ-012",
+        "READ-013",
+        "READ-014",
+        "READ-016",
+        "READ-023",
+        "SPREAD-006"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "read-2"
+      },
+      "affinity": {
+        "level": "zone",
+        "path": [
+          "us",
+          "a"
+        ],
+        "window": null
+      },
+      "expect": {
+        "preferenceList": [
+          {
+            "node": "us-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "ordered": [
+          {
+            "node": "us-a",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "replicaCount": 4,
+        "shard": "726561642d32"
+      }
+    },
+    {
+      "name": "read-2/zone-ap-b",
+      "requirements": [
+        "READ-012",
+        "READ-013",
+        "READ-014",
+        "READ-016",
+        "READ-023",
+        "SPREAD-006"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "read-2"
+      },
+      "affinity": {
+        "level": "zone",
+        "path": [
+          "ap",
+          "b"
+        ],
+        "window": null
+      },
+      "expect": {
+        "preferenceList": [
+          {
+            "node": "us-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "ordered": [
+          {
+            "node": "ap-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "replicaCount": 4,
+        "shard": "726561642d32"
+      }
+    },
+    {
       "name": "read-3/eu",
       "requirements": [
         "READ-012",
         "READ-013",
         "READ-014",
         "READ-016",
-        "READ-023"
+        "READ-023",
+        "SPREAD-006"
       ],
       "key": {
         "encoding": "utf8",
@@ -1178,7 +2011,8 @@
         "READ-013",
         "READ-014",
         "READ-016",
-        "READ-023"
+        "READ-023",
+        "SPREAD-006"
       ],
       "key": {
         "encoding": "utf8",
@@ -1267,7 +2101,8 @@
         "READ-013",
         "READ-014",
         "READ-016",
-        "READ-023"
+        "READ-023",
+        "SPREAD-006"
       ],
       "key": {
         "encoding": "utf8",
@@ -1356,7 +2191,8 @@
         "READ-013",
         "READ-014",
         "READ-016",
-        "READ-023"
+        "READ-023",
+        "SPREAD-006"
       ],
       "key": {
         "encoding": "utf8",
@@ -1439,13 +2275,287 @@
       }
     },
     {
+      "name": "read-3/zone-eu-a",
+      "requirements": [
+        "READ-012",
+        "READ-013",
+        "READ-014",
+        "READ-016",
+        "READ-023",
+        "SPREAD-006"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "read-3"
+      },
+      "affinity": {
+        "level": "zone",
+        "path": [
+          "eu",
+          "a"
+        ],
+        "window": null
+      },
+      "expect": {
+        "preferenceList": [
+          {
+            "node": "ap-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "ap-a",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "ordered": [
+          {
+            "node": "eu-a",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "ap-a",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "replicaCount": 4,
+        "shard": "726561642d33"
+      }
+    },
+    {
+      "name": "read-3/zone-us-a",
+      "requirements": [
+        "READ-012",
+        "READ-013",
+        "READ-014",
+        "READ-016",
+        "READ-023",
+        "SPREAD-006"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "read-3"
+      },
+      "affinity": {
+        "level": "zone",
+        "path": [
+          "us",
+          "a"
+        ],
+        "window": null
+      },
+      "expect": {
+        "preferenceList": [
+          {
+            "node": "ap-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "ap-a",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "ordered": [
+          {
+            "node": "us-a",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "ap-a",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "replicaCount": 4,
+        "shard": "726561642d33"
+      }
+    },
+    {
+      "name": "read-3/zone-ap-b",
+      "requirements": [
+        "READ-012",
+        "READ-013",
+        "READ-014",
+        "READ-016",
+        "READ-023",
+        "SPREAD-006"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "read-3"
+      },
+      "affinity": {
+        "level": "zone",
+        "path": [
+          "ap",
+          "b"
+        ],
+        "window": null
+      },
+      "expect": {
+        "preferenceList": [
+          {
+            "node": "ap-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "ap-a",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "ordered": [
+          {
+            "node": "ap-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "ap-a",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "replicaCount": 4,
+        "shard": "726561642d33"
+      }
+    },
+    {
       "name": "read-4/eu",
       "requirements": [
         "READ-012",
         "READ-013",
         "READ-014",
         "READ-016",
-        "READ-023"
+        "READ-023",
+        "SPREAD-006"
       ],
       "key": {
         "encoding": "utf8",
@@ -1534,7 +2644,8 @@
         "READ-013",
         "READ-014",
         "READ-016",
-        "READ-023"
+        "READ-023",
+        "SPREAD-006"
       ],
       "key": {
         "encoding": "utf8",
@@ -1623,7 +2734,8 @@
         "READ-013",
         "READ-014",
         "READ-016",
-        "READ-023"
+        "READ-023",
+        "SPREAD-006"
       ],
       "key": {
         "encoding": "utf8",
@@ -1712,7 +2824,8 @@
         "READ-013",
         "READ-014",
         "READ-016",
-        "READ-023"
+        "READ-023",
+        "SPREAD-006"
       ],
       "key": {
         "encoding": "utf8",
@@ -1795,13 +2908,287 @@
       }
     },
     {
+      "name": "read-4/zone-eu-a",
+      "requirements": [
+        "READ-012",
+        "READ-013",
+        "READ-014",
+        "READ-016",
+        "READ-023",
+        "SPREAD-006"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "read-4"
+      },
+      "affinity": {
+        "level": "zone",
+        "path": [
+          "eu",
+          "a"
+        ],
+        "window": null
+      },
+      "expect": {
+        "preferenceList": [
+          {
+            "node": "ap-a",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "us-a",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "ordered": [
+          {
+            "node": "eu-a",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "us-a",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "replicaCount": 4,
+        "shard": "726561642d34"
+      }
+    },
+    {
+      "name": "read-4/zone-us-a",
+      "requirements": [
+        "READ-012",
+        "READ-013",
+        "READ-014",
+        "READ-016",
+        "READ-023",
+        "SPREAD-006"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "read-4"
+      },
+      "affinity": {
+        "level": "zone",
+        "path": [
+          "us",
+          "a"
+        ],
+        "window": null
+      },
+      "expect": {
+        "preferenceList": [
+          {
+            "node": "ap-a",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "us-a",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "ordered": [
+          {
+            "node": "ap-a",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "us-a",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "replicaCount": 4,
+        "shard": "726561642d34"
+      }
+    },
+    {
+      "name": "read-4/zone-ap-b",
+      "requirements": [
+        "READ-012",
+        "READ-013",
+        "READ-014",
+        "READ-016",
+        "READ-023",
+        "SPREAD-006"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "read-4"
+      },
+      "affinity": {
+        "level": "zone",
+        "path": [
+          "ap",
+          "b"
+        ],
+        "window": null
+      },
+      "expect": {
+        "preferenceList": [
+          {
+            "node": "ap-a",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "us-a",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "ordered": [
+          {
+            "node": "ap-b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "us-a",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "replicaCount": 4,
+        "shard": "726561642d34"
+      }
+    },
+    {
       "name": "read-5/eu",
       "requirements": [
         "READ-012",
         "READ-013",
         "READ-014",
         "READ-016",
-        "READ-023"
+        "READ-023",
+        "SPREAD-006"
       ],
       "key": {
         "encoding": "utf8",
@@ -1890,7 +3277,8 @@
         "READ-013",
         "READ-014",
         "READ-016",
-        "READ-023"
+        "READ-023",
+        "SPREAD-006"
       ],
       "key": {
         "encoding": "utf8",
@@ -1979,7 +3367,8 @@
         "READ-013",
         "READ-014",
         "READ-016",
-        "READ-023"
+        "READ-023",
+        "SPREAD-006"
       ],
       "key": {
         "encoding": "utf8",
@@ -2068,7 +3457,8 @@
         "READ-013",
         "READ-014",
         "READ-016",
-        "READ-023"
+        "READ-023",
+        "SPREAD-006"
       ],
       "key": {
         "encoding": "utf8",
@@ -2078,6 +3468,279 @@
         "level": "region",
         "path": [
           "antarctica"
+        ],
+        "window": null
+      },
+      "expect": {
+        "preferenceList": [
+          {
+            "node": "eu-a",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "ordered": [
+          {
+            "node": "eu-a",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "replicaCount": 4,
+        "shard": "726561642d35"
+      }
+    },
+    {
+      "name": "read-5/zone-eu-a",
+      "requirements": [
+        "READ-012",
+        "READ-013",
+        "READ-014",
+        "READ-016",
+        "READ-023",
+        "SPREAD-006"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "read-5"
+      },
+      "affinity": {
+        "level": "zone",
+        "path": [
+          "eu",
+          "a"
+        ],
+        "window": null
+      },
+      "expect": {
+        "preferenceList": [
+          {
+            "node": "eu-a",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "ordered": [
+          {
+            "node": "eu-a",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "replicaCount": 4,
+        "shard": "726561642d35"
+      }
+    },
+    {
+      "name": "read-5/zone-us-a",
+      "requirements": [
+        "READ-012",
+        "READ-013",
+        "READ-014",
+        "READ-016",
+        "READ-023",
+        "SPREAD-006"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "read-5"
+      },
+      "affinity": {
+        "level": "zone",
+        "path": [
+          "us",
+          "a"
+        ],
+        "window": null
+      },
+      "expect": {
+        "preferenceList": [
+          {
+            "node": "eu-a",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "us-a",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "ordered": [
+          {
+            "node": "us-a",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "us-b",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "ap-a",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "ap-b",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "replicaCount": 4,
+        "shard": "726561642d35"
+      }
+    },
+    {
+      "name": "read-5/zone-ap-b",
+      "requirements": [
+        "READ-012",
+        "READ-013",
+        "READ-014",
+        "READ-016",
+        "READ-023",
+        "SPREAD-006"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "read-5"
+      },
+      "affinity": {
+        "level": "zone",
+        "path": [
+          "ap",
+          "b"
         ],
         "window": null
       },

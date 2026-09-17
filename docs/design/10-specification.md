@@ -370,9 +370,8 @@ from `CORE-020`.
 positions, differing only in sequence, and `ordered` MUST equal `entries` unless `routeForRead`
 produced the decision.
 
-`CORE-045`. `attemptLimit` MUST be the limit in force for the decision: the value `RouteOptions`
-supplied, or the default of `FAIL-022` resolved against this decision's effective replication
-factor. `attempts` MUST take the limit from the decision and MUST NOT resolve it again.
+`CORE-045`. `attemptLimit` MUST be the limit `FAIL-022` resolves for the decision. `attempts` MUST
+take the limit from the decision and MUST NOT resolve it again.
 
 ### Snapshot visibility
 
@@ -1049,6 +1048,10 @@ candidate ordering accordingly.
 `RING-005`. An implementation MUST derive tokens from the eligible node set when building a
 candidate ordering, and from the placement set when computing `shardOf` or enumerating `shards`.
 
+`RING-006`. Where the `ring` strategy object omits `tokenAssignment`, the token assignment mode
+MUST be `derived`, and the document MUST behave exactly as one that names the mode. An
+implementation MUST NOT infer the mode from the members the document carries.
+
 #### Ring order
 
 The **ring order** is the total order over ring entries that every ring operation walks. A ring
@@ -1231,6 +1234,10 @@ score descending, then by node identity ascending under `PLACE-020`.
 `SLOT-023`. The candidate ordering for a slot index MUST NOT depend on the routing key beyond the
 slot index it reduces to. Two routing keys with the same slot index MUST produce the same ordering.
 
+`SLOT-024`. Where the `slot` strategy object omits `assignment`, the assignment mode MUST be
+`derived`, and the document MUST behave exactly as one that names the mode. An
+implementation MUST NOT infer the mode from the presence or absence of `assignments`.
+
 #### Slot shards
 
 `SLOT-030`. `shardOf(rk)` MUST be the slot index rendered in decimal ASCII with no leading zeros.
@@ -1301,6 +1308,10 @@ range, it MUST select the range at the lower array index, and MUST NOT merge the
 under `PLACE-013`.
 
 `RANGE-021`. `weight` MUST NOT affect the ordering under `explicit` assignment.
+
+`RANGE-022`. Where the `range` strategy object omits `assignment`, the assignment mode MUST be
+`explicit`, and the document MUST behave exactly as one that names the mode. An
+implementation MUST NOT infer the mode from the presence or absence of a range's `nodes` member.
 
 #### Range derived assignment
 
@@ -1757,8 +1768,8 @@ routing decision like any other, and the caller decides whether it is sufficient
 
 ### Failure domain spread
 
-Two nodes share a failure domain at a level when their domain identifiers agree at that level and at
-every coarser level, as specified under `TOPO-*`.
+Two nodes share a failure domain at a level when their domain paths at that level are equal.
+`SPREAD-006` gives the domain path and fixes the levels it spans.
 
 `SPREAD-001`. A spread requirement at level `L` is satisfied by a replica prefix when no two of its
 entries share a failure domain at `L`.
@@ -1775,6 +1786,13 @@ bound and the minimal movement bound; it is not exempt from spread.
 
 `SPREAD-005`. `replication.spread` MUST be read as an ordered list, coarsest level first, in the
 same relative order as `domainLevels`.
+
+`SPREAD-006`. `domain_path(x, L)` MUST be the failure domain path of node `x` truncated at level
+`L`: the tuple of `x`'s domain identifiers at every level of `domainLevels`, from index 0 through
+the index of `L`, in `domainLevels` order. Every level of `domainLevels` within that span MUST
+contribute an identifier to the tuple, whether or not `replication.spread` names it. The scope of
+the tuple is `domainLevels` and never `replication.spread`. Two domain paths MUST be compared
+element by element as octet sequences under `PLACE-020`.
 
 ### Spread degradation
 
@@ -1807,8 +1825,10 @@ shares_domain(x, prefix, levels):
     return false
 ```
 
-`domain_path(x, L)` is the tuple of `x`'s domain identifiers from the coarsest level through `L`,
-compared as a sequence of byte sequences.
+`domain_path(x, L)` is given by `SPREAD-006`. It spans every level of `domainLevels` from the
+coarsest declared level through `L`, including a declared level that `replication.spread` omits, so
+`spread` of `["rack"]` over `domainLevels` of `["region", "zone", "rack"]` compares the triple and
+not the rack identifier alone.
 
 `SPREAD-012`. Under `spreadPolicy` of `relaxed`, the builder MUST use `select(k)` for the smallest
 `k` in `0` to `m` for which `length(select(k))` equals `n`.
@@ -2123,9 +2143,14 @@ attempt a node, and MUST NOT retry anything.
 `FAIL-021`. An implementation MUST expose an attempt limit on a routing call, counted in attempts
 rather than in preference list positions. The attempt sequence MUST be truncated to that limit.
 
-`FAIL-022`. The default attempt limit MUST be `n + 2`, clamped to the length of the attempt
-sequence. A topology at factor 1 therefore offers two fallback attempts by default, and a topology
-at factor 3 offers two beyond the replica prefix.
+`FAIL-022`. The attempt limit in force for a routing decision MUST be resolved in this order: the
+value `RouteOptions` supplies, where it supplies one; otherwise the configured `attemptLimit` of
+`CFG-020`. Where the integrator configures no value, `CFG-020` supplies `n + 2` against the
+decision's effective replication factor. The resolved limit MUST be clamped to the length of the
+attempt sequence. An implementation MUST NOT consult the configured setting where `RouteOptions`
+supplies a limit, and MUST NOT bypass the configured setting where it does not. A topology at factor
+1 therefore offers two fallback attempts by default, and a topology at factor 3 offers two beyond
+the replica prefix.
 
 `FAIL-023`. An implementation MUST expose the attempt walk as this surface.
 
@@ -2235,7 +2260,7 @@ has this shape.
 ```
 record AffinityRequest:
     level:   string              # a declared domain level
-    path:    list<bytes>         # domain identifiers, coarsest first, through level
+    path:    list<bytes>         # a domain path under SPREAD-006, coarsest first, through level
     window:  u32 | none          # none takes the replica prefix length, CFG-020
 ```
 
@@ -2247,8 +2272,11 @@ an entry across the boundary between the replica prefix and the fallback tail, a
 `r`.
 
 `READ-013`. The reordering MUST be a stable partition of the first `window` entries of the
-preference list into two groups: entries whose domain path agrees with `path` at `level` and at
-every coarser level, then the remaining entries. Each group MUST preserve preference list order.
+preference list into two groups: entries whose `domain_path` at `level`, under `SPREAD-006`, agrees
+with `path` position by position, then the remaining entries. Each group MUST preserve preference
+list order. `path` is indexed by `domainLevels`, so it carries an identifier for every level of
+`domainLevels` from index 0 through the index of `level`, including a declared level that
+`replication.spread` omits.
 
 `READ-014`. Entries at positions at or above `window` MUST be unchanged, in both identity and
 position.
@@ -2460,7 +2488,7 @@ Verdict = {
     ownership:       one of { owner, notOwner, unknown },
     ownershipStable: boolean,
     currentOwner:    NodeId | none,
-    localToken:      FencingToken
+    localToken:      FencingToken | none
 }
 ```
 
@@ -2475,9 +2503,22 @@ unsigned octets and `epoch` as an unsigned integer.
 | token epoch below the epoch in force | `senderBehind` |
 | token epoch above the epoch in force | `senderAhead` |
 
-`FENCE-081`. An implementation MUST compute `ownership` by evaluating the preference list for
-`routingKey` against the snapshot in force and reporting whether `selfId` appears within the first
-`factor` entries. It MUST set `currentOwner` to the first entry of that preference list.
+`FENCE-081`. Where `relation` is `same`, `senderBehind`, or `senderAhead`, an implementation MUST
+compute `ownership` by evaluating the preference list for `routingKey` against the snapshot in force
+and reporting whether `selfId` appears within the first `factor` entries. It MUST set `currentOwner`
+to the first entry of that preference list.
+
+`FENCE-082`. Where `relation` is `identityMismatch`, `ownership` MUST be `unknown` and
+`currentOwner` MUST be absent. An implementation MUST NOT evaluate a preference list for
+`routingKey`, and MUST NOT report an owner drawn from its own snapshot. The routing key was derived
+under the sender's topology, whose `keyTransform`, `hash.seed`, and node set are unrelated to the
+recipient's, so the recipient holds no evidence about the sender's shard.
+
+`FENCE-083`. Where `relation` is `unknownEpoch`, `ownership` MUST be `unknown`, `currentOwner` MUST
+be absent, and `localToken` MUST be absent. No snapshot is in force, so no preference list exists.
+
+`FENCE-084`. `ownership` of `unknown` MUST arise only under `FENCE-082` and `FENCE-083`. Where
+`relation` is `same`, `senderBehind`, or `senderAhead`, `ownership` MUST be `owner` or `notOwner`.
 
 `FENCE-091`. An implementation MUST set `ownershipStable` to true when `relation` is `senderBehind`,
 the snapshot at the token's epoch is retained under `TOPO-161`, and `selfId` appears within the
@@ -3634,7 +3675,7 @@ and the value 0 MUST disable the event it governs. None of the three refuses a d
 
 | Setting | Default | Meaning |
 |---|---|---|
-| `attemptLimit` | the factor plus 2 | attempts a sequence yields, under `FAIL-022` |
+| `attemptLimit` | the factor plus 2 | limit a call inherits where it supplies none; `FAIL-022` |
 | `retryBudgetWindowMillis` | 10000 | accounting window for the retry budget |
 | `retryBudgetPercent` | 20 | retries permitted as a percentage of first attempts |
 | `retryBudgetMinimum` | 3 | retries permitted in the window regardless of the percentage |

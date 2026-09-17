@@ -304,6 +304,35 @@
       }
     },
     {
+      "name": "range-explicit-missing-nodes",
+      "requirements": [
+        "TOPO-001",
+        "TOPO-011",
+        "TOPO-191",
+        "ERR-030"
+      ],
+      "document": "topologies/invalid/range-explicit-missing-nodes.topology.json",
+      "stage": "semantic",
+      "note": "rejected at stage 3, the semantic rules of TOPO-001",
+      "expect": {
+        "valid": false,
+        "condition": {
+          "code": 201,
+          "name": "invalidTopology"
+        },
+        "rules": [
+          "missingNodesUnderExplicit"
+        ],
+        "errors": [
+          {
+            "path": "strategy.ranges[1].nodes",
+            "rule": "missingNodesUnderExplicit",
+            "detail": "r1"
+          }
+        ]
+      }
+    },
+    {
       "name": "range-first-start-not-null",
       "requirements": [
         "TOPO-001",
@@ -1156,6 +1185,19 @@
         "TOPO-001"
       ],
       "document": "topologies/spread-ladder.topology.json",
+      "stage": "none",
+      "expect": {
+        "valid": true,
+        "rules": [],
+        "errors": []
+      }
+    },
+    {
+      "name": "valid/spread-skipped-level",
+      "requirements": [
+        "TOPO-001"
+      ],
+      "document": "topologies/spread-skipped-level.topology.json",
       "stage": "none",
       "expect": {
         "valid": true,

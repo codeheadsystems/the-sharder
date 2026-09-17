@@ -50,6 +50,7 @@ TOPOLOGY_FILES = {
     "one-domain-relaxed": T.ALL_ONE_DOMAIN_RELAXED,
     "one-domain-strict": T.ALL_ONE_DOMAIN_STRICT,
     "spread-ladder": T.SPREAD_LADDER,
+    "spread-skipped-level": T.SPREAD_SKIPPED_LEVEL,
     "weight-zero": T.WEIGHT_ZERO,
     "weight-zero-all": T.WEIGHT_ZERO_ALL,
     "weight-zero-pinned": T.WEIGHT_ZERO_PINNED,
@@ -937,6 +938,40 @@ def build_spread_vectors(out):
                 "SPREAD-015", "SPREAD-017", "SPREAD-018", "SPREAD-019", "SPREAD-020"],
                ladder_cases)
 
+    # `SPREAD-006` fixes the scope of a domain path to `domainLevels`.  This topology declares
+    # three levels and spreads over the finest one alone, and reuses rack identifiers across
+    # zones and regions, so a port that scopes the path to `replication.spread` computes a
+    # different replica prefix for the keys marked below.
+    snapshot = SNAPSHOTS["spread-skipped-level"]
+    cases = []
+    separating = 0
+    for i in [0, 1, 2, 3, 4, 5, 6, 7, 17]:
+        key = ("key-%d" % i).encode()
+        decision = routing.route(snapshot, key)
+        prefix = [e["node"] for e in decision["preferenceList"]][:decision["replicaCount"]]
+        racks = [snapshot.by_id[n].domains["rack"] for n in prefix]
+        shared = len(set(racks)) < len(racks)
+        separating += 1 if shared else 0
+        if shared:
+            note = ("two replicas carry the rack identifier %s and distinct rack domain paths"
+                    % racks[0])
+        else:
+            note = "the replicas carry distinct rack identifiers"
+        cases.append(routing_case(snapshot, key, "skipped-level/%d" % i,
+                                  ["SPREAD-005", "SPREAD-006", "SPREAD-011", "SPREAD-012"],
+                                  note))
+    assert separating >= 4, "the skipped-level set separates only %d cases" % separating
+    routing_set(out, "vectors/spread/skipped-level.json", "spread-skipped-level",
+                "`domainLevels` of region, zone, and rack with a `spread` of rack alone.  A "
+                "domain path under `SPREAD-006` spans every declared level through the level "
+                "compared, so two nodes in rack `k1` under different zones occupy distinct rack "
+                "domains and both may hold a replica.  A port that scoped the path to "
+                "`replication.spread` would compare the rack identifier alone and skip the "
+                "second of them.",
+                "spread-skipped-level",
+                ["SPREAD-001", "SPREAD-005", "SPREAD-006", "SPREAD-010", "SPREAD-011",
+                 "SPREAD-012", "SPREAD-015", "SPREAD-021", "REPL-013"], cases)
+
     snapshot = SNAPSHOTS["ring-zoned"]
     cases = [routing_case(snapshot, ("tail-%d" % i).encode(), "tail/%d" % i,
                           ["REPL-013", "REPL-014", "REPL-017", "SPREAD-021"],
@@ -960,12 +995,18 @@ def build_read_affinity_vectors(out):
             ("region", ["us"], None, "us"),
             ("region", ["ap"], 2, "ap-window-2"),
             ("region", ["antarctica"], None, "absent"),
+            # `READ-013` scopes the comparison to `domainLevels`, so a `zone` request carries the
+            # region as well and `eu/a` does not match `us-a`.
+            ("zone", ["eu", "a"], None, "zone-eu-a"),
+            ("zone", ["us", "a"], None, "zone-us-a"),
+            ("zone", ["ap", "b"], None, "zone-ap-b"),
         ]:
             decision = routing.route(snapshot, key,
                                      affinity={"level": level, "path": path, "window": window})
             cases.append({
                 "name": "read-%d/%s" % (i, label),
-                "requirements": ["READ-012", "READ-013", "READ-014", "READ-016", "READ-023"],
+                "requirements": ["READ-012", "READ-013", "READ-014", "READ-016", "READ-023",
+                                 "SPREAD-006"],
                 "key": key_spec(key),
                 "affinity": {"level": level, "path": path, "window": window},
                 "expect": {
@@ -979,7 +1020,7 @@ def build_read_affinity_vectors(out):
                "`routeForRead` partitions the first `window` entries towards a domain path, "
                "stably, and leaves everything at or beyond `window` untouched.",
                ["READ-001", "READ-010", "READ-012", "READ-013", "READ-014", "READ-015",
-                "READ-016", "READ-022", "READ-023"], cases,
+                "READ-016", "READ-022", "READ-023", "SPREAD-006"], cases,
                topology="topologies/read-affinity.topology.json")
 
 

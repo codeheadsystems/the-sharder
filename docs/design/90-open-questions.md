@@ -196,9 +196,9 @@ Evidence that settles it: a derivation of a weaker multiplier at a stated confid
 
 ### OQ-13. Requirement coverage below full
 
-The suite names 424 of the 645 requirements the specification states.
+The suite names 432 of the 658 requirements the specification states.
 [`30-conformance.md`](30-conformance.md#requirements-without-an-executable-test) accounts for the
-other 221 by group: concurrency and visibility, provider timing, observability values, the negative
+other 226 by group: concurrency and visibility, provider timing, observability values, the negative
 requirements of rate control, movement hook opacity, configuration acceptance, and split execution.
 
 Recommended default: accept the figure and the accounting. A requirement in those groups constrains

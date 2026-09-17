@@ -252,6 +252,9 @@ def run_formula(root, payload):
             i["retries"], i["firstAttempts"], i["retryBudgetPercent"], i["retryBudgetMinimum"]),
         "defaultAttemptLimit": lambda i: formulas.default_attempt_limit(
             i["factor"], i["attemptSequenceLength"]),
+        "resolvedAttemptLimit": lambda i: formulas.resolved_attempt_limit(
+            i["routeOptionsAttemptLimit"], i["configuredAttemptLimit"],
+            i["factor"], i["attemptSequenceLength"]),
         "budgetAfterSuccess": lambda i: formulas.budget_after_success(
             i["budget"], i["budgetIncrement"], i["maxStepBudget"]),
         "budgetAfterDeferral": lambda i: formulas.budget_after_deferral(
@@ -442,13 +445,14 @@ def run_scenarios(root, verbose):
                             step["expect"]["epochInForce"])
                     checked += 1
                 elif action == "recipientCheck":
-                    snapshot = in_force
-                    if snapshot is None:
+                    snapshot = None if step.get("noSnapshot") else in_force
+                    if snapshot is None and not step.get("noSnapshot"):
                         skipped += 1
                         continue
                     token = step["token"] or {"topologyId": snapshot.topology_id,
                                               "epoch": snapshot.epoch}
-                    held = retained if step.get("retainedEpochs") != [] else {}
+                    held = {} if snapshot is None else (
+                        retained if step.get("retainedEpochs") != [] else {})
                     verdict = fencing.check(token, decode_key(step["key"]), step["selfId"],
                                             snapshot, held)
                     compare(action + ".verdict", verdict, step["expect"]["verdict"])

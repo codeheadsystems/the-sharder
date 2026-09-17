@@ -49,16 +49,15 @@ def check(token, key, self_id, in_force, retained=None):
         "localToken": None if in_force is None else in_force.token,
     }
     if in_force is None:
+        # `FENCE-083`: no snapshot, so no preference list and no local token.
+        return verdict
+    if rel == RELATION_IDENTITY_MISMATCH:
+        # `FENCE-082`: the routing key was derived under the sender's topology, so the local
+        # preference list says nothing about the sender's shard and is not evaluated.
         return verdict
 
     owners, primary = replica_set(in_force, routing.routing_key_of(in_force, key))
     verdict["currentOwner"] = primary
-    if rel == RELATION_IDENTITY_MISMATCH:
-        # Epochs under two identifiers are incomparable, so ownership is not evaluated.
-        verdict["ownership"] = "unknown"
-        verdict["currentOwner"] = None
-        return verdict
-
     verdict["ownership"] = "owner" if self_id in owners else "notOwner"
 
     if rel == RELATION_BEHIND:

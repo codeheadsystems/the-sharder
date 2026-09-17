@@ -177,7 +177,23 @@ def build_stale_caller_scenario():
     in_force = SNAP["migration-epoch-4"]
     retained = {1: SNAP["migration-epoch-1"], 2: SNAP["migration-epoch-2"],
                 3: SNAP["migration-epoch-3"]}
+    # `FENCE-083`: before any document is installed the recipient holds no preference list, so
+    # `ownership` is `unknown` and neither `currentOwner` nor `localToken` is present.
+    unready_token = {"topologyId": "migration", "epoch": 1}
     steps = [{
+        "action": "recipientCheck",
+        "token": unready_token,
+        "key": key_spec(PROBE_KEY, "base16"),
+        "selfId": "n1",
+        "recipientPolicy": "strict",
+        "noSnapshot": True,
+        "note": "`FENCE-083`: no snapshot is in force, so `ownership` is `unknown`",
+        "expect": {"verdict": fencing.check(unready_token, PROBE_KEY, "n1", None),
+                   "condition": fencing.policy_outcome(
+                       fencing.check(unready_token, PROBE_KEY, "n1", None), "strict"),
+                   "served": False},
+    }]
+    steps += [{
         "action": "installTopology",
         "topology": "topologies/migration-epoch-%d.topology.json" % epoch,
         "expect": {"outcome": "installed", "condition": None, "epochInForce": epoch},
@@ -253,6 +269,9 @@ def build_stale_caller_scenario():
         "key": key_spec(PROBE_KEY, "base16"),
         "selfId": "n1",
         "recipientPolicy": "stable",
+        "note": "`FENCE-082`: epochs under two identifiers are incomparable and the routing key "
+                "was derived under the sender's topology, so `ownership` is `unknown` and no "
+                "owner is named",
         "expect": {"verdict": verdict,
                    "condition": fencing.policy_outcome(verdict, "stable"),
                    "served": False},
@@ -261,10 +280,12 @@ def build_stale_caller_scenario():
     register("caller-three-epochs-stale",
              "A caller routes against epoch 1 while the recipient holds epoch 4.  Covers every "
              "recipient relation, both policies, a retained and an unretained token epoch, an "
-             "unfenced request, and a sender ahead of the recipient.",
-             ["FENCE-041", "FENCE-061", "FENCE-071", "FENCE-081", "FENCE-091", "FENCE-111",
-              "FENCE-121", "FENCE-131", "FENCE-141", "FENCE-151", "TOPO-161", "TOPO-171",
-              "ERR-040", "ERR-041", "ERR-042", "ERR-044"], steps)
+             "unfenced request, a sender ahead of the recipient, and the two relations under "
+             "which ownership is `unknown`.",
+             ["FENCE-041", "FENCE-061", "FENCE-071", "FENCE-081", "FENCE-082", "FENCE-083",
+              "FENCE-084", "FENCE-091", "FENCE-111", "FENCE-121", "FENCE-131", "FENCE-141",
+              "FENCE-151", "TOPO-161", "TOPO-171", "ERR-040", "ERR-041", "ERR-042",
+              "ERR-044"], steps)
 
 
 def build_split_view_scenario():

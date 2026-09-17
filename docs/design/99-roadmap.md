@@ -28,7 +28,7 @@ conformance levels of [`30-conformance.md`](30-conformance.md#conformance-levels
 | configuration | every setting of the `CFG-*` group with its default |
 | format | `formatVersion` 1.0, the JSON Schema, the canonical form, and the digest |
 | providers | the in-memory reference provider and the static file provider |
-| conformance | 58 vector files, 600 cases, 97 topology documents, 30 properties, and the manifest |
+| conformance | 59 vector files, 638 cases, 103 topology documents, 30 properties, and the manifest |
 
 An integrator who routes a tenant identifier to one of several clusters is served in full by v0.1
 and depends on `sharder-api` and `sharder-core` alone.

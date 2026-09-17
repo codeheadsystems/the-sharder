@@ -1,8 +1,8 @@
 {
   "specification": "docs/design/10-specification.md",
-  "statedRequirements": 651,
-  "coveredRequirements": 424,
-  "uncoveredRequirements": 227,
+  "statedRequirements": 658,
+  "coveredRequirements": 432,
+  "uncoveredRequirements": 226,
   "coveragePercent": 65,
   "identifiersNamedButNotStated": [],
   "byPrefix": [
@@ -44,7 +44,7 @@
       "prefix": "CORE",
       "section": "Core model",
       "stated": 51,
-      "covered": 7,
+      "covered": 8,
       "uncovered": [
         "CORE-001",
         "CORE-010",
@@ -61,7 +61,6 @@
         "CORE-042",
         "CORE-043",
         "CORE-044",
-        "CORE-045",
         "CORE-050",
         "CORE-051",
         "CORE-052",
@@ -91,7 +90,7 @@
         "CORE-100",
         "CORE-101"
       ],
-      "percent": 13
+      "percent": 15
     },
     {
       "prefix": "HASH",
@@ -244,8 +243,8 @@
     {
       "prefix": "SPREAD",
       "section": "Replication and failover",
-      "stated": 17,
-      "covered": 17,
+      "stated": 18,
+      "covered": 18,
       "uncovered": [],
       "percent": 100
     },
@@ -304,8 +303,8 @@
     {
       "prefix": "RANGE",
       "section": "Routing keys and placement",
-      "stated": 20,
-      "covered": 18,
+      "stated": 21,
+      "covered": 19,
       "uncovered": [
         "RANGE-014",
         "RANGE-015"
@@ -315,8 +314,8 @@
     {
       "prefix": "RING",
       "section": "Routing keys and placement",
-      "stated": 18,
-      "covered": 17,
+      "stated": 19,
+      "covered": 18,
       "uncovered": [
         "RING-012"
       ],
@@ -333,12 +332,12 @@
     {
       "prefix": "SLOT",
       "section": "Routing keys and placement",
-      "stated": 16,
-      "covered": 15,
+      "stated": 17,
+      "covered": 16,
       "uncovered": [
         "SLOT-013"
       ],
-      "percent": 93
+      "percent": 94
     },
     {
       "prefix": "SEC",
@@ -365,14 +364,14 @@
     {
       "prefix": "FENCE",
       "section": "Topology change and rebalancing",
-      "stated": 22,
-      "covered": 19,
+      "stated": 25,
+      "covered": 22,
       "uncovered": [
         "FENCE-011",
         "FENCE-161",
         "FENCE-201"
       ],
-      "percent": 86
+      "percent": 88
     },
     {
       "prefix": "MOVE",
@@ -766,6 +765,9 @@
     "CFG-021": [
       "vectors/formulas/failover.json"
     ],
+    "CORE-045": [
+      "vectors/formulas/failover.json"
+    ],
     "FAIL-021": [
       "vectors/formulas/failover.json"
     ],
@@ -1120,6 +1122,9 @@
     "RANGE-021": [
       "vectors/placement/document-defaults.json"
     ],
+    "RANGE-022": [
+      "vectors/placement/document-defaults.json"
+    ],
     "REPL-001": [
       "vectors/placement/document-defaults.json"
     ],
@@ -1129,9 +1134,15 @@
       "vectors/ring/derived-zoned.json",
       "vectors/ring/weight-zero.json"
     ],
+    "RING-006": [
+      "vectors/placement/document-defaults.json"
+    ],
     "SLOT-014": [
       "vectors/placement/document-defaults.json",
       "vectors/slot/explicit-assignment.json"
+    ],
+    "SLOT-024": [
+      "vectors/placement/document-defaults.json"
     ],
     "SPREAD-003": [
       "vectors/placement/document-defaults.json"
@@ -1305,6 +1316,10 @@
     "READ-023": [
       "vectors/read/affinity.json"
     ],
+    "SPREAD-006": [
+      "vectors/read/affinity.json",
+      "vectors/spread/skipped-level.json"
+    ],
     "RV-001": [
       "vectors/rendezvous/cache-hash-tags.json",
       "vectors/rendezvous/ordering.json",
@@ -1334,7 +1349,8 @@
       "vectors/replication/fallback-tail.json",
       "vectors/ring/derived-zoned.json",
       "vectors/spread/applies-to-pinned-ordering.json",
-      "vectors/spread/degradation-ladder.json"
+      "vectors/spread/degradation-ladder.json",
+      "vectors/spread/skipped-level.json"
     ],
     "REPL-014": [
       "properties/properties.json",
@@ -1354,7 +1370,8 @@
       "properties/properties.json",
       "vectors/replication/fallback-tail.json",
       "vectors/spread/all-nodes-one-domain-relaxed.json",
-      "vectors/spread/degradation-ladder.json"
+      "vectors/spread/degradation-ladder.json",
+      "vectors/spread/skipped-level.json"
     ],
     "SPREAD-013": [
       "properties/properties.json",
@@ -1404,21 +1421,24 @@
     "SPREAD-001": [
       "properties/properties.json",
       "vectors/ring/derived-zoned.json",
-      "vectors/spread/all-nodes-one-domain-relaxed.json"
+      "vectors/spread/all-nodes-one-domain-relaxed.json",
+      "vectors/spread/skipped-level.json"
     ],
     "SPREAD-011": [
       "properties/properties.json",
       "vectors/ring/derived-zoned.json",
       "vectors/spread/all-nodes-one-domain-relaxed.json",
       "vectors/spread/degradation-ladder.json",
-      "vectors/spread/relaxation-stages.json"
+      "vectors/spread/relaxation-stages.json",
+      "vectors/spread/skipped-level.json"
     ],
     "SPREAD-012": [
       "properties/properties.json",
       "vectors/ring/derived-zoned.json",
       "vectors/spread/all-nodes-one-domain-relaxed.json",
       "vectors/spread/degradation-ladder.json",
-      "vectors/spread/relaxation-stages.json"
+      "vectors/spread/relaxation-stages.json",
+      "vectors/spread/skipped-level.json"
     ],
     "SPREAD-015": [
       "properties/properties.json",
@@ -1426,7 +1446,8 @@
       "vectors/spread/all-nodes-one-domain-relaxed.json",
       "vectors/spread/all-nodes-one-domain-strict.json",
       "vectors/spread/degradation-ladder.json",
-      "vectors/spread/relaxation-stages.json"
+      "vectors/spread/relaxation-stages.json",
+      "vectors/spread/skipped-level.json"
     ],
     "RING-003": [
       "vectors/ring/explicit-tokens.json"
@@ -1520,7 +1541,8 @@
       "properties/properties.json",
       "vectors/spread/all-nodes-one-domain-relaxed.json",
       "vectors/spread/degradation-ladder.json",
-      "vectors/spread/relaxation-stages.json"
+      "vectors/spread/relaxation-stages.json",
+      "vectors/spread/skipped-level.json"
     ],
     "SPREAD-014": [
       "properties/properties.json",
@@ -1535,7 +1557,8 @@
     ],
     "SPREAD-005": [
       "vectors/spread/degradation-ladder.json",
-      "vectors/spread/relaxation-stages.json"
+      "vectors/spread/relaxation-stages.json",
+      "vectors/spread/skipped-level.json"
     ],
     "SPREAD-016": [
       "vectors/spread/degradation-ladder.json"
@@ -1814,6 +1837,15 @@
       "scenarios/caller-three-epochs-stale.json"
     ],
     "FENCE-061": [
+      "scenarios/caller-three-epochs-stale.json"
+    ],
+    "FENCE-082": [
+      "scenarios/caller-three-epochs-stale.json"
+    ],
+    "FENCE-083": [
+      "scenarios/caller-three-epochs-stale.json"
+    ],
+    "FENCE-084": [
       "scenarios/caller-three-epochs-stale.json"
     ],
     "FENCE-111": [

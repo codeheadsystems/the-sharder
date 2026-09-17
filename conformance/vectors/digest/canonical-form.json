@@ -507,6 +507,19 @@
       }
     },
     {
+      "name": "spread-skipped-level",
+      "requirements": [
+        "TOPO-001",
+        "CORE-020"
+      ],
+      "topology": "topologies/spread-skipped-level.topology.json",
+      "expect": {
+        "canonicalLength": 532,
+        "digest": "d7eab398cdfbd76294877480aa1ea8d1da24a973a8d69e7765776c7f8338dcba",
+        "canonicalForm": "{\"domainLevels\":[\"region\",\"zone\",\"rack\"],\"epoch\":1,\"formatVersion\":\"1.0\",\"nodes\":[{\"domains\":{\"rack\":\"k1\",\"region\":\"r1\",\"zone\":\"z1\"},\"id\":\"a1\"},{\"domains\":{\"rack\":\"k1\",\"region\":\"r1\",\"zone\":\"z2\"},\"id\":\"a2\"},{\"domains\":{\"rack\":\"k1\",\"region\":\"r2\",\"zone\":\"z3\"},\"id\":\"b1\"},{\"domains\":{\"rack\":\"k9\",\"region\":\"r2\",\"zone\":\"z3\"},\"id\":\"b2\"},{\"domains\":{\"rack\":\"k9\",\"region\":\"r1\",\"zone\":\"z1\"},\"id\":\"c1\"}],\"replication\":{\"factor\":2,\"spread\":[\"rack\"],\"spreadPolicy\":\"relaxed\"},\"strategy\":{\"kind\":\"rendezvous\"},\"topologyId\":\"spread-skipped-level\"}"
+      }
+    },
+    {
       "name": "weight-zero",
       "requirements": [
         "TOPO-001",

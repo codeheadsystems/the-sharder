@@ -52,6 +52,17 @@ def default_attempt_limit(factor: int, sequence_length: int) -> int:
     return min(factor + 2, sequence_length)
 
 
+def resolved_attempt_limit(supplied, configured, factor: int, sequence_length: int) -> int:
+    """`FAIL-022`: the call's limit, else the configured one, else `n + 2`, then clamped."""
+    if supplied is not None:
+        limit = supplied
+    elif configured is not None:
+        limit = configured
+    else:
+        limit = factor + 2
+    return min(limit, sequence_length)
+
+
 # -------------------------------------------------------------- migration rate
 
 def budget_after_success(budget: int, increment: int, maximum: int) -> int:

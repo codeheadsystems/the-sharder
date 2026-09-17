@@ -275,6 +275,9 @@ def _validate_strategy(document, nodes, known_ids):
                 if "nodes" in entry:
                     errors.append(_err(path + ".nodes", "nodesUnderDerived", entry["shardId"]))
             else:
+                if "nodes" not in entry:
+                    errors.append(_err(path + ".nodes", "missingNodesUnderExplicit",
+                                       entry["shardId"]))
                 _referenced(errors, path + ".nodes", entry.get("nodes", []), known_ids)
 
     elif kind == "directory":
