@@ -171,8 +171,11 @@ one with an array or a nullable reference breaks every compiled consumer.
 
 The near-zero dependency policy. `sharder-api`, `sharder-core`, `sharder-migrate`, and
 `sharder-provider-file` require `java.base` and nothing else, and a build check fails a published
-POM that gains a dependency. Adding one later puts it in every consumer's dependency graph, and
-removing it again is a breaking change for anyone who came to rely on it transitively.
+POM that gains a compile or runtime dependency. Adding one later puts it in every consumer's
+dependency graph, and removing it again is a breaking change for anyone who came to rely on it
+transitively. A test or build dependency sits outside the policy and outside this door, because it
+reaches no consumer; the Bouncy Castle oracle of
+[`adr/0040`](adr/0040-cryptographic-primitive-sourcing-policy.md) is one.
 [`adr/0032`](adr/0032-dependency-free-json-and-canonicalisation.md).
 
 ### Reversible decisions

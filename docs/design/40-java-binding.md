@@ -951,6 +951,23 @@ requires both to be verified against the reference vectors of the original paper
 conformance vector runs, and `SEC-014` forbids a comparison that short-circuits on the seed's
 octets.
 
+`SipHash24` is written in this repository and stays on the routing path.
+[`adr/0040`](adr/0040-cryptographic-primitive-sourcing-policy.md) is the record that permits it,
+classifying SipHash-2-4 as a keyed pseudorandom function for load distribution rather than as a
+cryptographic primitive protecting a secret.
+
+It is tuned rather than transcribed. Message words are loaded from the frame buffer through a
+`VarHandle` in little-endian order rather than assembled an octet at a time, and rotation is
+`Long.rotateLeft`. That form measured 29 nanoseconds per evaluation over the 67-octet `rvScore`
+frame of `HASH-030` on OpenJDK 25, against 49 for the octet-at-a-time form. Neither allocates, and
+the allocation gate under "Benchmarks" is what holds the tuned one to that.
+
+Bouncy Castle's `org.bouncycastle.crypto.macs.SipHash` is a third oracle for `HASH-003`, at test
+scope, under `adr/0040`. The reference table of the paper and
+`conformance/generator/verify_siphash.py` running OpenSSL's `SIPHASH` are the other two, so
+`SipHash24` is checked against three independent answers for the same 64 messages before a vector is
+evaluated.
+
 ### Test and build dependencies
 
 Test and build dependencies reach no consumer, and the policy above does not bind them.
@@ -960,8 +977,16 @@ Test and build dependencies reach no consumer, and the policy above does not bin
 | JUnit 5 | `sharder-conformance` api, every project's test | the harness and the unit tests |
 | AssertJ | test | assertions |
 | ASM | `buildSrc` | the bytecode scan of the unsigned comparison check |
+| Bouncy Castle `bcprov-jdk18on` | `sharder-core` test | the third SipHash-2-4 oracle of `adr/0040` |
 | JMH | `sharder-bench` | benchmarks |
 | JaCoCo | build | coverage report and gate |
+
+Bouncy Castle is pinned to one version in `gradle/libs.versions.toml`, because an oracle whose
+answer depends on what the build resolved is not an oracle. One class of it is used,
+`org.bouncycastle.crypto.macs.SipHash`, in the test that checks `SipHash24` against `HASH-003`. It
+reaches no consumer: it appears in no published module descriptor, in no published POM, and in no
+`requires` directive, and the dependency check of "Runtime dependencies" fails a published POM that
+gains it.
 
 ## Thread safety
 
@@ -1226,10 +1251,17 @@ on demand and on a nightly job on fixed hardware, and a regression is read from 
 | `prepare` | stage 6 of `TOPO-001`, 1000 nodes at 4096 tokens each |
 | `canonicalise` | RFC 8785 plus SHA-256 over a 1000-node document |
 
-One placement gate does run in `check`. A test measures the allocation of a `route` call at factor
-3 over a hundred-node ring with `ThreadMXBean.getThreadAllocatedBytes` and fails above a stated
-ceiling with headroom. A candidate cursor quietly turned into a materialised list, or a `Labels`
-turned into a `Map`, shows up there and nowhere else.
+One placement gate does run in `check`. A test measures the allocation of a `route` call with
+`ThreadMXBean.getThreadAllocatedBytes` and fails above a stated ceiling with headroom. It runs at
+factor 3 over a hundred-node ring and at factor 3 over a rendezvous topology whose summed virtual
+node count is 8000. A candidate cursor quietly turned into a materialised list, or a `Labels` turned
+into a `Map`, shows up there and nowhere else.
+
+The rendezvous shape is in the gate because it is where a per-evaluation allocation inside the hash
+is expensive: at 8000 evaluations per routing call, a `SipHash24` or a `Frame` that allocated once
+per evaluation would cost 256 kilobytes on one call. That cost surfaces as collector pressure rather
+than as latency, so the `route` benchmark above measures it at close to zero and only an allocation
+gate sees it.
 
 ## Decision records
 
@@ -1243,3 +1275,4 @@ turned into a `Map`, shows up there and nowhere else.
 | [`adr/0033-opaque-identifier-value-types.md`](adr/0033-opaque-identifier-value-types.md) | value types over `byte[]`, and the `Optional` policy |
 | [`adr/0034-lazy-candidate-traversal-surface.md`](adr/0034-lazy-candidate-traversal-surface.md) | the candidate cursor against `Iterator` and `Stream` |
 | [`adr/0035-manifest-driven-conformance-harness.md`](adr/0035-manifest-driven-conformance-harness.md) | dynamic tests, the manifest coupling, and the vector artifact |
+| [`adr/0040-cryptographic-primitive-sourcing-policy.md`](adr/0040-cryptographic-primitive-sourcing-policy.md) | where a cryptographic primitive comes from, and the SipHash-2-4 exception |

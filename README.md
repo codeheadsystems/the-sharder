@@ -101,6 +101,7 @@ package name.
 | Path | Contents |
 |---|---|
 | [`docs/README.md`](docs/README.md) | the documentation entry point |
-| [`docs/design/`](docs/design/) | the overview, the specification, the format, the conformance design, the Java binding, and 37 decision records |
+| [`docs/design/`](docs/design/) | the overview, the specification, the format, the conformance design, the Java binding, and 40 decision records |
 | [`docs/maintain/style.md`](docs/maintain/style.md) | the documentation style guide, binding on everything under `docs/` |
 | [`conformance/`](conformance/) | the conformance suite: vectors, topologies, properties, scenarios, and the reference generator |
+| [`bench/`](bench/) | measurement sources a decision record cites, built with a system compiler |

@@ -114,7 +114,7 @@ document, in these sections.
 | [`design/40-java-binding.md`](design/40-java-binding.md) | the Java rendering: artifacts, types, thread safety, harness, build gates |
 | [`design/90-open-questions.md`](design/90-open-questions.md) | every unresolved question, its default, and the evidence that settles it |
 | [`design/99-roadmap.md`](design/99-roadmap.md) | release staging, one-way doors, and what the suite makes easier or harder |
-| [`design/adr/`](design/adr/) | 37 decision records, the only documents here where argument is the content |
+| [`design/adr/`](design/adr/) | 40 decision records, the only documents here where argument is the content |
 | [`maintain/style.md`](maintain/style.md) | the register, emphasis, punctuation, and terminology rules |
 | [`../conformance/README.md`](../conformance/README.md) | the suite tree, how to run it, and how to regenerate it |
 
@@ -122,8 +122,8 @@ document, in these sections.
 
 | Subject | Records |
 |---|---|
-| hashing and determinism | [0001](design/adr/0001-hash-function-and-key-encoding.md), [0030](design/adr/0030-unsigned-integer-discipline.md) |
-| placement and weights | [0002](design/adr/0002-placement-strategy-set.md), [0003](design/adr/0003-integer-node-weights.md), [0010](design/adr/0010-shard-identifier-naming.md), [0011](design/adr/0011-derived-assignment-virtual-nodes.md), [0013](design/adr/0013-range-bounds-over-routing-key.md) |
+| hashing and determinism | [0001](design/adr/0001-hash-function-and-key-encoding.md), [0030](design/adr/0030-unsigned-integer-discipline.md), [0040](design/adr/0040-cryptographic-primitive-sourcing-policy.md) |
+| placement and weights | [0002](design/adr/0002-placement-strategy-set.md), [0003](design/adr/0003-integer-node-weights.md), [0010](design/adr/0010-shard-identifier-naming.md), [0011](design/adr/0011-derived-assignment-virtual-nodes.md), [0013](design/adr/0013-range-bounds-over-routing-key.md), [0039](design/adr/0039-placement-cost-model-and-warning-thresholds.md) |
 | topology model and format | [0004](design/adr/0004-topology-provider-contract.md), [0005](design/adr/0005-epoch-and-version-semantics.md), [0006](design/adr/0006-failure-domain-model.md), [0008](design/adr/0008-json-canonical-serialisation.md), [0009](design/adr/0009-override-composition.md), [0038](design/adr/0038-provider-contract-in-the-specification.md) |
 | replication and failover | [0007](design/adr/0007-administrative-state-and-health-state.md), [0012](design/adr/0012-balance-bound-tolerances.md), [0014](design/adr/0014-read-affinity-as-a-separate-call.md), [0015](design/adr/0015-spread-degradation-algorithm.md), [0016](design/adr/0016-node-health-state-machine.md), [0017](design/adr/0017-failover-depth-and-substitution.md), [0036](design/adr/0036-spread-relaxation-ladder-direction.md) |
 | change, handoff, and fencing | [0018](design/adr/0018-concurrent-ownership-during-handoff.md), [0019](design/adr/0019-handoff-coordination-and-recovery.md), [0020](design/adr/0020-recipient-side-fencing-verdicts.md), [0021](design/adr/0021-migration-backpressure-control.md), [0022](design/adr/0022-range-split-lineage.md), [0023](design/adr/0023-snapshot-visibility-and-thread-ownership.md) |
