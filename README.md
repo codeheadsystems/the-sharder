@@ -33,7 +33,7 @@ Most systems solve this once, inside themselves, in a form nobody else can reuse
 it as a library, in a specification precise enough that a Java service and a Go service route
 identically against one topology.
 
-## What it does
+## Capabilities
 
 - Places a key on an ordered list of nodes by one of five strategies: a hash ring, rendezvous
   hashing, a fixed slot count, key ranges, or an explicit directory table.
@@ -73,7 +73,7 @@ The three pull against each other in four places.
 [`docs/design/00-overview.md`](docs/design/00-overview.md#conflicting-requirements) names each and
 says how configuration resolves it.
 
-## Where to start
+## Reading order
 
 [`docs/README.md`](docs/README.md) routes by reader: evaluating the library, implementing a port,
 writing a provider or a strategy, operating a cluster, or contributing to the Java implementation.

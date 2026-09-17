@@ -1,7 +1,7 @@
 # Documentation style
 
-The register, the emphasis rules and the punctuation conventions every document under `docs/` is
-written to, together with the terminology it uses. A reference manual describes a system; it does
+The register, the emphasis rules and the punctuation conventions every document in this repository
+is written to, together with the terminology it uses. A reference manual describes a system; it does
 not argue for one.
 
 Most of what follows is subtractive. Where a rule and a habit disagree, the rule wins and the habit
@@ -9,15 +9,20 @@ is the defect.
 
 ## Scope
 
-| Under this guide | Exempt, and why |
-|---|---|
-| `docs/overview/`, `docs/integrate/`, `docs/operate/`, `docs/maintain/` | |
-| `docs/design/`, including the normative specification and the decision records | |
-| `docs/README.md`, the repository's `README.md` | |
-| | `DESIGN_PROMPT.md` and `CLAUDE.md` are instructions to a tool rather than product documentation |
+Every Markdown document in the repository is written to this guide. There are no exemptions.
 
-This guide is shared with `rule-executor`, whose copy is the same text; a change to one is a change
-to both.
+- `docs/overview/`, `docs/integrate/`, `docs/operate/`, `docs/maintain/`
+- `docs/design/`, including the normative specification and the decision records
+- `docs/README.md` and the repository's `README.md`
+- `conformance/`, including the suite and generator entry points
+- `DESIGN_PROMPT.md`
+
+A document addressed to a tool rather than to a reader is under the guide unchanged. Its
+instructions are procedure steps, so they take the imperative that the Register section already
+allows, and everything around them stays in the third person.
+
+The rules here are shared with `rule-executor`. The two copies differ only in the terminology table
+and in the parts naming this repository, so a change to a shared rule belongs in both.
 
 ## Register
 
