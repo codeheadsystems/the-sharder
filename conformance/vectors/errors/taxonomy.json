@@ -1,6 +1,7 @@
 {
   "vectorSet": "error-taxonomy",
   "kind": "errorTaxonomy",
+  "level": "core",
   "description": "The closed set of failure conditions, their codes, their retryability, their closed cause sets, and the order in which one call reports the first that holds.",
   "requirements": [
     "ERR-001",

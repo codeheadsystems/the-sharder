@@ -312,6 +312,7 @@ def build(root: Path, quick: bool):
     write_json(root / "vectors/properties/witnesses.json", {
         "vectorSet": "property-witnesses",
         "kind": "propertyWitness",
+        "level": "core",
         "description": "Observed counts and evaluated inequalities for every property the "
                        "reference can evaluate.  The sample is deterministic, so a port "
                        "reproduces these numbers exactly rather than approximately.",

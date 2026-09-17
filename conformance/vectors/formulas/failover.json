@@ -1,6 +1,7 @@
 {
   "vectorSet": "formulas-failover",
   "kind": "formula",
+  "level": "failover",
   "description": "The retry budget, the default attempt limit, and the order in which a routing call resolves the limit it carries.",
   "requirements": [
     "CFG-020",

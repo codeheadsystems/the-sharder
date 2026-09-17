@@ -1,6 +1,7 @@
 {
   "vectorSet": "slot-non-power-of-two",
   "kind": "routing",
+  "level": "core",
   "description": "`keyHash mod slotCount` at a slot count of 7, which a bitwise mask cannot reproduce.",
   "requirements": [
     "CORE-046",

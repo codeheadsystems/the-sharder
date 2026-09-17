@@ -1,6 +1,7 @@
 {
   "vectorSet": "digest-canonical-form",
   "kind": "digest",
+  "level": "core",
   "description": "RFC 8785 canonical form and the SHA-256 topology digest of every document the suite uses.",
   "requirements": [
     "TOPO-001",

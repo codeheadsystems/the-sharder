@@ -1,6 +1,7 @@
 {
   "vectorSet": "ring-explicit-tokens",
   "kind": "routing",
+  "level": "core",
   "description": "Ring placement under authored tokens, including a node of weight 0 that carries tokens and therefore appears in the ordering.",
   "requirements": [
     "CORE-046",

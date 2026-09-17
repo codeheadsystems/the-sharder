@@ -1,6 +1,7 @@
 {
   "vectorSet": "determinism-node-array-permutation",
   "kind": "permutation",
+  "level": "core",
   "description": "Reversing the `nodes` array, changing the epoch, changing `topologyId`, and adding `metadata` leave every candidate ordering unchanged.",
   "requirements": [
     "CORE-002",

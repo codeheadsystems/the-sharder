@@ -1,5 +1,6 @@
 {
   "scenario": "plan-superseded-by-new-epoch",
+  "level": "migration",
   "description": "A third epoch arrives while three handoffs are in flight.  A comparable epoch marks the plan rebase pending and aborts nothing; an incomparable one supersedes it, pre-cutover handoffs abort, and the handoff past cutover runs on.",
   "requirements": [
     "MOVE-091",

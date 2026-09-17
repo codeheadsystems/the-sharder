@@ -1,6 +1,7 @@
 {
   "vectorSet": "placement-document-defaults",
   "kind": "defaults",
+  "level": "core",
   "description": "A document that omits every optional member and one that writes every default out produce identical orderings, weight changes nothing under an authored assignment, and an omitted `assignment` takes the default its strategy gives: `derived` under `slot` and `explicit` under `range`.",
   "requirements": [
     "DIR-004",

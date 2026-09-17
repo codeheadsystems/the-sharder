@@ -6,6 +6,10 @@ case against the reference implementation.  A port writes the same thing against
 implementation; the dispatch table below is the whole of the contract that
 `docs/design/30-conformance.md` states.
 
+Every conformance level comes from the manifest.  Each vector file and each scenario names the
+level it belongs to, and the manifest's `levels` table states what each level requires, so this
+driver holds no table of its own and a level added to the suite reaches it as data.
+
 Running it proves two things and not a third.  It proves that every file in the suite parses and
 that the contract is implementable as written, and it catches a vector file whose shape drifted
 from the contract.  It does not prove the suite correct, because it drives the same reference
@@ -28,28 +32,6 @@ from sharder_ref.jcs import canonicalise, digest as jcs_digest                 #
 from sharder_ref.sample import SplitMix64, sample_keys                         # noqa: E402
 from sharder_ref.siphash import siphash24                                      # noqa: E402
 from sharder_ref.topology import Snapshot, accept, validate                    # noqa: E402
-
-LEVEL_OF_KIND = {
-    "siphash": "hash",
-    "hash": "hash",
-    "keyTransform": "core",
-    "digest": "core",
-    "validation": "core",
-    "routing": "core",
-    "shards": "core",
-    "permutation": "core",
-    "collidingKeys": "core",
-    "tieBreak": "core",
-    "movement": "core",
-    "formula": "core",
-    "stages": "core",
-    "errorTaxonomy": "core",
-    "defaults": "core",
-    "ownershipDelta": "core",
-    "pinShard": "core",
-    "readAffinity": "readAffinity",
-    "propertyWitness": "core",
-}
 
 
 class Failure(Exception):
@@ -414,12 +396,40 @@ HANDLERS = {
 }
 
 
-def run_scenarios(root, verbose):
+def declared_levels(manifest, level):
+    """The levels a port declaring `level` runs: the level itself and what it requires.
+
+    The manifest states the level structure, so the closure below is the whole of what this
+    driver knows about levels.  Naming none runs every level the manifest lists.
+    """
+    requires = {row["level"]: row["requires"] for row in manifest["levels"]}
+    if level is None:
+        return set(requires)
+    if level not in requires:
+        raise SystemExit("unknown conformance level %r; the manifest lists %s"
+                         % (level, ", ".join(requires)))
+    closure = set()
+    pending = [level]
+    while pending:
+        name = pending.pop()
+        if name in closure:
+            continue
+        closure.add(name)
+        pending.extend(requires[name])
+    return closure
+
+
+def run_scenarios(root, levels, known, verbose):
     """Replay the scenario actions this driver implements."""
     index = json.loads((root / "scenarios/index.json").read_text())
     checked = skipped = 0
     failures = []
     for entry in index["scenarios"]:
+        if entry["level"] not in known:
+            failures.append("%s: unknown conformance level %r" % (entry["file"], entry["level"]))
+            continue
+        if entry["level"] not in levels:
+            continue
         scenario = json.loads((root / entry["file"]).read_text())
         retained = {}
         in_force = None
@@ -477,34 +487,54 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--root", default=str(HERE.parent.parent))
     parser.add_argument("--level", default=None,
-                        help="run only vector files at this conformance level")
+                        help="run the vector files and scenarios a port declaring this "
+                             "conformance level runs, which is the level together with the "
+                             "levels it requires")
     parser.add_argument("--verbose", action="store_true")
     args = parser.parse_args()
 
     root = Path(args.root)
     manifest = json.loads((root / "manifest.json").read_text())
+    known = {row["level"] for row in manifest["levels"]}
+    levels = declared_levels(manifest, args.level)
 
     failures = []
     files = cases = 0
+    per_level = {name: [0, 0] for name in sorted(known)}
     for entry in manifest["vectorFiles"]:
         kind = entry["kind"]
+        level = entry["level"]
+        if level not in known:
+            failures.append("%s: unknown conformance level %r" % (entry["file"], level))
+            continue
         if kind not in HANDLERS:
             failures.append("%s: unknown kind %r" % (entry["file"], kind))
             continue
-        if args.level and LEVEL_OF_KIND.get(kind) != args.level:
+        if level not in levels:
             continue
         payload = json.loads((root / entry["file"]).read_text())
         try:
             HANDLERS[kind](root, payload)
             files += 1
             cases += entry["caseCount"]
+            per_level[level][0] += 1
+            per_level[level][1] += entry["caseCount"]
             if args.verbose:
-                print("  ok  %-56s %3d cases" % (entry["file"], entry["caseCount"]))
+                print("  ok  %-56s %-13s %3d cases"
+                      % (entry["file"], level, entry["caseCount"]))
         except Failure as failure:
             failures.append("%s: %s" % (entry["file"], failure))
 
-    failures.extend(run_scenarios(root, args.verbose))
+    failures.extend(run_scenarios(root, levels, known, args.verbose))
 
+    for row in manifest["levels"]:
+        name = row["level"]
+        if name not in levels:
+            print("  %-13s not run" % name)
+            continue
+        print("  %-13s %2d of %2d vector files, %3d of %3d cases"
+              % (name, per_level[name][0], row["vectorFiles"],
+                 per_level[name][1], row["vectorCases"]))
     print("%d vector files, %d cases" % (files, cases))
     if failures:
         print("%d failures:" % len(failures))

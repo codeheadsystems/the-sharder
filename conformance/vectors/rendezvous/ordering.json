@@ -1,6 +1,7 @@
 {
   "vectorSet": "rendezvous-ordering",
   "kind": "routing",
+  "level": "core",
   "description": "Rendezvous ordering by descending score with the node identity tie-break, at one virtual node per node.",
   "requirements": [
     "CORE-046",

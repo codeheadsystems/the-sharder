@@ -3,6 +3,8 @@
 
 Every requirement identifier in `10-specification.md` is extracted, every identifier named by a
 vector file, a property witness, or a scenario is collected, and the two sets are compared.  The
+identifiers are also collected per conformance level, so the report says what a declared level
+proves rather than only what the whole suite proves.  The
 coverage table in `docs/design/30-conformance.md` is transcribed from this file, so a requirement
 added to the specification shows up as uncovered rather than silently going untested.
 
@@ -68,41 +70,85 @@ def specification_requirements(path: Path):
 
 
 def suite_requirements(root: Path):
-    """Collect every identifier the suite names, with the artefacts that name it."""
+    """Collect every identifier the suite names, with the artefacts and levels that name it."""
     named = {}
+    levelled = {}
 
-    def record(identifier, source):
+    def record(identifier, source, level):
         named.setdefault(identifier, set()).add(source)
+        levelled.setdefault(level, set()).add(identifier)
 
     manifest_path = root / "manifest.json"
     if manifest_path.exists():
         manifest = json.loads(manifest_path.read_text())
         for entry in manifest["vectorFiles"]:
             for identifier in entry["requirements"]:
-                record(identifier, entry["file"])
+                record(identifier, entry["file"], entry["level"])
 
     witnesses = root / "vectors/properties/witnesses.json"
     if witnesses.exists():
         payload = json.loads(witnesses.read_text())
         for case in payload["cases"]:
             for identifier in case.get("requirements", []):
-                record(identifier, "vectors/properties/witnesses.json")
+                record(identifier, "vectors/properties/witnesses.json", payload["level"])
 
     properties = root / "properties/properties.json"
     if properties.exists():
         payload = json.loads(properties.read_text())
         for entry in payload["properties"]:
             for identifier in entry["requirements"]:
-                record(identifier, "properties/properties.json")
+                record(identifier, "properties/properties.json", entry["level"])
 
     index = root / "scenarios/index.json"
     if index.exists():
         payload = json.loads(index.read_text())
         for entry in payload["scenarios"]:
             for identifier in entry["requirements"]:
-                record(identifier, entry["file"])
+                record(identifier, entry["file"], entry["level"])
 
-    return {k: sorted(v) for k, v in named.items()}
+    return ({k: sorted(v) for k, v in named.items()},
+            {k: sorted(v) for k, v in levelled.items()})
+
+
+def level_coverage(root: Path, levelled):
+    """State, for each level, the requirement identifiers a port declaring it proves.
+
+    A declaration names levels, so the coverage report answers what a declared level covers.  A
+    level's own identifiers are those its artefacts name; its declared set adds the identifiers
+    of the levels it requires, because a port reaching a level runs those too.
+    """
+    manifest_path = root / "manifest.json"
+    if not manifest_path.exists():
+        return []
+    manifest = json.loads(manifest_path.read_text())
+    requires = {row["level"]: row["requires"] for row in manifest["levels"]}
+
+    def closure(name):
+        seen = set()
+        pending = [name]
+        while pending:
+            current = pending.pop()
+            if current in seen:
+                continue
+            seen.add(current)
+            pending.extend(requires[current])
+        return seen
+
+    rows = []
+    for row in manifest["levels"]:
+        name = row["level"]
+        own = set(levelled.get(name, []))
+        declared = set()
+        for reached in closure(name):
+            declared.update(levelled.get(reached, []))
+        rows.append({
+            "level": name,
+            "requires": row["requires"],
+            "requirements": sorted(own),
+            "requirementsAtLevel": len(own),
+            "requirementsWhenDeclared": len(declared),
+        })
+    return rows
 
 
 def main():
@@ -116,7 +162,8 @@ def main():
 
     root = Path(args.root)
     stated = specification_requirements(Path(args.spec))
-    named = suite_requirements(root)
+    named, levelled = suite_requirements(root)
+    levels = level_coverage(root, levelled)
 
     unknown = sorted(set(named) - set(stated))
     by_prefix = {}
@@ -150,6 +197,7 @@ def main():
         "coveragePercent": sum(r["covered"] for r in rows) * 100 // max(1, len(stated)),
         "identifiersNamedButNotStated": unknown,
         "byPrefix": rows,
+        "byLevel": levels,
         "coveredBy": named,
     }
     (root / "coverage.json").write_text(json.dumps(payload, indent=2) + "\n")
@@ -159,6 +207,10 @@ def main():
     for row in rows:
         print("  %-7s %-32s %3d/%-3d  %3d%%"
               % (row["prefix"], row["section"], row["covered"], row["stated"], row["percent"]))
+    for level in levels:
+        print("  %-13s %3d requirements at the level, %3d when declared"
+              % (level["level"], level["requirementsAtLevel"],
+                 level["requirementsWhenDeclared"]))
     if unknown:
         print("  identifiers named by the suite but absent from the specification: %s"
               % ", ".join(unknown))

@@ -1,5 +1,6 @@
 {
   "scenario": "rebase-drops-a-handoff",
+  "level": "migration",
   "description": "An epoch arrives that reverses one of two moves in flight.  The handoff whose shard, source, and destination no longer hold is aborted and compensated; the other rebases and completes.  Three refusals cover the rebase preconditions.",
   "requirements": [
     "ERR-050",

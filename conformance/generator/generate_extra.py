@@ -24,8 +24,10 @@ from sharder_ref.topology import Snapshot                       # noqa: E402
 ENTRIES = []
 
 
-def emit(root, path, vector_set, kind, description, requirements, cases, topology=None):
-    payload = {"vectorSet": vector_set, "kind": kind, "description": description,
+def emit(root, path, vector_set, kind, description, requirements, cases, topology=None,
+         level="core"):
+    payload = {"vectorSet": vector_set, "kind": kind, "level": level,
+               "description": description,
                "requirements": sorted(set(requirements)), "cases": cases}
     if topology:
         import json as _json

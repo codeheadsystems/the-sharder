@@ -76,6 +76,17 @@ which the library's refusal to read a wall clock under `CORE-004` and to start a
 and level, vectors passed and failed, declared exclusions, and the union of requirement identifiers
 the run exercised.
 
+## Amendment, 2026-09-17
+
+This record described a harness that discovers every level from `manifest.json` at a time when the
+manifest carried no level on a vector file or a scenario, and the reference driver held a table
+mapping a vector kind to a level. [`0052`](0052-conformance-level-partition.md) puts the level in
+the data: a vector file carries a `level` member, a scenario carries one in its index entry, and the
+manifest carries a `levels` table stating what each level requires. The decision this record states
+is unchanged, and is now buildable as written. The suite kind of the container tree remains a
+property of the vector kind, stated in the suite kind table of
+[`../40-java-binding.md`](../40-java-binding.md#suite-kinds) rather than in the manifest.
+
 ## Consequences
 
 A vector family added by the conformance author runs in the Java port with no Java change, and a

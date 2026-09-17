@@ -1,6 +1,7 @@
 {
   "vectorSet": "ring-administrative-states",
   "kind": "routing",
+  "level": "core",
   "description": "The placement set is `active` plus `draining`.  A `joining` or `leaving` node never reaches a candidate ordering.",
   "requirements": [
     "CORE-046",

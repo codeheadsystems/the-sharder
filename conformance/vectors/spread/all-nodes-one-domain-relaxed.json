@@ -1,6 +1,7 @@
 {
   "vectorSet": "spread-one-domain-relaxed",
   "kind": "routing",
+  "level": "core",
   "description": "Every node in one failure domain under `relaxed`: the builder degrades to distinctness alone and reports the relaxed level.",
   "requirements": [
     "CORE-046",

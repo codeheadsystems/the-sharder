@@ -1,6 +1,7 @@
 {
   "vectorSet": "slot-derived-assignment",
   "kind": "routing",
+  "level": "core",
   "description": "Slot placement under derived assignment: the ordering is the rendezvous ordering over the slot index, so two keys in one slot order identically.",
   "requirements": [
     "CORE-046",

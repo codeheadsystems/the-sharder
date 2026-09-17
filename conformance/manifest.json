@@ -4,7 +4,7 @@
   "design": "docs/design/30-conformance.md",
   "generator": "conformance/generator",
   "counts": {
-    "vectorFiles": 59,
+    "vectorFiles": 61,
     "vectorCases": 640,
     "topologyDocuments": 111,
     "scenarios": 17,
@@ -471,6 +471,78 @@
     "TOPO-221",
     "TOPO-231",
     "TOPO-241"
+  ],
+  "levels": [
+    {
+      "level": "hash",
+      "requires": [],
+      "surface": "the hash primitive and the framed construction every other level rests on",
+      "vectorFiles": 2,
+      "vectorCases": 40,
+      "scenarios": 0,
+      "properties": 0,
+      "requirementsNamed": 18
+    },
+    {
+      "level": "core",
+      "requires": [
+        "hash"
+      ],
+      "surface": "the routing decision two callers in two languages agree on",
+      "vectorFiles": 53,
+      "vectorCases": 462,
+      "scenarios": 1,
+      "properties": 24,
+      "requirementsNamed": 280
+    },
+    {
+      "level": "failover",
+      "requires": [
+        "core"
+      ],
+      "surface": "the health view, the attempt sequence, and the retry budget",
+      "vectorFiles": 2,
+      "vectorCases": 65,
+      "scenarios": 3,
+      "properties": 2,
+      "requirementsNamed": 44
+    },
+    {
+      "level": "readAffinity",
+      "requires": [
+        "core"
+      ],
+      "surface": "`routeForRead` and the bounded reordering of the replica prefix",
+      "vectorFiles": 1,
+      "vectorCases": 42,
+      "scenarios": 0,
+      "properties": 0,
+      "requirementsNamed": 11
+    },
+    {
+      "level": "fencing",
+      "requires": [
+        "failover"
+      ],
+      "surface": "the fencing token, the recipient verdict, and the redirect walk",
+      "vectorFiles": 1,
+      "vectorCases": 5,
+      "scenarios": 3,
+      "properties": 1,
+      "requirementsNamed": 37
+    },
+    {
+      "level": "migration",
+      "requires": [
+        "failover"
+      ],
+      "surface": "the handoff coordinator, rate control, and split lineage",
+      "vectorFiles": 2,
+      "vectorCases": 26,
+      "scenarios": 10,
+      "properties": 3,
+      "requirementsNamed": 83
+    }
   ],
   "missingTopologyReferences": [],
   "topologies": {
@@ -1368,6 +1440,7 @@
       "file": "vectors/adversarial/colliding-keys.json",
       "vectorSet": "adversarial-colliding-keys",
       "kind": "collidingKeys",
+      "level": "core",
       "description": "Distinct keys that collide at the transform, at the slot index, at the ring token range, and at the 64-bit key hash itself.",
       "topology": null,
       "caseCount": 4,
@@ -1381,12 +1454,13 @@
         "SLOT-001",
         "SLOT-023"
       ],
-      "sha256": "f31d32ce5993fb5a02d89910e46698a94b94537fefed30441b73ae4fbd5147ed"
+      "sha256": "7393486a3b7b9ee06f5281422e4c5a8a9d021e1fb0afb08558a720147c244752"
     },
     {
       "file": "vectors/adversarial/empty-topology-ring.json",
       "vectorSet": "adversarial-empty-topology-ring",
       "kind": "routing",
+      "level": "core",
       "description": "The same empty topology under `ring`, where the ring order itself is empty.",
       "topology": "topologies/empty-nodes-ring.topology.json",
       "caseCount": 1,
@@ -1397,12 +1471,13 @@
         "PLACE-005",
         "RING-024"
       ],
-      "sha256": "2fb0e18f4a22c6e386e529edbdb47993b0ee28e0706ce8edb85aa4b9251114fc"
+      "sha256": "e51f7fe970c46f0beb5256e79c55758ab976e47c6f26a546884a0a16cff0c283"
     },
     {
       "file": "vectors/adversarial/empty-topology.json",
       "vectorSet": "adversarial-empty-topology",
       "kind": "routing",
+      "level": "core",
       "description": "An empty `nodes` array is valid at load time and yields no candidate at route time.",
       "topology": "topologies/empty-nodes.topology.json",
       "caseCount": 2,
@@ -1413,12 +1488,13 @@
         "ERR-021",
         "PLACE-005"
       ],
-      "sha256": "2f15d7e558a9c816a07f664c263a7c3d930dfd1d37f76709455c0bc55ca4b2cf"
+      "sha256": "55aea7e2bb33c0d1e3614249a764aa8fbd5676afffb4095e3a265b9ee38b3dd6"
     },
     {
       "file": "vectors/adversarial/weight-zero-all.json",
       "vectorSet": "adversarial-weight-zero-all",
       "kind": "routing",
+      "level": "core",
       "description": "Every node at weight 0: the candidate ordering is empty and the cause is `zeroVirtualNodes`.",
       "topology": "topologies/weight-zero-all.topology.json",
       "caseCount": 1,
@@ -1430,12 +1506,13 @@
         "RV-002",
         "RV-012"
       ],
-      "sha256": "f99bde882d86fd354eb10f76dbcf250be1f29c9394dc3ea0da87c743727ad739"
+      "sha256": "05e70cb833d61ce3a77d52930ae6ba78f47134412b1fee4609542ce3f367a79d"
     },
     {
       "file": "vectors/adversarial/weight-zero.json",
       "vectorSet": "adversarial-weight-zero",
       "kind": "routing",
+      "level": "core",
       "description": "Nodes of weight 0 stay in the placement set, receive no virtual node, and never reach a candidate ordering under a derived assignment.",
       "topology": "topologies/weight-zero.topology.json",
       "caseCount": 4,
@@ -1448,12 +1525,13 @@
         "REPL-021",
         "RV-002"
       ],
-      "sha256": "0d6a16fe7fbe8bb04794c78556e6761c4a92bf280675540fef3e5d5e228a7e94"
+      "sha256": "301dd8c829e0b6d9dc64018bab06a977fab4cfa72ae72a36fea44424235cc956"
     },
     {
       "file": "vectors/determinism/node-array-permutation.json",
       "vectorSet": "determinism-node-array-permutation",
       "kind": "permutation",
+      "level": "core",
       "description": "Reversing the `nodes` array, changing the epoch, changing `topologyId`, and adding `metadata` leave every candidate ordering unchanged.",
       "topology": null,
       "caseCount": 4,
@@ -1463,12 +1541,13 @@
         "RING-013",
         "RV-013"
       ],
-      "sha256": "25bb2af3592176d6784534b77428f5203d5f44ab61fc0c4424774e0e7b59049e"
+      "sha256": "0789a89885400e7ec971d72c44ebb052851e97a3fbb2c179060b541373a0e2a9"
     },
     {
       "file": "vectors/determinism/tie-breaks.json",
       "vectorSet": "determinism-tie-breaks",
       "kind": "tieBreak",
+      "level": "core",
       "description": "The tie-break paths a total order needs but a random input almost never reaches. The file holds ring-token-collision, rendezvous-score-tie, range-score-tie. Every case was found by the Pollard rho search in `rho_search.c` and was recomputed through the reference before it was written.",
       "topology": null,
       "caseCount": 3,
@@ -1485,12 +1564,13 @@
         "RV-003",
         "RV-010"
       ],
-      "sha256": "0faab6382b2f8e9ba37352f39b80e8c106fb6d63046a7376a39013553f892eb5"
+      "sha256": "ac8d3d0e197c870877296ead34df17a42a26160c793f9460bd2eb8ba6efe7e29"
     },
     {
       "file": "vectors/digest/canonical-form.json",
       "vectorSet": "digest-canonical-form",
       "kind": "digest",
+      "level": "core",
       "description": "RFC 8785 canonical form and the SHA-256 topology digest of every document the suite uses.",
       "topology": null,
       "caseCount": 44,
@@ -1499,12 +1579,13 @@
         "TOPO-001",
         "TOPO-061"
       ],
-      "sha256": "9fc12298d0869faf58ec6fd916b36a5d3ed25569ad684c43065fe6049842488a"
+      "sha256": "b4abc3b52fcbb11a1e3810fb385a52af7829830e7d5899bab809b6afa55a36ac"
     },
     {
       "file": "vectors/directory/matcher-precedence.json",
       "vectorSet": "directory-matcher-precedence",
       "kind": "routing",
+      "level": "core",
       "description": "Directory evaluation and the reachable clauses of the matcher precedence rule.",
       "topology": "topologies/directory-tenants.topology.json",
       "caseCount": 7,
@@ -1524,12 +1605,13 @@
         "PLACE-064",
         "PLACE-065"
       ],
-      "sha256": "97c1e143873a1b594a2cff425595653b04c685755d422b2bfe75a262ee77deef"
+      "sha256": "dbfd7dc7ee7f945d50c44058afd3c7987390d040451869704e0d6760c5a8fac9"
     },
     {
       "file": "vectors/directory/no-match.json",
       "vectorSet": "directory-no-match",
       "kind": "routing",
+      "level": "core",
       "description": "A routing key that no directory entry matches, and an entry whose every node is outside the placement set.",
       "topology": "topologies/directory-sparse.topology.json",
       "caseCount": 4,
@@ -1547,12 +1629,13 @@
         "PLACE-014",
         "REPL-005"
       ],
-      "sha256": "6bebac292d3311be4bd61913e396487645bb23fd260629929356355b004c24f9"
+      "sha256": "f173924deaeba506e4bfc829f2ac51f5cba00ad9d72ada2c08e16457fec629f9"
     },
     {
       "file": "vectors/errors/taxonomy.json",
       "vectorSet": "error-taxonomy",
       "kind": "errorTaxonomy",
+      "level": "core",
       "description": "The closed set of failure conditions, their codes, their retryability, their closed cause sets, and the order in which one call reports the first that holds.",
       "topology": null,
       "caseCount": 5,
@@ -1572,31 +1655,13 @@
         "ERR-045",
         "REPL-025"
       ],
-      "sha256": "e8101f7541f681137d4f33cb3a5f635fbf9ee2d2f6a5b3827fe646746f30e731"
-    },
-    {
-      "file": "vectors/formulas/detection-and-fencing.json",
-      "vectorSet": "formulas-detection-and-fencing",
-      "kind": "formula",
-      "description": "Hot shard detection, key skew detection, and the canonical fencing token encoding.",
-      "topology": null,
-      "caseCount": 19,
-      "requirements": [
-        "CORE-005",
-        "FENCE-001",
-        "FENCE-021",
-        "FENCE-031",
-        "OBS-031",
-        "OBS-032",
-        "OBS-033",
-        "SPLIT-041"
-      ],
-      "sha256": "0f17e5a9a21c7f8b26f1bf51035d539fde075068eed23078cc35d075a5f44121"
+      "sha256": "4ff649b67c91e5e5dce5f3600ee9f918c4dd055f4b9f336125a7cfa92170d94e"
     },
     {
       "file": "vectors/formulas/failover.json",
       "vectorSet": "formulas-failover",
       "kind": "formula",
+      "level": "failover",
       "description": "The retry budget, the default attempt limit, and the order in which a routing call resolves the limit it carries.",
       "topology": null,
       "caseCount": 21,
@@ -1614,12 +1679,28 @@
         "FAIL-034",
         "FAIL-035"
       ],
-      "sha256": "52b428fa5991555523b24e2647612cb640faa76cfb10a9782932d700a0d9c1a2"
+      "sha256": "2d5c0e2d3ccda98200f88e98beab3b4553c141560fd442754f8a655c1b5edf18"
+    },
+    {
+      "file": "vectors/formulas/fencing-token.json",
+      "vectorSet": "formulas-fencing-token",
+      "kind": "formula",
+      "level": "fencing",
+      "description": "The canonical fencing token encoding.",
+      "topology": null,
+      "caseCount": 5,
+      "requirements": [
+        "FENCE-001",
+        "FENCE-021",
+        "FENCE-031"
+      ],
+      "sha256": "51cea56d6b510665e7a318dcb6b122d7617c293e752ea809dad9f8151841d52d"
     },
     {
       "file": "vectors/formulas/health.json",
       "vectorSet": "formulas-health",
       "kind": "formula",
+      "level": "failover",
       "description": "The closed-form integer arithmetic of the health state machine.",
       "topology": null,
       "caseCount": 44,
@@ -1634,34 +1715,50 @@
         "HEALTH-051",
         "HEALTH-055"
       ],
-      "sha256": "f7574f7064a41061e4f1d983835daa4b041a944958e6f176378eed9143122a67"
+      "sha256": "f040f27ec3efd81627da11c62acdd2a16fc117b39a0c9b39f93c7afe0080267e"
     },
     {
       "file": "vectors/formulas/migration-rate.json",
       "vectorSet": "formulas-migration-rate",
       "kind": "formula",
-      "description": "Step budget adjustment, retry backoff, policy validation, and the virtual node count.",
+      "level": "migration",
+      "description": "Step budget adjustment, retry backoff, and migration policy validation.",
       "topology": null,
-      "caseCount": 27,
+      "caseCount": 21,
       "requirements": [
         "CFG-050",
         "CFG-052",
         "ERR-050",
         "MOVE-171",
-        "PLACE-050",
-        "PLACE-051",
-        "PLACE-052",
         "RATE-021",
         "RATE-041",
         "RATE-051",
         "RATE-101"
       ],
-      "sha256": "54f7389893c71063d10274967891fdffe8c3c50adf5439a555b41106a0241757"
+      "sha256": "386fe16548229cc55cec7b2d2c324cb1ff9835ecd3c330eca6eb89d9f83060a7"
+    },
+    {
+      "file": "vectors/formulas/skew-detection.json",
+      "vectorSet": "formulas-skew-detection",
+      "kind": "formula",
+      "level": "core",
+      "description": "Hot shard detection and key skew detection.",
+      "topology": null,
+      "caseCount": 14,
+      "requirements": [
+        "CORE-005",
+        "OBS-031",
+        "OBS-032",
+        "OBS-033",
+        "SPLIT-041"
+      ],
+      "sha256": "519256d3aa562bdc996afd45a05f195cc9a56f3fb080a63727ebb7baf93ce253"
     },
     {
       "file": "vectors/hash/construction.json",
       "vectorSet": "hash-construction",
       "kind": "hash",
+      "level": "hash",
       "description": "The framed, domain-tagged hash construction of `HASH-020` through `HASH-032`, including the framed message octets so that a port can separate a framing defect from a SipHash defect.",
       "topology": null,
       "caseCount": 31,
@@ -1680,12 +1777,13 @@
         "PLACE-034",
         "PLACE-053"
       ],
-      "sha256": "53c092db7becf7a589b2f169589983e135164d035dac43c0719c62d2fff329b1"
+      "sha256": "ae7eb833d0e49551c46e07e373bc2c507ccc0fe9a1270af8964d52561ff1d480"
     },
     {
       "file": "vectors/hash/siphash-primitive.json",
       "vectorSet": "siphash-primitive",
       "kind": "siphash",
+      "level": "hash",
       "description": "SipHash-2-4 itself, at the published key and messages of `HASH-003`, so that a port that fails the construction vectors can tell which layer is wrong.",
       "topology": null,
       "caseCount": 9,
@@ -1697,24 +1795,26 @@
         "HASH-044",
         "SEC-015"
       ],
-      "sha256": "daac53255d2509475daa3c398533359f9497984541146348983e164ac7bed27a"
+      "sha256": "e2c78db6c2819e127c6bda40aef951041426ad7b2bf3e70401b9fb437d0935bc"
     },
     {
       "file": "vectors/keytransform/brace-tag-same-octet.json",
       "vectorSet": "keytransform-brace-tag-same-octet",
       "kind": "keyTransform",
+      "level": "core",
       "description": "The `braceTag` transform where `open` and `close` are the same octet.",
       "topology": "topologies/kt-brace-same.topology.json",
       "caseCount": 3,
       "requirements": [
         "KEY-037"
       ],
-      "sha256": "1d16134678c4c438fdb7bbf80d58be718467977ccfe4522b4604a710ef2bca74"
+      "sha256": "fce3b949c9b5e357de83413768a429d76941fbdfe3f99e7b6c86d88b6376a9d1"
     },
     {
       "file": "vectors/keytransform/brace-tag.json",
       "vectorSet": "keytransform-brace-tag",
       "kind": "keyTransform",
+      "level": "core",
       "description": "The `braceTag` transform at the default delimiters.",
       "topology": "topologies/kt-brace.topology.json",
       "caseCount": 12,
@@ -1727,12 +1827,13 @@
         "KEY-035",
         "KEY-036"
       ],
-      "sha256": "fffaa77a9379c3d653828c0723496448cc4aa5317eb8d9f0d7db79dec1ab252c"
+      "sha256": "ab742dcd6cd10939f03aa9987410a48654c0083988ff59a8c9c159485bbf5435"
     },
     {
       "file": "vectors/keytransform/continuation-octet.json",
       "vectorSet": "keytransform-continuation-octet",
       "kind": "keyTransform",
+      "level": "core",
       "description": "A separator that is a UTF-8 continuation octet, so the routing key is an incomplete encoding of text.",
       "topology": "topologies/kt-continuation.topology.json",
       "caseCount": 3,
@@ -1743,12 +1844,13 @@
         "KEY-014",
         "KEY-043"
       ],
-      "sha256": "3ccdba7599a569bacc925a64c8821dd20d018a31b5cf635bb0fc5cdfc83c2c71"
+      "sha256": "ee0cf5c1dce938323c0761cef0b1c323b502c61b23148a264d590aecc53dccda"
     },
     {
       "file": "vectors/keytransform/none.json",
       "vectorSet": "keytransform-none",
       "kind": "keyTransform",
+      "level": "core",
       "description": "The `none` transform returns the key octet for octet.",
       "topology": "topologies/kt-none.topology.json",
       "caseCount": 5,
@@ -1760,12 +1862,13 @@
         "KEY-013",
         "KEY-020"
       ],
-      "sha256": "937f31cc1ea84e10584d1683f73c49cb7bf281c50edbcfa217e659fa5e70edf6"
+      "sha256": "3e820542b8063561555dba9d178f9806cddc0ee214c27224adcb040a66612ba6"
     },
     {
       "file": "vectors/keytransform/prefix-fields-1.json",
       "vectorSet": "keytransform-prefix-fields-1",
       "kind": "keyTransform",
+      "level": "core",
       "description": "The `prefixFields` transform at a count of 1.",
       "topology": "topologies/kt-prefix-1.topology.json",
       "caseCount": 6,
@@ -1777,12 +1880,13 @@
         "KEY-042",
         "KEY-043"
       ],
-      "sha256": "7a0525e02539fd5bd44bb84c8548e421d0ca84f7f6866f2c2bb4a467ce3baf71"
+      "sha256": "e000fde7a9f7357348c3ea0a042654e49644a60a2a081a3d8990e4f224f391ef"
     },
     {
       "file": "vectors/keytransform/prefix-fields-2.json",
       "vectorSet": "keytransform-prefix-fields-2",
       "kind": "keyTransform",
+      "level": "core",
       "description": "The `prefixFields` transform at a count of 2.",
       "topology": "topologies/kt-prefix-2.topology.json",
       "caseCount": 4,
@@ -1791,12 +1895,13 @@
         "KEY-042",
         "KEY-044"
       ],
-      "sha256": "0a2529c152a449b95297bd6b02af8be30879bde05f56f7673806d1a74e801c4e"
+      "sha256": "cb7411d07cd831eb438a9ab3d9ead01b859e31d5ec84bb2db46c4907e00a7ad4"
     },
     {
       "file": "vectors/movement/add-one-node.json",
       "vectorSet": "movement-add-one-node",
       "kind": "movement",
+      "level": "core",
       "description": "Adding one node to a topology of five.  Every key keeps its first candidate or moves to the added node, and the whole candidate ordering is preserved as a subsequence.  The counts are golden, so a port reproduces them exactly.",
       "topology": null,
       "caseCount": 4,
@@ -1807,12 +1912,13 @@
         "PROP-016",
         "PROP-019"
       ],
-      "sha256": "26c9151de769140d574c3257a676cbacf66c011a3d03603176dad7318e015343"
+      "sha256": "57128e1f6dbb02f8b38c6c8e3e33e79662a469a03aaab6b128cdb0fe194348e9"
     },
     {
       "file": "vectors/overrides/pin-admits-weight-zero.json",
       "vectorSet": "overrides-pin-admits-weight-zero",
       "kind": "routing",
+      "level": "core",
       "description": "A node of weight 0 places nothing under a derived assignment and still serves a pin.",
       "topology": "topologies/weight-zero-pinned.topology.json",
       "caseCount": 2,
@@ -1823,12 +1929,13 @@
         "PLACE-042",
         "PLACE-043"
       ],
-      "sha256": "4f95ae97450206864d1570e5923712e2578ada33c8a755a425a09fe026cc3bc4"
+      "sha256": "68486d8c318473a3bb1697b2d39bbe19af2f0ea0eca67475462c6141fb3f32ee"
     },
     {
       "file": "vectors/overrides/pin-keeps-shard.json",
       "vectorSet": "overrides-pin-keeps-shard",
       "kind": "pinShard",
+      "level": "core",
       "description": "A pinned routing key keeps its shard identifier, and its candidate ordering differs from the ordering the shard itself produces.",
       "topology": null,
       "caseCount": 2,
@@ -1838,12 +1945,13 @@
         "PLACE-030",
         "PLACE-033"
       ],
-      "sha256": "26ef327d1989e5ca5966c51b78b9d9e7b6dc5297cea6ab64a2e1b1fa3be33e71"
+      "sha256": "c03c40180f490993066889276c592aceaaca0f54d08b4c858476bdeb47753f9f"
     },
     {
       "file": "vectors/overrides/precedence-and-composition.json",
       "vectorSet": "overrides-precedence-and-composition",
       "kind": "routing",
+      "level": "core",
       "description": "Override matching, pinning, constraints, their composition, and the override replication factor.",
       "topology": "topologies/overrides-precedence.topology.json",
       "caseCount": 8,
@@ -1881,12 +1989,13 @@
         "REPL-003",
         "REPL-005"
       ],
-      "sha256": "dd974e80263fe7935d4a7be9cf9e9d02770b51635462a6a81bb86f88fcfaa395"
+      "sha256": "20655c5d549e41a368b4258fbe4b70a15735cb37f97284bd7aa292d98fc698f8"
     },
     {
       "file": "vectors/placement/document-defaults.json",
       "vectorSet": "placement-document-defaults",
       "kind": "defaults",
+      "level": "core",
       "description": "A document that omits every optional member and one that writes every default out produce identical orderings, weight changes nothing under an authored assignment, and an omitted `assignment` takes the default its strategy gives: `derived` under `slot` and `explicit` under `range`.",
       "topology": null,
       "caseCount": 4,
@@ -1905,12 +2014,13 @@
         "SLOT-024",
         "SPREAD-003"
       ],
-      "sha256": "e7bd9df528a94f9015c1d868743f13b0bfb140fad8c77ad8283e7aeea2b834d0"
+      "sha256": "ba85da0cbe07b9c619e6685fabc79bd78511b78ca948fd6cfbe13b734d991fa7"
     },
     {
       "file": "vectors/placement/identity-comparison.json",
       "vectorSet": "placement-identity-comparison",
       "kind": "formula",
+      "level": "core",
       "description": "The node identity comparator: unsigned octets of the UTF-8 encoding, lexicographic, with a proper prefix comparing less.  It is the final tie-break of every ordering the specification defines, so a port that compares by code point, by collation, or case insensitively passes every ordering vector and fails on the first tie.",
       "topology": null,
       "caseCount": 11,
@@ -1921,12 +2031,13 @@
         "PLACE-022",
         "PLACE-023"
       ],
-      "sha256": "aa61d767e53899dcd6a8abcdb65f8962cdfe7914551bd89dadf0d680285fed21"
+      "sha256": "c8cc7d70acb1aaea947039743c2bd66de4a277609553fd105e89633ac95088d4"
     },
     {
       "file": "vectors/placement/shard-enumeration.json",
       "vectorSet": "placement-shard-enumeration",
       "kind": "shards",
+      "level": "core",
       "description": "Shard naming, shard enumeration order, and the agreement between `candidates` and `candidatesForShard` that `PLACE-033` requires.",
       "topology": null,
       "caseCount": 7,
@@ -1952,12 +2063,28 @@
         "SLOT-031",
         "SLOT-032"
       ],
-      "sha256": "b4f97198b53f54a10bc4a409f1876a9dfcd0df997b566dd9a0a4712ac2f55eac"
+      "sha256": "ce4d007b1aa54210883be1e1ed90d88bccbfebe7c4e00ec21b36f8c2e35695cf"
+    },
+    {
+      "file": "vectors/placement/virtual-node-count.json",
+      "vectorSet": "placement-virtual-node-count",
+      "kind": "formula",
+      "level": "core",
+      "description": "The virtual node count a weight yields under a per-unit multiplier and a cap.",
+      "topology": null,
+      "caseCount": 6,
+      "requirements": [
+        "PLACE-050",
+        "PLACE-051",
+        "PLACE-052"
+      ],
+      "sha256": "e58898c1877a0371efd677d523f4bf610ff32d685159a26cb605868bb1129b12"
     },
     {
       "file": "vectors/properties/witnesses.json",
       "vectorSet": "property-witnesses",
       "kind": "propertyWitness",
+      "level": "core",
       "description": "Observed counts and evaluated inequalities for every property the reference can evaluate.  The sample is deterministic, so a port reproduces these numbers exactly rather than approximately.",
       "topology": null,
       "caseCount": 7,
@@ -1974,12 +2101,13 @@
         "PROP-032",
         "PROP-033"
       ],
-      "sha256": "b01995512397b56693cb24650ec1b7212eb32957f2dbbff21e726b64d0998c74"
+      "sha256": "070e39cc02b6d6d22822d08dbc3d565c87ab222353d7750d9b607170ad0d7b5a"
     },
     {
       "file": "vectors/range/derived-assignment.json",
       "vectorSet": "range-derived-assignment",
       "kind": "routing",
+      "level": "core",
       "description": "Range placement under derived assignment, where the ordering is the rendezvous ordering over the `shardId`.",
       "topology": "topologies/range-derived.topology.json",
       "caseCount": 8,
@@ -1992,12 +2120,13 @@
         "RANGE-033",
         "RANGE-040"
       ],
-      "sha256": "934ceaa7af5d3532fbbf778c0eb29b3d3c3cebbb5b9f6558951a78959377d8e0"
+      "sha256": "e69fd081f83ae74c077bd64a738f2ca2038730235e01e8bedc49c5975fe0a437"
     },
     {
       "file": "vectors/range/explicit-bounds.json",
       "vectorSet": "range-explicit-bounds",
       "kind": "routing",
+      "level": "core",
       "description": "Unsigned bytewise bound comparison over half-open intervals, including the prefix rule and the half-open endpoints.",
       "topology": "topologies/range-explicit.topology.json",
       "caseCount": 8,
@@ -2016,12 +2145,13 @@
         "RANGE-020",
         "RANGE-040"
       ],
-      "sha256": "87302e14dfdbac4548b056da1a7d5c47e6781a36f856f095b37cdc78183b502d"
+      "sha256": "4cd01ecfe777d6e0c315d283c4c9e3f28ec879c36e5c08169d97ce4023ba97f4"
     },
     {
       "file": "vectors/read/affinity.json",
       "vectorSet": "read-affinity",
       "kind": "readAffinity",
+      "level": "readAffinity",
       "description": "`routeForRead` partitions the first `window` entries towards a domain path, stably, and leaves everything at or beyond `window` untouched.",
       "topology": "topologies/read-affinity.topology.json",
       "caseCount": 42,
@@ -2038,12 +2168,13 @@
         "READ-023",
         "SPREAD-006"
       ],
-      "sha256": "6b3b0af156acf29082aa78cc2ab691f0255ddb9a398e99bcc79ddba97b73c484"
+      "sha256": "3a8775de7d74e2d025c1453c8824e8b145337ce24732ca23fe6ef033d3976e01"
     },
     {
       "file": "vectors/rendezvous/cache-hash-tags.json",
       "vectorSet": "rendezvous-cache-hash-tags",
       "kind": "routing",
+      "level": "core",
       "description": "The cache example of `20-topology-format.md`: Redis-compatible hash tags, mixed weights, and a draining node at weight 0.",
       "topology": "topologies/rendezvous-cache.topology.json",
       "caseCount": 12,
@@ -2058,12 +2189,13 @@
         "RV-001",
         "RV-010"
       ],
-      "sha256": "2aab4908c34df2187f44d1f52a92361fb9b63dd7d4138648e3fdbe485554c41a"
+      "sha256": "6c83ac49de038d7789a71c2a5bfc52e84a0fa6a03465aa958ff345ce6c611d2f"
     },
     {
       "file": "vectors/rendezvous/ordering.json",
       "vectorSet": "rendezvous-ordering",
       "kind": "routing",
+      "level": "core",
       "description": "Rendezvous ordering by descending score with the node identity tie-break, at one virtual node per node.",
       "topology": "topologies/rendezvous-plain.topology.json",
       "caseCount": 15,
@@ -2082,12 +2214,13 @@
         "RV-020",
         "RV-021"
       ],
-      "sha256": "86f75c5118c4c0ed7f63a7ec165ed8b90a75e14f9a0fdf8a95f83ec12264ceaa"
+      "sha256": "5fc872033cc3f6ea9bd8b92fd6620e99f07243b70df05bf3ecfe73c30537f346"
     },
     {
       "file": "vectors/rendezvous/tenant-router.json",
       "vectorSet": "rendezvous-tenant-router",
       "kind": "routing",
+      "level": "core",
       "description": "The tenant routing example of `20-topology-format.md`, with the key transform, an exact pin, and a residency constraint.",
       "topology": "topologies/rendezvous-tenant.topology.json",
       "caseCount": 11,
@@ -2109,12 +2242,13 @@
         "REPL-002",
         "RV-010"
       ],
-      "sha256": "b8245a7ad8a0b4616b36cc96c44fdd88919a0232445b7cd5a064e5f4e346190c"
+      "sha256": "45f38741ec4b76c8f9c4581b26cf1c6f57821bfe9199a26420ca75faee59dc36"
     },
     {
       "file": "vectors/rendezvous/virtual-node-cap.json",
       "vectorSet": "rendezvous-virtual-node-cap",
       "kind": "routing",
+      "level": "core",
       "description": "The virtual node count is `min(weight * perWeightUnit, cap)`.  Clamping is an event rather than a validation failure, so the node still places.",
       "topology": "topologies/rendezvous-capped.topology.json",
       "caseCount": 8,
@@ -2127,12 +2261,13 @@
         "PLACE-054",
         "RV-001"
       ],
-      "sha256": "58c45af9989bf2bd9e674d40471e1ef6128dfc785cfcaa5d99ccff6ea7a91539"
+      "sha256": "154c135fd36c3fbf7a325c54856a075b5c4044c96e0d9637dc58375c53deec5b"
     },
     {
       "file": "vectors/replication/factor-exceeds-node-count.json",
       "vectorSet": "replication-factor-exceeds-node-count",
       "kind": "routing",
+      "level": "core",
       "description": "A replication factor above the eligible node count produces a shorter replica prefix, never a repeated node, and never a failed call.",
       "topology": "topologies/factor-exceeds-nodes.topology.json",
       "caseCount": 5,
@@ -2145,12 +2280,13 @@
         "REPL-021",
         "REPL-025"
       ],
-      "sha256": "cdd2b8f6930d33915b685585266e6bdba89f75b5bb6a81439d353e6006374c2d"
+      "sha256": "1c184bfba73f0cb7ccf022345d138faf9815677f64a1f041969ce8388b73c57a"
     },
     {
       "file": "vectors/replication/fallback-tail.json",
       "vectorSet": "replication-fallback-tail",
       "kind": "routing",
+      "level": "core",
       "description": "The fallback tail is the candidate ordering with the replica prefix removed, in candidate ordering order, and carries no spread property.",
       "topology": "topologies/ring-zoned.topology.json",
       "caseCount": 6,
@@ -2163,12 +2299,13 @@
         "REPL-017",
         "SPREAD-021"
       ],
-      "sha256": "e2ff4ccce898a3e8374ef6ce359c1b2e65553dfe427785a73a442acfe3ca7dae"
+      "sha256": "2e46984260d8c740a0b998c3b8658ea25de1adc776b2664d6e2af0ae169afe3d"
     },
     {
       "file": "vectors/replication/single-node.json",
       "vectorSet": "replication-single-node",
       "kind": "routing",
+      "level": "core",
       "description": "A topology of one node at factor 3.",
       "topology": "topologies/single-node.topology.json",
       "caseCount": 3,
@@ -2180,12 +2317,13 @@
         "REPL-025",
         "SPREAD-013"
       ],
-      "sha256": "440d085ff293b975b6c6a513e5a4bdb2705813b77ce41cdb41b859f6b29aaf91"
+      "sha256": "19493ffad34321a5168b1138ba5603e5cc9498de77fa55a0ded805a26d6f3862"
     },
     {
       "file": "vectors/ring/administrative-states.json",
       "vectorSet": "ring-administrative-states",
       "kind": "routing",
+      "level": "core",
       "description": "The placement set is `active` plus `draining`.  A `joining` or `leaving` node never reaches a candidate ordering.",
       "topology": "topologies/ring-admin-states.topology.json",
       "caseCount": 6,
@@ -2196,12 +2334,13 @@
         "PLACE-002",
         "RING-005"
       ],
-      "sha256": "1646d4c0d8de6b5cdb2fa1ec9a2be70a6b8b0b74d72d4687170fc7221ab1557f"
+      "sha256": "2c1acfab92c1c7a42b0f190554f7e150f53f4c5d49eb46e4a969ee8deee1dffd"
     },
     {
       "file": "vectors/ring/derived-walk.json",
       "vectorSet": "ring-derived-walk",
       "kind": "routing",
+      "level": "core",
       "description": "The ring walk under derived tokens: every eligible node appears exactly once, in ring order from the owning entry, wrapping once.",
       "topology": "topologies/ring-plain.topology.json",
       "caseCount": 16,
@@ -2223,12 +2362,13 @@
         "RING-030",
         "TOPO-151"
       ],
-      "sha256": "2997ad761dbba8268e9e1059de72e3a0b65c279ff9634c2033e392f35072f813"
+      "sha256": "2c5d10490ccf1f1159b0164b7eac7ae030c944066c026eb79346f403ff7d0944"
     },
     {
       "file": "vectors/ring/derived-zoned.json",
       "vectorSet": "ring-derived-zoned",
       "kind": "routing",
+      "level": "core",
       "description": "Ring placement with weights, two domain levels, factor 3, and a zone spread. Exercises the preference list builder over a ring candidate ordering.",
       "topology": "topologies/ring-zoned.topology.json",
       "caseCount": 10,
@@ -2248,12 +2388,13 @@
         "SPREAD-012",
         "SPREAD-015"
       ],
-      "sha256": "98b9887d03903ec4f96bbedc5828ba8f9b2efa3c6cbba4d3d3a35a866802cd70"
+      "sha256": "50e113fdbdb23318ad1d29f13e458f0c8ee3fa36b13080607869ef5f0742c37a"
     },
     {
       "file": "vectors/ring/explicit-tokens.json",
       "vectorSet": "ring-explicit-tokens",
       "kind": "routing",
+      "level": "core",
       "description": "Ring placement under authored tokens, including a node of weight 0 that carries tokens and therefore appears in the ordering.",
       "topology": "topologies/ring-explicit.topology.json",
       "caseCount": 13,
@@ -2268,12 +2409,13 @@
         "RING-020",
         "RING-021"
       ],
-      "sha256": "f82491e79bc46fbeb928c37ba2afa6af81fe9d9e84a2a9acf2f87b2e42299940"
+      "sha256": "bfcd9245e2d7f5475f652f39977015eac6985f5070b0d2b406e3ba8c7112d4b3"
     },
     {
       "file": "vectors/ring/non-default-seed.json",
       "vectorSet": "ring-non-default-seed",
       "kind": "routing",
+      "level": "core",
       "description": "Ring placement under a non-default hash seed.  Every other vector in the suite uses the sixteen zero octets.",
       "topology": "topologies/ring-seeded.topology.json",
       "caseCount": 6,
@@ -2284,12 +2426,13 @@
         "SEC-011",
         "SEC-012"
       ],
-      "sha256": "53e6ee21bb6c58fe41080327542674bdc0f6a13429a60816410b3b4ea7916560"
+      "sha256": "644fcb43191d897d3197be39093518dbde2dab450699e912a08c27a8bc812369"
     },
     {
       "file": "vectors/ring/weight-zero.json",
       "vectorSet": "ring-weight-zero",
       "kind": "routing",
+      "level": "core",
       "description": "A node of weight 0 under derived token assignment owns no token and never appears.",
       "topology": "topologies/ring-weight-zero.topology.json",
       "caseCount": 6,
@@ -2301,12 +2444,13 @@
         "RING-001",
         "RING-002"
       ],
-      "sha256": "42edc0c32ada87d59b15f597b2a3425b25b801476cb3e88e631c10e484fe34d3"
+      "sha256": "a74699c258420cf9a8d2ec8d267e76ddec181709a5d40f9c9ded37c90df63d74"
     },
     {
       "file": "vectors/slot/derived-assignment.json",
       "vectorSet": "slot-derived-assignment",
       "kind": "routing",
+      "level": "core",
       "description": "Slot placement under derived assignment: the ordering is the rendezvous ordering over the slot index, so two keys in one slot order identically.",
       "topology": "topologies/slot-derived.topology.json",
       "caseCount": 12,
@@ -2321,12 +2465,13 @@
         "SLOT-030",
         "SLOT-031"
       ],
-      "sha256": "9f4dd50c67265ea590bd0807a840d5fe139ee7e87c8d08f75b3a6dc36b65ffee"
+      "sha256": "d6898f8555916f78e3086dcf868794317b78b7a884f1eae834db84ceaf3d7b29"
     },
     {
       "file": "vectors/slot/explicit-assignment.json",
       "vectorSet": "slot-explicit-assignment",
       "kind": "routing",
+      "level": "core",
       "description": "Slot placement under an authored assignment table, at the Redis Cluster slot count.  The covering entry's `nodes` array is the candidate ordering.",
       "topology": "topologies/slot-explicit.topology.json",
       "caseCount": 12,
@@ -2344,12 +2489,13 @@
         "SLOT-014",
         "SLOT-030"
       ],
-      "sha256": "101f8d0c7d18a6494056f00fcb01af93245acc4d71c63844d7b3397ecf827599"
+      "sha256": "a565e492799f22b4152e372cfd9ec4c976505e0e0fbfb550a09a7eea6542389a"
     },
     {
       "file": "vectors/slot/non-power-of-two-modulus.json",
       "vectorSet": "slot-non-power-of-two",
       "kind": "routing",
+      "level": "core",
       "description": "`keyHash mod slotCount` at a slot count of 7, which a bitwise mask cannot reproduce.",
       "topology": "topologies/slot-small.topology.json",
       "caseCount": 14,
@@ -2361,12 +2507,13 @@
         "SLOT-002",
         "SLOT-003"
       ],
-      "sha256": "ef452d64cbfc04718dc5302d63785c6ee4373c443d4b67b8742adbf44c892ee3"
+      "sha256": "b421fa49b81534f8be1fcde355de76dcb3e9f2e0e3560288f459513d83f59ab5"
     },
     {
       "file": "vectors/split/lineage.json",
       "vectorSet": "split-lineage",
       "kind": "formula",
+      "level": "migration",
       "description": "Range split and merge lineage derived from bounds, the classification of each source shard, the plan verdict, and the step decomposition each classification implies.",
       "topology": null,
       "caseCount": 5,
@@ -2387,12 +2534,13 @@
         "SPLIT-161",
         "SPLIT-171"
       ],
-      "sha256": "55a5d80119df28f1003a157e82215a349d822694fb15f762390650225a60acf2"
+      "sha256": "103c59f2a5b3004a2050926d061c96122ca52cabaac8f6d878718ebe63f29308"
     },
     {
       "file": "vectors/spread/all-nodes-one-domain-relaxed.json",
       "vectorSet": "spread-one-domain-relaxed",
       "kind": "routing",
+      "level": "core",
       "description": "Every node in one failure domain under `relaxed`: the builder degrades to distinctness alone and reports the relaxed level.",
       "topology": "topologies/one-domain-relaxed.topology.json",
       "caseCount": 5,
@@ -2407,12 +2555,13 @@
         "SPREAD-015",
         "SPREAD-021"
       ],
-      "sha256": "da58d736f9050c98d3470ff891b9db7fff943e02c58d780d576ce80c63ed8cc7"
+      "sha256": "9495eea931bc5f9e65b6db22ff1d4f4085652ec910127628ba61897deb8314d5"
     },
     {
       "file": "vectors/spread/all-nodes-one-domain-strict.json",
       "vectorSet": "spread-one-domain-strict",
       "kind": "routing",
+      "level": "core",
       "description": "The same node set under `strict`: a shorter replica prefix rather than a degraded spread.",
       "topology": "topologies/one-domain-strict.topology.json",
       "caseCount": 5,
@@ -2424,12 +2573,13 @@
         "SPREAD-014",
         "SPREAD-015"
       ],
-      "sha256": "927e8a0feef3803ca15a064b5299817773922c8c634ea2fd533c4b6544abc4eb"
+      "sha256": "4fd4beee617c61a0653596f7474162515cb45650751ab25b8cb9bf64ae1c4514"
     },
     {
       "file": "vectors/spread/applies-to-pinned-ordering.json",
       "vectorSet": "spread-applies-to-pinned-ordering",
       "kind": "routing",
+      "level": "core",
       "description": "A pin is exempt from the balance and movement bounds and is not exempt from spread.",
       "topology": "topologies/spread-pinned.topology.json",
       "caseCount": 2,
@@ -2441,12 +2591,13 @@
         "REPL-013",
         "SPREAD-004"
       ],
-      "sha256": "3d64b1410e71d17d4c82a37d2d716dbfa08198de12aa3e22e1820b8addc5483b"
+      "sha256": "4b2d7c13b72998993ee9b596fab73dd57f819d5fda9c08af88ce42828055b768"
     },
     {
       "file": "vectors/spread/degradation-ladder.json",
       "vectorSet": "spread-degradation-ladder",
       "kind": "routing",
+      "level": "core",
       "description": "Three spread levels, factor 4, and a node set that forces the relaxation ladder past stage 0.  Stage k of `SPREAD-010` enforces the finest m-k levels, which `SPREAD-018` makes equivalent to enforcing `spread[k]` alone, so the chosen stage is the coarsest level at which a full replica prefix exists.  `vectors/spread/relaxation-stages.json` records each stage separately.",
       "topology": "topologies/spread-ladder.topology.json",
       "caseCount": 12,
@@ -2467,12 +2618,13 @@
         "SPREAD-020",
         "SPREAD-021"
       ],
-      "sha256": "1304b51d1d30bb86d422fb2b722b5366b26c2dbda221f53455a77e3965cc9f37"
+      "sha256": "6c2c409212b86d747ecc666a0f266102d996cf32078f078fcc56b27c0490e14b"
     },
     {
       "file": "vectors/spread/relaxation-stages.json",
       "vectorSet": "spread-relaxation-stages",
       "kind": "stages",
+      "level": "core",
       "description": "Every relaxation stage of `SPREAD-010`, with the entries it admits and whether it reaches the effective replication factor.  `distinctStageOutcomes` counts how many of the m+1 stages differ, and `SPREAD-018` makes it m+1 where the topology has a distinct domain at each level.",
       "topology": null,
       "caseCount": 8,
@@ -2488,12 +2640,13 @@
         "SPREAD-019",
         "SPREAD-020"
       ],
-      "sha256": "64aa6d4b6b1c635ae2cdf44d2e4e5b80c977d52eb4a088f0db804cf17de2e86b"
+      "sha256": "91f2173f3630b0bc86b3af2a652c187121062e166db64a36cde6437142d9e1ca"
     },
     {
       "file": "vectors/spread/skipped-level.json",
       "vectorSet": "spread-skipped-level",
       "kind": "routing",
+      "level": "core",
       "description": "`domainLevels` of region, zone, and rack with a `spread` of rack alone.  A domain path under `SPREAD-006` spans every declared level through the level compared, so two nodes in rack `k1` under different zones occupy distinct rack domains and both may hold a replica.  A port that scoped the path to `replication.spread` would compare the rack identifier alone and skip the second of them.",
       "topology": "topologies/spread-skipped-level.topology.json",
       "caseCount": 9,
@@ -2510,12 +2663,13 @@
         "SPREAD-015",
         "SPREAD-021"
       ],
-      "sha256": "5efe701b239f87950b0158520773106c08cd3840b6dd76f90c57356b4a6fc459"
+      "sha256": "248981b2477a0a9e7d4894540d88784d3db1cd8410a22ac028c0029a0f15aebf"
     },
     {
       "file": "vectors/topology/ownership-delta.json",
       "vectorSet": "topology-ownership-delta",
       "kind": "ownershipDelta",
+      "level": "core",
       "description": "The ownership delta between two snapshots, the reorder-only case that gains and loses nothing, the entry order over sixteen slots, the replica set under a shortfall, and the changes that make shard identity incomparable.",
       "topology": null,
       "caseCount": 7,
@@ -2537,12 +2691,13 @@
         "TOPO-231",
         "TOPO-241"
       ],
-      "sha256": "c0590239f25615c726ec0c353afc9b8116b2c9a9706e90e0c6db768297198c41"
+      "sha256": "94131f99ab62060e100641ddf330cf5c2bfbca414691d8958420a5f0e7154fe8"
     },
     {
       "file": "vectors/validation/documents.json",
       "vectorSet": "validation-documents",
       "kind": "validation",
+      "level": "core",
       "description": "Documents that fail a load-time rule, each with the rules it breaks, and every valid document in the suite as a negative control.  A port reports every error rather than the first, under `ERR-030`.",
       "topology": null,
       "caseCount": 66,
@@ -2556,13 +2711,14 @@
         "TOPO-011",
         "TOPO-191"
       ],
-      "sha256": "3a1facddb7896551a7a3d92aeedf1bca5feeb79bf34ada83821931a5c43379d0"
+      "sha256": "ea54644e9b52ae8f90ab137eb8c5a0b5f29da681c37d8d649bf09335c9ea480c"
     }
   ],
   "scenarios": [
     {
       "file": "scenarios/topology-rollback.json",
       "scenario": "topology-rollback",
+      "level": "core",
       "description": "An authority reverts an assignment.  The library never accepts a lower epoch, so the revert arrives as a higher epoch carrying the former assignment.  The scenario also covers the equal-epoch digest conflict and the foreign identifier.",
       "stepCount": 8,
       "requirements": [
@@ -2578,6 +2734,7 @@
     {
       "file": "scenarios/caller-three-epochs-stale.json",
       "scenario": "caller-three-epochs-stale",
+      "level": "fencing",
       "description": "A caller routes against epoch 1 while the recipient holds epoch 4.  Covers every recipient relation, both policies, a retained and an unretained token epoch, an unfenced request, a sender ahead of the recipient, and the two relations under which ownership is `unknown`.",
       "stepCount": 16,
       "requirements": [
@@ -2605,6 +2762,7 @@
     {
       "file": "scenarios/split-topology-view.json",
       "scenario": "split-topology-view",
+      "level": "fencing",
       "description": "Half the cluster holds epoch 1 and half holds epoch 3, and the two halves disagree about the replica set of one key.  Every crossing request is refused, and the refusal names the owner the recipient believes in.",
       "stepCount": 9,
       "requirements": [
@@ -2625,6 +2783,7 @@
     {
       "file": "scenarios/redirect-walk-depth-limit.json",
       "scenario": "redirect-walk-depth-limit",
+      "level": "fencing",
       "description": "A caller follows `currentOwner` refusals, and the walk terminates at the redirect bound, on revisiting a node it already attempted, on an identity its own snapshot does not carry, or where the retry budget refuses the redirect.",
       "stepCount": 10,
       "requirements": [
@@ -2643,6 +2802,7 @@
     {
       "file": "scenarios/handoff-happy-path.json",
       "scenario": "handoff-happy-path",
+      "level": "migration",
       "description": "One shard moves from its source to its destination through every state of `MOVE-021`, with the ownership delta that produced the plan.",
       "stepCount": 10,
       "requirements": [
@@ -2663,6 +2823,7 @@
     {
       "file": "scenarios/node-dies-mid-migration.json",
       "scenario": "node-dies-mid-migration",
+      "level": "migration",
       "description": "The destination stops answering during `transferring`.  The health view ejects it, the step attempts exhaust, the handoff compensates, and the source keeps ownership because no cutover record was committed.",
       "stepCount": 13,
       "requirements": [
@@ -2680,6 +2841,7 @@
     {
       "file": "scenarios/abort-during-catching-up.json",
       "scenario": "abort-during-catching-up",
+      "level": "migration",
       "description": "An abort requested in `catchingUp` moves the handoff to `aborting` and runs compensation.  A second abort has no further effect.",
       "stepCount": 7,
       "requirements": [
@@ -2691,6 +2853,7 @@
     {
       "file": "scenarios/coordinator-death-and-recovery.json",
       "scenario": "coordinator-death-and-recovery",
+      "level": "migration",
       "description": "The coordinator dies in each non-terminal state and rebuilds its plan.  The resumed state is a function of the integrator's durable observation, never of the coordinator's own record.  An observation that could not be taken is retried rather than treated as an answer.",
       "stepCount": 37,
       "requirements": [
@@ -2709,6 +2872,7 @@
     {
       "file": "scenarios/handoff-failure-kinds.json",
       "scenario": "handoff-failure-kinds",
+      "level": "migration",
       "description": "Each of the four failure kinds of `MOVE-011`, with the trigger sequence that reaches it and the condition it raises.  A terminal state admits no further transition.",
       "stepCount": 8,
       "requirements": [
@@ -2725,6 +2889,7 @@
     {
       "file": "scenarios/plan-superseded-by-new-epoch.json",
       "scenario": "plan-superseded-by-new-epoch",
+      "level": "migration",
       "description": "A third epoch arrives while three handoffs are in flight.  A comparable epoch marks the plan rebase pending and aborts nothing; an incomparable one supersedes it, pre-cutover handoffs abort, and the handoff past cutover runs on.",
       "stepCount": 11,
       "requirements": [
@@ -2741,6 +2906,7 @@
     {
       "file": "scenarios/rebalance-survives-unrelated-epoch.json",
       "scenario": "rebalance-survives-unrelated-epoch",
+      "level": "migration",
       "description": "A node joins the fleet while a two-shard rebalance is in flight.  The plan is marked rebase pending rather than superseded, admits no new work until the integrator rebases it, and then finishes under the newer epoch.",
       "stepCount": 20,
       "requirements": [
@@ -2760,6 +2926,7 @@
     {
       "file": "scenarios/rebase-drops-a-handoff.json",
       "scenario": "rebase-drops-a-handoff",
+      "level": "migration",
       "description": "An epoch arrives that reverses one of two moves in flight.  The handoff whose shard, source, and destination no longer hold is aborted and compensated; the other rebases and completes.  Three refusals cover the rebase preconditions.",
       "stepCount": 18,
       "requirements": [
@@ -2779,6 +2946,7 @@
     {
       "file": "scenarios/undetermined-resolves-both-ways.json",
       "scenario": "undetermined-resolves-both-ways",
+      "level": "migration",
       "description": "A cutover whose outcome the library never established is looked at again.  The same failure resolves to `verifying` where the record landed, to `cutover` where it did not, and to `aborting` where another destination won.  The three failure kinds that need an operator are refused, as is an advisory resumption at `cutover`.",
       "stepCount": 49,
       "requirements": [
@@ -2804,6 +2972,7 @@
     {
       "file": "scenarios/migration-rate-control.json",
       "scenario": "migration-rate-control",
+      "level": "migration",
       "description": "Concurrency bounds and backpressure decide what a `step` admits.  Neither pressure level moves a handoff out of `planned`, and `hard` withholds only the two bulk hooks.",
       "stepCount": 6,
       "requirements": [
@@ -2819,6 +2988,7 @@
     {
       "file": "scenarios/failover-and-recovery.json",
       "scenario": "failover-and-recovery",
+      "level": "failover",
       "description": "A replica fails, is ejected, is probed under probation, and returns.  The preference list never changes; only the attempt sequence does.",
       "stepCount": 12,
       "requirements": [
@@ -2847,6 +3017,7 @@
     {
       "file": "scenarios/health-filter-fails-open.json",
       "scenario": "health-filter-fails-open",
+      "level": "failover",
       "description": "Every replica of a shard is ejected.  The health filter returns the whole preference list rather than nothing, and the decision records that it failed open.",
       "stepCount": 4,
       "requirements": [
@@ -2861,6 +3032,7 @@
     {
       "file": "scenarios/ejection-ceiling.json",
       "scenario": "ejection-ceiling",
+      "level": "failover",
       "description": "Every node of the placement set fails.  The ceiling refuses the third ejection so that a correlated failure cannot empty the cluster's attemptable set.",
       "stepCount": 4,
       "requirements": [
@@ -2911,7 +3083,7 @@
     {
       "id": "P-PURITY-001",
       "name": "Health independence of ownership",
-      "level": "core",
+      "level": "failover",
       "requirements": [
         "PROP-040",
         "PROP-041",
@@ -3197,7 +3369,7 @@
     {
       "id": "P-FENCE-001",
       "name": "Verdict purity",
-      "level": "core",
+      "level": "fencing",
       "requirements": [
         "FENCE-101",
         "FENCE-071",
@@ -3209,7 +3381,7 @@
     {
       "id": "P-ATTEMPT-001",
       "name": "Attempt sequence subsequence",
-      "level": "core",
+      "level": "failover",
       "requirements": [
         "FAIL-002",
         "FAIL-003",

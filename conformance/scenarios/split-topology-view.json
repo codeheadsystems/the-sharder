@@ -1,5 +1,6 @@
 {
   "scenario": "split-topology-view",
+  "level": "fencing",
   "description": "Half the cluster holds epoch 1 and half holds epoch 3, and the two halves disagree about the replica set of one key.  Every crossing request is refused, and the refusal names the owner the recipient believes in.",
   "requirements": [
     "CORE-053",

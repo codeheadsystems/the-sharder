@@ -1,5 +1,6 @@
 {
   "scenario": "node-dies-mid-migration",
+  "level": "migration",
   "description": "The destination stops answering during `transferring`.  The health view ejects it, the step attempts exhaust, the handoff compensates, and the source keeps ownership because no cutover record was committed.",
   "requirements": [
     "HEALTH-005",

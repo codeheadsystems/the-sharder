@@ -1,6 +1,7 @@
 {
   "vectorSet": "directory-no-match",
   "kind": "routing",
+  "level": "core",
   "description": "A routing key that no directory entry matches, and an entry whose every node is outside the placement set.",
   "requirements": [
     "CORE-046",

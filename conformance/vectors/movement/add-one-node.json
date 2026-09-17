@@ -1,6 +1,7 @@
 {
   "vectorSet": "movement-add-one-node",
   "kind": "movement",
+  "level": "core",
   "description": "Adding one node to a topology of five.  Every key keeps its first candidate or moves to the added node, and the whole candidate ordering is preserved as a subsequence.  The counts are golden, so a port reproduces them exactly.",
   "requirements": [
     "PROP-010",

@@ -1,6 +1,7 @@
 {
   "vectorSet": "overrides-pin-admits-weight-zero",
   "kind": "routing",
+  "level": "core",
   "description": "A node of weight 0 places nothing under a derived assignment and still serves a pin.",
   "requirements": [
     "CORE-046",

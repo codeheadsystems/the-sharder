@@ -1,6 +1,7 @@
 {
   "vectorSet": "keytransform-brace-tag-same-octet",
   "kind": "keyTransform",
+  "level": "core",
   "description": "The `braceTag` transform where `open` and `close` are the same octet.",
   "requirements": [
     "KEY-037"

@@ -1,6 +1,7 @@
 {
   "vectorSet": "rendezvous-cache-hash-tags",
   "kind": "routing",
+  "level": "core",
   "description": "The cache example of `20-topology-format.md`: Redis-compatible hash tags, mixed weights, and a draining node at weight 0.",
   "requirements": [
     "CORE-046",

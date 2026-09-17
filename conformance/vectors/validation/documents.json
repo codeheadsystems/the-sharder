@@ -1,6 +1,7 @@
 {
   "vectorSet": "validation-documents",
   "kind": "validation",
+  "level": "core",
   "description": "Documents that fail a load-time rule, each with the rules it breaks, and every valid document in the suite as a negative control.  A port reports every error rather than the first, under `ERR-030`.",
   "requirements": [
     "ERR-030",

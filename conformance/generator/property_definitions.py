@@ -80,7 +80,7 @@ PROPERTIES = [
         "name": "Health independence of ownership",
         "requirements": ["PROP-040", "PROP-041", "PROP-045", "FAIL-001", "FAIL-011",
                          "REPL-016"],
-        "level": "core",
+        "level": "failover",
         "statement": "Replacing the health view with any other health view changes no candidate "
                      "ordering, no shard identifier, no eligible node set, and no preference "
                      "list.  Two callers holding one snapshot compute one preference list.",
@@ -507,7 +507,7 @@ PROPERTIES = [
         "id": "P-FENCE-001",
         "name": "Verdict purity",
         "requirements": ["FENCE-101", "FENCE-071", "FENCE-081", "FENCE-091"],
-        "level": "core",
+        "level": "fencing",
         "statement": "A recipient verdict is a function of the token, the routing key, the node "
                      "identity, and the retained snapshots alone.  It reads no health, no clock, "
                      "no randomness, and no handoff state, and uses no floating point.",
@@ -523,7 +523,7 @@ PROPERTIES = [
         "id": "P-ATTEMPT-001",
         "name": "Attempt sequence subsequence",
         "requirements": ["FAIL-002", "FAIL-003", "FAIL-004", "FAIL-012", "FAIL-014"],
-        "level": "core",
+        "level": "failover",
         "statement": "The attempt sequence is an order-preserving subsequence of the whole "
                      "preference list and not of the materialised prefix the decision carries.  "
                      "The primary is the head of the preference list whatever its health state.  "

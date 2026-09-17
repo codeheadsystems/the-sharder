@@ -1,6 +1,7 @@
 {
   "vectorSet": "rendezvous-virtual-node-cap",
   "kind": "routing",
+  "level": "core",
   "description": "The virtual node count is `min(weight * perWeightUnit, cap)`.  Clamping is an event rather than a validation failure, so the node still places.",
   "requirements": [
     "CORE-046",

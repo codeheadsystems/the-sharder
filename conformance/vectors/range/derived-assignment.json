@@ -1,6 +1,7 @@
 {
   "vectorSet": "range-derived-assignment",
   "kind": "routing",
+  "level": "core",
   "description": "Range placement under derived assignment, where the ordering is the rendezvous ordering over the `shardId`.",
   "requirements": [
     "CORE-046",

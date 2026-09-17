@@ -300,7 +300,7 @@ The primitive is `Math.unsignedMultiplyHigh` and not `Math.multiplyHigh`. `Math.
 signed operation and returns the wrong high half for any operand at or above 2^63: it answers -1 for
 `multiplyHigh(-1L, 50L)` where the unsigned form answers 49. The suite already carries an input that
 separates them. In `keySkew/9223372036854775808-18446744073709551615` of
-`vectors/formulas/detection-and-fencing.json`, `hottestKeyRequests` is 2^63 and `requests` is
+`vectors/formulas/skew-detection.json`, `hottestKeyRequests` is 2^63 and `requests` is
 2^64 - 1, and the signed form answers false where the vector expects true.
 
 A left-hand side that names three operands folds its two small factors into one operand before it

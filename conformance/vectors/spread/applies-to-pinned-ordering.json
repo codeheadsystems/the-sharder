@@ -1,6 +1,7 @@
 {
   "vectorSet": "spread-applies-to-pinned-ordering",
   "kind": "routing",
+  "level": "core",
   "description": "A pin is exempt from the balance and movement bounds and is not exempt from spread.",
   "requirements": [
     "CORE-046",

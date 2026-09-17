@@ -1,5 +1,6 @@
 {
   "scenario": "ejection-ceiling",
+  "level": "failover",
   "description": "Every node of the placement set fails.  The ceiling refuses the third ejection so that a correlated failure cannot empty the cluster's attemptable set.",
   "requirements": [
     "HEALTH-025",

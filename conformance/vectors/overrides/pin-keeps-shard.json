@@ -1,6 +1,7 @@
 {
   "vectorSet": "overrides-pin-keeps-shard",
   "kind": "pinShard",
+  "level": "core",
   "description": "A pinned routing key keeps its shard identifier, and its candidate ordering differs from the ordering the shard itself produces.",
   "requirements": [
     "OVR-010",

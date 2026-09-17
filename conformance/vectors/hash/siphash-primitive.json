@@ -1,6 +1,7 @@
 {
   "vectorSet": "siphash-primitive",
   "kind": "siphash",
+  "level": "hash",
   "description": "SipHash-2-4 itself, at the published key and messages of `HASH-003`, so that a port that fails the construction vectors can tell which layer is wrong.",
   "requirements": [
     "HASH-001",

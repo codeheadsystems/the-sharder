@@ -1,5 +1,6 @@
 {
   "scenario": "failover-and-recovery",
+  "level": "failover",
   "description": "A replica fails, is ejected, is probed under probation, and returns.  The preference list never changes; only the attempt sequence does.",
   "requirements": [
     "FAIL-001",

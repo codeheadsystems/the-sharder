@@ -1,6 +1,7 @@
 {
   "vectorSet": "keytransform-none",
   "kind": "keyTransform",
+  "level": "core",
   "description": "The `none` transform returns the key octet for octet.",
   "requirements": [
     "KEY-001",

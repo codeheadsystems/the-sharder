@@ -1,6 +1,7 @@
 {
   "vectorSet": "directory-matcher-precedence",
   "kind": "routing",
+  "level": "core",
   "description": "Directory evaluation and the reachable clauses of the matcher precedence rule.",
   "requirements": [
     "CORE-046",

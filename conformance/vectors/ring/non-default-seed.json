@@ -1,6 +1,7 @@
 {
   "vectorSet": "ring-non-default-seed",
   "kind": "routing",
+  "level": "core",
   "description": "Ring placement under a non-default hash seed.  Every other vector in the suite uses the sixteen zero octets.",
   "requirements": [
     "CORE-046",

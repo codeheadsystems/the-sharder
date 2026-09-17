@@ -1,5 +1,6 @@
 {
   "scenario": "abort-during-catching-up",
+  "level": "migration",
   "description": "An abort requested in `catchingUp` moves the handoff to `aborting` and runs compensation.  A second abort has no further effect.",
   "requirements": [
     "MOVE-021",

@@ -29,7 +29,7 @@ operand of these comparisons is an unsigned 64-bit value carried in a `long`, be
 types every member of a `ShardReport` as a u64. On OpenJDK 25, `Math.multiplyHigh(-1L, 50L)` is -1
 and `Math.unsignedMultiplyHigh(-1L, 50L)` is 49. The suite carries an input that separates them:
 `keySkew/9223372036854775808-18446744073709551615` in
-`conformance/vectors/formulas/detection-and-fencing.json` has `hottestKeyRequests` at 2^63 and
+`conformance/vectors/formulas/skew-detection.json` has `hottestKeyRequests` at 2^63 and
 `requests` at 2^64 - 1, and the signed form answers false where the vector expects true.
 
 `PLACE-051` is not a comparison between two products. It is `min(weight * perWeightUnit, cap)`, one
@@ -94,7 +94,7 @@ floor [`0031-jdk-baseline.md`](0031-jdk-baseline.md) sets.
 
 Every comparison `CORE-005` governs has an expression in the binding that reproduces the shipped
 vectors. The four formula call sites were compiled under `--release 21` and run against the 32 cases
-of `vectors/formulas/detection-and-fencing.json`, `vectors/formulas/failover.json`, and
+of `vectors/formulas/skew-detection.json`, `vectors/formulas/failover.json`, and
 `vectors/formulas/health.json` that name `CORE-005`, and against two million random operand
 quintuples cross-checked with `BigInteger`. The
 `shardIsHot/9223372036854775807-1048576-18446744073709551615` case reaches 90 bits on the left with

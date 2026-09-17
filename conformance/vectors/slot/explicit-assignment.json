@@ -1,6 +1,7 @@
 {
   "vectorSet": "slot-explicit-assignment",
   "kind": "routing",
+  "level": "core",
   "description": "Slot placement under an authored assignment table, at the Redis Cluster slot count.  The covering entry's `nodes` array is the candidate ordering.",
   "requirements": [
     "CORE-046",

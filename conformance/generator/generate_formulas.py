@@ -26,15 +26,16 @@ from sharder_ref.topology import Snapshot                         # noqa: E402
 ENTRIES = []
 
 
-def emit(root, path, vector_set, description, requirements, cases):
+def emit(root, path, vector_set, level, description, requirements, cases):
     write_json(root / path, {
         "vectorSet": vector_set,
         "kind": "formula",
+        "level": level,
         "description": description,
         "requirements": sorted(set(requirements)),
         "cases": cases,
     })
-    ENTRIES.append({"file": path, "vectorSet": vector_set, "kind": "formula",
+    ENTRIES.append({"file": path, "vectorSet": vector_set, "kind": "formula", "level": level,
                     "description": description, "topology": None, "caseCount": len(cases),
                     "requirements": sorted({r for c in cases for r in c["requirements"]}
                                            | set(requirements))})
@@ -108,7 +109,7 @@ def build_health_formulas(root):
             "expect": formulas.is_outlier(value, median, margin),
         })
 
-    emit(root, "vectors/formulas/health.json", "formulas-health",
+    emit(root, "vectors/formulas/health.json", "formulas-health", "failover",
          "The closed-form integer arithmetic of the health state machine.",
          ["CORE-005", "HEALTH-021", "HEALTH-023", "HEALTH-031", "HEALTH-032", "HEALTH-034",
           "HEALTH-050",
@@ -158,11 +159,30 @@ def build_failover_formulas(root):
             "expect": formulas.resolved_attempt_limit(supplied, configured, factor, length),
         })
 
-    emit(root, "vectors/formulas/failover.json", "formulas-failover",
+    emit(root, "vectors/formulas/failover.json", "formulas-failover", "failover",
          "The retry budget, the default attempt limit, and the order in which a routing call "
          "resolves the limit it carries.",
          ["CORE-005", "CORE-045", "FAIL-021", "FAIL-022", "FAIL-030", "FAIL-031", "FAIL-032",
           "FAIL-033", "FAIL-034", "FAIL-035", "CFG-020", "CFG-021"], cases)
+
+
+def build_virtual_node_count_formulas(root):
+    cases = []
+    for weight, per_unit, cap in [(1, 4, 4096), (0, 4, 4096), (1024, 4, 4096),
+                                  (1025, 4, 4096), (1000000, 4096, 65536), (1, 1, 1024)]:
+        cases.append({
+            "name": "virtualNodeCount/%d-%d-%d" % (weight, per_unit, cap),
+            "requirements": ["PLACE-050", "PLACE-051", "PLACE-052"],
+            "formula": "virtualNodeCount",
+            "inputs": {"weight": weight, "perWeightUnit": per_unit, "cap": cap},
+            "note": "the product reaches 4096000000 at the configured maxima, which overflows a "
+                    "signed 32-bit integer, so it is computed in at least 64 bits",
+            "expect": formulas.virtual_node_count(weight, per_unit, cap),
+        })
+    emit(root, "vectors/placement/virtual-node-count.json",
+         "placement-virtual-node-count", "core",
+         "The virtual node count a weight yields under a per-unit multiplier and a cap.",
+         ["PLACE-050", "PLACE-051", "PLACE-052"], cases)
 
 
 def build_rate_formulas(root):
@@ -205,24 +225,12 @@ def build_rate_formulas(root):
                        "reTransferResidualThreshold": policy[3]},
             "expect": formulas.policy_refused(*policy),
         })
-    for weight, per_unit, cap in [(1, 4, 4096), (0, 4, 4096), (1024, 4, 4096),
-                                  (1025, 4, 4096), (1000000, 4096, 65536), (1, 1, 1024)]:
-        cases.append({
-            "name": "virtualNodeCount/%d-%d-%d" % (weight, per_unit, cap),
-            "requirements": ["PLACE-050", "PLACE-051", "PLACE-052"],
-            "formula": "virtualNodeCount",
-            "inputs": {"weight": weight, "perWeightUnit": per_unit, "cap": cap},
-            "note": "the product reaches 4096000000 at the configured maxima, which overflows a "
-                    "signed 32-bit integer, so it is computed in at least 64 bits",
-            "expect": formulas.virtual_node_count(weight, per_unit, cap),
-        })
-    emit(root, "vectors/formulas/migration-rate.json", "formulas-migration-rate",
-         "Step budget adjustment, retry backoff, policy validation, and the virtual node count.",
-         ["RATE-021", "RATE-041", "RATE-051", "RATE-101", "PLACE-050", "PLACE-051",
-          "PLACE-052", "MOVE-171"], cases)
+    emit(root, "vectors/formulas/migration-rate.json", "formulas-migration-rate", "migration",
+         "Step budget adjustment, retry backoff, and migration policy validation.",
+         ["RATE-021", "RATE-041", "RATE-051", "RATE-101", "MOVE-171"], cases)
 
 
-def build_detection_formulas(root):
+def build_skew_formulas(root):
     cases = []
     for shard_requests, shard_count, total, percent in [
         (100, 10, 1000, 400), (400, 10, 1000, 400), (399, 10, 1000, 400),
@@ -252,6 +260,13 @@ def build_detection_formulas(root):
             "note": "a shard showing key skew is marked as not addressable by a split",
             "expect": formulas.key_skew(hottest, requests, percent),
         })
+    emit(root, "vectors/formulas/skew-detection.json", "formulas-skew-detection", "core",
+         "Hot shard detection and key skew detection.",
+         ["CORE-005", "OBS-031", "OBS-032", "OBS-033", "SPLIT-041"], cases)
+
+
+def build_fencing_token_formulas(root):
+    cases = []
     for topology_id, epoch in [("migration", 0), ("migration", 1), ("objects-prod", 118),
                                ("", 9007199254740991), ("a:b|c", 42)]:
         octets = formulas.token_bytes(topology_id.encode("utf-8"), epoch)
@@ -264,10 +279,9 @@ def build_detection_formulas(root):
             "expect": {"tokenBytes": octets.hex(),
                        "textFields": formulas.token_fields(topology_id, epoch)},
         })
-    emit(root, "vectors/formulas/detection-and-fencing.json", "formulas-detection-and-fencing",
-         "Hot shard detection, key skew detection, and the canonical fencing token encoding.",
-         ["CORE-005", "OBS-031", "OBS-032", "OBS-033", "SPLIT-041", "FENCE-001", "FENCE-021",
-          "FENCE-031"], cases)
+    emit(root, "vectors/formulas/fencing-token.json", "formulas-fencing-token", "fencing",
+         "The canonical fencing token encoding.",
+         ["FENCE-001", "FENCE-021", "FENCE-031"], cases)
 
 
 # ------------------------------------------------------------------ split lineage
@@ -360,7 +374,7 @@ def build_split_lineage(root):
         },
     })
 
-    emit(root, "vectors/split/lineage.json", "split-lineage",
+    emit(root, "vectors/split/lineage.json", "split-lineage", "migration",
          "Range split and merge lineage derived from bounds, the classification of each source "
          "shard, the plan verdict, and the step decomposition each classification implies.",
          ["SPLIT-001", "SPLIT-011", "SPLIT-061", "SPLIT-071", "SPLIT-081", "SPLIT-091",
@@ -376,8 +390,10 @@ def main():
 
     build_health_formulas(root)
     build_failover_formulas(root)
+    build_virtual_node_count_formulas(root)
     build_rate_formulas(root)
-    build_detection_formulas(root)
+    build_skew_formulas(root)
+    build_fencing_token_formulas(root)
     build_split_lineage(root)
 
     print("wrote %d formula and lineage vector files, %d cases"

@@ -1,6 +1,7 @@
 {
   "vectorSet": "replication-fallback-tail",
   "kind": "routing",
+  "level": "core",
   "description": "The fallback tail is the candidate ordering with the replica prefix removed, in candidate ordering order, and carries no spread property.",
   "requirements": [
     "CORE-046",

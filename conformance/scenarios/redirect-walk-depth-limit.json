@@ -1,5 +1,6 @@
 {
   "scenario": "redirect-walk-depth-limit",
+  "level": "fencing",
   "description": "A caller follows `currentOwner` refusals, and the walk terminates at the redirect bound, on revisiting a node it already attempted, on an identity its own snapshot does not carry, or where the retry budget refuses the redirect.",
   "requirements": [
     "CFG-040",

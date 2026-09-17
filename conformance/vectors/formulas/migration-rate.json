@@ -1,12 +1,10 @@
 {
   "vectorSet": "formulas-migration-rate",
   "kind": "formula",
-  "description": "Step budget adjustment, retry backoff, policy validation, and the virtual node count.",
+  "level": "migration",
+  "description": "Step budget adjustment, retry backoff, and migration policy validation.",
   "requirements": [
     "MOVE-171",
-    "PLACE-050",
-    "PLACE-051",
-    "PLACE-052",
     "RATE-021",
     "RATE-041",
     "RATE-051",
@@ -325,102 +323,6 @@
       "expect": [
         "retransferThresholdNotAboveCatchUp"
       ]
-    },
-    {
-      "name": "virtualNodeCount/1-4-4096",
-      "requirements": [
-        "PLACE-050",
-        "PLACE-051",
-        "PLACE-052"
-      ],
-      "formula": "virtualNodeCount",
-      "inputs": {
-        "weight": 1,
-        "perWeightUnit": 4,
-        "cap": 4096
-      },
-      "note": "the product reaches 4096000000 at the configured maxima, which overflows a signed 32-bit integer, so it is computed in at least 64 bits",
-      "expect": 4
-    },
-    {
-      "name": "virtualNodeCount/0-4-4096",
-      "requirements": [
-        "PLACE-050",
-        "PLACE-051",
-        "PLACE-052"
-      ],
-      "formula": "virtualNodeCount",
-      "inputs": {
-        "weight": 0,
-        "perWeightUnit": 4,
-        "cap": 4096
-      },
-      "note": "the product reaches 4096000000 at the configured maxima, which overflows a signed 32-bit integer, so it is computed in at least 64 bits",
-      "expect": 0
-    },
-    {
-      "name": "virtualNodeCount/1024-4-4096",
-      "requirements": [
-        "PLACE-050",
-        "PLACE-051",
-        "PLACE-052"
-      ],
-      "formula": "virtualNodeCount",
-      "inputs": {
-        "weight": 1024,
-        "perWeightUnit": 4,
-        "cap": 4096
-      },
-      "note": "the product reaches 4096000000 at the configured maxima, which overflows a signed 32-bit integer, so it is computed in at least 64 bits",
-      "expect": 4096
-    },
-    {
-      "name": "virtualNodeCount/1025-4-4096",
-      "requirements": [
-        "PLACE-050",
-        "PLACE-051",
-        "PLACE-052"
-      ],
-      "formula": "virtualNodeCount",
-      "inputs": {
-        "weight": 1025,
-        "perWeightUnit": 4,
-        "cap": 4096
-      },
-      "note": "the product reaches 4096000000 at the configured maxima, which overflows a signed 32-bit integer, so it is computed in at least 64 bits",
-      "expect": 4096
-    },
-    {
-      "name": "virtualNodeCount/1000000-4096-65536",
-      "requirements": [
-        "PLACE-050",
-        "PLACE-051",
-        "PLACE-052"
-      ],
-      "formula": "virtualNodeCount",
-      "inputs": {
-        "weight": 1000000,
-        "perWeightUnit": 4096,
-        "cap": 65536
-      },
-      "note": "the product reaches 4096000000 at the configured maxima, which overflows a signed 32-bit integer, so it is computed in at least 64 bits",
-      "expect": 65536
-    },
-    {
-      "name": "virtualNodeCount/1-1-1024",
-      "requirements": [
-        "PLACE-050",
-        "PLACE-051",
-        "PLACE-052"
-      ],
-      "formula": "virtualNodeCount",
-      "inputs": {
-        "weight": 1,
-        "perWeightUnit": 1,
-        "cap": 1024
-      },
-      "note": "the product reaches 4096000000 at the configured maxima, which overflows a signed 32-bit integer, so it is computed in at least 64 bits",
-      "expect": 1
     }
   ]
 }

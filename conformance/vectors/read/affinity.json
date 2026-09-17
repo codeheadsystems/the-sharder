@@ -1,6 +1,7 @@
 {
   "vectorSet": "read-affinity",
   "kind": "readAffinity",
+  "level": "readAffinity",
   "description": "`routeForRead` partitions the first `window` entries towards a domain path, stably, and leaves everything at or beyond `window` untouched.",
   "requirements": [
     "CORE-046",

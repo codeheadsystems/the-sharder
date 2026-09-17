@@ -1,6 +1,7 @@
 {
   "vectorSet": "replication-factor-exceeds-node-count",
   "kind": "routing",
+  "level": "core",
   "description": "A replication factor above the eligible node count produces a shorter replica prefix, never a repeated node, and never a failed call.",
   "requirements": [
     "CORE-046",

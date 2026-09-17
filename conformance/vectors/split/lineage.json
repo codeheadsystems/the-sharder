@@ -1,6 +1,7 @@
 {
   "vectorSet": "split-lineage",
   "kind": "formula",
+  "level": "migration",
   "description": "Range split and merge lineage derived from bounds, the classification of each source shard, the plan verdict, and the step decomposition each classification implies.",
   "requirements": [
     "ERR-050",

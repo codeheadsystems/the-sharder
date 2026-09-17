@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Rebuild `conformance/manifest.json` by scanning the generated tree.
 
-The manifest lists every vector file, what it covers, its requirement identifiers, and the digest
-of every topology document the suite ships.  It is rebuilt from the files themselves rather than
-accumulated across the generator scripts, so a file that no script claims still appears and a
-file a script claims but did not write is reported as missing.
+The manifest lists every vector file, its conformance level, what it covers, its requirement
+identifiers, and the digest of every topology document the suite ships.  It also carries the level
+table itself, so a harness reads the level structure rather than encoding it.  It is rebuilt from
+the files themselves rather than accumulated across the generator scripts, so a file that no
+script claims still appears and a file a script claims but did not write is reported as missing.
 
     python3 build_manifest.py [--out <conformance root>]
 """
@@ -19,6 +20,31 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
 from sharder_ref.jcs import digest as jcs_digest     # noqa: E402
+
+# The conformance levels of `docs/design/30-conformance.md`, in the order that document states
+# them.  Every vector file, scenario, and property names one of them, and the manifest publishes
+# the table so that a harness reads the level structure rather than encoding it.
+LEVELS = [
+    ("hash", [], "the hash primitive and the framed construction every other level rests on"),
+    ("core", ["hash"], "the routing decision two callers in two languages agree on"),
+    ("failover", ["core"], "the health view, the attempt sequence, and the retry budget"),
+    ("readAffinity", ["core"], "`routeForRead` and the bounded reordering of the replica prefix"),
+    ("fencing", ["failover"], "the fencing token, the recipient verdict, and the redirect walk"),
+    ("migration", ["failover"], "the handoff coordinator, rate control, and split lineage"),
+]
+
+LEVEL_NAMES = [name for name, _, _ in LEVELS]
+
+
+def level_of(payload, relative):
+    """Read the level a generated file names, refusing a file that names none."""
+    level = payload.get("level")
+    if level is None:
+        raise SystemExit("%s: no conformance level; the generator that writes it must name one"
+                         % relative)
+    if level not in LEVEL_NAMES:
+        raise SystemExit("%s: unknown conformance level %r" % (relative, level))
+    return level
 
 
 def scan_vectors(root: Path):
@@ -36,6 +62,7 @@ def scan_vectors(root: Path):
             "file": relative,
             "vectorSet": payload.get("vectorSet", path.stem),
             "kind": payload.get("kind", "unknown"),
+            "level": level_of(payload, relative),
             "description": payload.get("description", ""),
             "topology": payload.get("topology"),
             "caseCount": len(cases),
@@ -43,6 +70,29 @@ def scan_vectors(root: Path):
             "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
         })
     return entries
+
+
+def level_rows(vectors, scenarios, properties):
+    """Count what each level carries, and the requirement identifiers it names."""
+    rows = []
+    for name, requires, surface in LEVELS:
+        files = [e for e in vectors if e["level"] == name]
+        runs = [e for e in scenarios if e["level"] == name]
+        claims = [e for e in properties if e["level"] == name]
+        requirements = set()
+        for entry in files + runs + claims:
+            requirements.update(entry["requirements"])
+        rows.append({
+            "level": name,
+            "requires": requires,
+            "surface": surface,
+            "vectorFiles": len(files),
+            "vectorCases": sum(e["caseCount"] for e in files),
+            "scenarios": len(runs),
+            "properties": len(claims),
+            "requirementsNamed": len(requirements),
+        })
+    return rows
 
 
 def scan_topologies(root: Path):
@@ -65,7 +115,10 @@ def scan_scenarios(root: Path):
     index = root / "scenarios/index.json"
     if not index.exists():
         return []
-    return json.loads(index.read_text())["scenarios"]
+    scenarios = json.loads(index.read_text())["scenarios"]
+    for entry in scenarios:
+        level_of(entry, entry["file"])
+    return scenarios
 
 
 def main():
@@ -92,6 +145,8 @@ def main():
     missing = [e["file"] for e in vectors
                if e["topology"] and not (root / e["topology"]).exists()]
 
+    levels = level_rows(vectors, scenarios, properties["properties"])
+
     manifest = {
         "suite": "sharder conformance suite",
         "specification": "docs/design/10-specification.md",
@@ -107,6 +162,7 @@ def main():
             "requirementsNamed": len(requirements),
         },
         "requirementsNamed": sorted(requirements),
+        "levels": levels,
         "missingTopologyReferences": missing,
         "topologies": topologies,
         "vectorFiles": vectors,
@@ -123,6 +179,10 @@ def main():
           % (counts["vectorFiles"], counts["vectorCases"], counts["topologyDocuments"],
              counts["scenarios"], counts["scenarioSteps"], counts["properties"],
              counts["requirementsNamed"]))
+    for row in levels:
+        print("  %-13s %2d files (%3d cases), %2d scenarios, %2d properties, %3d requirements"
+              % (row["level"], row["vectorFiles"], row["vectorCases"], row["scenarios"],
+                 row["properties"], row["requirementsNamed"]))
     if missing:
         print("  vector files naming a topology that is not present: %s" % ", ".join(missing))
         return 1

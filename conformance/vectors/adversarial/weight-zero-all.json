@@ -1,6 +1,7 @@
 {
   "vectorSet": "adversarial-weight-zero-all",
   "kind": "routing",
+  "level": "core",
   "description": "Every node at weight 0: the candidate ordering is empty and the cause is `zeroVirtualNodes`.",
   "requirements": [
     "CORE-046",

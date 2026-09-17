@@ -1,6 +1,7 @@
 {
   "vectorSet": "keytransform-prefix-fields-2",
   "kind": "keyTransform",
+  "level": "core",
   "description": "The `prefixFields` transform at a count of 2.",
   "requirements": [
     "KEY-041",

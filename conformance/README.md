@@ -13,7 +13,7 @@ written by hand.
 
 | Path | Contents |
 |---|---|
-| `manifest.json` | every vector file, its coverage, its digest, and every topology digest |
+| `manifest.json` | the conformance levels, every vector file with its level, coverage, and digest, and every topology digest |
 | `coverage.json` | requirement coverage, computed from `10-specification.md` |
 | `topologies/` | the topology documents the vectors route against |
 | `topologies/invalid/` | documents that fail a load-time rule |
@@ -29,6 +29,10 @@ A port writes a driver that reads `manifest.json`, dispatches on each vector fil
 compares each case's result to its `expect` object field by field. The driver contract is in
 [`../docs/design/30-conformance.md`](../docs/design/30-conformance.md), and
 [`driver/python/run_suite.py`](driver/python/run_suite.py) is a worked example of it.
+
+Each vector file and each scenario carries the conformance level it belongs to, and the manifest's
+`levels` table states what each level requires. `run_suite.py --level core` runs `core` together
+with the levels it requires, which is what a port declaring `core` runs.
 
 Start with `vectors/hash/siphash-primitive.json` and `vectors/hash/construction.json`. Every other
 vector rests on them, and a port whose SipHash or whose framing is wrong fails everything downstream

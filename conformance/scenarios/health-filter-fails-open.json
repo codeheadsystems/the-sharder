@@ -1,5 +1,6 @@
 {
   "scenario": "health-filter-fails-open",
+  "level": "failover",
   "description": "Every replica of a shard is ejected.  The health filter returns the whole preference list rather than nothing, and the decision records that it failed open.",
   "requirements": [
     "FAIL-002",

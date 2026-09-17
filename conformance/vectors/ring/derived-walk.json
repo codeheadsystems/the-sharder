@@ -1,6 +1,7 @@
 {
   "vectorSet": "ring-derived-walk",
   "kind": "routing",
+  "level": "core",
   "description": "The ring walk under derived tokens: every eligible node appears exactly once, in ring order from the owning entry, wrapping once.",
   "requirements": [
     "CORE-040",

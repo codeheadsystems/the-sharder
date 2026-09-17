@@ -1,5 +1,6 @@
 {
   "scenario": "migration-rate-control",
+  "level": "migration",
   "description": "Concurrency bounds and backpressure decide what a `step` admits.  Neither pressure level moves a handoff out of `planned`, and `hard` withholds only the two bulk hooks.",
   "requirements": [
     "MOVE-071",

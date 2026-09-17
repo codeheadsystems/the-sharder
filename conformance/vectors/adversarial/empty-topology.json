@@ -1,6 +1,7 @@
 {
   "vectorSet": "adversarial-empty-topology",
   "kind": "routing",
+  "level": "core",
   "description": "An empty `nodes` array is valid at load time and yields no candidate at route time.",
   "requirements": [
     "CORE-046",

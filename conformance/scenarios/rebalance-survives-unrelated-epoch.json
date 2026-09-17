@@ -1,5 +1,6 @@
 {
   "scenario": "rebalance-survives-unrelated-epoch",
+  "level": "migration",
   "description": "A node joins the fleet while a two-shard rebalance is in flight.  The plan is marked rebase pending rather than superseded, admits no new work until the integrator rebases it, and then finishes under the newer epoch.",
   "requirements": [
     "MOVE-091",

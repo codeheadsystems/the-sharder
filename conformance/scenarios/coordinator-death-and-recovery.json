@@ -1,5 +1,6 @@
 {
   "scenario": "coordinator-death-and-recovery",
+  "level": "migration",
   "description": "The coordinator dies in each non-terminal state and rebuilds its plan.  The resumed state is a function of the integrator's durable observation, never of the coordinator's own record.  An observation that could not be taken is retried rather than treated as an answer.",
   "requirements": [
     "MOVE-112",

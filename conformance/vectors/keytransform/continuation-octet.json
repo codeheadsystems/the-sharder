@@ -1,6 +1,7 @@
 {
   "vectorSet": "keytransform-continuation-octet",
   "kind": "keyTransform",
+  "level": "core",
   "description": "A separator that is a UTF-8 continuation octet, so the routing key is an incomplete encoding of text.",
   "requirements": [
     "KEY-011",

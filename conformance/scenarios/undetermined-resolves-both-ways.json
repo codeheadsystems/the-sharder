@@ -1,5 +1,6 @@
 {
   "scenario": "undetermined-resolves-both-ways",
+  "level": "migration",
   "description": "A cutover whose outcome the library never established is looked at again.  The same failure resolves to `verifying` where the record landed, to `cutover` where it did not, and to `aborting` where another destination won.  The three failure kinds that need an operator are refused, as is an advisory resumption at `cutover`.",
   "requirements": [
     "ERR-052",

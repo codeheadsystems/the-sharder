@@ -1,12 +1,10 @@
 {
-  "vectorSet": "formulas-detection-and-fencing",
+  "vectorSet": "formulas-skew-detection",
   "kind": "formula",
-  "description": "Hot shard detection, key skew detection, and the canonical fencing token encoding.",
+  "level": "core",
+  "description": "Hot shard detection and key skew detection.",
   "requirements": [
     "CORE-005",
-    "FENCE-001",
-    "FENCE-021",
-    "FENCE-031",
     "OBS-031",
     "OBS-032",
     "OBS-033",
@@ -236,111 +234,6 @@
       },
       "note": "a shard showing key skew is marked as not addressable by a split",
       "expect": false
-    },
-    {
-      "name": "tokenBytes/migration-0",
-      "requirements": [
-        "FENCE-001",
-        "FENCE-021",
-        "FENCE-031"
-      ],
-      "formula": "tokenBytes",
-      "inputs": {
-        "topologyId": "migration",
-        "epoch": 0
-      },
-      "note": "a length-prefixed encoding, because `topologyId` may contain any character",
-      "expect": {
-        "tokenBytes": "000000096d6967726174696f6e0000000000000000",
-        "textFields": {
-          "sharder-topology-id": "migration",
-          "sharder-epoch": "0"
-        }
-      }
-    },
-    {
-      "name": "tokenBytes/migration-1",
-      "requirements": [
-        "FENCE-001",
-        "FENCE-021",
-        "FENCE-031"
-      ],
-      "formula": "tokenBytes",
-      "inputs": {
-        "topologyId": "migration",
-        "epoch": 1
-      },
-      "note": "a length-prefixed encoding, because `topologyId` may contain any character",
-      "expect": {
-        "tokenBytes": "000000096d6967726174696f6e0000000000000001",
-        "textFields": {
-          "sharder-topology-id": "migration",
-          "sharder-epoch": "1"
-        }
-      }
-    },
-    {
-      "name": "tokenBytes/objects-prod-118",
-      "requirements": [
-        "FENCE-001",
-        "FENCE-021",
-        "FENCE-031"
-      ],
-      "formula": "tokenBytes",
-      "inputs": {
-        "topologyId": "objects-prod",
-        "epoch": 118
-      },
-      "note": "a length-prefixed encoding, because `topologyId` may contain any character",
-      "expect": {
-        "tokenBytes": "0000000c6f626a656374732d70726f640000000000000076",
-        "textFields": {
-          "sharder-topology-id": "objects-prod",
-          "sharder-epoch": "118"
-        }
-      }
-    },
-    {
-      "name": "tokenBytes/empty-9007199254740991",
-      "requirements": [
-        "FENCE-001",
-        "FENCE-021",
-        "FENCE-031"
-      ],
-      "formula": "tokenBytes",
-      "inputs": {
-        "topologyId": "",
-        "epoch": 9007199254740991
-      },
-      "note": "a length-prefixed encoding, because `topologyId` may contain any character",
-      "expect": {
-        "tokenBytes": "00000000001fffffffffffff",
-        "textFields": {
-          "sharder-topology-id": "",
-          "sharder-epoch": "9007199254740991"
-        }
-      }
-    },
-    {
-      "name": "tokenBytes/a:b|c-42",
-      "requirements": [
-        "FENCE-001",
-        "FENCE-021",
-        "FENCE-031"
-      ],
-      "formula": "tokenBytes",
-      "inputs": {
-        "topologyId": "a:b|c",
-        "epoch": 42
-      },
-      "note": "a length-prefixed encoding, because `topologyId` may contain any character",
-      "expect": {
-        "tokenBytes": "00000005613a627c63000000000000002a",
-        "textFields": {
-          "sharder-topology-id": "a:b|c",
-          "sharder-epoch": "42"
-        }
-      }
     }
   ]
 }

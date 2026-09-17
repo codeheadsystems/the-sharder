@@ -1,6 +1,7 @@
 {
   "vectorSet": "topology-ownership-delta",
   "kind": "ownershipDelta",
+  "level": "core",
   "description": "The ownership delta between two snapshots, the reorder-only case that gains and loses nothing, the entry order over sixteen slots, the replica set under a shortfall, and the changes that make shard identity incomparable.",
   "requirements": [
     "ERR-050",

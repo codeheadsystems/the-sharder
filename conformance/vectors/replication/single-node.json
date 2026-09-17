@@ -1,6 +1,7 @@
 {
   "vectorSet": "replication-single-node",
   "kind": "routing",
+  "level": "core",
   "description": "A topology of one node at factor 3.",
   "requirements": [
     "CORE-046",

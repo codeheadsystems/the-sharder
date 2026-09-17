@@ -1,5 +1,6 @@
 {
   "scenario": "caller-three-epochs-stale",
+  "level": "fencing",
   "description": "A caller routes against epoch 1 while the recipient holds epoch 4.  Covers every recipient relation, both policies, a retained and an unretained token epoch, an unfenced request, a sender ahead of the recipient, and the two relations under which ownership is `unknown`.",
   "requirements": [
     "ERR-040",

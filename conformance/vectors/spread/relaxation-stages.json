@@ -1,6 +1,7 @@
 {
   "vectorSet": "spread-relaxation-stages",
   "kind": "stages",
+  "level": "core",
   "description": "Every relaxation stage of `SPREAD-010`, with the entries it admits and whether it reaches the effective replication factor.  `distinctStageOutcomes` counts how many of the m+1 stages differ, and `SPREAD-018` makes it m+1 where the topology has a distinct domain at each level.",
   "requirements": [
     "SPREAD-005",

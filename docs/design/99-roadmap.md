@@ -28,7 +28,7 @@ conformance levels of [`30-conformance.md`](30-conformance.md#conformance-levels
 | configuration | every setting of the `CFG-*` group with its default |
 | format | `formatVersion` 1.0, the JSON Schema, the canonical form, and the digest |
 | providers | the in-memory reference provider and the static file provider |
-| conformance | 59 vector files, 640 cases, 107 topology documents, 30 properties, and the manifest |
+| conformance | 61 vector files, 640 cases, 111 topology documents, 30 properties, and the manifest |
 
 An integrator who routes a tenant identifier to one of several clusters is served in full by v0.1
 and depends on `sharder-api` and `sharder-core` alone.
@@ -43,8 +43,8 @@ owning interface. `OQ-01`, the provider contract's absence from the normative su
 The second release implements the migration surface: the handoff coordinator, the eleven-state
 machine, the movement hook interface, idempotence and recovery, plan rebase onto a newer snapshot,
 concurrent ownership and the cutover record, abort and rollback, rate control and backpressure, and
-range split and merge lineage. It reaches the `migration` conformance level, which carries the
-seventeen simulation scenarios and the split lineage vectors.
+range split and merge lineage. It reaches the `migration` conformance level, which carries ten of
+the seventeen simulation scenarios, the rate control vectors, and the split lineage vectors.
 
 The specification, the conformance scenarios, and the Java binding for that surface are complete at
 v0.1 and unimplemented. `sharder-migrate` is a separate artifact, so an integrator who never

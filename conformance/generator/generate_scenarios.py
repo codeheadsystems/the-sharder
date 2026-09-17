@@ -31,10 +31,37 @@ from sharder_ref.topology import Snapshot                         # noqa: E402
 SCENARIOS = []
 SCENARIO_TOPOLOGIES = {}
 
+# The conformance level each scenario belongs to.  A scenario names the surface it drives, and
+# `docs/design/30-conformance.md` states which surface each level covers, so the level is a
+# property of the scenario rather than of the driver that runs it.  `register` refuses a scenario
+# absent from this table.
+LEVEL_OF_SCENARIO = {
+    "topology-rollback": "core",
+    "caller-three-epochs-stale": "fencing",
+    "split-topology-view": "fencing",
+    "redirect-walk-depth-limit": "fencing",
+    "handoff-happy-path": "migration",
+    "node-dies-mid-migration": "migration",
+    "abort-during-catching-up": "migration",
+    "coordinator-death-and-recovery": "migration",
+    "handoff-failure-kinds": "migration",
+    "plan-superseded-by-new-epoch": "migration",
+    "rebalance-survives-unrelated-epoch": "migration",
+    "rebase-drops-a-handoff": "migration",
+    "undetermined-resolves-both-ways": "migration",
+    "migration-rate-control": "migration",
+    "failover-and-recovery": "failover",
+    "health-filter-fails-open": "failover",
+    "ejection-ceiling": "failover",
+}
+
 
 def register(name, description, requirements, steps, setup=None):
+    if name not in LEVEL_OF_SCENARIO:
+        raise KeyError("scenario %r names no conformance level" % name)
     SCENARIOS.append({
         "scenario": name,
+        "level": LEVEL_OF_SCENARIO[name],
         "description": description,
         "requirements": sorted(set(requirements)),
         "deterministic": True,
@@ -1348,6 +1375,7 @@ def main():
         path = "scenarios/%s.json" % scenario["scenario"]
         write_json(root / path, scenario)
         index.append({"file": path, "scenario": scenario["scenario"],
+                      "level": scenario["level"],
                       "description": scenario["description"],
                       "stepCount": len(scenario["steps"]),
                       "requirements": scenario["requirements"]})

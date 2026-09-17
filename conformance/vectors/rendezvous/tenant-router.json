@@ -1,6 +1,7 @@
 {
   "vectorSet": "rendezvous-tenant-router",
   "kind": "routing",
+  "level": "core",
   "description": "The tenant routing example of `20-topology-format.md`, with the key transform, an exact pin, and a residency constraint.",
   "requirements": [
     "CORE-046",

@@ -1,6 +1,7 @@
 {
   "vectorSet": "adversarial-empty-topology-ring",
   "kind": "routing",
+  "level": "core",
   "description": "The same empty topology under `ring`, where the ring order itself is empty.",
   "requirements": [
     "CORE-046",

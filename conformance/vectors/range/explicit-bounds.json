@@ -1,6 +1,7 @@
 {
   "vectorSet": "range-explicit-bounds",
   "kind": "routing",
+  "level": "core",
   "description": "Unsigned bytewise bound comparison over half-open intervals, including the prefix rule and the half-open endpoints.",
   "requirements": [
     "CORE-046",

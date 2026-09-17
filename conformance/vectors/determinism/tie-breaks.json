@@ -1,6 +1,7 @@
 {
   "vectorSet": "determinism-tie-breaks",
   "kind": "tieBreak",
+  "level": "core",
   "description": "The tie-break paths a total order needs but a random input almost never reaches. The file holds ring-token-collision, rendezvous-score-tie, range-score-tie. Every case was found by the Pollard rho search in `rho_search.c` and was recomputed through the reference before it was written.",
   "requirements": [
     "PLACE-016",

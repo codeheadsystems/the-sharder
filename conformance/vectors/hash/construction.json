@@ -1,6 +1,7 @@
 {
   "vectorSet": "hash-construction",
   "kind": "hash",
+  "level": "hash",
   "description": "The framed, domain-tagged hash construction of `HASH-020` through `HASH-032`, including the framed message octets so that a port can separate a framing defect from a SipHash defect.",
   "requirements": [
     "HASH-010",

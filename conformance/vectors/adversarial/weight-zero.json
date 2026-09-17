@@ -1,6 +1,7 @@
 {
   "vectorSet": "adversarial-weight-zero",
   "kind": "routing",
+  "level": "core",
   "description": "Nodes of weight 0 stay in the placement set, receive no virtual node, and never reach a candidate ordering under a derived assignment.",
   "requirements": [
     "CORE-046",

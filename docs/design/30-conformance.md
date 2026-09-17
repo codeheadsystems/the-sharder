@@ -15,7 +15,7 @@ runner.
 
 | Path | Contents |
 |---|---|
-| `conformance/manifest.json` | every vector file, its coverage, and every topology digest |
+| `conformance/manifest.json` | the conformance levels, every vector file with its level and coverage, and every topology digest |
 | `conformance/coverage.json` | requirement coverage, computed from the specification |
 | `conformance/topologies/` | the topology documents the suite routes against |
 | `conformance/topologies/invalid/` | documents that fail a load-time rule |
@@ -37,6 +37,7 @@ output the reference computed for it.
 {
   "vectorSet": "ring-derived-walk",
   "kind": "routing",
+  "level": "core",
   "description": "The ring walk under derived tokens.",
   "requirements": ["RING-020", "RING-021"],
   "topology": "topologies/ring-plain.topology.json",
@@ -47,6 +48,9 @@ output the reference computed for it.
 
 `kind` selects what a driver does with the cases. The kinds are fixed, and a driver that meets an
 unknown kind fails rather than skipping the file.
+
+`level` names the conformance level the file belongs to, one of the levels the `levels` table of
+`manifest.json` states. A driver that meets an unknown level fails, as it does for an unknown kind.
 
 | `kind` | Input of a case | Output asserted |
 |---|---|---|
@@ -136,13 +140,15 @@ covering every kind, and a driver that starts at the `hash` and `routing` kinds 
 hundred.
 
 1. Read `manifest.json` and fail where any file it lists is absent.
-2. For each vector file, dispatch on `kind`.
-3. For a file naming a topology, load that document, validate it, install it, and assert the
+2. Read its `levels` table, and fail where a vector file or a scenario names a level the table does
+   not list.
+3. For each vector file at a declared level, dispatch on `kind`.
+4. For a file naming a topology, load that document, validate it, install it, and assert the
    digest against `topologyDigest`.
-4. For each case, decode the key by its `encoding`, run the call the kind names, and compare the
+5. For each case, decode the key by its `encoding`, run the call the kind names, and compare the
    result to `expect` field by field.
-5. Report a failure by vector set, case name, field, and the requirement identifiers the case
-   names.
+6. Report a failure by vector set, case name, field, and the requirement identifiers the case
+   names, and report the vector files and cases run at each level.
 
 A driver compares only the fields a case carries. A case that omits `relaxedLevels` makes no claim
 about it. Every case the generator writes carries every field of the decision, so the omission rule
@@ -161,16 +167,42 @@ computed the expectations.
 ## Conformance levels
 
 A **conformance level** names a set of vector files, properties, and scenarios that a port runs in
-full. A port declares the levels it reaches, not a percentage.
+full, together with the levels that set rests on. A port declares the levels it reaches, not a
+percentage.
 
-| Level | Contents | A port needs it when |
-|---|---|---|
-| `hash` | the `siphash` and `hash` vector sets | always; every other level rests on it |
-| `core` | `hash`, plus every vector set of a kind other than `readAffinity`, plus every property at level `core` | always |
-| `failover` | the health and attempt-sequence scenarios, and the health formula vectors | the port exposes `attempts` or a health view |
-| `fencing` | the recipient scenarios and the fencing formula vectors | the port exposes the recipient check |
-| `migration` | the handoff scenarios, the split lineage vectors, and the properties at level `migration` | the port exposes the handoff coordinator |
-| `readAffinity` | the `readAffinity` vector set | the port exposes `routeForRead` |
+The levels partition the suite. A vector file names its level in its `level` member, a scenario
+names one in `scenarios/index.json`, a property names one in `properties/properties.json`, and no
+artefact carries two. The `levels` table of `manifest.json` carries the structure below, so a
+harness reads a level rather than inferring one from a file's path or its `kind`.
+
+| Level | Requires | Contents | A port needs it when |
+|---|---|---|---|
+| `hash` | | SipHash-2-4 and the framed domain-tagged construction | always; every other level rests on it |
+| `core` | `hash` | the key transforms, the canonical form and the digest, document validation, the five placement strategies, overrides, replication and spread, shard enumeration, movement, the tie-breaks, the identity comparator, the virtual node count, the error taxonomy, the ownership delta, skew detection, and the rollback scenario | always |
+| `failover` | `core` | the health arithmetic, the retry budget, the attempt limit, and the three health scenarios | the port exposes `attempts` or a health view |
+| `readAffinity` | `core` | `routeForRead` and the bounded reordering of the replica prefix | the port exposes `routeForRead` |
+| `fencing` | `failover` | the fencing token encoding, the recipient scenarios, and the redirect walk | the port exposes the recipient check |
+| `migration` | `failover` | the rate control formulas, the split lineage vectors, and the handoff scenarios | the port exposes the handoff coordinator |
+
+A declared level carries the levels it requires, transitively, so a port at `fencing` runs `hash`,
+`core`, `failover`, and `fencing`. `fencing` requires `failover` because `FENCE-231` bounds the
+redirect walk by the retry budget of `FAIL-031`, and `migration` requires it because a coordinator
+observes the health state of a destination that stops answering.
+
+| Level | Vector files | Cases | Scenarios | Properties | Requirements |
+|---|---|---|---|---|---|
+| `hash` | 2 | 40 | 0 | 0 | 18 |
+| `core` | 53 | 462 | 1 | 24 | 280 |
+| `failover` | 2 | 65 | 3 | 2 | 44 |
+| `readAffinity` | 1 | 42 | 0 | 0 | 11 |
+| `fencing` | 1 | 5 | 3 | 1 | 37 |
+| `migration` | 2 | 26 | 10 | 3 | 83 |
+
+The last column counts the requirement identifiers a level's own artefacts name.
+[`../../conformance/coverage.json`](../../conformance/coverage.json) lists those identifiers under
+`byLevel`, together with the larger count a declaration of that level reaches once the levels it
+requires are added: 298 at `core`, 341 at `failover`, 307 at `readAffinity`, 375 at `fencing`, and
+415 at `migration`.
 
 `core` is not optional. A port that declines `core` is not a port of the sharder library, because
 `core` is exactly the set of decisions that two callers in two languages have to agree on. The four
@@ -185,13 +217,18 @@ implemented.
 
 ## Declaring conformance
 
-A port declares conformance by publishing four things.
+A port declares conformance by publishing five things.
 
 1. The suite revision it ran, named by the commit that produced `manifest.json`.
-2. The levels it reaches.
-3. The output of its driver, showing the case count per vector set and zero failures at each
-   declared level.
-4. Its deviations, as a list of case names with the reason for each.
+2. Every level the `levels` table of that manifest lists, each marked as reached or excluded.
+3. For an excluded level, the surface the port does not expose.
+4. The output of its driver, showing the case count per vector set and zero failures at every
+   reached level.
+5. Its deviations, as a list of case names with the reason for each.
+
+A declaration names every level of the suite revision, so a level a port passed over is a claim it
+made rather than an omission. A port that reaches a level whose required levels it does not reach
+declares neither.
 
 A deviation is permitted only against a requirement carrying one of the RFC 2119 keywords
 `SHOULD`, `SHOULD NOT`, or `MAY`, and the declaration names the requirement and the reason. A
@@ -325,38 +362,38 @@ inequality, whether it holds, and whether the sample size satisfies the precondi
 
 ### Property catalogue
 
-| Identifier | Proves | Witness |
-|---|---|---|
-| `P-DETERMINISM-001` | `PROP-001`, `PROP-002`, `PROP-003`, `PLACE-010`, `PLACE-012` | every routing vector file |
-| `P-DETERMINISM-002` | `PROP-004`, `PLACE-015`, `REPL-015` | none |
-| `P-DETERMINISM-003` | `PROP-005`, `CORE-002`, `RING-013`, `RV-013` | yes |
-| `P-PURITY-001` | `PROP-040`, `PROP-041`, `PROP-045`, `FAIL-001`, `FAIL-011`, `REPL-016` | a scenario |
-| `P-PURITY-002` | `PROP-042`, `PROP-043`, `PROP-044`, `PLACE-011`, `CORE-004` | none |
-| `P-MOVEMENT-001` | `PROP-010`, `PROP-011` | yes |
-| `P-MOVEMENT-002` | `PROP-013`, `PROP-015` | yes |
-| `P-MOVEMENT-003` | `PROP-014`, `PROP-015` | yes |
-| `P-MOVEMENT-004` | `PROP-012` | yes |
-| `P-MOVEMENT-005` | `PROP-019` | none |
-| `P-MOVEMENT-006` | `PROP-016`, `PROP-017`, `PROP-018`, `SLOT-004` | yes |
-| `P-BALANCE-001` | `PROP-020`, `PROP-030`, `PROP-031`, `PROP-032` | yes |
-| `P-BALANCE-002` | `PROP-021` | yes |
-| `P-BALANCE-003` | `PROP-022`, `PROP-024`, `PROP-033` | yes |
-| `P-BALANCE-004` | `PROP-023` | none; `PROP-026` states that the bound carries no executable test |
-| `P-BALANCE-005` | `PROP-017`, `PROP-025`, `PLACE-044` | yes |
-| `P-REPLICA-001` | `REPL-011`, `REPL-020`, `SPREAD-002`, `PLACE-013` | yes |
-| `P-SPREAD-001` | `SPREAD-001`, `SPREAD-010`, `SPREAD-011`, `SPREAD-020` | yes |
-| `P-SPREAD-002` | `SPREAD-012`, `SPREAD-013`, `SPREAD-015`, `SPREAD-017` | yes |
-| `P-SPREAD-003` | `SPREAD-014`, `REPL-020`, `REPL-021` | yes |
-| `P-PREFERENCE-001` | `REPL-012`, `REPL-013`, `REPL-014`, `REPL-017`, `SPREAD-021` | yes |
-| `P-EXEMPT-001` | `PROP-050`, `PROP-052`, `OVR-010`, `OVR-013` | yes |
-| `P-EXEMPT-002` | `PROP-051`, `OVR-020`, `OVR-032` | none |
-| `P-EPOCH-001` | `TOPO-051`, `TOPO-061`, `TOPO-071`, `TOPO-081`, `TOPO-091` | a scenario |
-| `P-EPOCH-002` | `TOPO-061`, `ERR-031`, `ERR-034` | a scenario |
-| `P-HANDOFF-001` | `MOVE-151`, `MOVE-161`, `MOVE-171` | a scenario |
-| `P-HANDOFF-002` | `MOVE-201`, `MOVE-211`, `MOVE-221`, `MOVE-231` | a scenario |
-| `P-HANDOFF-003` | `MOVE-011`, `MOVE-021`, `MOVE-031`, `MOVE-441`, `MOVE-491` | a scenario |
-| `P-FENCE-001` | `FENCE-101`, `FENCE-071`, `FENCE-081`, `FENCE-091` | a scenario |
-| `P-ATTEMPT-001` | `FAIL-002`, `FAIL-003`, `FAIL-004`, `FAIL-012` | a scenario |
+| Identifier | Level | Proves | Witness |
+|---|---|---|---|
+| `P-DETERMINISM-001` | `core` | `PROP-001`, `PROP-002`, `PROP-003`, `PLACE-010`, `PLACE-012` | every routing vector file |
+| `P-DETERMINISM-002` | `core` | `PROP-004`, `PLACE-015`, `REPL-015` | none |
+| `P-DETERMINISM-003` | `core` | `PROP-005`, `CORE-002`, `RING-013`, `RV-013` | yes |
+| `P-PURITY-001` | `failover` | `PROP-040`, `PROP-041`, `PROP-045`, `FAIL-001`, `FAIL-011`, `REPL-016` | a scenario |
+| `P-PURITY-002` | `core` | `PROP-042`, `PROP-043`, `PROP-044`, `PLACE-011`, `CORE-004` | none |
+| `P-MOVEMENT-001` | `core` | `PROP-010`, `PROP-011` | yes |
+| `P-MOVEMENT-002` | `core` | `PROP-006`, `PROP-013`, `PROP-015` | yes |
+| `P-MOVEMENT-003` | `core` | `PROP-014`, `PROP-015` | yes |
+| `P-MOVEMENT-004` | `core` | `PROP-012` | yes |
+| `P-MOVEMENT-005` | `core` | `PROP-019` | none |
+| `P-MOVEMENT-006` | `core` | `PROP-016`, `PROP-017`, `PROP-018`, `SLOT-004` | yes |
+| `P-BALANCE-001` | `core` | `PROP-006`, `PROP-020`, `PROP-030`, `PROP-031`, `PROP-032` | yes |
+| `P-BALANCE-002` | `core` | `PROP-021` | yes |
+| `P-BALANCE-003` | `core` | `PROP-022`, `PROP-024`, `PROP-033` | yes |
+| `P-BALANCE-004` | `core` | `PROP-023`, `PROP-026` | none; `PROP-026` states that the bound carries no executable test |
+| `P-BALANCE-005` | `core` | `PROP-017`, `PROP-025`, `PLACE-044` | yes |
+| `P-REPLICA-001` | `core` | `REPL-011`, `REPL-020`, `SPREAD-002`, `PLACE-013` | yes |
+| `P-SPREAD-001` | `core` | `SPREAD-001`, `SPREAD-010`, `SPREAD-011`, `SPREAD-018`, `SPREAD-020` | yes |
+| `P-SPREAD-002` | `core` | `SPREAD-012`, `SPREAD-013`, `SPREAD-015`, `SPREAD-017` | yes |
+| `P-SPREAD-003` | `core` | `SPREAD-014`, `REPL-020`, `REPL-021` | yes |
+| `P-PREFERENCE-001` | `core` | `REPL-012`, `REPL-013`, `REPL-014`, `REPL-017`, `SPREAD-021` | yes |
+| `P-EXEMPT-001` | `core` | `PROP-050`, `PROP-052`, `OVR-010`, `OVR-013` | yes |
+| `P-EXEMPT-002` | `core` | `PROP-051`, `OVR-020`, `OVR-032` | none |
+| `P-EPOCH-001` | `core` | `TOPO-051`, `TOPO-061`, `TOPO-071`, `TOPO-081`, `TOPO-091` | a scenario |
+| `P-EPOCH-002` | `core` | `TOPO-061`, `ERR-031`, `ERR-034` | a scenario |
+| `P-HANDOFF-001` | `migration` | `MOVE-151`, `MOVE-161`, `MOVE-171` | a scenario |
+| `P-HANDOFF-002` | `migration` | `MOVE-201`, `MOVE-211`, `MOVE-221`, `MOVE-231` | a scenario |
+| `P-HANDOFF-003` | `migration` | `MOVE-011`, `MOVE-021`, `MOVE-031`, `MOVE-441`, `MOVE-491` | a scenario |
+| `P-FENCE-001` | `fencing` | `FENCE-101`, `FENCE-071`, `FENCE-081`, `FENCE-091` | a scenario |
+| `P-ATTEMPT-001` | `failover` | `FAIL-002`, `FAIL-003`, `FAIL-004`, `FAIL-012`, `FAIL-014` | a scenario |
 
 ## Simulation scenarios
 
@@ -367,25 +404,25 @@ signal is an explicit action, and no step draws a random value.
 A step names an `action`, its arguments, and an `expect` object. A driver dispatches on `action` and
 compares the result field by field, as it does for a vector case.
 
-| Scenario | Covers |
-|---|---|
-| `topology-rollback` | a reverted assignment arriving as a higher epoch, an equal epoch with a differing digest, and a foreign identifier |
-| `caller-three-epochs-stale` | every recipient relation, both policies, a retained and an unretained token epoch, an unfenced request, and a sender ahead |
-| `split-topology-view` | half the cluster on one epoch and half on another, disagreeing about a replica set |
-| `redirect-walk-depth-limit` | the redirect bound and a redirect naming an already attempted node |
-| `handoff-happy-path` | the ownership delta and every state of `MOVE-021` |
-| `node-dies-mid-migration` | a destination that stops answering during `transferring` |
-| `abort-during-catching-up` | an abort in `catchingUp`, and a second abort |
-| `coordinator-death-and-recovery` | death in each non-terminal state, against each observation |
-| `handoff-failure-kinds` | each of the four kinds of `MOVE-011` and the terminal state rule |
-| `plan-superseded-by-new-epoch` | a third epoch arriving with three handoffs in flight, comparable and not |
-| `rebalance-survives-unrelated-epoch` | a node joining mid-rebalance, the rebase-pending interlock, and a rebase |
-| `rebase-drops-a-handoff` | an epoch reversing one move of two, and the three rebase refusals |
-| `undetermined-resolves-both-ways` | a cutover outcome the library never established, resolved later each way |
-| `migration-rate-control` | the concurrency bounds and both backpressure levels |
-| `failover-and-recovery` | ejection, probation admission, and return to `available` |
-| `health-filter-fails-open` | every replica ejected, and the filter returning the whole list |
-| `ejection-ceiling` | the ceiling refusing an ejection that would empty the attemptable set |
+| Scenario | Level | Covers |
+|---|---|---|
+| `topology-rollback` | `core` | a reverted assignment arriving as a higher epoch, an equal epoch with a differing digest, and a foreign identifier |
+| `caller-three-epochs-stale` | `fencing` | every recipient relation, both policies, a retained and an unretained token epoch, an unfenced request, and a sender ahead |
+| `split-topology-view` | `fencing` | half the cluster on one epoch and half on another, disagreeing about a replica set |
+| `redirect-walk-depth-limit` | `fencing` | the redirect bound and a redirect naming an already attempted node |
+| `handoff-happy-path` | `migration` | the ownership delta and every state of `MOVE-021` |
+| `node-dies-mid-migration` | `migration` | a destination that stops answering during `transferring` |
+| `abort-during-catching-up` | `migration` | an abort in `catchingUp`, and a second abort |
+| `coordinator-death-and-recovery` | `migration` | death in each non-terminal state, against each observation |
+| `handoff-failure-kinds` | `migration` | each of the four kinds of `MOVE-011` and the terminal state rule |
+| `plan-superseded-by-new-epoch` | `migration` | a third epoch arriving with three handoffs in flight, comparable and not |
+| `rebalance-survives-unrelated-epoch` | `migration` | a node joining mid-rebalance, the rebase-pending interlock, and a rebase |
+| `rebase-drops-a-handoff` | `migration` | an epoch reversing one move of two, and the three rebase refusals |
+| `undetermined-resolves-both-ways` | `migration` | a cutover outcome the library never established, resolved later each way |
+| `migration-rate-control` | `migration` | the concurrency bounds and both backpressure levels |
+| `failover-and-recovery` | `failover` | ejection, probation admission, and return to `available` |
+| `health-filter-fails-open` | `failover` | every replica ejected, and the filter returning the whole list |
+| `ejection-ceiling` | `failover` | the ceiling refusing an ejection that would empty the attemptable set |
 
 The handoff scenarios drive a coordinator whose transition table is `MOVE-021` transcribed as data
 and whose recovery mapping is `MOVE-211` transcribed as data, so a state sequence in a scenario file
@@ -397,7 +434,9 @@ rebases in a scenario file rebases because the placement says so.
 
 [`../../conformance/coverage.json`](../../conformance/coverage.json) is computed by extracting every
 requirement identifier from [`10-specification.md`](10-specification.md) and comparing it against
-the identifiers the suite names. The table below is transcribed from it.
+the identifiers the suite names. It reports the comparison twice, once by requirement prefix under
+`byPrefix` and once by conformance level under `byLevel`, so a declared level names the requirements
+it proves. The table below is transcribed from `byPrefix`.
 
 | Section | Prefix | Stated | Covered | Uncovered |
 |---|---|---|---|---|

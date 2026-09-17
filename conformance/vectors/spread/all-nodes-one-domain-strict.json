@@ -1,6 +1,7 @@
 {
   "vectorSet": "spread-one-domain-strict",
   "kind": "routing",
+  "level": "core",
   "description": "The same node set under `strict`: a shorter replica prefix rather than a degraded spread.",
   "requirements": [
     "CORE-046",

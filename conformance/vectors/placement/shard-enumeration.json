@@ -1,6 +1,7 @@
 {
   "vectorSet": "placement-shard-enumeration",
   "kind": "shards",
+  "level": "core",
   "description": "Shard naming, shard enumeration order, and the agreement between `candidates` and `candidatesForShard` that `PLACE-033` requires.",
   "requirements": [
     "DIR-020",

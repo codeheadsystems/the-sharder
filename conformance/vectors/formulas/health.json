@@ -1,6 +1,7 @@
 {
   "vectorSet": "formulas-health",
   "kind": "formula",
+  "level": "failover",
   "description": "The closed-form integer arithmetic of the health state machine.",
   "requirements": [
     "CORE-005",

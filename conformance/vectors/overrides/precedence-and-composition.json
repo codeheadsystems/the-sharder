@@ -1,6 +1,7 @@
 {
   "vectorSet": "overrides-precedence-and-composition",
   "kind": "routing",
+  "level": "core",
   "description": "Override matching, pinning, constraints, their composition, and the override replication factor.",
   "requirements": [
     "CORE-046",

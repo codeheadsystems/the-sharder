@@ -126,12 +126,14 @@ def routing_case(snapshot, key, name, requirements, note=None, encoding="utf8"):
 ROUTING_SET_REQUIREMENTS = ["CORE-046", "CORE-047"]
 
 
-def routing_set(out, path, vector_set, description, topology_name, requirements, cases):
+def routing_set(out, path, vector_set, description, topology_name, requirements, cases,
+                level="core"):
     snapshot = SNAPSHOTS[topology_name]
     requirements = list(requirements) + ROUTING_SET_REQUIREMENTS
     payload = {
         "vectorSet": vector_set,
         "kind": "routing",
+        "level": level,
         "description": description,
         "requirements": sorted(set(requirements)),
         "topology": "topologies/%s.topology.json" % topology_name,
@@ -140,17 +142,19 @@ def routing_set(out, path, vector_set, description, topology_name, requirements,
     }
     write_json(out / path, payload)
     MANIFEST_ENTRIES.append({
-        "file": path, "vectorSet": vector_set, "kind": "routing",
+        "file": path, "vectorSet": vector_set, "kind": "routing", "level": level,
         "description": description, "topology": payload["topology"],
         "caseCount": len(cases),
         "requirements": sorted({r for c in cases for r in c["requirements"]} | set(requirements)),
     })
 
 
-def simple_set(out, path, vector_set, kind, description, requirements, cases, topology=None):
+def simple_set(out, path, vector_set, kind, description, requirements, cases, topology=None,
+               level="core"):
     payload = {
         "vectorSet": vector_set,
         "kind": kind,
+        "level": level,
         "description": description,
         "requirements": sorted(set(requirements)),
         "cases": cases,
@@ -159,7 +163,8 @@ def simple_set(out, path, vector_set, kind, description, requirements, cases, to
         payload["topology"] = topology
     write_json(out / path, payload)
     MANIFEST_ENTRIES.append({
-        "file": path, "vectorSet": vector_set, "kind": kind, "description": description,
+        "file": path, "vectorSet": vector_set, "kind": kind, "level": level,
+        "description": description,
         "topology": topology, "caseCount": len(cases),
         "requirements": sorted({r for c in cases for r in c.get("requirements", [])}
                                | set(requirements)),
@@ -237,7 +242,8 @@ def build_hash_vectors(out):
                "including the framed message octets so that a port can separate a framing defect "
                "from a SipHash defect.",
                sorted(set(HASH_CONSTRUCTION + ["HASH-010", "HASH-011", "HASH-020", "HASH-024",
-                                               "HASH-044", "PLACE-053"])), cases)
+                                               "HASH-044", "PLACE-053"])), cases,
+               level="hash")
 
     # The SipHash-2-4 primitive on its own, taken from the published paper.
     primitive = []
@@ -257,7 +263,8 @@ def build_hash_vectors(out):
     simple_set(out, "vectors/hash/siphash-primitive.json", "siphash-primitive", "siphash",
                "SipHash-2-4 itself, at the published key and messages of `HASH-003`, so that a "
                "port that fails the construction vectors can tell which layer is wrong.",
-               ["HASH-001", "HASH-002", "HASH-003", "HASH-040", "HASH-044", "SEC-015"], primitive)
+               ["HASH-001", "HASH-002", "HASH-003", "HASH-040", "HASH-044", "SEC-015"],
+               primitive, level="hash")
 
 
 # ---------------------------------------------------------- key transform vectors
@@ -1029,7 +1036,7 @@ def build_read_affinity_vectors(out):
                "stably, and leaves everything at or beyond `window` untouched.",
                ["READ-001", "READ-010", "READ-012", "READ-013", "READ-014", "READ-015",
                 "READ-016", "READ-022", "READ-023", "SPREAD-006", "CORE-046"], cases,
-               topology="topologies/read-affinity.topology.json")
+               topology="topologies/read-affinity.topology.json", level="readAffinity")
 
 
 def build_shard_vectors(out):

@@ -1,6 +1,7 @@
 {
   "vectorSet": "adversarial-colliding-keys",
   "kind": "collidingKeys",
+  "level": "core",
   "description": "Distinct keys that collide at the transform, at the slot index, at the ring token range, and at the 64-bit key hash itself.",
   "requirements": [
     "KEY-030",

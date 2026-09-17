@@ -1,6 +1,7 @@
 {
   "vectorSet": "keytransform-brace-tag",
   "kind": "keyTransform",
+  "level": "core",
   "description": "The `braceTag` transform at the default delimiters.",
   "requirements": [
     "KEY-030",

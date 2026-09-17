@@ -134,6 +134,7 @@
     {
       "file": "scenarios/topology-rollback.json",
       "scenario": "topology-rollback",
+      "level": "core",
       "description": "An authority reverts an assignment.  The library never accepts a lower epoch, so the revert arrives as a higher epoch carrying the former assignment.  The scenario also covers the equal-epoch digest conflict and the foreign identifier.",
       "stepCount": 8,
       "requirements": [
@@ -149,6 +150,7 @@
     {
       "file": "scenarios/caller-three-epochs-stale.json",
       "scenario": "caller-three-epochs-stale",
+      "level": "fencing",
       "description": "A caller routes against epoch 1 while the recipient holds epoch 4.  Covers every recipient relation, both policies, a retained and an unretained token epoch, an unfenced request, a sender ahead of the recipient, and the two relations under which ownership is `unknown`.",
       "stepCount": 16,
       "requirements": [
@@ -176,6 +178,7 @@
     {
       "file": "scenarios/split-topology-view.json",
       "scenario": "split-topology-view",
+      "level": "fencing",
       "description": "Half the cluster holds epoch 1 and half holds epoch 3, and the two halves disagree about the replica set of one key.  Every crossing request is refused, and the refusal names the owner the recipient believes in.",
       "stepCount": 9,
       "requirements": [
@@ -196,6 +199,7 @@
     {
       "file": "scenarios/redirect-walk-depth-limit.json",
       "scenario": "redirect-walk-depth-limit",
+      "level": "fencing",
       "description": "A caller follows `currentOwner` refusals, and the walk terminates at the redirect bound, on revisiting a node it already attempted, on an identity its own snapshot does not carry, or where the retry budget refuses the redirect.",
       "stepCount": 10,
       "requirements": [
@@ -214,6 +218,7 @@
     {
       "file": "scenarios/handoff-happy-path.json",
       "scenario": "handoff-happy-path",
+      "level": "migration",
       "description": "One shard moves from its source to its destination through every state of `MOVE-021`, with the ownership delta that produced the plan.",
       "stepCount": 10,
       "requirements": [
@@ -234,6 +239,7 @@
     {
       "file": "scenarios/node-dies-mid-migration.json",
       "scenario": "node-dies-mid-migration",
+      "level": "migration",
       "description": "The destination stops answering during `transferring`.  The health view ejects it, the step attempts exhaust, the handoff compensates, and the source keeps ownership because no cutover record was committed.",
       "stepCount": 13,
       "requirements": [
@@ -251,6 +257,7 @@
     {
       "file": "scenarios/abort-during-catching-up.json",
       "scenario": "abort-during-catching-up",
+      "level": "migration",
       "description": "An abort requested in `catchingUp` moves the handoff to `aborting` and runs compensation.  A second abort has no further effect.",
       "stepCount": 7,
       "requirements": [
@@ -262,6 +269,7 @@
     {
       "file": "scenarios/coordinator-death-and-recovery.json",
       "scenario": "coordinator-death-and-recovery",
+      "level": "migration",
       "description": "The coordinator dies in each non-terminal state and rebuilds its plan.  The resumed state is a function of the integrator's durable observation, never of the coordinator's own record.  An observation that could not be taken is retried rather than treated as an answer.",
       "stepCount": 37,
       "requirements": [
@@ -280,6 +288,7 @@
     {
       "file": "scenarios/handoff-failure-kinds.json",
       "scenario": "handoff-failure-kinds",
+      "level": "migration",
       "description": "Each of the four failure kinds of `MOVE-011`, with the trigger sequence that reaches it and the condition it raises.  A terminal state admits no further transition.",
       "stepCount": 8,
       "requirements": [
@@ -296,6 +305,7 @@
     {
       "file": "scenarios/plan-superseded-by-new-epoch.json",
       "scenario": "plan-superseded-by-new-epoch",
+      "level": "migration",
       "description": "A third epoch arrives while three handoffs are in flight.  A comparable epoch marks the plan rebase pending and aborts nothing; an incomparable one supersedes it, pre-cutover handoffs abort, and the handoff past cutover runs on.",
       "stepCount": 11,
       "requirements": [
@@ -312,6 +322,7 @@
     {
       "file": "scenarios/rebalance-survives-unrelated-epoch.json",
       "scenario": "rebalance-survives-unrelated-epoch",
+      "level": "migration",
       "description": "A node joins the fleet while a two-shard rebalance is in flight.  The plan is marked rebase pending rather than superseded, admits no new work until the integrator rebases it, and then finishes under the newer epoch.",
       "stepCount": 20,
       "requirements": [
@@ -331,6 +342,7 @@
     {
       "file": "scenarios/rebase-drops-a-handoff.json",
       "scenario": "rebase-drops-a-handoff",
+      "level": "migration",
       "description": "An epoch arrives that reverses one of two moves in flight.  The handoff whose shard, source, and destination no longer hold is aborted and compensated; the other rebases and completes.  Three refusals cover the rebase preconditions.",
       "stepCount": 18,
       "requirements": [
@@ -350,6 +362,7 @@
     {
       "file": "scenarios/undetermined-resolves-both-ways.json",
       "scenario": "undetermined-resolves-both-ways",
+      "level": "migration",
       "description": "A cutover whose outcome the library never established is looked at again.  The same failure resolves to `verifying` where the record landed, to `cutover` where it did not, and to `aborting` where another destination won.  The three failure kinds that need an operator are refused, as is an advisory resumption at `cutover`.",
       "stepCount": 49,
       "requirements": [
@@ -375,6 +388,7 @@
     {
       "file": "scenarios/migration-rate-control.json",
       "scenario": "migration-rate-control",
+      "level": "migration",
       "description": "Concurrency bounds and backpressure decide what a `step` admits.  Neither pressure level moves a handoff out of `planned`, and `hard` withholds only the two bulk hooks.",
       "stepCount": 6,
       "requirements": [
@@ -390,6 +404,7 @@
     {
       "file": "scenarios/failover-and-recovery.json",
       "scenario": "failover-and-recovery",
+      "level": "failover",
       "description": "A replica fails, is ejected, is probed under probation, and returns.  The preference list never changes; only the attempt sequence does.",
       "stepCount": 12,
       "requirements": [
@@ -418,6 +433,7 @@
     {
       "file": "scenarios/health-filter-fails-open.json",
       "scenario": "health-filter-fails-open",
+      "level": "failover",
       "description": "Every replica of a shard is ejected.  The health filter returns the whole preference list rather than nothing, and the decision records that it failed open.",
       "stepCount": 4,
       "requirements": [
@@ -432,6 +448,7 @@
     {
       "file": "scenarios/ejection-ceiling.json",
       "scenario": "ejection-ceiling",
+      "level": "failover",
       "description": "Every node of the placement set fails.  The ceiling refuses the third ejection so that a correlated failure cannot empty the cluster's attemptable set.",
       "stepCount": 4,
       "requirements": [

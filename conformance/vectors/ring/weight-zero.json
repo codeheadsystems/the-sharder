@@ -1,6 +1,7 @@
 {
   "vectorSet": "ring-weight-zero",
   "kind": "routing",
+  "level": "core",
   "description": "A node of weight 0 under derived token assignment owns no token and never appears.",
   "requirements": [
     "CORE-046",

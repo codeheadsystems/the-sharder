@@ -1,5 +1,6 @@
 {
   "scenario": "handoff-failure-kinds",
+  "level": "migration",
   "description": "Each of the four failure kinds of `MOVE-011`, with the trigger sequence that reaches it and the condition it raises.  A terminal state admits no further transition.",
   "requirements": [
     "ERR-052",

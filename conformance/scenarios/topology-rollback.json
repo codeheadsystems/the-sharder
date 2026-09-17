@@ -1,5 +1,6 @@
 {
   "scenario": "topology-rollback",
+  "level": "core",
   "description": "An authority reverts an assignment.  The library never accepts a lower epoch, so the revert arrives as a higher epoch carrying the former assignment.  The scenario also covers the equal-epoch digest conflict and the foreign identifier.",
   "requirements": [
     "ERR-031",

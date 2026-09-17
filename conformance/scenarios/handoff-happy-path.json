@@ -1,5 +1,6 @@
 {
   "scenario": "handoff-happy-path",
+  "level": "migration",
   "description": "One shard moves from its source to its destination through every state of `MOVE-021`, with the ownership delta that produced the plan.",
   "requirements": [
     "MOVE-001",
