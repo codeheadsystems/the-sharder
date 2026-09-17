@@ -602,6 +602,9 @@ The built-in view is `SlidingWindowHealthView`, implementing `HEALTH-020` to `HE
 
 ### Topology provider
 
+`CORE-080` states the contract this renders, `CORE-081` the rule that at least one capability is
+true, and `CORE-090` to `CORE-101` the adaptation and the failure behaviour.
+
 ```java
 public interface TopologyProvider extends AutoCloseable {
     Capabilities capabilities();                    // at least one of the two is true
@@ -623,10 +626,11 @@ public interface Subscription extends AutoCloseable {
 }
 ```
 
-A provider delivers octets. Validation, canonicalisation, digesting, monotonicity, and preparation
-are the library's, and a provider never constructs a snapshot. A provider that throws any
-`Throwable` has it caught, counted, reported as `providerError` with the original attached as the
-Java cause, and followed by the backoff of `CFG-010`, under `ERR-063`.
+A provider delivers octets, which is the first of the two forms `CORE-083` permits. Validation,
+canonicalisation, digesting, monotonicity, and preparation are the library's, and a provider never
+constructs a snapshot. A provider that throws any `Throwable` has it caught, counted, reported as
+`providerError` with the original attached as the Java cause, and followed by the backoff of
+`CORE-100`, under `ERR-063`.
 
 ### Fencing recipient
 

@@ -383,7 +383,7 @@ the identifiers the suite names. The table below is transcribed from it.
 | Section | Prefix | Stated | Covered | Uncovered |
 |---|---|---|---|---|
 | Configuration surface | `CFG-*` | 29 | 5 | 24 |
-| Core model | `CORE-*` | 41 | 7 | 34 |
+| Core model | `CORE-*` | 51 | 7 | 44 |
 |  | `HASH-*` | 19 | 15 | 4 |
 | Error taxonomy | `ERR-*` | 36 | 26 | 10 |
 | Observability | `OBS-*` | 32 | 4 | 28 |
@@ -407,10 +407,10 @@ the identifiers the suite names. The table below is transcribed from it.
 |  | `RATE-*` | 15 | 10 | 5 |
 |  | `SPLIT-*` | 22 | 13 | 9 |
 |  | `TOPO-*` | 26 | 18 | 8 |
-| Total | | 635 | 424 | 211 |
+| Total | | 645 | 424 | 221 |
 
-The suite names 424 of the 635 requirements the specification states. The section below
-names what the remaining 211 are and why no data file carries them.
+The suite names 424 of the 645 requirements the specification states. The section below
+names what the remaining 221 are and why no data file carries them.
 
 ## Requirements without an executable test
 
@@ -439,10 +439,12 @@ observes the same answer whether the reference is read once or twice.
 
 ### Provider behaviour
 
-The polling and reconciliation settings of `CFG-010`, the backoff of `ERR-033`, and the executor
-rule of `CFG-012` describe interaction with a provider over time. The suite carries the documents
-and the acceptance outcomes, which is the part that is agreed between callers; the timing is local
-to one caller and is tested per binding.
+`CORE-080` through `CORE-101` state the provider contract, its two adaptation models, and its
+failure behaviour. The polling and reconciliation settings of `CFG-010`, the backoff of `CORE-100`
+and `ERR-033`, and the executor rule of `CFG-012` describe interaction with a provider over time. A
+provider is an interface an integrator implements and a vector carries no interface, so the suite
+carries the documents and the acceptance outcomes, which is the part that is agreed between callers;
+the shape and the timing are local to one caller and are tested per binding.
 
 Stage 2 of `TOPO-001`, schema validation, is covered: each case of `validation-documents` carries
 a `stage` of `schema` or `semantic`, and `conformance/generator/verify_schema.py` runs the
@@ -520,7 +522,7 @@ and `RV-022` required an equality that holds only under the first reading while 
 implements the second. `RV-020` now names the hexadecimal and `PLACE-032` and `RV-022` state the
 decode.
 
-The specification states 635 requirement identifiers, each introduced as a backticked identifier
+The specification states 645 requirement identifiers, each introduced as a backticked identifier
 followed by a full stop at the start of a line, with no duplicate. `coverage.py` extracts them and
 `run.sh` fails where the suite names one the specification does not state.
 

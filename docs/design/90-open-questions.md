@@ -10,7 +10,6 @@ answered from a running deployment.
 
 | Identifier | Question | Release |
 |---|---|---|
-| `OQ-01` | Provider contract without a normative home | blocks v0.1 |
 | `OQ-02` | Owning surfaces for three requirements | blocks v0.1 |
 | `OQ-03` | Per-domain replication factors | rides along |
 | `OQ-04` | Occupancy cap per failure domain | rides along |
@@ -26,24 +25,6 @@ answered from a running deployment.
 | `OQ-14` | Contended writes on the routing path | rides along |
 
 ## Gaps in the normative surface
-
-### OQ-01. Provider contract without a normative home
-
-[`10-specification.md`](10-specification.md) names `TopologyProvider` in `CORE-063` as an extension
-point and in `CFG-010` as a required setting, and declares its shape nowhere. The pull member, the
-push member, the sink, the subscription, the rule that at least one of the two models is present,
-and the adaptation of a provider offering only one of them appear in
-[`adr/0004`](adr/0004-topology-provider-contract.md) and, in Java form, in
-[`40-java-binding.md`](40-java-binding.md). A decision record is not a normative document, so a port
-written from the specification alone invents the shape, which is the position the hash construction
-was in before `HASH-001` through `HASH-044` were written.
-
-Recommended default: promote the four interfaces of ADR 0004 into a requirement group in the Core
-model section, beside `CORE-010` and `CORE-020`, together with the adaptation rules and the closed
-failure behaviour set that `TOPO-061` already carries.
-
-Evidence that settles it: none is needed. The repair is transcription, as the `HASH-*` repair was,
-and the identifiers it consumes are free numbers in an existing prefix.
 
 ### OQ-02. Owning surfaces for three requirements
 
@@ -215,9 +196,9 @@ Evidence that settles it: a derivation of a weaker multiplier at a stated confid
 
 ### OQ-13. Requirement coverage below full
 
-The suite names 424 of the 635 requirements the specification states.
+The suite names 424 of the 645 requirements the specification states.
 [`30-conformance.md`](30-conformance.md#requirements-without-an-executable-test) accounts for the
-other 211 by group: concurrency and visibility, provider timing, observability values, the negative
+other 221 by group: concurrency and visibility, provider timing, observability values, the negative
 requirements of rate control, movement hook opacity, configuration acceptance, and split execution.
 
 Recommended default: accept the figure and the accounting. A requirement in those groups constrains
@@ -256,6 +237,7 @@ requirement named.
 | a power-of-two constraint on `slotCount` | none; the remainder is exact for any count | `SLOT-003` |
 | `range` under derived assignment | retained, scored by `rangeScore` over the `shardId` | `RANGE-030` to `RANGE-033` |
 | the hash construction's normative home | the `HASH-*` prefix, transcribed from ADR 0001 | `HASH-001` to `HASH-044` |
+| the provider contract's normative home | the Core model section, transcribed from ADR 0004 | `CORE-080` to `CORE-101` |
 | asking for an explain record | `explain` on `RouteOptions`, false by default | `CORE-030`, `OBS-046` |
 | the attempt limit reaching `attempts` | `attemptLimit` on the decision | `CORE-040`, `CORE-045` |
 | the primary of a decision | `primary` on the decision | `CORE-040`, `CORE-042` |

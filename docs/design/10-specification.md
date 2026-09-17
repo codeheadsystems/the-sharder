@@ -42,7 +42,7 @@ The section named in each row is a level-two heading of this document.
 
 | Prefix | Covers | Section |
 |---|---|---|
-| `CORE` | shared types, visibility, thread ownership | Core model |
+| `CORE` | shared types, the provider contract, visibility, thread ownership | Core model |
 | `HASH` | the keyed hash, its framing, and its domain tags | Core model |
 | `KEY` | key opacity and the key transforms | Routing keys and placement |
 | `PLACE` | rules common to every strategy | Routing keys and placement |
@@ -422,8 +422,8 @@ advance a timer of its own. `refresh`, `HealthView.advance`, and `MigrationPlan.
 through which an integrator drives those effects.
 
 `CORE-063`. An implementation MUST NOT hold a lock across a call into an integrator-supplied
-extension point: a `TopologyProvider`, a `HealthView`, a `MovementHooks`, a `PressureGauge`, a
-`ShardMetricsSource`, a `HintObserver`, an event sink, or a metrics registry.
+extension point: a `TopologyProvider` under `CORE-080`, a `HealthView`, a `MovementHooks`, a
+`PressureGauge`, a `ShardMetricsSource`, a `HintObserver`, an event sink, or a metrics registry.
 
 `CORE-064`. An implementation MUST NOT block a routing call on input or output, on a topology
 installation, on a provider call, or on any extension point other than the health view. A routing
@@ -453,6 +453,97 @@ elects nothing.
 `CORE-074`. A caller MUST NOT assume an ordering between a topology installation and a routing call
 it did not order itself. Two calls made concurrently with an installation MAY observe different
 snapshots, and each observes exactly one under `TOPO-121`.
+
+### Topology provider
+
+A topology document reaches the library through a provider the integrator supplies. A provider
+retrieves a document from a source and delivers it; every decision about that document is the
+library's. A provider carries a pull model, a push model, or both, and the library adapts to
+whichever it declares.
+
+#### Provider interface
+
+`CORE-080`. An implementation MUST expose the provider extension point with this shape. The
+requirements that constrain what the library does with a document a provider delivers are `TOPO-*`.
+
+```
+Document = the octets of a topology document, or a parsed form of them, CORE-083
+
+interface TopologyProvider:
+    capabilities()               -> Capabilities
+    load()                       -> Result<Document, Error>   # present where pull is true
+    watch(sink: TopologySink)    -> Subscription              # present where push is true
+    close()
+
+record Capabilities:
+    pull: boolean                # the provider answers load on demand
+    push: boolean                # the provider delivers through a sink
+
+interface TopologySink:
+    onDocument(document: Document)
+    onError(error: Error)
+
+interface Subscription:
+    cancel()
+```
+
+`CORE-081`. A `Capabilities` value MUST carry at least one of `pull` and `push` as true. An
+implementation MUST refuse construction with `invalidArgument` under `CFG-003` where the configured
+provider declares neither, MUST NOT supply a default for either member, and MUST NOT infer a
+capability from the members a provider happens to offer.
+
+`CORE-082`. A provider that declares `pull` MUST supply `load`, and a provider that declares `push`
+MUST supply `watch`. An implementation MUST NOT call `load` on a provider that does not declare
+`pull` and MUST NOT call `watch` on a provider that does not declare `push`, so a member that is
+present and undeclared is never called. A declared member a provider does not supply fails at the
+call, and the failure MUST be reported as `providerError` under `ERR-033` and `ERR-063`, like any
+other failure raised by a provider.
+
+`CORE-083`. A provider MUST deliver a topology document, as the octets of its JSON encoding or in a
+parsed form a binding defines, and MUST NOT deliver a `TopologySnapshot`. Decoding, schema
+validation, semantic validation, the canonical form, the digest, the comparison of `TOPO-051`, and
+placement preparation MUST be performed by the library under `TOPO-001`. An implementation MUST NOT
+let a provider validate, filter, repair, or reject a document on its behalf, and where a binding
+accepts a parsed form, the production of that form MUST apply `TOPO-002`.
+
+#### Provider adaptation
+
+`CORE-090`. A provider declaring `pull` and not `push` MUST be adapted by polling. An implementation
+MUST call `load` at startup and then once every `pollIntervalMillis`, and MUST run every document it
+receives through `TOPO-001`. Where no executor is supplied it MUST NOT poll under `CFG-012`, and
+`refresh` under `CORE-033` is then the only path by which a document arrives.
+
+`CORE-091`. A provider declaring `push` and not `pull` MUST be adapted by subscription. An
+implementation MUST call `watch` at startup, and MUST have no snapshot in force until the first
+document `TOPO-061` accepts is installed. A routing call made before then MUST answer `unready`
+under `ERR-023` rather than with an empty preference list, and MUST NOT block waiting for a first
+document under `CORE-064`. An implementation MUST report `providerError` under `ERR-033` where no
+document arrives within `initialTimeoutMillis` of the subscription.
+
+`CORE-092`. A provider declaring both `pull` and `push` MUST be subscribed and polled. An
+implementation MUST call `watch` at startup, MUST call `load` at startup and then once every
+`reconcileIntervalMillis` under `CFG-011`, and MUST treat a polled document and a pushed document
+alike.
+
+`CORE-093`. A document delivered through `onDocument` MUST be processed on the unit of execution
+that called it, because the library creates none of its own under `CORE-060`. An implementation MUST
+serialise the pipeline under `TOPO-041` however a document arrives, MUST report a failure delivered
+through `onError` as `providerError` under `ERR-033`, and MUST NOT hold a lock across a call into a
+provider or a subscription under `CORE-063`.
+
+#### Provider failure behaviour
+
+`CORE-100`. A failure to deliver a document MUST leave the snapshot in force, its freshness, and the
+snapshots retained under `TOPO-161` unchanged. An implementation MUST report the failure as
+`providerError` under `ERR-033`, MUST emit `topology.provider_error` under `OBS-020`, and MUST space
+its next attempt by `min(providerRetryBaseMillis * 2^(attempt - 1), providerRetryCapMillis)`, with
+any jitter drawn as an integer number of milliseconds no greater than the computed value and
+subtracted from it where `providerRetryJitter` is true. An implementation MUST resubscribe on that
+schedule after a subscription fails. A document that is delivered has the outcome `TOPO-061` gives
+it; this requirement governs only a failure to deliver one.
+
+`CORE-101`. `close` under `CORE-034` MUST cancel the subscription and then close the provider, MUST
+call each at most once, and MUST make no further call into either afterwards.
 
 ## Routing keys and placement
 
@@ -2993,7 +3084,7 @@ an arriving document and `staleSnapshot` describes the snapshot in force.
 
 `ERR-033`. `providerError` MUST be raised where a provider reports a failure or fails to deliver
 within `initialTimeoutMillis`. It MUST NOT change the snapshot in force, MUST NOT change its
-freshness, and MUST be followed by the backoff of `CFG-010`.
+freshness, and MUST be followed by the backoff of `CORE-100`.
 
 `ERR-034`. A document accepted as a no-op under `TOPO-061` MUST NOT produce a condition. It
 refreshes freshness and emits the event of `OBS-020`.
@@ -3357,12 +3448,12 @@ deployment manifest.
 
 | Setting | Default | Meaning |
 |---|---|---|
-| `provider` | required | the `TopologyProvider` implementation to load documents from |
+| `provider` | required | the `TopologyProvider` of `CORE-080` documents are loaded from |
 | `expectedTopologyId` | unset | the `topologyId` every document is checked against; `TOPO-091` |
 | `minEpoch` | unset | the monotonicity floor across a restart, under `TOPO-071` |
-| `pollIntervalMillis` | 30000 | period at which a pull-only provider is polled |
-| `reconcileIntervalMillis` | 300000 | period at which a provider that also pushes is polled |
-| `initialTimeoutMillis` | 10000 | wait for a first document before a call answers `unready` |
+| `pollIntervalMillis` | 30000 | period at which a pull-only provider is polled; `CORE-090` |
+| `reconcileIntervalMillis` | 300000 | poll period for a provider that also pushes, `CORE-092` |
+| `initialTimeoutMillis` | 10000 | wait for a first document before `unready`, `CORE-091` |
 | `providerRetryBaseMillis` | 1000 | first backoff interval after a provider failure |
 | `providerRetryCapMillis` | 60000 | ceiling on the provider backoff interval |
 | `providerRetryJitter` | true | whether an integer jitter below the interval is subtracted |

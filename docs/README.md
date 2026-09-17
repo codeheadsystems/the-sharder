@@ -49,22 +49,25 @@ nothing here describes a running system.
    language-neutral specification into a language, including the shapes it chose where the
    specification named none.
 
-`OQ-01` and `OQ-02` in [`design/90-open-questions.md`](design/90-open-questions.md) name the two
-places where the specification does not yet say enough for a port to proceed without choosing.
+`OQ-02` in [`design/90-open-questions.md`](design/90-open-questions.md) names the one place where
+the specification does not yet say enough for a port to proceed without choosing.
 
 ### Writing a provider or a strategy
 
-1. [`design/adr/0004-topology-provider-contract.md`](design/adr/0004-topology-provider-contract.md).
-   The provider contract, its pull and push models, and an adapter sketch against a key-value store.
-2. [`design/10-specification.md`](design/10-specification.md#topology-change-and-rebalancing). The
+1. [`design/10-specification.md`](design/10-specification.md#topology-provider). `CORE-080` to
+   `CORE-101`, which are the provider contract: the two capabilities, the sink, the subscription,
+   the adaptation of a provider offering one model, and the failure behaviour.
+2. [`design/adr/0004-topology-provider-contract.md`](design/adr/0004-topology-provider-contract.md).
+   Why the contract carries both models, and an adapter sketch against a key-value store.
+3. [`design/10-specification.md`](design/10-specification.md#topology-change-and-rebalancing). The
    load pipeline, the acceptance outcomes, and what happens when a provider is unreachable, delivers
    an invalid document, or delivers an older epoch.
-3. [`design/10-specification.md`](design/10-specification.md#core-model). `CORE-010` for the
+4. [`design/10-specification.md`](design/10-specification.md#core-model). `CORE-010` for the
    placement extension point, and `CORE-063` for the rule that no lock is held across a call into
    one.
-4. [`design/20-topology-format.md`](design/20-topology-format.md#strategy-extension). How a
+5. [`design/20-topology-format.md`](design/20-topology-format.md#strategy-extension). How a
    registered strategy of an implementation's own is validated, and how far it travels across ports.
-5. [`design/adr/0002-placement-strategy-set.md`](design/adr/0002-placement-strategy-set.md). Which
+6. [`design/adr/0002-placement-strategy-set.md`](design/adr/0002-placement-strategy-set.md). Which
    strategies the core set already covers, and what each is for.
 
 ### Operating a cluster
@@ -104,7 +107,7 @@ document, in these sections.
 | Path | Contents |
 |---|---|
 | [`design/00-overview.md`](design/00-overview.md) | architecture, glossary, component model, data flows, three use-case walkthroughs, scope |
-| [`design/10-specification.md`](design/10-specification.md) | the normative specification, 635 requirements across 25 prefixes |
+| [`design/10-specification.md`](design/10-specification.md) | the normative specification, 645 requirements across 25 prefixes |
 | [`design/20-topology-format.md`](design/20-topology-format.md) | the topology document format, validation, versioning, worked examples |
 | [`design/topology-v1.schema.json`](design/topology-v1.schema.json) | the JSON Schema for format version 1 |
 | [`design/30-conformance.md`](design/30-conformance.md) | the conformance suite design, driver contract, levels, coverage |
@@ -121,7 +124,7 @@ document, in these sections.
 |---|---|
 | hashing and determinism | [0001](design/adr/0001-hash-function-and-key-encoding.md), [0030](design/adr/0030-unsigned-integer-discipline.md) |
 | placement and weights | [0002](design/adr/0002-placement-strategy-set.md), [0003](design/adr/0003-integer-node-weights.md), [0010](design/adr/0010-shard-identifier-naming.md), [0011](design/adr/0011-derived-assignment-virtual-nodes.md), [0013](design/adr/0013-range-bounds-over-routing-key.md) |
-| topology model and format | [0004](design/adr/0004-topology-provider-contract.md), [0005](design/adr/0005-epoch-and-version-semantics.md), [0006](design/adr/0006-failure-domain-model.md), [0008](design/adr/0008-json-canonical-serialisation.md), [0009](design/adr/0009-override-composition.md) |
+| topology model and format | [0004](design/adr/0004-topology-provider-contract.md), [0005](design/adr/0005-epoch-and-version-semantics.md), [0006](design/adr/0006-failure-domain-model.md), [0008](design/adr/0008-json-canonical-serialisation.md), [0009](design/adr/0009-override-composition.md), [0038](design/adr/0038-provider-contract-in-the-specification.md) |
 | replication and failover | [0007](design/adr/0007-administrative-state-and-health-state.md), [0012](design/adr/0012-balance-bound-tolerances.md), [0014](design/adr/0014-read-affinity-as-a-separate-call.md), [0015](design/adr/0015-spread-degradation-algorithm.md), [0016](design/adr/0016-node-health-state-machine.md), [0017](design/adr/0017-failover-depth-and-substitution.md), [0036](design/adr/0036-spread-relaxation-ladder-direction.md) |
 | change, handoff, and fencing | [0018](design/adr/0018-concurrent-ownership-during-handoff.md), [0019](design/adr/0019-handoff-coordination-and-recovery.md), [0020](design/adr/0020-recipient-side-fencing-verdicts.md), [0021](design/adr/0021-migration-backpressure-control.md), [0022](design/adr/0022-range-split-lineage.md), [0023](design/adr/0023-snapshot-visibility-and-thread-ownership.md) |
 | cross-cutting contracts | [0024](design/adr/0024-closed-numbered-error-taxonomy.md), [0025](design/adr/0025-observability-contract-and-explain-record.md), [0026](design/adr/0026-configuration-defaults-and-locality.md), [0027](design/adr/0027-hash-seed-exposure-and-tenancy.md) |

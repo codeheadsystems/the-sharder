@@ -1,9 +1,9 @@
 {
   "specification": "docs/design/10-specification.md",
-  "statedRequirements": 635,
+  "statedRequirements": 645,
   "coveredRequirements": 424,
-  "uncoveredRequirements": 211,
-  "coveragePercent": 66,
+  "uncoveredRequirements": 221,
+  "coveragePercent": 65,
   "identifiersNamedButNotStated": [],
   "byPrefix": [
     {
@@ -42,7 +42,7 @@
     {
       "prefix": "CORE",
       "section": "Core model",
-      "stated": 41,
+      "stated": 51,
       "covered": 7,
       "uncovered": [
         "CORE-001",
@@ -78,9 +78,19 @@
         "CORE-071",
         "CORE-072",
         "CORE-073",
-        "CORE-074"
+        "CORE-074",
+        "CORE-080",
+        "CORE-081",
+        "CORE-082",
+        "CORE-083",
+        "CORE-090",
+        "CORE-091",
+        "CORE-092",
+        "CORE-093",
+        "CORE-100",
+        "CORE-101"
       ],
-      "percent": 17
+      "percent": 13
     },
     {
       "prefix": "HASH",

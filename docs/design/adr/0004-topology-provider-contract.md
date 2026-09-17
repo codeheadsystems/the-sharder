@@ -33,6 +33,11 @@ interface Subscription:
     cancel()
 ```
 
+The contract is normative and is stated in [`../10-specification.md`](../10-specification.md) as
+`CORE-080` through `CORE-101`: the three interfaces, the rule that at least one model is present,
+the adaptation of a provider offering one of them, and the failure behaviour. What follows here is
+the reasoning, which the specification carries none of.
+
 A provider delivers documents and never snapshots. Parsing, schema validation, semantic validation,
 monotonicity, and digesting belong to the sharder library, so a provider that reads a corrupt file
 cannot place a corrupt topology into service.

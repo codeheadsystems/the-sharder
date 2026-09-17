@@ -33,9 +33,10 @@ conformance levels of [`30-conformance.md`](30-conformance.md#conformance-levels
 An integrator who routes a tenant identifier to one of several clusters is served in full by v0.1
 and depends on `sharder-api` and `sharder-core` alone.
 
-Two questions in [`90-open-questions.md`](90-open-questions.md) are answered before v0.1 publishes,
-because v0.1 publishes the document that leaves them open: `OQ-01`, the provider contract's absence
-from the normative surface, and `OQ-02`, the three requirements with no owning interface.
+One question in [`90-open-questions.md`](90-open-questions.md) is answered before v0.1 publishes,
+because v0.1 publishes the document that leaves it open: `OQ-02`, the three requirements with no
+owning interface. `OQ-01`, the provider contract's absence from the normative surface, is settled by
+`CORE-080` to `CORE-101` in [`10-specification.md`](10-specification.md#topology-provider).
 
 ## Release v0.2
 
