@@ -60,6 +60,15 @@ take tens of seconds each, and the collision search takes tens of minutes per mo
 results under `conformance/generator/collisions/` are committed inputs and change only if the hash
 construction changes.
 
+Every port is built by the script at the repository root, which runs the `build.sh` each port
+carries:
+
+```sh
+./build.sh                                   # every port
+./build.sh java                              # the ports named
+./build.sh --list                            # what the first form would build
+```
+
 The Java port is one Gradle module. It needs a JDK of 21 or above, and the dependencies it
 resolves are test scope:
 
@@ -96,6 +105,8 @@ cd bench && cc -O2 -o hash-short-input hash-short-input.c && ./hash-short-input
 | `conformance/driver/python/run_suite.py` | the worked example driver a port copies |
 | `ports/<port>/` | one implementation, rooted in the build its ecosystem expects |
 | `ports/java/src/main/java/` | the Java port: the public packages, and `core.internal` below them |
+| `ports/<port>/build.sh`, `build.sh` | how a port is built, and how every port is built |
+| `.github/workflows/` | the port matrix, the suite checks, and the Dependabot auto-merge |
 
 [`docs/README.md`](docs/README.md) routes by reader and names sections rather than whole documents;
 use it to find where a fact lives before searching.
@@ -162,3 +173,7 @@ regenerate and read the diff. [`CONTRIBUTING.md`](CONTRIBUTING.md) carries the w
 
 Commit subjects are imperative sentences with no type prefix, and the body explains what the change
 repairs and why, at length where the change is a specification repair.
+
+A change lands through a pull request, and the `every port built` and suite checks pass before it
+merges. A Dependabot update approves and merges itself once those checks pass, under
+[`docs/design/adr/0082-continuous-integration-and-dependency-updates.md`](docs/design/adr/0082-continuous-integration-and-dependency-updates.md).

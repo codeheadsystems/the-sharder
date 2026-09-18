@@ -1,0 +1,56 @@
+name: conformance suite
+
+# What the suite asserts about itself, without regenerating it. Regeneration takes minutes and
+# produces a byte-identical tree, so it stays a maintainer's step under
+# `conformance/generator/run.sh`; what runs here is every check that reads the tree as it stands.
+
+# The workflow carries no path filter, for the reason `ports.yml` states: a required check that a
+# path filter skipped never reports. The coverage report and the withdrawal registers read the
+# specification, so a change under `docs/` reaches this workflow as surely as one under
+# `conformance/` does.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: verify the suite against the specification
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: install the optional schema checker
+        run: python3 -m pip install --quiet jsonschema
+
+      - name: verify SipHash against the published vectors and OpenSSL
+        working-directory: conformance/generator
+        run: python3 verify_siphash.py
+
+      - name: validate every topology against the published schema
+        working-directory: conformance/generator
+        run: python3 verify_schema.py
+
+      - name: check requirement coverage against the specification
+        working-directory: conformance/generator
+        run: python3 coverage.py --check
+
+      - name: check that no withdrawn identifier is restated, cited, or named
+        working-directory: conformance/generator
+        run: python3 verify_withdrawals.py
+
+      - name: check every conformance declaration against the manifest
+        working-directory: conformance/generator
+        run: python3 verify_declarations.py
+
+      - name: run the reference driver over the suite
+        run: python3 conformance/driver/python/run_suite.py

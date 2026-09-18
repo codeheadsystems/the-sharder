@@ -1,0 +1,46 @@
+name: dependabot auto-merge
+
+# A dependency update merges itself once every required check has passed, and waits where one has
+# not. `gh pr merge --auto` queues the merge rather than performing it, so the branch protection of
+# `main` is what holds the pull request until the builds are green; without a required check there,
+# a pull request that is already mergeable merges at once.
+#
+# Every dependency this repository carries is test scope or a continuous integration action, so an
+# update that passes the suite and every port's build has demonstrated what a reviewer would have
+# checked. `docs/design/adr/0082-continuous-integration-and-dependency-updates.md` records that
+# reasoning and what it risks.
+
+on: pull_request
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  merge:
+    name: merge once the builds pass
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - id: metadata
+        name: read what the update changes
+        uses: dependabot/fetch-metadata@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: name the update
+        run: |
+          echo "${{ steps.metadata.outputs.dependency-names }}"
+          echo "update type: ${{ steps.metadata.outputs.update-type }}"
+
+      - name: approve the pull request
+        run: gh pr review --approve "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: queue the merge
+        run: gh pr merge --auto --squash "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

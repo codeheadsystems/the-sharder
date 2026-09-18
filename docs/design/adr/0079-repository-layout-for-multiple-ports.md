@@ -64,11 +64,14 @@ module in a subdirectory, and the other ports take it too, so that one conventio
 repository. Ports version independently of each other, and a version states nothing about
 conformance, which the declaration states.
 
-Continuous integration runs one job per port, triggered by a change under that port's directory and
-by a change under `conformance/`, so a regeneration reaches every port in the commit that makes it.
+Continuous integration runs one job per port, so a regeneration reaches every port in the commit
+that makes it. [`0082`](0082-continuous-integration-and-dependency-updates.md) is how: a matrix over
+the ports the tree carries, with no path filter, because a required check a filter skipped never
+reports.
 
 [`../35-port-conventions.md`](../35-port-conventions.md) states what this layout obliges a port to
-carry, and [`0080`](0080-conformance-declaration-format.md) states the form of the declaration.
+carry, [`0080`](0080-conformance-declaration-format.md) states the form of the declaration, and
+[`0082`](0082-continuous-integration-and-dependency-updates.md) states how a port is built.
 
 ## Consequences
 

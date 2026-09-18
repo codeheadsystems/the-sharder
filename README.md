@@ -117,4 +117,6 @@ package name.
 | [`conformance/`](conformance/) | the conformance suite: vectors, topologies, properties, scenarios, and the reference generator |
 | [`conformance/declarations/`](conformance/declarations/) | what each port declares it reaches, against a suite revision |
 | [`ports/`](ports/) | one directory per implementation, each rooted in the build its ecosystem expects |
+| [`build.sh`](build.sh) | builds every port, or the ports named; each port carries its own `build.sh` |
+| [`.github/`](.github/) | the workflows that build every port and verify the suite, and the weekly dependency updates |
 | [`bench/`](bench/) | measurement sources a decision record cites, built with a system compiler |

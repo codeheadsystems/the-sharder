@@ -14,6 +14,11 @@ A directory appears here when work on a port starts.
 roadmap schedules, and [`../conformance/declarations/`](../conformance/declarations/) holds what
 each port declares once it reaches the four mandatory levels.
 
+Every port carries an executable `build.sh` that builds and tests it, and
+[`../build.sh`](../build.sh) at the repository root runs them all. Continuous integration runs the
+root script over a matrix it discovers from this directory, so a port that lands is built without a
+workflow changing.
+
 The suite every port runs is [`../conformance/`](../conformance/), read at a relative path from the
 port's own root. No port copies a vector file into its source tree by hand, and no port shares
 source with the reference implementation that computed the suite's expected values.

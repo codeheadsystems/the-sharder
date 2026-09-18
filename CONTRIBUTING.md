@@ -153,6 +153,25 @@ the order the ports start, which fixes what the specification leaves to a langua
 [`docs/design/40-java-binding.md`](docs/design/40-java-binding.md) is the first, and a judgement
 inside one carries a decision record as every other judgement here does.
 
+## Building the ports
+
+Every port carries an executable `build.sh` that builds and tests it, and [`build.sh`](build.sh) at
+the repository root runs them.
+
+```sh
+./build.sh              # every port
+./build.sh java         # the ports named
+./build.sh --list       # what the first form would build
+```
+
+Continuous integration runs the same script, over a matrix of the ports the tree carries, and
+`suite.yml` runs the suite's own checks and the reference driver. Neither workflow carries a path
+filter, because a required check a path filter skipped never reports.
+[`adr/0082`](docs/design/adr/0082-continuous-integration-and-dependency-updates.md) records the
+arrangement, the weekly dependency updates, and the rule by which one of those merges itself.
+
+A change lands through a pull request, and the checks pass before it merges.
+
 ## Review and checks
 
 Two checks are specified to run inside the Gradle `check` task, and neither exists yet, because

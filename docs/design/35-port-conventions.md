@@ -32,10 +32,18 @@ file in the ordinary place.
 ```
 ports/<port>/
 ├── README.md                  the port's status, the levels it reaches, and the revision
+├── build.sh                   executable: builds and tests the port, from this directory
 ├── <the build the ecosystem expects>
 ├── <the library source>
 └── conformance/               the port's driver, run by the port's own test command
 ```
+
+`build.sh` is the only thing the repository asks of a port's build, and it asks one question: build
+yourself, and exit non-zero where you failed. [`../../build.sh`](../../build.sh) at the repository
+root runs every port's script, and continuous integration runs the root one over a matrix it
+discovers from the tree, so a port that carries its script is built by both without either one
+changing. [`adr/0082`](adr/0082-continuous-integration-and-dependency-updates.md) records that
+arrangement and the dependency updates that ride on it.
 
 Nothing above `ports/<port>/` belongs to the port's build except the conformance suite it reads and
 the documents it renders. [`adr/0079`](adr/0079-repository-layout-for-multiple-ports.md) records the
@@ -221,3 +229,4 @@ binds every other Markdown file in the repository.
 | [`adr/0061-suite-revision-identifier.md`](adr/0061-suite-revision-identifier.md) | the revision a declaration names |
 | [`adr/0028-java-module-and-artifact-layout.md`](adr/0028-java-module-and-artifact-layout.md) | the coordinates of the first port |
 | [`adr/0081-single-java-module.md`](adr/0081-single-java-module.md) | one artifact for the first port, and what that defers |
+| [`adr/0082-continuous-integration-and-dependency-updates.md`](adr/0082-continuous-integration-and-dependency-updates.md) | how a port is built, and how a dependency update merges |

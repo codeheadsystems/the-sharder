@@ -1,0 +1,32 @@
+# Dependency updates, weekly on Wednesdays.
+#
+# Two ecosystems are watched: the actions the continuous integration workflows run, and the Gradle
+# dependencies of the Java port, which are test scope and reach no consumer under
+# `docs/design/adr/0032-dependency-free-json-and-canonicalisation.md`. A port added under `ports/`
+# adds its own entry here, because an ecosystem's manifest is found by path rather than by search.
+#
+# Each ecosystem opens one grouped pull request a week rather than one per dependency, and
+# `.github/workflows/dependabot-auto-merge.yml` merges it once the builds pass.
+
+version: 2
+
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: wednesday
+    groups:
+      actions:
+        patterns:
+          - '*'
+
+  - package-ecosystem: gradle
+    directory: /ports/java
+    schedule:
+      interval: weekly
+      day: wednesday
+    groups:
+      java:
+        patterns:
+          - '*'

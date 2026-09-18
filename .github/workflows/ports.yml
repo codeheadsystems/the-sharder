@@ -1,0 +1,117 @@
+name: ports
+
+# Every port, discovered from the tree rather than listed here, so a port added under `ports/` is
+# built by this workflow without a change to it. A change under `conformance/` runs every port,
+# because a regenerated suite is what every port has to answer.
+
+# The workflow carries no path filter. A required check that a path filter skipped never reports,
+# and a pull request waiting on a check that will never report waits for ever, which is what stands
+# between a dependency update and merging itself.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  discover:
+    name: discover the ports
+    runs-on: ubuntu-latest
+    outputs:
+      ports: ${{ steps.list.outputs.ports }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: list
+        name: name every port carrying a build script
+        run: |
+          ports=$(./build.sh --list | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "ports=$ports" >> "$GITHUB_OUTPUT"
+          echo "the ports are $ports"
+
+  build:
+    name: ${{ matrix.port }}
+    needs: discover
+    if: needs.discover.outputs.ports != '[]'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        port: ${{ fromJson(needs.discover.outputs.ports) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: toolchain
+        name: name the toolchain the port builds with
+        run: |
+          directory="ports/${{ matrix.port }}"
+          if [ -f "$directory/settings.gradle.kts" ] || [ -f "$directory/build.gradle.kts" ]; then
+            echo "gradle=true" >> "$GITHUB_OUTPUT"
+          fi
+          if [ -f "$directory/go.mod" ]; then
+            echo "go=true" >> "$GITHUB_OUTPUT"
+          fi
+          if [ -f "$directory/Cargo.toml" ]; then
+            echo "cargo=true" >> "$GITHUB_OUTPUT"
+          fi
+          if ls "$directory"/*.gemspec >/dev/null 2>&1 || [ -f "$directory/Gemfile" ]; then
+            echo "ruby=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: set up a JDK
+        if: steps.toolchain.outputs.gradle == 'true'
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: validate the Gradle wrapper
+        if: steps.toolchain.outputs.gradle == 'true'
+        uses: gradle/actions/wrapper-validation@v4
+
+      - name: set up Go
+        if: steps.toolchain.outputs.go == 'true'
+        uses: actions/setup-go@v5
+        with:
+          go-version: stable
+
+      - name: set up Rust
+        if: steps.toolchain.outputs.cargo == 'true'
+        run: rustup toolchain install stable --profile minimal --no-self-update
+
+      - name: set up Ruby
+        if: steps.toolchain.outputs.ruby == 'true'
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+
+      - name: build the port
+        run: ./build.sh ${{ matrix.port }}
+
+  ports:
+    name: every port built
+    needs: [discover, build]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: fail where a port did not build
+        run: |
+          discovered='${{ needs.discover.result }}'
+          built='${{ needs.build.result }}'
+          ports='${{ needs.discover.outputs.ports }}'
+          if [ "$discovered" != "success" ]; then
+            echo "the ports could not be discovered"
+            exit 1
+          fi
+          if [ "$ports" = "[]" ] && [ "$built" = "skipped" ]; then
+            echo "no port carries a build script; nothing to build"
+            exit 0
+          fi
+          if [ "$built" != "success" ]; then
+            echo "a port did not build"
+            exit 1
+          fi
+          echo "every port built"
