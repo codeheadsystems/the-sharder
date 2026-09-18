@@ -64,6 +64,9 @@ python3 coverage.py --check
 echo "== checking that no withdrawn identifier has been reused or cited"
 python3 verify_withdrawals.py
 
+echo "== checking every conformance declaration against the manifest"
+python3 verify_declarations.py
+
 echo "== running the reference driver over the generated suite"
 python3 ../driver/python/run_suite.py
 

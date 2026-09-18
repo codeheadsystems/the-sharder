@@ -1,8 +1,8 @@
 # Contributing to sharder
 
-The sharder library is designed and not implemented. Two kinds of change are possible today: a
-change to a document, and a change to the conformance suite through its generator. A third kind, a
-change to the Java implementation, is not possible yet, because there is no Java implementation.
+The sharder library is designed and not implemented. Three kinds of change are possible today: a
+change to a document, a change to the conformance suite through its generator, and starting a port.
+A change to an implementation is not possible yet, because no port has been written.
 [`docs/design/99-roadmap.md`](docs/design/99-roadmap.md) gives the staging.
 
 [`docs/maintain/style.md`](docs/maintain/style.md) is binding on every Markdown file in this
@@ -80,8 +80,8 @@ The suite is the output of the reference implementation under
 [`conformance/generator/`](conformance/generator/).
 [`conformance/generator/README.md`](conformance/generator/README.md) gives the layout: one module
 per subject under `sharder_ref/`, one generator script per vector family, `build_manifest.py` for
-the manifest, `coverage.py` for the coverage report, and `verify_withdrawals.py` for the withdrawal
-registers.
+the manifest, `coverage.py` for the coverage report, `verify_withdrawals.py` for the withdrawal
+registers, and `verify_declarations.py` for the conformance declarations.
 
 Regenerating needs `python3` and `openssl` on the path. The run checks SipHash-2-4 against the
 published paper vectors and against `openssl mac` before it generates anything, and stops where
@@ -120,6 +120,37 @@ minutes per mode, its results live under `conformance/generator/collisions/`, an
 if the hash construction changes.
 [`conformance/generator/README.md`](conformance/generator/README.md#searching-for-collisions) gives
 the procedure.
+
+## Starting a port
+
+A port is an implementation of the sharder library in one language, and starting one is a
+contribution the repository is now laid out for.
+[`docs/design/35-port-conventions.md`](docs/design/35-port-conventions.md) is the document that
+states what a port carries whatever the language, and
+[`adr/0079`](docs/design/adr/0079-repository-layout-for-multiple-ports.md) records the layout.
+
+1. Read [`docs/design/35-port-conventions.md`](docs/design/35-port-conventions.md), then the
+   implementing a port path of [`docs/README.md`](docs/README.md), which names the sections of the
+   specification in the order a port implements them.
+2. Fix the port's ecosystem coordinates in a decision record before publishing anything. A registry
+   name is held by whoever registers it first, and a module path, a package root, and an artifact
+   name appear in every consumer's build file.
+   [`adr/0028`](docs/design/adr/0028-java-module-and-artifact-layout.md) is that record for Java.
+3. Create `ports/<port>/`, rooted in the build the ecosystem expects, with a `README.md` stating the
+   port's status and the levels it reaches.
+4. Write the driver against the driver contract of
+   [`docs/design/30-conformance.md`](docs/design/30-conformance.md#driver-contract), and run it from
+   the command the ecosystem uses for tests. The suite is read from `conformance/`, and no file in
+   it is copied into a port's source tree by hand.
+5. Reach `hash`, `place`, `core`, and `scale`, which `CORE-110` makes mandatory, and then publish
+   `conformance/declarations/<port>.json`. Its member set is stated at
+   [`#conformance-declaration`](docs/design/35-port-conventions.md#conformance-declaration), and
+   `conformance/generator/verify_declarations.py` checks it.
+
+A port carries a binding document under [`docs/design/`](docs/design/), numbered in the forties in
+the order the ports start, which fixes what the specification leaves to a language.
+[`docs/design/40-java-binding.md`](docs/design/40-java-binding.md) is the first, and a judgement
+inside one carries a decision record as every other judgement here does.
 
 ## Review and checks
 

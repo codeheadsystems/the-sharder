@@ -28,6 +28,7 @@ only implementation the suite has run against is the reference that computed its
 | `conformance/properties/properties.json` | the property definitions |
 | `conformance/scenarios/` | the simulation scenarios |
 | `conformance/generator/` | the reference implementation and the generator scripts |
+| `conformance/declarations/` | one conformance declaration per port, checked against the manifest |
 
 A topology document is stored once under `conformance/topologies/` and referenced by path from the
 vector files that use it. A vector file at the `place` level carries a copy of every document it
@@ -336,7 +337,16 @@ A port declares conformance by publishing seven things.
    reached level.
 6. The wall time and the peak resident size its driver observed at the `scale` level, with the
    machine and the runtime they were observed on.
-7. Its deviations, as a list of case names with the reason for each.
+7. Its deviations, each naming the requirement deviated from, the reason, and the cases the
+   deviation shows up in.
+
+A port publishes the seven in `conformance/declarations/<port>.json`.
+[`35-port-conventions.md`](35-port-conventions.md#conformance-declaration) states the member set,
+and `conformance/generator/verify_declarations.py` checks a declaration against `manifest.json` and
+[`10-specification.md`](10-specification.md), failing on a claim either one contradicts and
+reporting a declaration that names an earlier revision as lagging.
+[`adr/0080`](adr/0080-conformance-declaration-format.md) records the format and what the check does
+not establish.
 
 The sixth is a reported figure rather than an asserted one. The suite states no bound for it, no
 level is reached or missed by it, and a port whose figure is large has passed `scale` exactly as one

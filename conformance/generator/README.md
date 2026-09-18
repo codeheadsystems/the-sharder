@@ -45,6 +45,7 @@ implementation to compute against, and so that a maintainer can regenerate the s
 | `build_manifest.py` | rebuilds `manifest.json`, with the suite revision, by scanning the tree |
 | `coverage.py` | computes `coverage.json` from the specification |
 | `verify_withdrawals.py` | checks that no withdrawn identifier is restated, cited, or named, and that every register row parses |
+| `verify_declarations.py` | checks every conformance declaration against the manifest and the specification |
 
 ## Regenerating
 
@@ -53,9 +54,11 @@ implementation to compute against, and so that a maintainer can regenerate the s
 ```
 
 `run.sh` verifies the hash before it generates anything, then runs each generator, rebuilds the
-manifest, and prints requirement coverage. It exits non-zero if verification fails, if a vector
-file names a topology that is not present, if a file at the `place` level does not carry the
-documents it names, or if the suite names a requirement identifier the specification does not state.
+manifest, prints requirement coverage, and checks the conformance declarations. It exits non-zero
+if verification fails, if a vector file names a topology that is not present, if a file at the
+`place` level does not carry the documents it names, if the suite names a requirement identifier
+the specification does not state, or if a declaration claims what the manifest or the specification
+contradicts.
 
 Regenerating is expected to produce a byte-identical tree. A maintainer who changes the reference
 runs `./run.sh` and reads the diff; a diff in a vector file that the change was not meant to touch

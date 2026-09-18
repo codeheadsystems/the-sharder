@@ -14,7 +14,9 @@ Design complete. No implementation exists.
 
 The specification, the topology document format and its schema, the conformance suite with its
 reference generator, the Java binding design, and the decision records are written. Java is the
-first implementation and is not yet started.
+first implementation and is not yet started. Every implementation sits under [`ports/`](ports/), and
+[`docs/design/35-port-conventions.md`](docs/design/35-port-conventions.md) states what each one
+carries whatever its language.
 [`docs/design/99-roadmap.md`](docs/design/99-roadmap.md) gives the staging, and
 [`docs/design/90-open-questions.md`](docs/design/90-open-questions.md) gives what is still
 unresolved.
@@ -84,8 +86,9 @@ the component model, the data flow for a routing call and for a rebalance, and a
 of the three use cases. The vocabulary the rest of the corpus uses is in
 [`docs/design/05-glossary.md`](docs/design/05-glossary.md).
 
-[`CONTRIBUTING.md`](CONTRIBUTING.md) gives the one contribution that is possible today: a change to
-a document, to the specification, or to the conformance suite through its generator.
+[`CONTRIBUTING.md`](CONTRIBUTING.md) gives the contributions that are possible today: a change to a
+document, to the specification, or to the conformance suite through its generator, and starting a
+port.
 
 ## Coordinates
 
@@ -110,4 +113,6 @@ package name.
 | [`docs/design/`](docs/design/) | the overview, the glossary, the specification, the format, the conformance design, the Java binding, and the decision records |
 | [`docs/maintain/style.md`](docs/maintain/style.md) | the documentation style guide, binding on everything under `docs/` |
 | [`conformance/`](conformance/) | the conformance suite: vectors, topologies, properties, scenarios, and the reference generator |
+| [`conformance/declarations/`](conformance/declarations/) | what each port declares it reaches, against a suite revision |
+| [`ports/`](ports/) | one directory per implementation, each rooted in the build its ecosystem expects |
 | [`bench/`](bench/) | measurement sources a decision record cites, built with a system compiler |

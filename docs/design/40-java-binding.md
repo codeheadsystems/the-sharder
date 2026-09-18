@@ -21,7 +21,9 @@ that states the conditions the measurement was taken under.
 
 The Maven and Gradle group is `com.codeheadsystems`. Every artifact name begins with `sharder`. The
 repository is `codeheadsystems/the-sharder`, and the `the-` prefix belongs to the repository name
-alone; it appears in no artifact, package, or module name.
+alone; it appears in no artifact, package, or module name. The build is rooted at `ports/java/`,
+which names the port and appears in no coordinate either, under
+[`adr/0079`](adr/0079-repository-layout-for-multiple-ports.md).
 
 | Artifact | Module | Contents |
 |---|---|---|
@@ -60,29 +62,33 @@ The build is Gradle with the Kotlin DSL and a version catalogue at `gradle/libs.
 
 ```
 the-sharder/
-├── settings.gradle.kts
-├── build.gradle.kts
-├── gradle/libs.versions.toml
-├── buildSrc/
-│   └── src/main/kotlin/
-│       ├── sharder.java-library.gradle.kts        convention: --release, -Werror, JPMS, tests
-│       ├── sharder.published.gradle.kts           convention: POM, signing, reproducible jars
-│       └── com/codeheadsystems/sharder/build/
-│           ├── VerifyDocLinksTask.kt
-│           ├── VerifyDocStyleTask.kt
-│           ├── VerifyUnsignedTask.kt
-│           └── Acronyms.kt
-├── sharder-bom/
-├── sharder-api/
-├── sharder-core/
-├── sharder-migrate/
-├── sharder-provider-file/
-├── sharder-conformance/
-├── sharder-conformance-vectors/
-├── sharder-bench/
-├── conformance/                            the vector tree, packaged by the resources project
-└── docs/
+├── conformance/                                   the vector tree the resources project packages
+├── docs/
+└── ports/java/                                    the Gradle root
+    ├── settings.gradle.kts
+    ├── build.gradle.kts
+    ├── gradle/libs.versions.toml
+    ├── buildSrc/
+    │   └── src/main/kotlin/
+    │       ├── sharder.java-library.gradle.kts    convention: --release, -Werror, JPMS, tests
+    │       ├── sharder.published.gradle.kts       convention: POM, signing, reproducible jars
+    │       └── com/codeheadsystems/sharder/build/
+    │           ├── VerifyDocLinksTask.kt
+    │           ├── VerifyDocStyleTask.kt
+    │           ├── VerifyUnsignedTask.kt
+    │           └── Acronyms.kt
+    ├── sharder-bom/
+    ├── sharder-api/
+    ├── sharder-core/
+    ├── sharder-migrate/
+    ├── sharder-provider-file/
+    ├── sharder-conformance/
+    ├── sharder-conformance-vectors/
+    └── sharder-bench/
 ```
+
+`conformance/` and `docs/` sit two directories above the Gradle root and belong to no port, so a
+project that reads either one names a path outside the build.
 
 Project dependencies run in one direction only.
 
@@ -1284,8 +1290,8 @@ public interface VectorSource {
 `VectorSource.ofClasspath()` is the default. The system property `sharder.conformance.dir`
 substitutes a directory, so a maintainer runs the suite against an edited vector tree without
 rebuilding the resources artifact. `sharder-conformance-vectors` is a resources-only project whose
-`processResources` copies `conformance/` from the repository root verbatim, so the packaged tree and
-the repository tree are the same bytes.
+`processResources` copies `../../conformance/` verbatim, so the packaged tree and the repository
+tree are the same bytes.
 
 ### Test generation
 
@@ -1384,10 +1390,11 @@ Every other task in `check` fails the build on a finding.
 
 ### Documentation checks
 
-Both documentation checks live in `buildSrc` and attach to the root project.
+Both documentation checks live in `buildSrc` and attach to the root project. The tree they read is
+the repository, two directories above the Gradle root, because the documents belong to no port.
 
 `verifyDocLinks` proves that every cross-reference resolves. It walks every Markdown file under
-`docs/` and the repository `README.md`, and for each reference it checks:
+`docs/` and under `ports/`, and the repository `README.md`, and for each reference it checks:
 
 - a relative link target exists on disk;
 - an anchor resolves against a heading of the target file, under GitHub's slug rules;

@@ -61,6 +61,7 @@ LIVE_DOCUMENTS = [
     "10-specification.md",
     "20-topology-format.md",
     "30-conformance.md",
+    "35-port-conventions.md",
     "40-java-binding.md",
     "90-open-questions.md",
     "99-roadmap.md",

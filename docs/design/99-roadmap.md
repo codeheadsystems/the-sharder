@@ -70,7 +70,7 @@ migrates carries none of it either way.
 | a `range` strategy, withdrawn at v0.1 | a minor format version adding a fifth kind, under [`adr/0054`](adr/0054-range-strategy-withdrawal.md) |
 | per-domain replication factors, `OQ-03` | a format member and a second preference list builder |
 | a matcher kind beyond exact and prefix, `OQ-05` | a minor format version with a stated precedence rule |
-| ports beyond Java | Go, Rust, and Python, each declaring its levels against a suite revision |
+| ports beyond Java | Go, Rust, Ruby, and Python, each under `ports/` and each declaring its levels against a suite revision |
 | a control-plane provider adapter | third-party, written against the provider contract without forking |
 | hinted handoff | a hook exists at v0.1 and the library implements no part of it |
 

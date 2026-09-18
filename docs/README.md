@@ -47,25 +47,28 @@ which questions block a first release.
 
 1. [`design/05-glossary.md`](design/05-glossary.md). The glossary. Every term in the specification
    carries the meaning it is given there.
-2. [`design/10-specification.md`](design/10-specification.md#conventions). The requirement keywords,
+2. [`design/35-port-conventions.md`](design/35-port-conventions.md). What every port carries
+   whatever the language: where its source sits, how it reads the conformance suite, the
+   declaration it publishes, and what it is free to choose.
+3. [`design/10-specification.md`](design/10-specification.md#conventions). The requirement keywords,
    the identifier scheme, the conformance surfaces, the prefix table, and the pseudocode notation.
-3. [`design/10-specification.md`](design/10-specification.md#core-model). The shared types, the hash
+4. [`design/10-specification.md`](design/10-specification.md#core-model). The shared types, the hash
    construction, the routing surface, and the visibility guarantees. Implement the hash first and
    verify it against the published SipHash vectors before anything else.
-4. [`design/20-topology-format.md`](design/20-topology-format.md) and
+5. [`design/20-topology-format.md`](design/20-topology-format.md) and
    [`design/topology-v1.schema.json`](design/topology-v1.schema.json). The document format, the
    validation rules, and the canonical form.
-5. [`design/10-specification.md`](design/10-specification.md#routing-keys-and-placement), then
+6. [`design/10-specification.md`](design/10-specification.md#routing-keys-and-placement), then
    [`#replication-and-failover`](design/10-specification.md#replication-and-failover), then
    [`#topology-change-and-rebalancing`](design/10-specification.md#topology-change-and-rebalancing).
    The three sections in the order a port implements them.
-6. [`design/30-conformance.md`](design/30-conformance.md#driver-contract), then
+7. [`design/30-conformance.md`](design/30-conformance.md#driver-contract), then
    [`#conformance-levels`](design/30-conformance.md#conformance-levels), then
    [`#declaring-conformance`](design/30-conformance.md#declaring-conformance). The driver contract,
    the levels and the surfaces, and the rule by which a port declares what it reached.
-7. [`../conformance/README.md`](../conformance/README.md). The suite itself, and which vector files
+8. [`../conformance/README.md`](../conformance/README.md). The suite itself, and which vector files
    a new driver runs first.
-8. [`design/40-java-binding.md`](design/40-java-binding.md). One worked rendering of the
+9. [`design/40-java-binding.md`](design/40-java-binding.md). One worked rendering of the
    language-neutral specification into a language, including the shapes it chose where the
    specification named none.
 
@@ -145,7 +148,9 @@ conformance suite through its generator.
 
 Nothing on this path exists yet. [`design/40-java-binding.md`](design/40-java-binding.md) is the
 design the first implementation renders, and its opening status line says what has and has not been
-written.
+written. The port's directory is [`../ports/java/`](../ports/java/), and
+[`design/35-port-conventions.md`](design/35-port-conventions.md) states what it carries that every
+other port carries too.
 
 1. [`design/40-java-binding.md`](design/40-java-binding.md#artifacts-and-modules). The Gradle
    projects, what each carries, and what each split lets a consumer avoid.
@@ -170,6 +175,7 @@ written.
 | [`design/20-topology-format.md`](design/20-topology-format.md) | the topology document format, validation, versioning, worked examples |
 | [`design/topology-v1.schema.json`](design/topology-v1.schema.json) | the JSON Schema for format version 1 |
 | [`design/30-conformance.md`](design/30-conformance.md) | the conformance suite design, driver contract, levels, coverage |
+| [`design/35-port-conventions.md`](design/35-port-conventions.md) | what every port carries: layout, suite access, the declaration, and the free surfaces |
 | [`design/40-java-binding.md`](design/40-java-binding.md) | the Java rendering: artifacts, types, thread safety, harness, build gates |
 | [`design/90-open-questions.md`](design/90-open-questions.md) | every unresolved question, its default, and the evidence that settles it |
 | [`design/99-roadmap.md`](design/99-roadmap.md) | release staging, one-way doors, and what the suite makes easier or harder |
@@ -177,6 +183,7 @@ written.
 | [`maintain/style.md`](maintain/style.md) | the register, emphasis, punctuation, and terminology rules |
 | [`../CONTRIBUTING.md`](../CONTRIBUTING.md) | the constraints on every change, and how a document or the suite is changed |
 | [`../conformance/README.md`](../conformance/README.md) | the suite tree, how to run it, and how to regenerate it |
+| [`../ports/README.md`](../ports/README.md) | the ports, their directories, and what each has reached |
 | [`../conformance/generator/README.md`](../conformance/generator/README.md) | the reference implementation, its scripts, and what each verifies |
 | [`../bench/README.md`](../bench/README.md) | the standalone measurement sources a decision record cites |
 
@@ -193,4 +200,5 @@ written.
 | Java binding | [0028](design/adr/0028-java-module-and-artifact-layout.md), [0029](design/adr/0029-exception-idiom-for-the-taxonomy.md), [0031](design/adr/0031-jdk-baseline.md), [0032](design/adr/0032-dependency-free-json-and-canonicalisation.md), [0033](design/adr/0033-opaque-identifier-value-types.md), [0034](design/adr/0034-lazy-candidate-traversal-surface.md), [0041](design/adr/0041-exact-product-comparison-surface.md) |
 | conformance | [0035](design/adr/0035-manifest-driven-conformance-harness.md), [0037](design/adr/0037-specification-defect-repairs.md), [0052](design/adr/0052-conformance-level-partition.md), [0058](design/adr/0058-conformance-surfaces.md), [0059](design/adr/0059-place-conformance-level.md), [0061](design/adr/0061-suite-revision-identifier.md), [0064](design/adr/0064-hash-verification-before-generation.md), [0065](design/adr/0065-level-coverage-inside-surface-boundaries.md), [0077](design/adr/0077-scale-conformance-level.md), [0078](design/adr/0078-observability-contract-as-data.md) |
 | requirement identifiers | [0053](design/adr/0053-requirement-withdrawal-convention.md) |
+| ports and declarations | [0079](design/adr/0079-repository-layout-for-multiple-ports.md), [0080](design/adr/0080-conformance-declaration-format.md) |
 | documentation | [0062](design/adr/0062-documentation-style-check-as-a-warning.md) |

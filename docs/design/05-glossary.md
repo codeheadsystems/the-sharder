@@ -188,3 +188,10 @@ states, not something that has run.
 - **hot shard**. A shard receiving a share of traffic far above its share of the keyspace.
 - **conformance vector**. A language-neutral data file pairing inputs with the exact output every
   conforming implementation produces.
+- **port**. An implementation of the sharder library in one language, whose source sits under
+  `ports/` and which declares the conformance levels it reaches. The reference implementation that
+  computes the suite's expected values is not a port, because an implementation that calls it agrees
+  with it by construction.
+- **conformance declaration**. The published statement of what a port reaches: the suite revision it
+  ran, every level marked reached or excluded, the strategy surfaces it exposes, its driver's
+  output, the figures it observed at the `scale` level, and its deviations.

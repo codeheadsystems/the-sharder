@@ -50,8 +50,9 @@ and it is never reused: no later requirement takes its number, and a prefix ever
 identifiers is withdrawn is itself withdrawn and admits no further number.
 
 A live document cites live identifiers alone. This specification, the topology document format, the
-conformance design, the Java binding, the overview, the roadmap, and the open questions are the live
-documents, and the conformance suite generated against this revision names live identifiers alone.
+conformance design, the port conventions, the Java binding, the overview, the roadmap, and the open
+questions are the live documents, and the conformance suite generated against this revision names
+live identifiers alone.
 
 A reference to a withdrawn identifier survives in two places, and each resolves through the
 register. A decision record states what was decided on the date it carries, so it is amended with a

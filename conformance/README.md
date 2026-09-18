@@ -22,6 +22,7 @@ written by hand.
 | `scenarios/` | the simulation scenarios, with `index.json` listing them |
 | `generator/` | the reference implementation and the generator scripts |
 | `driver/python/` | a driver written against the reference, as a worked example |
+| `declarations/` | one conformance declaration per port, checked against the manifest |
 
 ## Running the suite
 
@@ -57,6 +58,18 @@ Run `--level scale` last. It routes against two documents of a thousand nodes ea
 it asserts are exact, as they are at every other level. What it reports is the cost: `run_suite.py`
 prints the wall time of each scale file and the driver's peak resident size after the level table,
 and a port publishes both alongside its declaration. The suite asserts no bound for either.
+
+## Declaring conformance
+
+A port publishes what it reaches in `declarations/<port>.json`, which carries the seven things
+[`../docs/design/30-conformance.md`](../docs/design/30-conformance.md#declaring-conformance)
+requires, and takes the member set stated at
+[`#conformance-declaration`](../docs/design/35-port-conventions.md#conformance-declaration).
+
+`generator/verify_declarations.py` checks every declaration against `manifest.json` and the
+specification, and `run.sh` runs it. A declaration naming an earlier revision than the manifest
+holds is reported as lagging rather than failed, so regenerating the suite reports which ports have
+yet to run the new revision.
 
 ## Regenerating
 
