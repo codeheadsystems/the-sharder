@@ -1,6 +1,15 @@
 # 0016. Node health state machine
 
-Status: accepted. Date: 2026-09-16.
+Status: accepted, with probation admission moved to the attempt by
+[`0067`](0067-probe-admission-at-the-attempt.md) and the entry lifetime extended by
+[`0066`](0066-health-reset-on-placement-reentry.md). Date: 2026-09-16.
+
+The five states, the transitions between them, and the arithmetic below are unchanged. Where the
+text says that a deterministic counter admits one attempt in `probationDivisor`, `HEALTH-017` now
+places that counter on the attempt walk rather than on the routing call, so the share is measured in
+attempts as the sentence already describes. `HEALTH-007` adds one way for an entry to leave the
+machine, namely the identity re-entering the placement set, under a parameter that defaults to
+false.
 
 ## Context
 

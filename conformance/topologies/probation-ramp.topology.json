@@ -1,0 +1,31 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "probation-ramp",
+  "epoch": 1,
+  "replication": {
+    "factor": 2
+  },
+  "strategy": {
+    "kind": "rendezvous"
+  },
+  "nodes": [
+    {
+      "id": "r0"
+    },
+    {
+      "id": "r1"
+    },
+    {
+      "id": "r2"
+    },
+    {
+      "id": "r3"
+    },
+    {
+      "id": "r4"
+    },
+    {
+      "id": "r5"
+    }
+  ]
+}

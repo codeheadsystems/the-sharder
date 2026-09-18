@@ -1,9 +1,9 @@
 {
   "suite": "sharder conformance suite",
   "revision": {
-    "id": "27c05fb6e52f0dea83b0c18a8cee26a7ab0f34daf80ce5f76823ffdc370f1334",
+    "id": "17363a9151a5b60b39a4ac55ca2a35eb3fa491efe1a08d007a0d24cd6163e4c1",
     "basis": "sha256 of the RFC 8785 canonical form of the file digests, the level table, and the strategy surfaces",
-    "fileCount": 170,
+    "fileCount": 180,
     "trees": [
       "vectors",
       "topologies",
@@ -17,15 +17,16 @@
   "counts": {
     "vectorFiles": 60,
     "vectorCases": 573,
-    "topologyDocuments": 91,
-    "scenarios": 17,
-    "scenarioSteps": 229,
+    "topologyDocuments": 98,
+    "scenarios": 20,
+    "scenarioSteps": 266,
     "properties": 28,
-    "requirementsNamed": 414
+    "requirementsNamed": 427
   },
   "requirementsNamed": [
     "CFG-020",
     "CFG-021",
+    "CFG-030",
     "CFG-040",
     "CFG-050",
     "CFG-052",
@@ -81,10 +82,12 @@
     "FAIL-002",
     "FAIL-003",
     "FAIL-004",
+    "FAIL-010",
     "FAIL-011",
     "FAIL-012",
     "FAIL-013",
     "FAIL-014",
+    "FAIL-015",
     "FAIL-021",
     "FAIL-022",
     "FAIL-030",
@@ -97,6 +100,7 @@
     "FENCE-021",
     "FENCE-031",
     "FENCE-041",
+    "FENCE-042",
     "FENCE-051",
     "FENCE-061",
     "FENCE-071",
@@ -134,13 +138,20 @@
     "HASH-044",
     "HEALTH-004",
     "HEALTH-005",
+    "HEALTH-006",
+    "HEALTH-007",
+    "HEALTH-011",
+    "HEALTH-016",
+    "HEALTH-017",
     "HEALTH-020",
     "HEALTH-021",
     "HEALTH-023",
     "HEALTH-024",
     "HEALTH-025",
+    "HEALTH-030",
     "HEALTH-031",
     "HEALTH-032",
+    "HEALTH-033",
     "HEALTH-034",
     "HEALTH-040",
     "HEALTH-041",
@@ -150,6 +161,8 @@
     "HEALTH-048",
     "HEALTH-050",
     "HEALTH-051",
+    "HEALTH-052",
+    "HEALTH-053",
     "HEALTH-055",
     "KEY-001",
     "KEY-002",
@@ -482,9 +495,9 @@
       "surface": "the health view, the attempt sequence, and the retry budget",
       "vectorFiles": 2,
       "vectorCases": 65,
-      "scenarios": 3,
+      "scenarios": 6,
       "properties": 2,
-      "requirementsNamed": 45
+      "requirementsNamed": 57
     },
     {
       "level": "readAffinity",
@@ -508,7 +521,7 @@
       "vectorCases": 6,
       "scenarios": 3,
       "properties": 1,
-      "requirementsNamed": 37
+      "requirementsNamed": 38
     },
     {
       "level": "migration",
@@ -689,6 +702,54 @@
       "strategy": "rendezvous",
       "nodeCount": 6,
       "digest": "45b3da4ba34a4ad707e39bef3e339ca6ad2d82f6571637cd59fc59c6a17129a2",
+      "valid": true
+    },
+    "topologies/health-peers-epoch-1.topology.json": {
+      "topologyId": "health-peers",
+      "epoch": 1,
+      "strategy": "rendezvous",
+      "nodeCount": 5,
+      "digest": "578295274c1ce097232b412923f1ab334a191bc494caf15ec1062f71ccebd7e6",
+      "valid": true
+    },
+    "topologies/health-peers-epoch-2.topology.json": {
+      "topologyId": "health-peers",
+      "epoch": 2,
+      "strategy": "rendezvous",
+      "nodeCount": 5,
+      "digest": "559af8ebf22cf51c156d547e03c05739d6f02a52037d7d7cd91850289c057096",
+      "valid": true
+    },
+    "topologies/health-peers-epoch-3.topology.json": {
+      "topologyId": "health-peers",
+      "epoch": 3,
+      "strategy": "rendezvous",
+      "nodeCount": 5,
+      "digest": "41d222b904ecb9ee9f989a182d2592132c88c15e86d48a78faf55380250e9936",
+      "valid": true
+    },
+    "topologies/health-peers-epoch-4.topology.json": {
+      "topologyId": "health-peers",
+      "epoch": 4,
+      "strategy": "rendezvous",
+      "nodeCount": 5,
+      "digest": "167bbd5249e78b308cff86c3846f77207b733320167c33c037ae854e23843b2c",
+      "valid": true
+    },
+    "topologies/health-peers-epoch-5.topology.json": {
+      "topologyId": "health-peers",
+      "epoch": 5,
+      "strategy": "rendezvous",
+      "nodeCount": 5,
+      "digest": "152b384b120ec9272ec740f2f981012df7d37ec06cf96adf557718422c5e037c",
+      "valid": true
+    },
+    "topologies/health-peers-epoch-6.topology.json": {
+      "topologyId": "health-peers",
+      "epoch": 6,
+      "strategy": "rendezvous",
+      "nodeCount": 5,
+      "digest": "92558058ea5cd78d8548bd3f9838946f6e46862a8c765a8c8a1cc32e518db355",
       "valid": true
     },
     "topologies/invalid/constrain-undeclared-level.topology.json": {
@@ -1017,6 +1078,14 @@
       "strategy": "rendezvous",
       "nodeCount": 7,
       "digest": "f2609780f639e23c817877c929f2d1c28fc3605ef1a22d1ce09b8dbeb83f71fb",
+      "valid": true
+    },
+    "topologies/probation-ramp.topology.json": {
+      "topologyId": "probation-ramp",
+      "epoch": 1,
+      "strategy": "rendezvous",
+      "nodeCount": 6,
+      "digest": "5e34b618813697f8da879c986c69f80b31b4166851df6b04bf675515c15c89e3",
       "valid": true
     },
     "topologies/read-affinity.topology.json": {
@@ -2727,14 +2796,16 @@
       "file": "scenarios/caller-three-epochs-stale.json",
       "scenario": "caller-three-epochs-stale",
       "level": "fencing",
-      "description": "A caller routes against epoch 1 while the recipient holds epoch 4.  Covers every recipient relation, both policies, a retained and an unretained token epoch, an unfenced request, a sender ahead of the recipient, and the two relations under which ownership is `unknown`.",
-      "stepCount": 16,
+      "description": "A caller routes against epoch 1 while the recipient holds epoch 4.  Covers every recipient relation, both policies, a retained and an unretained token epoch, an unfenced request at an owner and at a non-owner, a sender ahead of the recipient, and the two relations under which ownership is `unknown`.",
+      "stepCount": 19,
       "requirements": [
         "ERR-040",
         "ERR-041",
         "ERR-042",
         "ERR-044",
+        "ERR-045",
         "FENCE-041",
+        "FENCE-042",
         "FENCE-061",
         "FENCE-071",
         "FENCE-081",
@@ -3030,6 +3101,60 @@
         "HEALTH-034",
         "HEALTH-043",
         "SEC-031"
+      ]
+    },
+    {
+      "file": "scenarios/probation-ramp.json",
+      "scenario": "probation-ramp",
+      "level": "failover",
+      "description": "A replica set is ejected and reaches `probation` together.  The filter holds the entries rather than failing open, and one attempt in `probationDivisor` reaches each of them.",
+      "stepCount": 7,
+      "requirements": [
+        "FAIL-002",
+        "FAIL-003",
+        "FAIL-012",
+        "FAIL-015",
+        "HEALTH-005",
+        "HEALTH-017",
+        "HEALTH-044",
+        "HEALTH-051",
+        "HEALTH-052",
+        "HEALTH-053"
+      ]
+    },
+    {
+      "file": "scenarios/outlier-comparison-set.json",
+      "scenario": "outlier-comparison-set",
+      "level": "failover",
+      "description": "Signals arrive for three identities the placement set does not hold.  They move neither the peer median nor the ejection ceiling, and the one node that is an outlier against its peers is ejected.",
+      "stepCount": 11,
+      "requirements": [
+        "HEALTH-006",
+        "HEALTH-011",
+        "HEALTH-016",
+        "HEALTH-030",
+        "HEALTH-031",
+        "HEALTH-032",
+        "HEALTH-033",
+        "HEALTH-034",
+        "HEALTH-043"
+      ]
+    },
+    {
+      "file": "scenarios/health-reset-on-reentry.json",
+      "scenario": "health-reset-on-reentry",
+      "level": "failover",
+      "description": "A node is ejected, leaves the placement set, is re-imaged, and returns under the same identity.  The entry survives the absence under the default parameter and is discarded where the integrator asks for it.",
+      "stepCount": 16,
+      "requirements": [
+        "CFG-030",
+        "FAIL-010",
+        "HEALTH-004",
+        "HEALTH-006",
+        "HEALTH-007",
+        "HEALTH-016",
+        "HEALTH-043",
+        "HEALTH-055"
       ]
     }
   ],

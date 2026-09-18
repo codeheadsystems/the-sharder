@@ -1,0 +1,342 @@
+{
+  "scenario": "outlier-comparison-set",
+  "level": "failover",
+  "description": "Signals arrive for three identities the placement set does not hold.  They move neither the peer median nor the ejection ceiling, and the one node that is an outlier against its peers is ejected.",
+  "requirements": [
+    "HEALTH-006",
+    "HEALTH-011",
+    "HEALTH-016",
+    "HEALTH-030",
+    "HEALTH-031",
+    "HEALTH-032",
+    "HEALTH-033",
+    "HEALTH-034",
+    "HEALTH-043"
+  ],
+  "deterministic": true,
+  "setup": {},
+  "steps": [
+    {
+      "action": "installTopology",
+      "topology": "topologies/health-peers-epoch-1.topology.json",
+      "expect": {
+        "outcome": "installed",
+        "condition": null,
+        "epochInForce": 1
+      }
+    },
+    {
+      "action": "healthSnapshotInstalled",
+      "topology": "topologies/health-peers-epoch-1.topology.json",
+      "placementSet": [
+        "p1",
+        "p2",
+        "p3",
+        "p4",
+        "p5"
+      ],
+      "note": "`HEALTH-016`: the placement set reaches the health view with the snapshot, and is the set `HEALTH-030` compares against",
+      "expect": {
+        "placementSetSize": 5
+      }
+    },
+    {
+      "action": "reportHealthSeries",
+      "node": "p1",
+      "outcomes": [
+        "success",
+        "success",
+        "success",
+        "success",
+        "success",
+        "success",
+        "success",
+        "success",
+        "success",
+        "success",
+        "success",
+        "success",
+        "success",
+        "success",
+        "success",
+        "success",
+        "success",
+        "success",
+        "success",
+        "success"
+      ],
+      "firstAt": 1000,
+      "stepMillis": 10,
+      "expect": {
+        "state": "available",
+        "failurePercent": 0
+      }
+    },
+    {
+      "action": "reportHealthSeries",
+      "node": "p2",
+      "outcomes": [
+        "success",
+        "success",
+        "success",
+        "success",
+        "success",
+        "success",
+        "success",
+        "success",
+        "success",
+        "success",
+        "success",
+        "success",
+        "success",
+        "success",
+        "success",
+        "success",
+        "success",
+        "success",
+        "success",
+        "success"
+      ],
+      "firstAt": 2190,
+      "stepMillis": 10,
+      "expect": {
+        "state": "available",
+        "failurePercent": 0
+      }
+    },
+    {
+      "action": "reportHealthSeries",
+      "node": "p3",
+      "outcomes": [
+        "success",
+        "success",
+        "success",
+        "success",
+        "success",
+        "success",
+        "success",
+        "success",
+        "success",
+        "success",
+        "success",
+        "success",
+        "success",
+        "success",
+        "success",
+        "success",
+        "success",
+        "success",
+        "success",
+        "success"
+      ],
+      "firstAt": 3380,
+      "stepMillis": 10,
+      "expect": {
+        "state": "available",
+        "failurePercent": 0
+      }
+    },
+    {
+      "action": "reportHealthSeries",
+      "node": "a1",
+      "outcomes": [
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure"
+      ],
+      "firstAt": 4570,
+      "stepMillis": 10,
+      "expect": {
+        "state": "unavailable",
+        "failurePercent": 100
+      },
+      "note": "`HEALTH-011`: a signal is accepted for an identity absent from the snapshot in force"
+    },
+    {
+      "action": "reportHealthSeries",
+      "node": "a2",
+      "outcomes": [
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure"
+      ],
+      "firstAt": 5760,
+      "stepMillis": 10,
+      "expect": {
+        "state": "unavailable",
+        "failurePercent": 100
+      },
+      "note": "`HEALTH-011`: a signal is accepted for an identity absent from the snapshot in force"
+    },
+    {
+      "action": "reportHealthSeries",
+      "node": "a3",
+      "outcomes": [
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure",
+        "failure"
+      ],
+      "firstAt": 6950,
+      "stepMillis": 10,
+      "expect": {
+        "state": "unavailable",
+        "failurePercent": 100
+      },
+      "note": "`HEALTH-011`: a signal is accepted for an identity absent from the snapshot in force"
+    },
+    {
+      "action": "reportHealthSeries",
+      "node": "p4",
+      "outcomes": [
+        "failure",
+        "success",
+        "success",
+        "success",
+        "failure",
+        "success",
+        "success",
+        "success",
+        "failure",
+        "success",
+        "success",
+        "success",
+        "failure",
+        "success",
+        "success",
+        "success",
+        "failure",
+        "success",
+        "success",
+        "failure"
+      ],
+      "firstAt": 8140,
+      "stepMillis": 10,
+      "expect": {
+        "state": "suspect",
+        "failurePercent": 30
+      }
+    },
+    {
+      "action": "reportHealthSeries",
+      "node": "p5",
+      "outcomes": [
+        "failure",
+        "success",
+        "success",
+        "failure",
+        "success",
+        "success",
+        "failure",
+        "success",
+        "success",
+        "failure",
+        "success",
+        "success",
+        "failure",
+        "success",
+        "success",
+        "failure",
+        "success",
+        "failure",
+        "success",
+        "failure"
+      ],
+      "firstAt": 9330,
+      "stepMillis": 10,
+      "expect": {
+        "state": "unavailable",
+        "failurePercent": 40
+      },
+      "note": "`HEALTH-032`: `f(x)` reaches the peer median plus `outlierMarginPercent`, so the node is ejected as an outlier"
+    },
+    {
+      "action": "expectComparisonSet",
+      "at": 9520,
+      "note": "`HEALTH-030`: the three identities absent from the placement set carry a failure percentage of 100 and enter neither the comparison set nor the median.  Over every entry the view holds, the median would be 30 and `p5` would not be an outlier.  `HEALTH-034` counts the ejected over the placement set alone, so the three absent ejections do not refuse the ejection of `p5`.",
+      "expect": {
+        "comparisonSet": [
+          "p1",
+          "p2",
+          "p3",
+          "p4",
+          "p5"
+        ],
+        "peerMedian": 0,
+        "outlierMarginPercent": 30,
+        "placementSetSize": 5,
+        "failurePercent": {
+          "a1": 100,
+          "a2": 100,
+          "a3": 100,
+          "p1": 0,
+          "p2": 0,
+          "p3": 0,
+          "p4": 30,
+          "p5": 40
+        },
+        "states": {
+          "a1": "unavailable",
+          "a2": "unavailable",
+          "a3": "unavailable",
+          "p1": "available",
+          "p2": "available",
+          "p3": "available",
+          "p4": "suspect",
+          "p5": "unavailable"
+        },
+        "ejectedInPlacementSet": 1
+      }
+    }
+  ]
+}

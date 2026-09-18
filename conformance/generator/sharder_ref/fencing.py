@@ -75,14 +75,22 @@ def check(token, key, self_id, in_force, retained=None):
 
 
 def policy_outcome(verdict, policy, fenced=True):
-    """`FENCE-111` through `FENCE-151`, and `ERR-040` through `ERR-045`.
+    """`FENCE-042`, `FENCE-111` through `FENCE-151`, and `ERR-040` through `ERR-045`.
 
     Returns the condition a recipient reports, or `None` where it serves the request.  The order of
     the tests is the precedence `ERR-045` states: `identityMismatch`, `unready`, `notOwner`, then
     `epochMismatch`.  `ERR-040` carries the owner in `currentOwner` rather than in `cause`.
     """
     if not fenced:
-        # `FENCE-041`: an unfenced request takes the same policy as a `senderBehind` one.
+        # `FENCE-042`: an unfenced request carries no token, so there is no relation to compute.
+        # Ownership is still computed against the snapshot in force, and `FENCE-121` refuses a
+        # non-owner whatever the policy is.  The tests are in the order `ERR-045` states.
+        if verdict["relation"] == RELATION_UNKNOWN_EPOCH:
+            return {"code": 103, "name": "unready", "cause": None, "currentOwner": None}
+        if verdict["ownership"] == "notOwner":
+            return {"code": 301, "name": "notOwner", "cause": None,
+                    "currentOwner": verdict["currentOwner"]}
+        # `FENCE-131`: the policy decides the remaining case, in which the recipient is an owner.
         if policy == "stable":
             return None
         return {"code": 302, "name": "epochMismatch", "cause": "unfenced", "currentOwner": None}

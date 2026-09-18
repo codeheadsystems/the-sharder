@@ -1,16 +1,16 @@
 {
   "specification": "docs/design/10-specification.md",
-  "statedRequirements": 637,
-  "coveredRequirements": 414,
-  "uncoveredRequirements": 223,
-  "coveragePercent": 64,
+  "statedRequirements": 640,
+  "coveredRequirements": 427,
+  "uncoveredRequirements": 213,
+  "coveragePercent": 66,
   "identifiersNamedButNotStated": [],
   "byPrefix": [
     {
       "prefix": "CFG",
       "section": "Configuration surface",
       "stated": 29,
-      "covered": 5,
+      "covered": 6,
       "uncovered": [
         "CFG-001",
         "CFG-002",
@@ -25,7 +25,6 @@
         "CFG-013",
         "CFG-014",
         "CFG-022",
-        "CFG-030",
         "CFG-031",
         "CFG-032",
         "CFG-041",
@@ -37,7 +36,7 @@
         "CFG-062",
         "CFG-064"
       ],
-      "percent": 17
+      "percent": 20
     },
     {
       "prefix": "CORE",
@@ -173,11 +172,10 @@
     {
       "prefix": "FAIL",
       "section": "Replication and failover",
-      "stated": 30,
-      "covered": 16,
+      "stated": 31,
+      "covered": 18,
       "uncovered": [
         "FAIL-005",
-        "FAIL-010",
         "FAIL-020",
         "FAIL-023",
         "FAIL-024",
@@ -191,37 +189,29 @@
         "FAIL-044",
         "FAIL-045"
       ],
-      "percent": 53
+      "percent": 58
     },
     {
       "prefix": "HEALTH",
       "section": "Replication and failover",
-      "stated": 40,
-      "covered": 19,
+      "stated": 41,
+      "covered": 28,
       "uncovered": [
         "HEALTH-001",
         "HEALTH-002",
         "HEALTH-003",
-        "HEALTH-006",
         "HEALTH-010",
-        "HEALTH-011",
         "HEALTH-012",
         "HEALTH-013",
         "HEALTH-014",
         "HEALTH-015",
-        "HEALTH-016",
-        "HEALTH-017",
         "HEALTH-022",
-        "HEALTH-030",
-        "HEALTH-033",
         "HEALTH-042",
         "HEALTH-046",
         "HEALTH-047",
-        "HEALTH-052",
-        "HEALTH-053",
         "HEALTH-054"
       ],
-      "percent": 47
+      "percent": 68
     },
     {
       "prefix": "READ",
@@ -363,14 +353,14 @@
     {
       "prefix": "FENCE",
       "section": "Topology change and rebalancing",
-      "stated": 27,
-      "covered": 24,
+      "stated": 28,
+      "covered": 25,
       "uncovered": [
         "FENCE-011",
         "FENCE-161",
         "FENCE-201"
       ],
-      "percent": 88
+      "percent": 89
     },
     {
       "prefix": "MOVE",
@@ -778,6 +768,7 @@
       "requirements": [
         "CFG-020",
         "CFG-021",
+        "CFG-030",
         "CORE-005",
         "CORE-045",
         "CORE-048",
@@ -785,10 +776,12 @@
         "FAIL-002",
         "FAIL-003",
         "FAIL-004",
+        "FAIL-010",
         "FAIL-011",
         "FAIL-012",
         "FAIL-013",
         "FAIL-014",
+        "FAIL-015",
         "FAIL-021",
         "FAIL-022",
         "FAIL-030",
@@ -799,13 +792,20 @@
         "FAIL-035",
         "HEALTH-004",
         "HEALTH-005",
+        "HEALTH-006",
+        "HEALTH-007",
+        "HEALTH-011",
+        "HEALTH-016",
+        "HEALTH-017",
         "HEALTH-020",
         "HEALTH-021",
         "HEALTH-023",
         "HEALTH-024",
         "HEALTH-025",
+        "HEALTH-030",
         "HEALTH-031",
         "HEALTH-032",
+        "HEALTH-033",
         "HEALTH-034",
         "HEALTH-040",
         "HEALTH-041",
@@ -814,6 +814,8 @@
         "HEALTH-045",
         "HEALTH-050",
         "HEALTH-051",
+        "HEALTH-052",
+        "HEALTH-053",
         "HEALTH-055",
         "OBS-010",
         "PROP-040",
@@ -822,8 +824,8 @@
         "REPL-016",
         "SEC-031"
       ],
-      "requirementsAtLevel": 45,
-      "requirementsWhenDeclared": 307
+      "requirementsAtLevel": 57,
+      "requirementsWhenDeclared": 319
     },
     {
       "level": "readAffinity",
@@ -866,6 +868,7 @@
         "FENCE-021",
         "FENCE-031",
         "FENCE-041",
+        "FENCE-042",
         "FENCE-051",
         "FENCE-061",
         "FENCE-071",
@@ -890,8 +893,8 @@
         "TOPO-161",
         "TOPO-171"
       ],
-      "requirementsAtLevel": 37,
-      "requirementsWhenDeclared": 342
+      "requirementsAtLevel": 38,
+      "requirementsWhenDeclared": 355
     },
     {
       "level": "migration",
@@ -971,7 +974,7 @@
         "TOPO-231"
       ],
       "requirementsAtLevel": 70,
-      "requirementsWhenDeclared": 370
+      "requirementsWhenDeclared": 382
     }
   ],
   "coveredBy": {
@@ -1265,6 +1268,7 @@
       "vectors/overrides/precedence-and-composition.json"
     ],
     "ERR-045": [
+      "scenarios/caller-three-epochs-stale.json",
       "scenarios/split-topology-view.json",
       "vectors/errors/recipient-taxonomy.json"
     ],
@@ -1371,14 +1375,17 @@
       "vectors/formulas/health.json"
     ],
     "HEALTH-031": [
+      "scenarios/outlier-comparison-set.json",
       "vectors/formulas/health.json"
     ],
     "HEALTH-032": [
+      "scenarios/outlier-comparison-set.json",
       "vectors/formulas/health.json"
     ],
     "HEALTH-034": [
       "scenarios/ejection-ceiling.json",
       "scenarios/health-filter-fails-open.json",
+      "scenarios/outlier-comparison-set.json",
       "vectors/formulas/health.json"
     ],
     "HEALTH-050": [
@@ -1387,9 +1394,11 @@
     ],
     "HEALTH-051": [
       "scenarios/failover-and-recovery.json",
+      "scenarios/probation-ramp.json",
       "vectors/formulas/health.json"
     ],
     "HEALTH-055": [
+      "scenarios/health-reset-on-reentry.json",
       "vectors/formulas/health.json"
     ],
     "CFG-050": [
@@ -2262,11 +2271,13 @@
     "FAIL-002": [
       "properties/properties.json",
       "scenarios/failover-and-recovery.json",
-      "scenarios/health-filter-fails-open.json"
+      "scenarios/health-filter-fails-open.json",
+      "scenarios/probation-ramp.json"
     ],
     "FAIL-003": [
       "properties/properties.json",
-      "scenarios/failover-and-recovery.json"
+      "scenarios/failover-and-recovery.json",
+      "scenarios/probation-ramp.json"
     ],
     "FAIL-004": [
       "properties/properties.json",
@@ -2275,7 +2286,8 @@
     "FAIL-012": [
       "properties/properties.json",
       "scenarios/failover-and-recovery.json",
-      "scenarios/health-filter-fails-open.json"
+      "scenarios/health-filter-fails-open.json",
+      "scenarios/probation-ramp.json"
     ],
     "FAIL-014": [
       "properties/properties.json"
@@ -2298,6 +2310,9 @@
       "scenarios/caller-three-epochs-stale.json"
     ],
     "FENCE-041": [
+      "scenarios/caller-three-epochs-stale.json"
+    ],
+    "FENCE-042": [
       "scenarios/caller-three-epochs-stale.json"
     ],
     "FENCE-061": [
@@ -2396,7 +2411,8 @@
     "HEALTH-005": [
       "scenarios/failover-and-recovery.json",
       "scenarios/health-filter-fails-open.json",
-      "scenarios/node-dies-mid-migration.json"
+      "scenarios/node-dies-mid-migration.json",
+      "scenarios/probation-ramp.json"
     ],
     "HEALTH-041": [
       "scenarios/failover-and-recovery.json",
@@ -2405,7 +2421,9 @@
     "HEALTH-043": [
       "scenarios/ejection-ceiling.json",
       "scenarios/failover-and-recovery.json",
-      "scenarios/node-dies-mid-migration.json"
+      "scenarios/health-reset-on-reentry.json",
+      "scenarios/node-dies-mid-migration.json",
+      "scenarios/outlier-comparison-set.json"
     ],
     "HEALTH-048": [
       "scenarios/node-dies-mid-migration.json"
@@ -2537,7 +2555,8 @@
       "scenarios/health-filter-fails-open.json"
     ],
     "HEALTH-004": [
-      "scenarios/failover-and-recovery.json"
+      "scenarios/failover-and-recovery.json",
+      "scenarios/health-reset-on-reentry.json"
     ],
     "HEALTH-020": [
       "scenarios/failover-and-recovery.json"
@@ -2549,7 +2568,8 @@
       "scenarios/failover-and-recovery.json"
     ],
     "HEALTH-044": [
-      "scenarios/failover-and-recovery.json"
+      "scenarios/failover-and-recovery.json",
+      "scenarios/probation-ramp.json"
     ],
     "HEALTH-045": [
       "scenarios/failover-and-recovery.json"
@@ -2562,6 +2582,44 @@
     ],
     "SEC-031": [
       "scenarios/ejection-ceiling.json"
+    ],
+    "FAIL-015": [
+      "scenarios/probation-ramp.json"
+    ],
+    "HEALTH-017": [
+      "scenarios/probation-ramp.json"
+    ],
+    "HEALTH-052": [
+      "scenarios/probation-ramp.json"
+    ],
+    "HEALTH-053": [
+      "scenarios/probation-ramp.json"
+    ],
+    "HEALTH-006": [
+      "scenarios/health-reset-on-reentry.json",
+      "scenarios/outlier-comparison-set.json"
+    ],
+    "HEALTH-011": [
+      "scenarios/outlier-comparison-set.json"
+    ],
+    "HEALTH-016": [
+      "scenarios/health-reset-on-reentry.json",
+      "scenarios/outlier-comparison-set.json"
+    ],
+    "HEALTH-030": [
+      "scenarios/outlier-comparison-set.json"
+    ],
+    "HEALTH-033": [
+      "scenarios/outlier-comparison-set.json"
+    ],
+    "CFG-030": [
+      "scenarios/health-reset-on-reentry.json"
+    ],
+    "FAIL-010": [
+      "scenarios/health-reset-on-reentry.json"
+    ],
+    "HEALTH-007": [
+      "scenarios/health-reset-on-reentry.json"
     ]
   }
 }

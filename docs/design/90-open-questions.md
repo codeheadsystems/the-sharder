@@ -186,17 +186,23 @@ names a group that deserves a per-binding check, a race detector, or a benchmark
 
 ### OQ-14. Contended writes on the routing path
 
-`HEALTH-051` makes a routing call that reaches a node in `probation` increment that node's probe
+`HEALTH-051` makes an attempt that reaches a node in `probation` increment that node's probe
 counter, and `FAIL-030` makes an attempt account against a sliding window held per router. Both are
 writes to state shared by every unit of execution that routes, while `CORE-052` forbids a lock to
 read the snapshot and `CORE-064` forbids a routing call blocking on anything but the health view. No
 requirement is violated, and a port that implements either counter with a lock pays a contended
-write per routing call.
+write per attempt.
+
+Both writes are now on the attempt walk rather than on the routing call. `HEALTH-017` moves probe
+admission to `next` of `FAIL-023`, so `route` writes nothing and a node in `probation` is
+incremented once per attempt that reaches it rather than once per entry a routing call examines.
+[`adr/0067`](adr/0067-probe-admission-at-the-attempt.md) records that decision. The budget window
+was already accounted at the attempt, so the two counters now contend under the same rate.
 
 Recommended default: no change to the specification. The Java binding uses an atomic increment for
 the probe counter and an array of adders for the budget window, and neither takes a lock.
 
-Evidence that settles it: a benchmark in which routing latency at high concurrency is dominated by
+Evidence that settles it: a benchmark in which attempt latency at high concurrency is dominated by
 one of the two counters. The same benchmark shows whether a requirement forbidding a lock on them
 would change anything.
 
@@ -230,7 +236,7 @@ requirement named.
 | the attempt limit reaching `attempts` | `attemptLimit` on the decision | `CORE-040`, `CORE-045` |
 | the primary of a decision | `primary` on the decision | `CORE-040`, `CORE-042` |
 | the placement set reaching a supplied health view | `onSnapshotInstalled` | `HEALTH-016` |
-| probation admission separated from a read | `admitProbe`, called by `route` and not by `explain` | `HEALTH-017` |
+| probation admission separated from a read | `admitProbe`, called by the attempt walk alone | `HEALTH-017` |
 | the current owner carried by `notOwner` | its own member, leaving `cause` closed | `ERR-004`, `ERR-040` |
 | cardinality of the event deduplication table | bounded by `shardLabelLimit` | `OBS-026` |
 | the property sample generator | SplitMix64 seeded with `5348415244455201` | `PROP-006` |

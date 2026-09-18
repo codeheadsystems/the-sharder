@@ -2026,12 +2026,22 @@ preference list.
 | `unknown` | the entry is attemptable |
 | `available` | the entry is attemptable |
 | `suspect` | the entry is attemptable |
-| `probation` | the entry is attemptable on an admitted probe, and skipped otherwise |
+| `probation` | the entry is attemptable, and the attempt walk attempts it on an admitted probe |
 | `unavailable` | the entry is skipped |
 
 `HEALTH-006`. Health entries MUST be keyed by node identity and MUST survive an epoch change. An
 entry whose identity is absent from the snapshot in force MUST NOT affect any routing call, and MAY
 be evicted once absent for longer than the ejection reset interval.
+
+`HEALTH-007`. An identity **re-enters the placement set** where the snapshot `onSnapshotInstalled`
+delivers holds it in its placement set and the snapshot delivered before it did not. Where the
+parameter `resetOnPlacementReentry` is true, a `HealthView` MUST discard the health entry of an
+identity that re-enters, so that the identity holds `unknown` under `HEALTH-004` with no window, no
+consecutive failure counter, no ejection count, and no probe counter. Where the parameter is false,
+which is the default, the entry MUST survive the absence and `HEALTH-006` alone governs its
+eviction. A view that ignores `onSnapshotInstalled` under `HEALTH-016` MUST NOT apply this rule. A
+caller that installs no snapshot in which the identity is absent observes no re-entry, and two
+callers holding different entries for one identity are the variation `FAIL-010` permits.
 
 ### Health signal ingestion
 
@@ -2084,11 +2094,14 @@ A `HealthView` MAY ignore the call, in which case `HEALTH-030` does not run and 
 no transition.
 
 `HEALTH-017`. `admitProbe` MUST be the call through which the probe counter of `HEALTH-051` is
-incremented and admission is decided. `route` and `routeForRead` MUST call it once for each entry in
-`probation` that they reach in preference list order. `explain` MUST NOT call it, under `OBS-045`,
-and MUST report `attemptable` for such an entry as the value a probe-free evaluation gives. For a
-node in any other health state, `admitProbe` MUST NOT be called and the entry's `attemptable` value
-MUST be taken from `HEALTH-005`.
+incremented and admission is decided. `next` of `FAIL-023` MUST call it once for each entry in
+`probation` that the attempt walk reaches, MUST answer that entry where the call admits the probe,
+and MUST continue to the following entry of the attempt sequence where it does not. A probe is
+therefore consumed once for each attempt a caller places, and not once for each entry a routing call
+examines. `route` and `routeForRead` MUST NOT call it, and `OBS-045` keeps `explain` from calling
+it. All three MUST report `attemptable` for an entry in `probation` as the value the table of
+`HEALTH-005` gives, which no probe decides. For a node in any other health state, `admitProbe` MUST
+NOT be called and the entry's `attemptable` value MUST be taken from that table.
 
 ### Health aggregation
 
@@ -2122,7 +2135,9 @@ is ejected sooner than the absolute thresholds alone would eject it.
 
 `HEALTH-030`. The comparison set MUST be the nodes of the placement set at the epoch in force whose
 window total is at least `minimumSamples`. Where the comparison set holds fewer than
-`outlierMinimumNodes` members, outlier ejection MUST NOT run.
+`outlierMinimumNodes` members, outlier ejection MUST NOT run. A health entry whose identity the
+placement set does not hold MUST NOT enter the comparison set and MUST NOT move the peer median,
+whatever signals `HEALTH-011` has ingested for it.
 
 `HEALTH-031`. The peer median MUST be the median of `f(x)` over the comparison set. Where the
 comparison set holds an even number of members, the median MUST be the lower of the two central
@@ -2136,7 +2151,9 @@ descending `f(x)`, then in node identity order ascending as unsigned UTF-8 bytes
 
 `HEALTH-034`. A transition into `unavailable` MUST be refused where it would take the count of nodes
 in `unavailable` above `maxEjectionPercent` of the placement set size. A node whose transition is
-refused MUST hold `suspect`. The test is
+refused MUST hold `suspect`. Both the count and the set size MUST be taken over the placement set
+`HEALTH-016` delivers, so a health entry whose identity that set does not hold neither refuses an
+ejection nor relaxes the ceiling. The test is
 
 ```
 (ejected + 1) * 100 > maxEjectionPercent * placementSetSize
@@ -2220,6 +2237,7 @@ use the defaults given.
 | `outlierMinimumNodes` | 5 | comparison set size below which outlier ejection is off |
 | `maxEjectionPercent` | 50 | ceiling on the share of the placement set held `unavailable` |
 | `ejectionResetMillis` | 600000 | continuous `available` interval that resets the ejection count |
+| `resetOnPlacementReentry` | false | whether re-entry into the placement set discards an entry |
 
 ### Deterministic ownership and caller-local attempts
 
@@ -2259,6 +2277,10 @@ key belongs to. None of these is a caller-supplied input to a routing call.
 `FAIL-012`. The health filter MUST NOT yield an empty attempt sequence from a non-empty preference
 list. Where every entry is skipped, the attempt sequence MUST be the whole preference list, ordered
 as the preference list orders it, and the routing decision MUST record that the filter failed open.
+An entry is skipped for this test where the table of `HEALTH-005` skips it on its health state
+alone. An entry in `probation` is attemptable under that table, so a declined probe MUST NOT make
+the filter fail open, and `FAIL-015` states what the attempt walk does where every probe it reaches
+is declined.
 
 `FAIL-013`. The routing decision MUST expose the entries of its materialised prefix under
 `CORE-046`, each entry's role, each entry's position, and each entry's health state at the instant
@@ -2270,6 +2292,14 @@ confined to the materialised prefix. Where the health filter skips an entry of t
 implementation MUST continue along the preference list until the attempt sequence holds as many
 attemptable entries as the resolved attempt limit permits or the preference list is spent.
 Continuing MUST NOT change `entries`, whose length `CORE-046` fixes.
+
+`FAIL-015`. Where `next` reaches the end of the attempt sequence having answered no entry, because
+`admitProbe` declined every entry in `probation` that the walk reached, it MUST answer the first
+entry of the attempt sequence rather than `exhausted`, and MUST NOT call `admitProbe` for that entry
+again. A caller therefore always holds one node to attempt where the preference list is non-empty. A
+walk that has answered no entry cannot have been ended by the attempt limit of `FAIL-021` or by the
+retry budget of `FAIL-031`, because an attempt limit of zero is refused under `ERR-025` and
+`FAIL-032` permits every first attempt.
 
 ### Attempt depth and exhaustion
 
@@ -2300,7 +2330,8 @@ forwards a `HealthSignal` to the health view and accounts the attempt against th
 `followRedirect` is the redirect walk of `FENCE-221`.
 
 `FAIL-024`. `next` MUST answer `exhausted` when the attempt limit is reached, when the retry budget
-refuses a further attempt, or when the preference list is spent, whichever comes first.
+refuses a further attempt, or when the preference list is spent, whichever comes first. A spent
+attempt sequence answers an entry rather than `exhausted` in the one case `FAIL-015` states.
 
 `FAIL-025`. An exhausted attempt sequence and an empty preference list MUST be distinct conditions.
 An empty eligible node set, or a strategy that matches no entry, yields the no-candidate condition
@@ -2626,6 +2657,14 @@ verbatim and the second the epoch in decimal ASCII with no leading zeros and no 
 decision routes. A recipient that receives no token MUST treat the request as unfenced and MUST
 apply the policy specified in `FENCE-131`.
 
+`FENCE-042`. An unfenced request carries no token, so a recipient MUST NOT compute `relation` for
+one. It MUST compute `ownership` as `FENCE-081` states, against the snapshot in force, and MUST
+refuse the request under `FENCE-121` where `ownership` is `notOwner`, whatever value
+`recipientPolicy` holds. Where no snapshot is in force, a recipient MUST refuse an unfenced request
+and MUST report the unready condition, as `FENCE-151` states for a token. The policy of `FENCE-131`
+decides the one remaining case, in which `ownership` is `owner`. `ERR-045` orders the conditions
+where more than one of them holds.
+
 `FENCE-051`. A recipient MUST NOT use a received token to change its own snapshot. A token is
 evidence about the sender and never a topology update.
 
@@ -2697,8 +2736,9 @@ of a sender's token.
 `FENCE-131`. A recipient whose verdict has `relation` of `senderBehind` and `ownership` of `owner`
 MUST refuse the request unless `ownershipStable` is true, in which case it MAY serve it. An
 implementation MUST expose this choice as a policy with two values, `strict` and `stable`, and
-`strict` MUST be the default. The same policy governs an unfenced request, which `strict` refuses
-and `stable` serves.
+`strict` MUST be the default. The same policy governs an unfenced request whose `ownership` is
+`owner`, which `strict` refuses and `stable` serves, and `FENCE-042` states the rest of the unfenced
+case.
 
 `FENCE-141`. A recipient whose verdict has `relation` of `senderAhead` MUST NOT serve the request on
 the strength of its own snapshot. It MUST request a topology refresh, MAY wait for one up to an

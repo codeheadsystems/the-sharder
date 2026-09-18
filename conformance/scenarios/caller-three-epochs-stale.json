@@ -1,13 +1,15 @@
 {
   "scenario": "caller-three-epochs-stale",
   "level": "fencing",
-  "description": "A caller routes against epoch 1 while the recipient holds epoch 4.  Covers every recipient relation, both policies, a retained and an unretained token epoch, an unfenced request, a sender ahead of the recipient, and the two relations under which ownership is `unknown`.",
+  "description": "A caller routes against epoch 1 while the recipient holds epoch 4.  Covers every recipient relation, both policies, a retained and an unretained token epoch, an unfenced request at an owner and at a non-owner, a sender ahead of the recipient, and the two relations under which ownership is `unknown`.",
   "requirements": [
     "ERR-040",
     "ERR-041",
     "ERR-042",
     "ERR-044",
+    "ERR-045",
     "FENCE-041",
+    "FENCE-042",
     "FENCE-061",
     "FENCE-071",
     "FENCE-081",
@@ -341,6 +343,7 @@
       "selfId": "n1",
       "recipientPolicy": "strict",
       "fenced": false,
+      "note": "`FENCE-042`: the request carries no token, so there is no relation.  Ownership is computed against the snapshot in force, and `ERR-045` puts `notOwner` ahead of the unfenced `epochMismatch` of `ERR-044`.",
       "expect": {
         "verdict": {
           "relation": "same",
@@ -357,6 +360,94 @@
           "name": "epochMismatch",
           "cause": "unfenced",
           "currentOwner": null
+        },
+        "served": false
+      }
+    },
+    {
+      "action": "recipientCheck",
+      "token": null,
+      "key": {
+        "encoding": "base16",
+        "value": "05"
+      },
+      "selfId": "n1",
+      "recipientPolicy": "stable",
+      "fenced": false,
+      "note": "`FENCE-042`: the request carries no token, so there is no relation.  Ownership is computed against the snapshot in force, and `ERR-045` puts `notOwner` ahead of the unfenced `epochMismatch` of `ERR-044`.",
+      "expect": {
+        "verdict": {
+          "relation": "same",
+          "ownership": "owner",
+          "ownershipStable": false,
+          "currentOwner": "n1",
+          "localToken": {
+            "topologyId": "migration",
+            "epoch": 4
+          }
+        },
+        "condition": null,
+        "served": true
+      }
+    },
+    {
+      "action": "recipientCheck",
+      "token": null,
+      "key": {
+        "encoding": "base16",
+        "value": "05"
+      },
+      "selfId": "n2",
+      "recipientPolicy": "strict",
+      "fenced": false,
+      "note": "`FENCE-042`: the request carries no token, so there is no relation.  Ownership is computed against the snapshot in force, and `ERR-045` puts `notOwner` ahead of the unfenced `epochMismatch` of `ERR-044`.",
+      "expect": {
+        "verdict": {
+          "relation": "same",
+          "ownership": "notOwner",
+          "ownershipStable": false,
+          "currentOwner": "n1",
+          "localToken": {
+            "topologyId": "migration",
+            "epoch": 4
+          }
+        },
+        "condition": {
+          "code": 301,
+          "name": "notOwner",
+          "cause": null,
+          "currentOwner": "n1"
+        },
+        "served": false
+      }
+    },
+    {
+      "action": "recipientCheck",
+      "token": null,
+      "key": {
+        "encoding": "base16",
+        "value": "05"
+      },
+      "selfId": "n2",
+      "recipientPolicy": "stable",
+      "fenced": false,
+      "note": "`FENCE-042`: the request carries no token, so there is no relation.  Ownership is computed against the snapshot in force, and `ERR-045` puts `notOwner` ahead of the unfenced `epochMismatch` of `ERR-044`.",
+      "expect": {
+        "verdict": {
+          "relation": "same",
+          "ownership": "notOwner",
+          "ownershipStable": false,
+          "currentOwner": "n1",
+          "localToken": {
+            "topologyId": "migration",
+            "epoch": 4
+          }
+        },
+        "condition": {
+          "code": 301,
+          "name": "notOwner",
+          "cause": null,
+          "currentOwner": "n1"
         },
         "served": false
       }

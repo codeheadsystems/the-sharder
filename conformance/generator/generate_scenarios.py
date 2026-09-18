@@ -53,6 +53,9 @@ LEVEL_OF_SCENARIO = {
     "failover-and-recovery": "failover",
     "health-filter-fails-open": "failover",
     "ejection-ceiling": "failover",
+    "probation-ramp": "failover",
+    "outlier-comparison-set": "failover",
+    "health-reset-on-reentry": "failover",
 }
 
 
@@ -197,6 +200,11 @@ def replica_sets(snapshot):
     return sets
 
 
+def placement_identities(snapshot):
+    """The placement set as node identities, which is what `HEALTH-016` delivers to a view."""
+    return [node.id for node in snapshot.placement_set]
+
+
 def route_expect(snapshot, key):
     decision = routing.route(snapshot, key)
     return {"shard": decision["shard"], "token": decision["token"],
@@ -330,20 +338,27 @@ def build_stale_caller_scenario():
                    "served": False},
     })
 
-    # An unfenced request, and a sender ahead of the recipient.
-    verdict = fencing.check({"topologyId": "migration", "epoch": 4}, PROBE_KEY, "n1",
-                            in_force, retained)
-    steps.append({
-        "action": "recipientCheck",
-        "token": None,
-        "key": key_spec(PROBE_KEY, "base16"),
-        "selfId": "n1",
-        "recipientPolicy": "strict",
-        "fenced": False,
-        "expect": {"verdict": verdict,
-                   "condition": fencing.policy_outcome(verdict, "strict", fenced=False),
-                   "served": False},
-    })
+    # An unfenced request, and a sender ahead of the recipient.  `FENCE-042`: the recipient
+    # computes ownership for an unfenced request, and `FENCE-121` refuses a non-owner whatever
+    # the policy is, so `stable` serves one only where the recipient owns the key.
+    for self_id, policy in [("n1", "strict"), ("n1", "stable"),
+                            ("n2", "strict"), ("n2", "stable")]:
+        verdict = fencing.check({"topologyId": "migration", "epoch": 4}, PROBE_KEY, self_id,
+                                in_force, retained)
+        condition = fencing.policy_outcome(verdict, policy, fenced=False)
+        steps.append({
+            "action": "recipientCheck",
+            "token": None,
+            "key": key_spec(PROBE_KEY, "base16"),
+            "selfId": self_id,
+            "recipientPolicy": policy,
+            "fenced": False,
+            "note": "`FENCE-042`: the request carries no token, so there is no relation.  "
+                    "Ownership is computed against the snapshot in force, and `ERR-045` puts "
+                    "`notOwner` ahead of the unfenced `epochMismatch` of `ERR-044`.",
+            "expect": {"verdict": verdict, "condition": condition,
+                       "served": condition is None},
+        })
     ahead = {"topologyId": "migration", "epoch": 9}
     verdict = fencing.check(ahead, PROBE_KEY, "n1", in_force, retained)
     steps.append({
@@ -376,12 +391,12 @@ def build_stale_caller_scenario():
     register("caller-three-epochs-stale",
              "A caller routes against epoch 1 while the recipient holds epoch 4.  Covers every "
              "recipient relation, both policies, a retained and an unretained token epoch, an "
-             "unfenced request, a sender ahead of the recipient, and the two relations under "
-             "which ownership is `unknown`.",
-             ["FENCE-041", "FENCE-061", "FENCE-071", "FENCE-081", "FENCE-082", "FENCE-083",
-              "FENCE-084", "FENCE-091", "FENCE-111", "FENCE-121", "FENCE-131", "FENCE-141",
-              "FENCE-151", "TOPO-161", "TOPO-171", "ERR-040", "ERR-041", "ERR-042",
-              "ERR-044"], steps)
+             "unfenced request at an owner and at a non-owner, a sender ahead of the recipient, "
+             "and the two relations under which ownership is `unknown`.",
+             ["FENCE-041", "FENCE-042", "FENCE-061", "FENCE-071", "FENCE-081", "FENCE-082",
+              "FENCE-083", "FENCE-084", "FENCE-091", "FENCE-111", "FENCE-121", "FENCE-131",
+              "FENCE-141", "FENCE-151", "TOPO-161", "TOPO-171", "ERR-040", "ERR-041",
+              "ERR-042", "ERR-044", "ERR-045"], steps)
 
 
 def build_split_view_scenario():
@@ -550,7 +565,7 @@ def build_node_dies_scenario():
     plan = one_handoff()
     steps = list(drive(plan, ["admittedByRatePolicy", "prepareSuccess"]))
 
-    health = HealthView(placement_set_size=4)
+    health = HealthView(placement_set=["n1", "n2", "n3", "n4"])
     at = 10000
     for index in range(6):
         at = 10000 + index * 500
@@ -848,7 +863,7 @@ def build_failover_scenario():
     snapshot = SNAP["migration-epoch-1"]
     decision = routing.route(snapshot, PROBE_KEY)
     preference = decision["preferenceList"]
-    health = HealthView(placement_set_size=len(snapshot.placement_set))
+    health = HealthView(placement_set=placement_identities(snapshot))
     steps = [{
         "action": "route",
         "topology": "topologies/migration-epoch-1.topology.json",
@@ -909,7 +924,7 @@ def build_failover_scenario():
                           "`probation`",
                   "expect": {"states": {e["node"]: health.state_of(e["node"])
                                         for e in preference}}})
-    admissions = [health.attemptable(primary) for _ in range(20)]
+    admissions = [health.admit_probe(primary) for _ in range(20)]
     steps.append({"action": "probeAdmission", "node": primary, "calls": 20,
                   "note": "`HEALTH-051`: one attempt in `probationDivisor` is admitted",
                   "expect": {"admitted": admissions,
@@ -945,7 +960,7 @@ def build_filter_fails_open_scenario():
     preference = decision["preferenceList"]
     replicas = [e["node"] for e in preference[:decision["replicaCount"]]]
 
-    health = HealthView(placement_set_size=len(snapshot.placement_set))
+    health = HealthView(placement_set=placement_identities(snapshot))
     steps = [{"action": "route", "topology": path, "key": key_spec(key),
               "expect": route_expect(snapshot, key)}]
 
@@ -979,7 +994,7 @@ def build_filter_fails_open_scenario():
 
 def build_ejection_ceiling_scenario():
     snapshot = SNAP["migration-epoch-1"]
-    health = HealthView(placement_set_size=len(snapshot.placement_set))
+    health = HealthView(placement_set=placement_identities(snapshot))
     steps = []
     at = 0
     for node in ["n1", "n2", "n3"]:
@@ -1309,6 +1324,242 @@ def build_undetermined_recovery_scenario():
               "MOVE-237", "MOVE-238", "MOVE-331", "ERR-052"], steps)
 
 
+# ------------------------------------------------------- probation, peers, and re-entry
+
+def build_probation_ramp_scenario():
+    """`FAIL-012`, `FAIL-015`, and `HEALTH-017` over a replica set coming out of ejection."""
+    document = {
+        "formatVersion": "1.0", "topologyId": "probation-ramp", "epoch": 1,
+        "replication": {"factor": 2},
+        "strategy": {"kind": "rendezvous"},
+        "nodes": [{"id": "r%d" % index} for index in range(6)],
+    }
+    path = topology("probation-ramp", document)
+    snapshot = Snapshot(document)
+    key = b"probation-ramp-probe"
+    decision = routing.route(snapshot, key)
+    replicas = decision["preferenceList"][:decision["replicaCount"]]
+    health = HealthView(placement_set=placement_identities(snapshot))
+
+    steps = [{"action": "route", "topology": path, "key": key_spec(key),
+              "expect": route_expect(snapshot, key)}]
+    at = 0
+    for entry in replicas:
+        for _ in range(5):
+            at += 100
+            health.report(entry["node"], "failure", at)
+        steps.append({"action": "reportHealth", "node": entry["node"], "outcome": "failure",
+                      "repeat": 5, "at": at,
+                      "expect": {"state": health.state_of(entry["node"])}})
+
+    sequence, failed_open = health.attempt_sequence(replicas)
+    steps.append({
+        "action": "attemptSequence", "key": key_spec(key),
+        "preferenceListPrefix": len(replicas),
+        "note": "`FAIL-012`: every entry is `unavailable`, so the filter fails open over the "
+                "whole list",
+        "expect": {"attemptSequence": [e["node"] for e in sequence],
+                   "filterFailedOpen": failed_open,
+                   "states": {e["node"]: health.state_of(e["node"]) for e in replicas}},
+    })
+
+    recovered_at = at + 30000
+    health.advance(recovered_at)
+    steps.append({"action": "advanceClock", "to": recovered_at,
+                  "note": "`HEALTH-044`: `baseEjectionMillis` elapses and both entries reach "
+                          "`probation`",
+                  "expect": {"states": {e["node"]: health.state_of(e["node"])
+                                        for e in replicas}}})
+
+    sequence, failed_open = health.attempt_sequence(replicas)
+    steps.append({
+        "action": "attemptSequence", "key": key_spec(key),
+        "preferenceListPrefix": len(replicas),
+        "note": "`FAIL-012`: an entry in `probation` is attemptable under `HEALTH-005`, so the "
+                "filter holds both entries and does not fail open while the two recover",
+        "expect": {"attemptSequence": [e["node"] for e in sequence],
+                   "filterFailedOpen": failed_open,
+                   "states": {e["node"]: health.state_of(e["node"]) for e in replicas}},
+    })
+
+    walks = [health.walk(sequence) for _ in range(18)]
+    steps.append({
+        "action": "attemptWalk", "key": key_spec(key), "calls": len(walks),
+        "note": "`HEALTH-017`: the walk consumes one probe for each entry in `probation` it "
+                "reaches, so the walk that follows entry into `probation` attempts both entries "
+                "and the next fifteen attempt the head alone under `FAIL-015`.  The two probe "
+                "counters stay equal, because the entry `FAIL-015` answers consumes none.",
+        "expect": {"walks": walks,
+                   "probeCounters": {e["node"]: health.nodes[e["node"]].probe_counter
+                                     for e in replicas}},
+    })
+    register("probation-ramp",
+             "A replica set is ejected and reaches `probation` together.  The filter holds the "
+             "entries rather than failing open, and one attempt in `probationDivisor` reaches "
+             "each of them.",
+             ["FAIL-002", "FAIL-003", "FAIL-012", "FAIL-015", "HEALTH-005", "HEALTH-017",
+              "HEALTH-044", "HEALTH-051", "HEALTH-052", "HEALTH-053"], steps)
+
+
+HEALTH_PEERS = ["p1", "p2", "p3", "p4", "p5"]
+PEER_ABSENTEES = ["a1", "a2", "a3"]
+
+
+def health_peers_document(epoch, leaving=()):
+    return {
+        "formatVersion": "1.0", "topologyId": "health-peers", "epoch": epoch,
+        "replication": {"factor": 2},
+        "strategy": {"kind": "rendezvous"},
+        "nodes": [dict({"id": node_id}, **({"state": "leaving"} if node_id in leaving else {}))
+                  for node_id in HEALTH_PEERS],
+    }
+
+
+def peers_topology(epoch, leaving=()):
+    document = health_peers_document(epoch, leaving)
+    path = topology("health-peers-epoch-%d" % epoch, document)
+    return path, Snapshot(document)
+
+
+def install_step(path, epoch):
+    return {"action": "installTopology", "topology": path,
+            "expect": {"outcome": "installed", "condition": None, "epochInForce": epoch}}
+
+
+def report_series(health, steps, node_id, failures, total, first_at, note=None):
+    """Report `total` signals ten milliseconds apart, failing at the indices `failures` names."""
+    outcomes = ["failure" if index in failures else "success" for index in range(total)]
+    for index, outcome in enumerate(outcomes):
+        health.report(node_id, outcome, first_at + index * 10)
+    last_at = first_at + (total - 1) * 10
+    step = {"action": "reportHealthSeries", "node": node_id, "outcomes": outcomes,
+            "firstAt": first_at, "stepMillis": 10,
+            "expect": {"state": health.state_of(node_id),
+                       "failurePercent": health.nodes[node_id].failure_percent(last_at, 30000)}}
+    if note is not None:
+        step["note"] = note
+    steps.append(step)
+    return last_at
+
+
+def build_outlier_comparison_scenario():
+    """`HEALTH-030`: an identity outside the placement set is ingested and is not a peer."""
+    path, snapshot = peers_topology(1)
+    health = HealthView(placement_set=placement_identities(snapshot))
+    steps = [install_step(path, 1),
+             {"action": "healthSnapshotInstalled", "topology": path,
+              "placementSet": placement_identities(snapshot),
+              "note": "`HEALTH-016`: the placement set reaches the health view with the "
+                      "snapshot, and is the set `HEALTH-030` compares against",
+              "expect": {"placementSetSize": len(snapshot.placement_set)}}]
+
+    at = 1000
+    for node_id in ["p1", "p2", "p3"]:
+        at = report_series(health, steps, node_id, set(), 20, at) + 1000
+    for node_id in PEER_ABSENTEES:
+        at = report_series(health, steps, node_id, set(range(20)), 20, at,
+                           note="`HEALTH-011`: a signal is accepted for an identity absent from "
+                                "the snapshot in force") + 1000
+    at = report_series(health, steps, "p4", {0, 4, 8, 12, 16, 19}, 20, at) + 1000
+    last = report_series(health, steps, "p5", {0, 3, 6, 9, 12, 15, 17, 19}, 20, at,
+                         note="`HEALTH-032`: `f(x)` reaches the peer median plus "
+                              "`outlierMarginPercent`, so the node is ejected as an outlier")
+
+    steps.append({
+        "action": "expectComparisonSet", "at": last,
+        "note": "`HEALTH-030`: the three identities absent from the placement set carry a "
+                "failure percentage of 100 and enter neither the comparison set nor the median.  "
+                "Over every entry the view holds, the median would be 30 and `p5` would not be "
+                "an outlier.  `HEALTH-034` counts the ejected over the placement set alone, so "
+                "the three absent ejections do not refuse the ejection of `p5`.",
+        "expect": {"comparisonSet": health.comparison_set(last),
+                   "peerMedian": health.peer_median(last),
+                   "outlierMarginPercent": 30,
+                   "placementSetSize": len(snapshot.placement_set),
+                   "failurePercent": {node_id: health.nodes[node_id].failure_percent(last, 30000)
+                                      for node_id in sorted(health.nodes)},
+                   "states": {node_id: health.state_of(node_id)
+                              for node_id in sorted(health.nodes)},
+                   "ejectedInPlacementSet": sum(1 for node_id in placement_identities(snapshot)
+                                                if health.state_of(node_id) == "unavailable")},
+    })
+    register("outlier-comparison-set",
+             "Signals arrive for three identities the placement set does not hold.  They move "
+             "neither the peer median nor the ejection ceiling, and the one node that is an "
+             "outlier against its peers is ejected.",
+             ["HEALTH-006", "HEALTH-011", "HEALTH-016", "HEALTH-030", "HEALTH-031",
+              "HEALTH-032", "HEALTH-033", "HEALTH-034", "HEALTH-043"], steps)
+
+
+def build_reentry_reset_scenario():
+    """`HEALTH-007`: the health entry of an identity that leaves the placement set and returns."""
+    steps = []
+    epoch = 1
+    for reset in [False, True]:
+        steps.append({
+            "action": "configureHealth",
+            "parameters": {"resetOnPlacementReentry": reset},
+            "note": "`CFG-030` accepts the parameters of `HEALTH-055`, and a fresh health view "
+                    "holds no entry",
+        })
+        present, absent, returning = epoch, epoch + 1, epoch + 2
+        epoch += 3
+        path_present, snapshot_present = peers_topology(present)
+        path_absent, snapshot_absent = peers_topology(absent, leaving=["p1"])
+        path_returning, snapshot_returning = peers_topology(returning)
+        health = HealthView(parameters={"resetOnPlacementReentry": reset},
+                            placement_set=placement_identities(snapshot_present))
+        steps.append(install_step(path_present, present))
+        steps.append({"action": "healthSnapshotInstalled", "topology": path_present,
+                      "placementSet": placement_identities(snapshot_present),
+                      "expect": {"placementSetSize": len(snapshot_present.placement_set)}})
+
+        at = 1000
+        for index in range(6):
+            at = 1000 + index * 100
+            health.report("p1", "failure", at)
+        steps.append({"action": "reportHealth", "node": "p1", "outcome": "failure",
+                      "repeat": 6, "at": at,
+                      "note": "`HEALTH-043`: the consecutive failure threshold ejects the node",
+                      "expect": {"state": health.state_of("p1"),
+                                 "ejectionCount": health.nodes["p1"].ejections}})
+
+        health.on_snapshot_installed(placement_identities(snapshot_absent), at=at + 1000)
+        steps.append({"action": "installTopology", "topology": path_absent,
+                      "expect": {"outcome": "installed", "condition": None,
+                                 "epochInForce": absent}})
+        steps.append({"action": "healthSnapshotInstalled", "topology": path_absent,
+                      "placementSet": placement_identities(snapshot_absent), "at": at + 1000,
+                      "note": "`HEALTH-006`: the entry survives the absence and affects no "
+                              "routing call while the identity is outside the placement set",
+                      "expect": {"placementSetSize": len(snapshot_absent.placement_set),
+                                 "state": health.state_of("p1")}})
+
+        health.on_snapshot_installed(placement_identities(snapshot_returning), at=at + 2000)
+        steps.append({"action": "installTopology", "topology": path_returning,
+                      "expect": {"outcome": "installed", "condition": None,
+                                 "epochInForce": returning}})
+        steps.append({
+            "action": "healthSnapshotInstalled", "topology": path_returning,
+            "placementSet": placement_identities(snapshot_returning), "at": at + 2000,
+            "note": "`HEALTH-007`: the identity re-enters the placement set.  Where "
+                    "`resetOnPlacementReentry` is true the entry is discarded and the identity "
+                    "holds `unknown`; where it is false the entry and its ejection count "
+                    "survive.",
+            "expect": {"resetOnPlacementReentry": reset,
+                       "state": health.state_of("p1"),
+                       "attemptable": health.attemptable("p1"),
+                       "ejectionCount": (health.nodes["p1"].ejections
+                                         if "p1" in health.nodes else 0)},
+        })
+    register("health-reset-on-reentry",
+             "A node is ejected, leaves the placement set, is re-imaged, and returns under the "
+             "same identity.  The entry survives the absence under the default parameter and is "
+             "discarded where the integrator asks for it.",
+             ["HEALTH-004", "HEALTH-006", "HEALTH-007", "HEALTH-016", "HEALTH-043",
+              "HEALTH-055", "CFG-030", "FAIL-010"], steps)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--out", default=str(HERE.parent))
@@ -1332,6 +1583,9 @@ def main():
     build_failover_scenario()
     build_filter_fails_open_scenario()
     build_ejection_ceiling_scenario()
+    build_probation_ramp_scenario()
+    build_outlier_comparison_scenario()
+    build_reentry_reset_scenario()
 
     for name, document in SCENARIO_TOPOLOGIES.items():
         write_json(root / "topologies" / ("%s.topology.json" % name), document)

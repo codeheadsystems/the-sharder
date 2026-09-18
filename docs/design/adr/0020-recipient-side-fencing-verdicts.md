@@ -1,6 +1,11 @@
 # 0020. Recipient-side fencing verdicts
 
-Status: accepted. Date: 2026-09-16.
+Status: accepted, with the unfenced case stated by
+[`0068`](0068-ownership-of-an-unfenced-request.md). Date: 2026-09-16.
+
+The two axes and the policy below are unchanged. Where the text says policy governs a request
+carrying no token, `FENCE-042` states that such a request still has an ownership axis, so `stable`
+serves one only at a node that owns the key and `FENCE-121` refuses it everywhere else.
 
 ## Context
 

@@ -714,9 +714,9 @@ public record HealthSignal(NodeId node, Outcome outcome, long observed) { }
 existing implementation stays valid. `onSnapshotInstalled` is how a health view learns the placement
 set that outlier ejection compares against under `HEALTH-030` and that the ejection ceiling of
 `HEALTH-034` is a percentage of, and `HEALTH-016` makes ignoring it mean running no outlier
-ejection. `admitProbe` separates the probation probe counter of `HEALTH-051`, which `route`
-increments under `HEALTH-017`, from `stateOf`, which `explain` reads and which `OBS-045` forbids
-from changing state.
+ejection. `admitProbe` separates the probation probe counter of `HEALTH-051`, which the attempt
+walk increments under `HEALTH-017`, from `stateOf`, which `explain` reads and which `OBS-045`
+forbids from changing state.
 
 The built-in view is `SlidingWindowHealthView`, implementing `HEALTH-020` to `HEALTH-055` over
 `bucketCount` buckets of `int` success and failure counts.
@@ -1206,7 +1206,8 @@ because `HEALTH-015` requires timer evaluation in node identity order and `HEALT
 cross-node invariant over the count of ejected nodes. `stateOf` does not take that lock; it reads a
 volatile reference to an immutable per-node state record, so a routing call never blocks on the
 health view even though `CORE-064` would permit it to. `admitProbe` increments the probation probe
-counter of `HEALTH-051` with an atomic increment, taking no lock.
+counter of `HEALTH-051` with an atomic increment, taking no lock, and `HEALTH-017` calls it from the
+attempt walk rather than from a routing call.
 
 `MigrationPlan.step` claims a handoff with a compare-and-set on a per-handoff claim flag, calls at
 most one hook with no monitor held, and releases the claim. That satisfies `MOVE-071` and

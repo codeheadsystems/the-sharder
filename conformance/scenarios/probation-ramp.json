@@ -1,0 +1,189 @@
+{
+  "scenario": "probation-ramp",
+  "level": "failover",
+  "description": "A replica set is ejected and reaches `probation` together.  The filter holds the entries rather than failing open, and one attempt in `probationDivisor` reaches each of them.",
+  "requirements": [
+    "FAIL-002",
+    "FAIL-003",
+    "FAIL-012",
+    "FAIL-015",
+    "HEALTH-005",
+    "HEALTH-017",
+    "HEALTH-044",
+    "HEALTH-051",
+    "HEALTH-052",
+    "HEALTH-053"
+  ],
+  "deterministic": true,
+  "setup": {},
+  "steps": [
+    {
+      "action": "route",
+      "topology": "topologies/probation-ramp.topology.json",
+      "key": {
+        "encoding": "utf8",
+        "value": "probation-ramp-probe"
+      },
+      "expect": {
+        "shard": "70726f626174696f6e2d72616d702d70726f6265",
+        "token": {
+          "topologyId": "probation-ramp",
+          "epoch": 1
+        },
+        "preferenceList": [
+          "r2",
+          "r0",
+          "r4",
+          "r3",
+          "r1",
+          "r5"
+        ],
+        "replicaCount": 2
+      }
+    },
+    {
+      "action": "reportHealth",
+      "node": "r2",
+      "outcome": "failure",
+      "repeat": 5,
+      "at": 500,
+      "expect": {
+        "state": "unavailable"
+      }
+    },
+    {
+      "action": "reportHealth",
+      "node": "r0",
+      "outcome": "failure",
+      "repeat": 5,
+      "at": 1000,
+      "expect": {
+        "state": "unavailable"
+      }
+    },
+    {
+      "action": "attemptSequence",
+      "key": {
+        "encoding": "utf8",
+        "value": "probation-ramp-probe"
+      },
+      "preferenceListPrefix": 2,
+      "note": "`FAIL-012`: every entry is `unavailable`, so the filter fails open over the whole list",
+      "expect": {
+        "attemptSequence": [
+          "r2",
+          "r0"
+        ],
+        "filterFailedOpen": true,
+        "states": {
+          "r2": "unavailable",
+          "r0": "unavailable"
+        }
+      }
+    },
+    {
+      "action": "advanceClock",
+      "to": 31000,
+      "note": "`HEALTH-044`: `baseEjectionMillis` elapses and both entries reach `probation`",
+      "expect": {
+        "states": {
+          "r2": "probation",
+          "r0": "probation"
+        }
+      }
+    },
+    {
+      "action": "attemptSequence",
+      "key": {
+        "encoding": "utf8",
+        "value": "probation-ramp-probe"
+      },
+      "preferenceListPrefix": 2,
+      "note": "`FAIL-012`: an entry in `probation` is attemptable under `HEALTH-005`, so the filter holds both entries and does not fail open while the two recover",
+      "expect": {
+        "attemptSequence": [
+          "r2",
+          "r0"
+        ],
+        "filterFailedOpen": false,
+        "states": {
+          "r2": "probation",
+          "r0": "probation"
+        }
+      }
+    },
+    {
+      "action": "attemptWalk",
+      "key": {
+        "encoding": "utf8",
+        "value": "probation-ramp-probe"
+      },
+      "calls": 18,
+      "note": "`HEALTH-017`: the walk consumes one probe for each entry in `probation` it reaches, so the walk that follows entry into `probation` attempts both entries and the next fifteen attempt the head alone under `FAIL-015`.  The two probe counters stay equal, because the entry `FAIL-015` answers consumes none.",
+      "expect": {
+        "walks": [
+          [
+            "r2",
+            "r0"
+          ],
+          [
+            "r2"
+          ],
+          [
+            "r2"
+          ],
+          [
+            "r2"
+          ],
+          [
+            "r2"
+          ],
+          [
+            "r2"
+          ],
+          [
+            "r2"
+          ],
+          [
+            "r2"
+          ],
+          [
+            "r2"
+          ],
+          [
+            "r2"
+          ],
+          [
+            "r2"
+          ],
+          [
+            "r2"
+          ],
+          [
+            "r2"
+          ],
+          [
+            "r2"
+          ],
+          [
+            "r2"
+          ],
+          [
+            "r2"
+          ],
+          [
+            "r2",
+            "r0"
+          ],
+          [
+            "r2"
+          ]
+        ],
+        "probeCounters": {
+          "r2": 18,
+          "r0": 18
+        }
+      }
+    }
+  ]
+}

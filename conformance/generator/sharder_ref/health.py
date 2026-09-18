@@ -18,6 +18,7 @@ DEFAULTS = {
     "outlierMinimumNodes": 5,
     "maxEjectionPercent": 50,
     "ejectionResetMillis": 600000,
+    "resetOnPlacementReentry": False,
 }
 
 FAILURE_OUTCOMES = ("failure", "timeout", "refused")
@@ -54,11 +55,32 @@ class NodeHealth:
 class HealthView:
     """The built-in `HealthView` of `HEALTH-014`."""
 
-    def __init__(self, parameters=None, placement_set_size=0, event_sink=None):
+    def __init__(self, parameters=None, placement_set=None, event_sink=None):
         self.p = dict(DEFAULTS, **(parameters or {}))
         self.nodes = {}
-        self.placement_set_size = placement_set_size
+        self.placement_set = None if placement_set is None else set(placement_set)
         self.events = [] if event_sink is None else event_sink
+
+    @property
+    def placement_set_size(self):
+        return 0 if self.placement_set is None else len(self.placement_set)
+
+    def on_snapshot_installed(self, placement_set, at=None):
+        """`HEALTH-016`, and the re-entry rule of `HEALTH-007`.
+
+        The argument is the placement set of the snapshot being installed, as node identities.  A
+        view that is never told a placement set runs no outlier ejection and refuses no transition,
+        which is what `HEALTH-016` states for a view that ignores the call.
+        """
+        arriving = set(placement_set)
+        if self.p["resetOnPlacementReentry"] and self.placement_set is not None:
+            for node_id in sorted(arriving - self.placement_set):
+                entry = self.nodes.pop(node_id, None)
+                if entry is not None and entry.state != "unknown":
+                    self.events.append({"event": "sharder.health.transition", "node": node_id,
+                                        "from": entry.state, "to": "unknown",
+                                        "trigger": "placementReentry", "at": at})
+        self.placement_set = arriving
 
     def entry(self, node_id):
         return self.nodes.setdefault(node_id, NodeHealth())
@@ -69,9 +91,14 @@ class HealthView:
     def _transition(self, node_id, entry, new_state, trigger, now):
         if entry.state == new_state:
             return
-        if new_state == "unavailable" and entry.state != "probation":
-            # `HEALTH-034`: the ceiling on concurrently ejected nodes.
-            ejected = sum(1 for e in self.nodes.values() if e.state == "unavailable")
+        if (new_state == "unavailable" and entry.state != "probation"
+                and self.placement_set is not None):
+            # `HEALTH-034`: the ceiling on concurrently ejected nodes.  The count and the set size
+            # are both over the placement set, so an entry held for an identity outside it neither
+            # refuses an ejection nor relaxes the ceiling.  A view that has been told no placement
+            # set refuses no transition, which is what `HEALTH-016` states.
+            ejected = sum(1 for other_id, e in self.nodes.items()
+                          if e.state == "unavailable" and self._in_placement_set(other_id))
             if (ejected + 1) * 100 > self.p["maxEjectionPercent"] * self.placement_set_size:
                 self.events.append({"event": "sharder.health.ejection_refused", "node": node_id,
                                     "ejected": ejected, "setSize": self.placement_set_size,
@@ -128,24 +155,39 @@ class HealthView:
 
         self._evaluate(node_id, entry, at, ingested=outcome)
 
-    def _is_outlier(self, node_id, entry, now):
-        """`HEALTH-030` through `HEALTH-032`.
+    def _in_placement_set(self, node_id):
+        return self.placement_set is not None and node_id in self.placement_set
 
-        `HEALTH-030` draws the comparison set from the placement set at the epoch in force.  This
-        view holds no snapshot, so it compares over the nodes it has ingested signals for, which
-        is the same set in every scenario the suite ships.
+    def comparison_set(self, now):
+        """`HEALTH-030`: the placement set members whose window total reaches `minimumSamples`.
+
+        A health entry for an identity the placement set does not hold is ingested under
+        `HEALTH-011` and is not a peer, so it moves no median.  A view that has been told no
+        placement set has no comparison set at all and runs no outlier ejection.
         """
-        comparison = []
+        members = []
         for other_id, other in sorted(self.nodes.items()):
+            if not self._in_placement_set(other_id):
+                continue
             s, f = other.totals(now, self.p["windowMillis"])
             if s + f >= self.p["minimumSamples"]:
-                comparison.append(other.failure_percent(now, self.p["windowMillis"]))
-        if len(comparison) < self.p["outlierMinimumNodes"]:
+                members.append(other_id)
+        return members
+
+    def peer_median(self, now):
+        """`HEALTH-031`: the lower of the two central values where the set is even."""
+        values = sorted(self.nodes[node_id].failure_percent(now, self.p["windowMillis"])
+                        for node_id in self.comparison_set(now))
+        return None if not values else values[(len(values) - 1) // 2]
+
+    def _is_outlier(self, node_id, entry, now):
+        """`HEALTH-030` through `HEALTH-032`."""
+        if not self._in_placement_set(node_id):
             return False
-        comparison.sort()
-        median = comparison[(len(comparison) - 1) // 2]     # `HEALTH-031`: the lower of two
+        if len(self.comparison_set(now)) < self.p["outlierMinimumNodes"]:
+            return False
         return entry.failure_percent(now, self.p["windowMillis"]) >= \
-            median + self.p["outlierMarginPercent"]
+            self.peer_median(now) + self.p["outlierMarginPercent"]
 
     def _evaluate(self, node_id, entry, now, ingested=None):
         window = self.p["windowMillis"]
@@ -203,18 +245,43 @@ class HealthView:
                     entry.ejections = 0
 
     def attemptable(self, node_id):
-        """`HEALTH-005` and `HEALTH-051`."""
+        """`HEALTH-005`: the health state alone, with no probe consumed."""
         entry = self.nodes.get(node_id)
-        if entry is None or entry.state in ("unknown", "available", "suspect"):
+        return entry is None or entry.state != "unavailable"
+
+    def admit_probe(self, node_id):
+        """`HEALTH-051`, called once for each entry in `probation` the walk reaches, `HEALTH-017`."""
+        entry = self.nodes.get(node_id)
+        if entry is None or entry.state != "probation":
             return True
-        if entry.state == "unavailable":
-            return False
         entry.probe_counter += 1
         return entry.probe_counter % self.p["probationDivisor"] == 1
 
     def attempt_sequence(self, preference_list):
-        """`FAIL-002`, `FAIL-003`, and `FAIL-012`: filter, never reorder, never empty."""
+        """`FAIL-002`, `FAIL-003`, and `FAIL-012`: filter, never reorder, never empty.
+
+        The filter reads the health state alone, so a declined probe does not fail it open.  An
+        entry in `probation` is attemptable under `HEALTH-005` and the walk decides it.
+        """
         kept = [e for e in preference_list if self.attemptable(e["node"])]
         if preference_list and not kept:
             return list(preference_list), True          # the filter failed open
         return kept, False
+
+    def walk(self, attempt_sequence):
+        """`FAIL-023` `next` over an attempt sequence, under `HEALTH-017` and `FAIL-015`.
+
+        Answers the identities the walk attempts, in order.  A probe is consumed for each entry in
+        `probation` the walk reaches.  Where every probe is declined the walk answers the first
+        entry of the sequence rather than nothing, and consumes no further probe for it.
+        """
+        answered = []
+        for entry in attempt_sequence:
+            node_id = entry["node"] if isinstance(entry, dict) else entry
+            if self.state_of(node_id) == "probation" and not self.admit_probe(node_id):
+                continue
+            answered.append(node_id)
+        if not answered and attempt_sequence:
+            first = attempt_sequence[0]
+            answered.append(first["node"] if isinstance(first, dict) else first)
+        return answered

@@ -203,7 +203,7 @@ levels test `routing` between them, because that surface is large and a port rea
 | `hash` | | `routing` | SipHash-2-4 and the framed domain-tagged construction | always; every other level rests on it |
 | `place` | `hash` | `routing` | the key transforms, the four placement strategies, overrides, replication and spread, shard enumeration, movement, the tie-breaks, the identity comparator, the virtual node count, and the attempt limit a decision resolves under `CORE-048`, each over a topology the file carries already valid | always |
 | `core` | `place` | `routing` | the canonical form and the digest, document validation, the error taxonomy, the ownership delta, skew detection, the placement properties, and the rollback scenario | always |
-| `failover` | `core` | `failover` | the health arithmetic, the retry budget, the attempt walk and the clamp `FAIL-022` applies to it, and the three health scenarios | the port exposes `attempts` or a health view |
+| `failover` | `core` | `failover` | the health arithmetic, the retry budget, the attempt walk and the clamp `FAIL-022` applies to it, and the health scenarios | the port exposes `attempts` or a health view |
 | `readAffinity` | `core` | `readAffinity` | `routeForRead` and the bounded reordering of the replica prefix | the port exposes `routeForRead` |
 | `fencing` | `failover` | `fencing` | the fencing token encoding, the order in which a recipient reports a condition, the recipient scenarios, and the redirect walk | the port exposes the recipient check |
 | `migration` | `failover` | `migration` | the rate control formulas, the refused plan under a strategy that enumerates no shard, and the handoff scenarios | the port exposes the handoff coordinator |
@@ -468,7 +468,7 @@ compares the result field by field, as it does for a vector case.
 | Scenario | Level | Covers |
 |---|---|---|
 | `topology-rollback` | `core` | a reverted assignment arriving as a higher epoch, an equal epoch with a differing digest, and a foreign identifier |
-| `caller-three-epochs-stale` | `fencing` | every recipient relation, both policies, a retained and an unretained token epoch, an unfenced request, and a sender ahead |
+| `caller-three-epochs-stale` | `fencing` | every recipient relation, both policies, a retained and an unretained token epoch, an unfenced request at an owner and at a non-owner, and a sender ahead |
 | `split-topology-view` | `fencing` | half the cluster on one epoch and half on another, disagreeing about a replica set |
 | `redirect-walk-depth-limit` | `fencing` | the redirect bound and a redirect naming an already attempted node |
 | `handoff-happy-path` | `migration` | the ownership delta and every state of `MOVE-021` |
@@ -484,6 +484,9 @@ compares the result field by field, as it does for a vector case.
 | `failover-and-recovery` | `failover` | ejection, probation admission, and return to `available` |
 | `health-filter-fails-open` | `failover` | every replica ejected, and the filter returning the whole list |
 | `ejection-ceiling` | `failover` | the ceiling refusing an ejection that would empty the attemptable set |
+| `probation-ramp` | `failover` | a replica set in `probation`, the filter holding it, and one attempt in `probationDivisor` |
+| `outlier-comparison-set` | `failover` | signals for identities outside the placement set, which are peers of nothing |
+| `health-reset-on-reentry` | `failover` | a node leaving the placement set and returning, under both values of `resetOnPlacementReentry` |
 
 The handoff scenarios drive a coordinator whose transition table is `MOVE-021` transcribed as data
 and whose recovery mapping is `MOVE-211` transcribed as data, so a state sequence in a scenario file

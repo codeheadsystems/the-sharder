@@ -1,0 +1,29 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "health-peers",
+  "epoch": 2,
+  "replication": {
+    "factor": 2
+  },
+  "strategy": {
+    "kind": "rendezvous"
+  },
+  "nodes": [
+    {
+      "id": "p1",
+      "state": "leaving"
+    },
+    {
+      "id": "p2"
+    },
+    {
+      "id": "p3"
+    },
+    {
+      "id": "p4"
+    },
+    {
+      "id": "p5"
+    }
+  ]
+}

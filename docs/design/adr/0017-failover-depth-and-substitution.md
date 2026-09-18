@@ -8,6 +8,12 @@ preference list, because `0046` bounds what a decision materialises. The attempt
 unchanged: `FAIL-014` keeps it drawn from the whole list, and the filter still fails open over all
 of it.
 
+The health filter fails open on health state alone. Where the text below says the filter fails open
+where every entry is skipped, an entry in `probation` whose probe was declined is no longer one of
+them, and `FAIL-015` gives the walk the same guarantee the filter gives the sequence.
+[`0067`](0067-probe-admission-at-the-attempt.md) records why. The attempt limit, the retry budget,
+the exhaustion condition, and the hint hook are unchanged.
+
 ## Context
 
 A preference list is longer than the replication factor, so a caller that cannot reach a replica has

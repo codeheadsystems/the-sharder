@@ -531,6 +531,13 @@ def run_scenarios(root, levels, known, verbose):
                                             snapshot, held)
                     compare(action + ".verdict", verdict, step["expect"]["verdict"])
                     checked += 1
+                    if "condition" in step["expect"]:
+                        condition = fencing.policy_outcome(
+                            verdict, step.get("recipientPolicy", "strict"),
+                            fenced=step.get("fenced", True))
+                        compare(action + ".condition", condition,
+                                step["expect"]["condition"])
+                        checked += 1
                 elif action == "redirectWalk":
                     result = fencing.redirect_walk(step["start"], step["refusals"],
                                                    step["maxRedirects"], step.get("nodes"),
