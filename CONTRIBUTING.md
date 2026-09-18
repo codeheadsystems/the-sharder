@@ -67,7 +67,8 @@ conformance suite, so it is made in that order.
 4. Regenerate the suite, as below. The run fails where the suite names an identifier the
    specification no longer states, which is the signal that step 1 missed something. It also fails
    where a withdrawn identifier has been stated again, cited by a live document, or named by the
-   suite, which `conformance/generator/verify_withdrawals.py` checks against both registers.
+   suite, and where a requirement is stated under a prefix the prefix table does not name, which
+   `conformance/generator/verify_withdrawals.py` checks against both registers.
 
 A change to a requirement, a vector, a topology, a scenario, or the reference implementation changes
 the suite revision, and a port that declared a level against the previous revision declared it
@@ -86,9 +87,10 @@ registers.
 Regenerating needs `python3` and `openssl` on the path. The run checks SipHash-2-4 against the
 published paper vectors and against `openssl mac` before it generates anything, and stops where
 `openssl` is absent, so no vector file is written by a hash that has not been checked against an
-independent implementation. [`adr/0064`](docs/design/adr/0064-hash-verification-before-generation.md)
-records that choice. The `jsonschema` package is the one optional dependency: the schema check
-reports that it is absent and the run continues.
+independent implementation.
+[`adr/0064`](docs/design/adr/0064-hash-verification-before-generation.md) records that choice. The
+`jsonschema` package is the one optional dependency: the schema check reports that it is absent and
+the run continues.
 
 1. Change the generator, not the generated file.
 2. Run the generator from its own directory.

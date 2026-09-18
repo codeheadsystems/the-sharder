@@ -1,6 +1,12 @@
 # 0037. Specification defect repairs
 
-Status: accepted. Date: 2026-09-16.
+Status: accepted, with the default of `n + 2` rehomed from `FAIL-022` to `CORE-048`
+by [`0063`](0063-decision-api-surface-boundaries.md). Date: 2026-09-16.
+
+Every repair below stands. Where the text attributes the attempt limit's default of `n + 2`
+to `FAIL-022`, `CORE-048` states it now, so that the rule belongs to the `routing` surface. The
+clamp to the length of the attempt sequence stays with `FAIL-022`, and applies to the attempt walk
+alone. The limit `CORE-045` takes from the decision is unchanged, and so is every value.
 
 ## Context
 

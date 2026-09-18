@@ -1,9 +1,9 @@
 {
   "suite": "sharder conformance suite",
   "revision": {
-    "id": "954a34c6a25460436ca80bed660f931d9bc30cc7e5a0051731f891fa4bda63af",
+    "id": "27c05fb6e52f0dea83b0c18a8cee26a7ab0f34daf80ce5f76823ffdc370f1334",
     "basis": "sha256 of the RFC 8785 canonical form of the file digests, the level table, and the strategy surfaces",
-    "fileCount": 167,
+    "fileCount": 170,
     "trees": [
       "vectors",
       "topologies",
@@ -15,13 +15,13 @@
   "design": "docs/design/30-conformance.md",
   "generator": "conformance/generator",
   "counts": {
-    "vectorFiles": 57,
-    "vectorCases": 566,
+    "vectorFiles": 60,
+    "vectorCases": 573,
     "topologyDocuments": 91,
     "scenarios": 17,
     "scenarioSteps": 229,
     "properties": 28,
-    "requirementsNamed": 415
+    "requirementsNamed": 414
   },
   "requirementsNamed": [
     "CFG-020",
@@ -218,7 +218,6 @@
     "MOVE-441",
     "MOVE-451",
     "MOVE-461",
-    "MOVE-471",
     "MOVE-481",
     "MOVE-491",
     "OBS-010",
@@ -457,11 +456,11 @@
         "hash"
       ],
       "surface": "the placement function over a topology the file carries already valid",
-      "vectorFiles": 44,
-      "vectorCases": 284,
+      "vectorFiles": 45,
+      "vectorCases": 291,
       "scenarios": 0,
       "properties": 0,
-      "requirementsNamed": 183
+      "requirementsNamed": 185
     },
     {
       "level": "core",
@@ -470,10 +469,10 @@
       ],
       "surface": "the document pipeline, the snapshot lifecycle, and what is reported",
       "vectorFiles": 6,
-      "vectorCases": 124,
+      "vectorCases": 122,
       "scenarios": 1,
       "properties": 22,
-      "requirementsNamed": 113
+      "requirementsNamed": 106
     },
     {
       "level": "failover",
@@ -505,8 +504,8 @@
         "failover"
       ],
       "surface": "the fencing token, the recipient verdict, and the redirect walk",
-      "vectorFiles": 1,
-      "vectorCases": 5,
+      "vectorFiles": 2,
+      "vectorCases": 6,
       "scenarios": 3,
       "properties": 1,
       "requirementsNamed": 37
@@ -517,11 +516,11 @@
         "failover"
       ],
       "surface": "the handoff coordinator and rate control",
-      "vectorFiles": 1,
-      "vectorCases": 12,
+      "vectorFiles": 2,
+      "vectorCases": 13,
       "scenarios": 10,
       "properties": 3,
-      "requirementsNamed": 67
+      "requirementsNamed": 70
     }
   ],
   "strategySurfaces": [
@@ -1504,6 +1503,21 @@
       "sha256": "9c5fee04e526740f1db51c2dc33f8f7df529ec33f82f38c0492f1946c77bfbaf"
     },
     {
+      "file": "vectors/errors/recipient-taxonomy.json",
+      "vectorSet": "error-recipient-taxonomy",
+      "kind": "errorTaxonomy",
+      "level": "fencing",
+      "strategies": [],
+      "caseStrategies": [],
+      "description": "The order in which one request reports the first recipient condition that holds.",
+      "topology": null,
+      "caseCount": 1,
+      "requirements": [
+        "ERR-045"
+      ],
+      "sha256": "7c747d604bc884b3a8137759632a3f011a9c0ddeec1573452052a8c2886b37b3"
+    },
+    {
       "file": "vectors/errors/taxonomy.json",
       "vectorSet": "error-taxonomy",
       "kind": "errorTaxonomy",
@@ -1512,7 +1526,7 @@
       "caseStrategies": [],
       "description": "The closed set of failure conditions, their codes, their retryability, their closed cause sets, and the order in which one call reports the first that holds.",
       "topology": null,
-      "caseCount": 5,
+      "caseCount": 4,
       "requirements": [
         "ERR-001",
         "ERR-002",
@@ -1526,10 +1540,26 @@
         "ERR-010",
         "ERR-011",
         "ERR-021",
-        "ERR-045",
         "REPL-025"
       ],
-      "sha256": "7a1ca1def01abf0fc385d3b46e295e5eebec30cc793ecd26e0e625a3c3c42e55"
+      "sha256": "a5eb6135bbbde37b8e638420cce7d189ad9473139963dd0add6f2d7af2f59a34"
+    },
+    {
+      "file": "vectors/formulas/attempt-limit.json",
+      "vectorSet": "formulas-attempt-limit",
+      "kind": "formula",
+      "level": "place",
+      "strategies": [],
+      "caseStrategies": [],
+      "description": "The attempt limit a routing decision resolves, in the order `CORE-048` states and before the clamp the attempt walk applies.",
+      "topology": null,
+      "caseCount": 7,
+      "requirements": [
+        "CFG-020",
+        "CFG-021",
+        "CORE-048"
+      ],
+      "sha256": "cf3190faf7f347cabbeb01e108eca9226221491c996e1987a8f04168c1804f5a"
     },
     {
       "file": "vectors/formulas/failover.json",
@@ -1983,7 +2013,6 @@
         "DIR-020",
         "DIR-021",
         "DIR-022",
-        "MOVE-241",
         "PLACE-030",
         "PLACE-031",
         "PLACE-032",
@@ -1998,7 +2027,7 @@
         "SLOT-031",
         "SLOT-032"
       ],
-      "sha256": "5bc3e7c18d12859cecd17b551c87cbbcf1e18474ea106f0368605d1e85837380"
+      "sha256": "57132e48e822a86b6b1b4f5f09a99d525ccc5ac54188fba57fdd5a134cd7f175"
     },
     {
       "file": "vectors/placement/virtual-node-count.json",
@@ -2602,27 +2631,43 @@
       "sha256": "f686a4d96a1b307ba18de32dc6cc0a7360bf227783d80da2f788ece7f294b1a2"
     },
     {
+      "file": "vectors/topology/ownership-delta-unsupported.json",
+      "vectorSet": "topology-ownership-delta-unsupported",
+      "kind": "ownershipDelta",
+      "level": "migration",
+      "strategies": [],
+      "caseStrategies": [
+        "rendezvous"
+      ],
+      "description": "The empty delta and the refused plan under a strategy that enumerates no shard.",
+      "topology": null,
+      "caseCount": 1,
+      "requirements": [
+        "MOVE-241",
+        "MOVE-251",
+        "MOVE-271",
+        "RV-021",
+        "TOPO-211"
+      ],
+      "sha256": "7abce00e1f663e27f60dc431d9d48395d96fbe1a266f9d2b42faece6788117fc"
+    },
+    {
       "file": "vectors/topology/ownership-delta.json",
       "vectorSet": "topology-ownership-delta",
       "kind": "ownershipDelta",
       "level": "core",
       "strategies": [],
       "caseStrategies": [
-        "rendezvous",
         "slot"
       ],
       "description": "The ownership delta between two snapshots, the reorder-only case that gains and loses nothing, the entry order over sixteen slots, the replica set under a shortfall, and the changes that make shard identity incomparable.",
       "topology": null,
-      "caseCount": 7,
+      "caseCount": 6,
       "requirements": [
-        "ERR-050",
-        "MOVE-241",
-        "MOVE-251",
-        "MOVE-271",
+        "ERR-010",
         "PLACE-031",
         "REPL-017",
         "REPL-020",
-        "RV-021",
         "SEC-013",
         "SLOT-031",
         "SPREAD-014",
@@ -2632,7 +2677,7 @@
         "TOPO-231",
         "TOPO-241"
       ],
-      "sha256": "94131f99ab62060e100641ddf330cf5c2bfbca414691d8958420a5f0e7154fe8"
+      "sha256": "df96523b00ab2b90758bb38693770b4e54155dd040bf7e1b366e206c2ede68aa"
     },
     {
       "file": "vectors/validation/documents.json",
@@ -2672,7 +2717,6 @@
       "requirements": [
         "ERR-031",
         "ERR-032",
-        "MOVE-471",
         "TOPO-051",
         "TOPO-061",
         "TOPO-081",

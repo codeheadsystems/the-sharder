@@ -107,12 +107,6 @@ def build_error_taxonomy(root):
         "expect": {"order": ["invalidArgument", "unready", "staleSnapshot", "noCandidate",
                              "exhausted"]},
     }, {
-        "name": "recipient-report-order",
-        "requirements": ["ERR-045"],
-        "note": "`ERR-045`: where more than one recipient condition holds, the first that holds "
-                "in this order is reported.  `ERR-008` does not cover these.",
-        "expect": {"order": ["identityMismatch", "unready", "notOwner", "epochMismatch"]},
-    }, {
         "name": "shortfall-is-not-a-condition",
         "requirements": ["ERR-009", "REPL-025"],
         "note": "a preference list shorter than the effective replication factor is a successful "
@@ -135,7 +129,26 @@ def build_error_taxonomy(root):
          "The closed set of failure conditions, their codes, their retryability, their closed "
          "cause sets, and the order in which one call reports the first that holds.",
          ["ERR-001", "ERR-002", "ERR-003", "ERR-004", "ERR-005", "ERR-006", "ERR-007",
-          "ERR-008", "ERR-009", "ERR-010", "ERR-011", "ERR-021", "ERR-045"], cases)
+          "ERR-008", "ERR-009", "ERR-010", "ERR-011", "ERR-021"], cases)
+
+
+def build_recipient_taxonomy(root):
+    """`ERR-045`, which orders the conditions only a recipient check raises.
+
+    The order is a `fencing` rule, so it sits at the `fencing` level rather than beside the closed
+    routing set of `ERR-010`, which every implementation exposes whole.
+    """
+    cases = [{
+        "name": "recipient-report-order",
+        "requirements": ["ERR-045"],
+        "note": "`ERR-045`: where more than one recipient condition holds, the first that holds "
+                "in this order is reported.  `ERR-008` does not cover these.",
+        "expect": {"order": ["identityMismatch", "unready", "notOwner", "epochMismatch"]},
+    }]
+    emit(root, "vectors/errors/recipient-taxonomy.json", "error-recipient-taxonomy",
+         "errorTaxonomy",
+         "The order in which one request reports the first recipient condition that holds.",
+         ["ERR-045"], cases, level="fencing")
 
 
 # --------------------------------------------------------------- document defaults
@@ -398,7 +411,7 @@ def build_ownership_delta(root):
                                  ("differing-seed", "delta-other-seed", "hash.seed")]:
         cases.append({
             "name": label,
-            "requirements": ["TOPO-231", "SEC-013", "ERR-050"],
+            "requirements": ["TOPO-231", "SEC-013", "ERR-010"],
             "before": "topologies/delta-before.topology.json",
             "after": "topologies/%s.topology.json" % target,
             "note": "`TOPO-231`: shard identity is not comparable across a change to %s, so the "
@@ -430,7 +443,15 @@ def build_ownership_delta(root):
             "expect": {"shardsChanged": len(rows), "delta": rows},
         })
 
-    cases.append({
+    emit(root, "vectors/topology/ownership-delta.json", "topology-ownership-delta",
+         "ownershipDelta",
+         "The ownership delta between two snapshots, the reorder-only case that gains and loses "
+         "nothing, the entry order over sixteen slots, the replica set under a shortfall, and the "
+         "changes that make shard identity incomparable.",
+         ["TOPO-211", "TOPO-213", "TOPO-221", "TOPO-231", "TOPO-241", "PLACE-031", "SLOT-031",
+          "REPL-017", "REPL-020", "SPREAD-014", "SEC-013", "ERR-010"], cases)
+
+    unsupported = [{
         "name": "rendezvous-enumerates-no-shard",
         "requirements": ["TOPO-211", "MOVE-241", "MOVE-251", "MOVE-271", "RV-021"],
         "before": "topologies/rendezvous-plain.topology.json",
@@ -440,16 +461,12 @@ def build_ownership_delta(root):
         "expect": {"shardsChanged": 0, "delta": [], "plannable": False,
                    "condition": {"code": 401, "name": "planRefused",
                                  "cause": "strategyUnsupported"}},
-    })
-
-    emit(root, "vectors/topology/ownership-delta.json", "topology-ownership-delta",
-         "ownershipDelta",
-         "The ownership delta between two snapshots, the reorder-only case that gains and loses "
-         "nothing, the entry order over sixteen slots, the replica set under a shortfall, and the "
-         "changes that make shard identity incomparable.",
-         ["TOPO-211", "TOPO-213", "TOPO-221", "TOPO-231", "TOPO-241", "PLACE-031", "SLOT-031",
-          "REPL-017", "REPL-020", "SPREAD-014", "MOVE-241", "MOVE-251", "MOVE-271",
-          "SEC-013", "ERR-050"], cases)
+    }]
+    emit(root, "vectors/topology/ownership-delta-unsupported.json",
+         "topology-ownership-delta-unsupported", "ownershipDelta",
+         "The empty delta and the refused plan under a strategy that enumerates no shard.",
+         ["TOPO-211", "MOVE-241", "MOVE-251", "MOVE-271", "RV-021"], unsupported,
+         level="migration")
 
 
 # ------------------------------------------------- ring weight zero, pins, and spread
@@ -556,6 +573,7 @@ def main():
     root = Path(args.out)
 
     build_error_taxonomy(root)
+    build_recipient_taxonomy(root)
     build_defaults(root)
     build_identity_comparison(root)
     build_ownership_delta(root)

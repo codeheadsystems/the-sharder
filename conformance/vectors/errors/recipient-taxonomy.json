@@ -1,0 +1,26 @@
+{
+  "vectorSet": "error-recipient-taxonomy",
+  "kind": "errorTaxonomy",
+  "level": "fencing",
+  "description": "The order in which one request reports the first recipient condition that holds.",
+  "requirements": [
+    "ERR-045"
+  ],
+  "cases": [
+    {
+      "name": "recipient-report-order",
+      "requirements": [
+        "ERR-045"
+      ],
+      "note": "`ERR-045`: where more than one recipient condition holds, the first that holds in this order is reported.  `ERR-008` does not cover these.",
+      "expect": {
+        "order": [
+          "identityMismatch",
+          "unready",
+          "notOwner",
+          "epochMismatch"
+        ]
+      }
+    }
+  ]
+}

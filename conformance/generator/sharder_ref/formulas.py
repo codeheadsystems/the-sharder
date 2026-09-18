@@ -52,15 +52,22 @@ def default_attempt_limit(factor: int, sequence_length: int) -> int:
     return min(factor + 2, sequence_length)
 
 
-def resolved_attempt_limit(supplied, configured, factor: int, sequence_length: int) -> int:
-    """`CORE-048`: the call's limit, else the configured one, else `n + 2`; `FAIL-022` clamps."""
+def resolved_attempt_limit_before_clamp(supplied, configured, factor: int) -> int:
+    """`CORE-048`: the call's limit, else the configured one, else `n + 2`, before any clamp.
+
+    This is the value `CORE-046` measures the materialised prefix against, and it belongs to the
+    `routing` surface, so an implementation that exposes no attempt walk resolves it too.
+    """
     if supplied is not None:
-        limit = supplied
-    elif configured is not None:
-        limit = configured
-    else:
-        limit = factor + 2
-    return min(limit, sequence_length)
+        return supplied
+    if configured is not None:
+        return configured
+    return factor + 2
+
+
+def resolved_attempt_limit(supplied, configured, factor: int, sequence_length: int) -> int:
+    """`CORE-048` resolves the limit and `FAIL-022` clamps it to the attempt sequence length."""
+    return min(resolved_attempt_limit_before_clamp(supplied, configured, factor), sequence_length)
 
 
 # -------------------------------------------------------------- migration rate

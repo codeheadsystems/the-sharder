@@ -7,13 +7,19 @@ entered in a register, is never reused by a later requirement, and is cited by n
 are absolute, and neither is visible in a diff that adds a requirement paragraph three thousand
 lines away from the register, so this script checks them.
 
-Four properties are checked, and each failure names the file and the identifier.
+Six properties are checked, and each failure names the file and the identifier.
 
 1.  No register row names an identifier the same document states as a live requirement, which is
     what reuse looks like.
 2.  No live document cites a withdrawn identifier outside the register row that resolves it.
 3.  No artefact of the conformance suite names a withdrawn identifier.
 4.  Every register row names a decision record that exists.
+5.  Every table row of a register section parses as a register row, so a row whose shape changes
+    reduces the set being checked rather than passing silently.
+6.  Every live requirement states a prefix the Requirement prefixes table of `10-specification.md`
+    names, and every prefix that table names states a live requirement.  A prefix leaves that table
+    when its last identifier is withdrawn, so a fresh identifier under a withdrawn prefix, and a
+    prefix returning to the table with nothing under it, are both failures here.
 
     python3 verify_withdrawals.py [--root <repository root>]
 """
@@ -36,6 +42,16 @@ STATED_QUESTION = re.compile(r"^### (OQ-\d{2})\.", re.M)
 
 REGISTER_ROW = re.compile(r"^\|\s*`([A-Z]+-\d{3})`\s*\|\s*`(\d{4})`\s*\|", re.M)
 QUESTION_ROW = re.compile(r"^\|\s*`(OQ-\d{2})`\s*\|[^|]*\|\s*\[`adr/(\d{4})`\]", re.M)
+
+# The Requirement prefixes table of `10-specification.md` names every prefix a live requirement
+# uses, one to a row, and a withdrawn prefix leaves it.
+PREFIX_ROW = re.compile(r"^\|\s*`([A-Z]+)`\s*\|", re.M)
+
+# The two register sections, each with the heading that opens it and the row shape it holds.
+REGISTERS = [
+    ("docs/design/10-specification.md", "### Withdrawn identifiers", REGISTER_ROW),
+    ("docs/design/90-open-questions.md", "## Withdrawn questions", QUESTION_ROW),
+]
 
 # The live documents, which the Withdrawn identifiers section of the specification names.  A
 # decision record is excluded by that section, because it keeps the identifier it argued about.
@@ -63,13 +79,40 @@ def section(text, heading):
     return body[:end]
 
 
+def table_rows(body):
+    """The data rows of the tables in a section, with the header and rule rows dropped."""
+    rows = []
+    for line in body.splitlines():
+        line = line.strip()
+        if not line.startswith("|"):
+            continue
+        if set(line) <= set("|-: "):
+            if rows:
+                rows.pop()
+            continue
+        rows.append(line)
+    return rows
+
+
 def registers():
-    """The withdrawn identifiers of both registers, each with the record that resolves it."""
-    spec = (DESIGN / "10-specification.md").read_text()
-    questions = (DESIGN / "90-open-questions.md").read_text()
-    withdrawn = dict(REGISTER_ROW.findall(section(spec, "### Withdrawn identifiers")))
-    withdrawn.update(QUESTION_ROW.findall(section(questions, "## Withdrawn questions")))
-    return withdrawn
+    """The withdrawn identifiers of both registers, each with the record that resolves it.
+
+    Every table row of a register section is required to parse.  A register whose rows stop
+    matching would otherwise shrink the set every other check runs against, and the run would stay
+    green on a smaller register, so the rows that did not parse are returned beside the identifiers
+    that did.
+    """
+    withdrawn = {}
+    unparsed = []
+    for name, heading, row in REGISTERS:
+        text = (REPOSITORY_ROOT / name).read_text()
+        for line in table_rows(section(text, heading)):
+            match = row.match(line)
+            if match is None:
+                unparsed.append("%s: %s" % (name, line))
+            else:
+                withdrawn[match.group(1)] = match.group(2)
+    return withdrawn, unparsed
 
 
 def suite_identifiers(root):
@@ -115,14 +158,34 @@ def main():
     args = parser.parse_args()
     root = Path(args.root)
 
-    withdrawn = registers()
+    withdrawn, unparsed = registers()
     failures = []
+
+    for row in unparsed:
+        failures.append("a register row parses as no register row, so it withdraws nothing: %s"
+                        % row)
 
     spec = (DESIGN / "10-specification.md").read_text()
     questions = (DESIGN / "90-open-questions.md").read_text()
-    stated = set(STATED.findall(spec)) | set(STATED_QUESTION.findall(questions))
+    requirements = set(STATED.findall(spec))
+    stated = requirements | set(STATED_QUESTION.findall(questions))
     for identifier in sorted(set(withdrawn) & stated):
         failures.append("%s is in the register and is stated as a live identifier" % identifier)
+
+    live_prefixes = set(PREFIX_ROW.findall(section(spec, "### Requirement prefixes")))
+    stated_prefixes = {identifier.split("-")[0] for identifier in requirements}
+    withdrawn_prefixes = {identifier.split("-")[0] for identifier in withdrawn} - live_prefixes
+    for identifier in sorted(requirements):
+        prefix = identifier.split("-")[0]
+        if prefix in live_prefixes:
+            continue
+        failures.append("%s is stated under %s, which %s" % (
+            identifier, prefix,
+            "the register withdraws whole" if prefix in withdrawn_prefixes
+            else "the Requirement prefixes table does not name"))
+    for prefix in sorted(live_prefixes - stated_prefixes):
+        failures.append("the Requirement prefixes table names %s, which states no live requirement"
+                        % prefix)
 
     register_lines = {}
     for name, text in (("docs/design/10-specification.md", spec),

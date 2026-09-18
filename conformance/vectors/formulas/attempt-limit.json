@@ -1,0 +1,125 @@
+{
+  "vectorSet": "formulas-attempt-limit",
+  "kind": "formula",
+  "level": "place",
+  "description": "The attempt limit a routing decision resolves, in the order `CORE-048` states and before the clamp the attempt walk applies.",
+  "requirements": [
+    "CFG-020",
+    "CFG-021",
+    "CORE-048"
+  ],
+  "cases": [
+    {
+      "name": "resolvedAttemptLimit/none-none-1",
+      "requirements": [
+        "CORE-048",
+        "CFG-020",
+        "CFG-021"
+      ],
+      "formula": "resolvedAttemptLimitBeforeClamp",
+      "inputs": {
+        "routeOptionsAttemptLimit": null,
+        "configuredAttemptLimit": null,
+        "factor": 1
+      },
+      "note": "the call's limit, else the configured one, else `n + 2`, with no clamp; `FAIL-022` clamps this value for the attempt walk alone",
+      "expect": 3
+    },
+    {
+      "name": "resolvedAttemptLimit/none-none-3",
+      "requirements": [
+        "CORE-048",
+        "CFG-020",
+        "CFG-021"
+      ],
+      "formula": "resolvedAttemptLimitBeforeClamp",
+      "inputs": {
+        "routeOptionsAttemptLimit": null,
+        "configuredAttemptLimit": null,
+        "factor": 3
+      },
+      "note": "the call's limit, else the configured one, else `n + 2`, with no clamp; `FAIL-022` clamps this value for the attempt walk alone",
+      "expect": 5
+    },
+    {
+      "name": "resolvedAttemptLimit/none-none-5",
+      "requirements": [
+        "CORE-048",
+        "CFG-020",
+        "CFG-021"
+      ],
+      "formula": "resolvedAttemptLimitBeforeClamp",
+      "inputs": {
+        "routeOptionsAttemptLimit": null,
+        "configuredAttemptLimit": null,
+        "factor": 5
+      },
+      "note": "the call's limit, else the configured one, else `n + 2`, with no clamp; `FAIL-022` clamps this value for the attempt walk alone",
+      "expect": 7
+    },
+    {
+      "name": "resolvedAttemptLimit/none-5-3",
+      "requirements": [
+        "CORE-048",
+        "CFG-020",
+        "CFG-021"
+      ],
+      "formula": "resolvedAttemptLimitBeforeClamp",
+      "inputs": {
+        "routeOptionsAttemptLimit": null,
+        "configuredAttemptLimit": 5,
+        "factor": 3
+      },
+      "note": "the call's limit, else the configured one, else `n + 2`, with no clamp; `FAIL-022` clamps this value for the attempt walk alone",
+      "expect": 5
+    },
+    {
+      "name": "resolvedAttemptLimit/7-5-3",
+      "requirements": [
+        "CORE-048",
+        "CFG-020",
+        "CFG-021"
+      ],
+      "formula": "resolvedAttemptLimitBeforeClamp",
+      "inputs": {
+        "routeOptionsAttemptLimit": 7,
+        "configuredAttemptLimit": 5,
+        "factor": 3
+      },
+      "note": "the call's limit, else the configured one, else `n + 2`, with no clamp; `FAIL-022` clamps this value for the attempt walk alone",
+      "expect": 7
+    },
+    {
+      "name": "resolvedAttemptLimit/1-none-3",
+      "requirements": [
+        "CORE-048",
+        "CFG-020",
+        "CFG-021"
+      ],
+      "formula": "resolvedAttemptLimitBeforeClamp",
+      "inputs": {
+        "routeOptionsAttemptLimit": 1,
+        "configuredAttemptLimit": null,
+        "factor": 3
+      },
+      "note": "the call's limit, else the configured one, else `n + 2`, with no clamp; `FAIL-022` clamps this value for the attempt walk alone",
+      "expect": 1
+    },
+    {
+      "name": "resolvedAttemptLimit/none-12-1",
+      "requirements": [
+        "CORE-048",
+        "CFG-020",
+        "CFG-021"
+      ],
+      "formula": "resolvedAttemptLimitBeforeClamp",
+      "inputs": {
+        "routeOptionsAttemptLimit": null,
+        "configuredAttemptLimit": 12,
+        "factor": 1
+      },
+      "note": "the call's limit, else the configured one, else `n + 2`, with no clamp; `FAIL-022` clamps this value for the attempt walk alone",
+      "expect": 12
+    }
+  ]
+}

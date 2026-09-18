@@ -1,9 +1,9 @@
 {
   "specification": "docs/design/10-specification.md",
   "statedRequirements": 637,
-  "coveredRequirements": 415,
-  "uncoveredRequirements": 222,
-  "coveragePercent": 65,
+  "coveredRequirements": 414,
+  "uncoveredRequirements": 223,
+  "coveragePercent": 64,
   "identifiersNamedButNotStated": [],
   "byPrefix": [
     {
@@ -376,7 +376,7 @@
       "prefix": "MOVE",
       "section": "Topology change and rebalancing",
       "stated": 65,
-      "covered": 48,
+      "covered": 47,
       "uncovered": [
         "MOVE-061",
         "MOVE-062",
@@ -394,9 +394,10 @@
         "MOVE-381",
         "MOVE-391",
         "MOVE-411",
-        "MOVE-431"
+        "MOVE-431",
+        "MOVE-471"
       ],
-      "percent": 73
+      "percent": 72
     },
     {
       "prefix": "RATE",
@@ -464,11 +465,14 @@
         "hash"
       ],
       "requirements": [
+        "CFG-020",
+        "CFG-021",
         "CORE-002",
         "CORE-003",
         "CORE-040",
         "CORE-046",
         "CORE-047",
+        "CORE-048",
         "DIR-001",
         "DIR-002",
         "DIR-003",
@@ -505,7 +509,6 @@
         "KEY-042",
         "KEY-043",
         "KEY-044",
-        "MOVE-241",
         "OVR-001",
         "OVR-002",
         "OVR-003",
@@ -648,8 +651,8 @@
         "SPREAD-021",
         "TOPO-151"
       ],
-      "requirementsAtLevel": 183,
-      "requirementsWhenDeclared": 200
+      "requirementsAtLevel": 185,
+      "requirementsWhenDeclared": 202
     },
     {
       "level": "core",
@@ -677,12 +680,6 @@
         "ERR-031",
         "ERR-032",
         "ERR-034",
-        "ERR-045",
-        "ERR-050",
-        "MOVE-241",
-        "MOVE-251",
-        "MOVE-271",
-        "MOVE-471",
         "OBS-031",
         "OBS-032",
         "OBS-033",
@@ -741,7 +738,6 @@
         "REPL-025",
         "RING-013",
         "RV-013",
-        "RV-021",
         "SEC-013",
         "SLOT-004",
         "SLOT-031",
@@ -771,8 +767,8 @@
         "TOPO-231",
         "TOPO-241"
       ],
-      "requirementsAtLevel": 113,
-      "requirementsWhenDeclared": 269
+      "requirementsAtLevel": 106,
+      "requirementsWhenDeclared": 266
     },
     {
       "level": "failover",
@@ -827,7 +823,7 @@
         "SEC-031"
       ],
       "requirementsAtLevel": 45,
-      "requirementsWhenDeclared": 313
+      "requirementsWhenDeclared": 307
     },
     {
       "level": "readAffinity",
@@ -848,7 +844,7 @@
         "SPREAD-006"
       ],
       "requirementsAtLevel": 11,
-      "requirementsWhenDeclared": 278
+      "requirementsWhenDeclared": 275
     },
     {
       "level": "fencing",
@@ -895,7 +891,7 @@
         "TOPO-171"
       ],
       "requirementsAtLevel": 37,
-      "requirementsWhenDeclared": 347
+      "requirementsWhenDeclared": 342
     },
     {
       "level": "migration",
@@ -950,6 +946,8 @@
         "MOVE-237",
         "MOVE-238",
         "MOVE-241",
+        "MOVE-251",
+        "MOVE-271",
         "MOVE-331",
         "MOVE-421",
         "MOVE-441",
@@ -965,14 +963,15 @@
         "RATE-081",
         "RATE-091",
         "RATE-111",
+        "RV-021",
         "TOPO-111",
         "TOPO-131",
         "TOPO-211",
         "TOPO-221",
         "TOPO-231"
       ],
-      "requirementsAtLevel": 67,
-      "requirementsWhenDeclared": 372
+      "requirementsAtLevel": 70,
+      "requirementsWhenDeclared": 370
     }
   ],
   "coveredBy": {
@@ -1265,6 +1264,10 @@
       "vectors/directory/no-match.json",
       "vectors/overrides/precedence-and-composition.json"
     ],
+    "ERR-045": [
+      "scenarios/split-topology-view.json",
+      "vectors/errors/recipient-taxonomy.json"
+    ],
     "ERR-001": [
       "vectors/errors/taxonomy.json"
     ],
@@ -1294,13 +1297,10 @@
       "vectors/replication/factor-exceeds-node-count.json"
     ],
     "ERR-010": [
-      "vectors/errors/taxonomy.json"
+      "vectors/errors/taxonomy.json",
+      "vectors/topology/ownership-delta.json"
     ],
     "ERR-011": [
-      "vectors/errors/taxonomy.json"
-    ],
-    "ERR-045": [
-      "scenarios/split-topology-view.json",
       "vectors/errors/taxonomy.json"
     ],
     "REPL-025": [
@@ -1309,9 +1309,15 @@
       "vectors/replication/single-node.json"
     ],
     "CFG-020": [
+      "vectors/formulas/attempt-limit.json",
       "vectors/formulas/failover.json"
     ],
     "CFG-021": [
+      "vectors/formulas/attempt-limit.json",
+      "vectors/formulas/failover.json"
+    ],
+    "CORE-048": [
+      "vectors/formulas/attempt-limit.json",
       "vectors/formulas/failover.json"
     ],
     "CORE-005": [
@@ -1320,9 +1326,6 @@
       "vectors/formulas/skew-detection.json"
     ],
     "CORE-045": [
-      "vectors/formulas/failover.json"
-    ],
-    "CORE-048": [
       "vectors/formulas/failover.json"
     ],
     "FAIL-021": [
@@ -1397,8 +1400,7 @@
     ],
     "ERR-050": [
       "scenarios/rebase-drops-a-handoff.json",
-      "vectors/formulas/migration-rate.json",
-      "vectors/topology/ownership-delta.json"
+      "vectors/formulas/migration-rate.json"
     ],
     "MOVE-171": [
       "properties/properties.json",
@@ -1714,11 +1716,6 @@
     "DIR-022": [
       "vectors/placement/shard-enumeration.json"
     ],
-    "MOVE-241": [
-      "scenarios/handoff-happy-path.json",
-      "vectors/placement/shard-enumeration.json",
-      "vectors/topology/ownership-delta.json"
-    ],
     "PLACE-031": [
       "vectors/placement/shard-enumeration.json",
       "vectors/topology/ownership-delta.json"
@@ -1736,7 +1733,7 @@
     "RV-021": [
       "vectors/placement/shard-enumeration.json",
       "vectors/rendezvous/ordering.json",
-      "vectors/topology/ownership-delta.json"
+      "vectors/topology/ownership-delta-unsupported.json"
     ],
     "RV-022": [
       "vectors/placement/shard-enumeration.json"
@@ -2037,18 +2034,23 @@
       "vectors/spread/degradation-ladder.json",
       "vectors/spread/relaxation-stages.json"
     ],
+    "MOVE-241": [
+      "scenarios/handoff-happy-path.json",
+      "vectors/topology/ownership-delta-unsupported.json"
+    ],
     "MOVE-251": [
-      "vectors/topology/ownership-delta.json"
+      "vectors/topology/ownership-delta-unsupported.json"
     ],
     "MOVE-271": [
-      "vectors/topology/ownership-delta.json"
-    ],
-    "SEC-013": [
-      "vectors/topology/ownership-delta.json"
+      "vectors/topology/ownership-delta-unsupported.json"
     ],
     "TOPO-211": [
       "scenarios/handoff-happy-path.json",
       "scenarios/rebalance-survives-unrelated-epoch.json",
+      "vectors/topology/ownership-delta-unsupported.json",
+      "vectors/topology/ownership-delta.json"
+    ],
+    "SEC-013": [
       "vectors/topology/ownership-delta.json"
     ],
     "TOPO-213": [
@@ -2279,9 +2281,6 @@
       "properties/properties.json"
     ],
     "ERR-032": [
-      "scenarios/topology-rollback.json"
-    ],
-    "MOVE-471": [
       "scenarios/topology-rollback.json"
     ],
     "ERR-040": [

@@ -101,7 +101,6 @@
     "MOVE-421",
     "MOVE-451",
     "MOVE-461",
-    "MOVE-471",
     "MOVE-481",
     "MOVE-491",
     "OBS-010",
@@ -138,7 +137,6 @@
       "requirements": [
         "ERR-031",
         "ERR-032",
-        "MOVE-471",
         "TOPO-051",
         "TOPO-061",
         "TOPO-081",

@@ -193,7 +193,9 @@ exposes, are stated by [`30-conformance.md`](30-conformance.md#conformance-level
 ### Requirement prefixes
 
 The section named in each row is a level-two heading of this document, and the surface named in each
-row is the surface the Conformance surfaces section defines.
+row is the surface the Conformance surfaces section defines. Every live requirement states one of
+these prefixes, and a prefix leaves the table when the last of its identifiers is withdrawn, under
+the rule the Withdrawn identifiers section gives.
 
 | Prefix | Covers | Section | Surface |
 |---|---|---|---|
@@ -552,7 +554,9 @@ materialised. An implementation that does not expose `failover` holds no health 
 carries `unknown` and every entry is attemptable, which is the state `HEALTH-004` and `HEALTH-005`
 give a caller that has ingested no signal. `TOPO-151` requires `token` of every implementation,
 whether or not it exposes `fencing`. The `fencing` surface is the token encoding and the recipient's
-use of it, not the token the decision carries.
+use of it, not the token the decision carries. The `digest` component of that token is governed
+by `tokenDigest`, which belongs to `fencing` under `CFG-040`, so an implementation that does not
+expose `fencing` refuses the setting under `CORE-111` and carries `none` there.
 
 `CORE-041`. A `RoutingDecision` MUST be immutable once returned.
 
@@ -4084,9 +4088,11 @@ not an access control rule.
 exchange health state between callers, so one tenant's traffic cannot eject a node from another
 caller's view.
 
-`SEC-032`. A retry budget MUST be held per router instance across every key under `FAIL-033`. One
-tenant's retries therefore consume a budget every tenant shares, and an integrator who needs
-per-tenant budgets holds a router per tenant.
+`SEC-032`. An implementation that exposes `failover` MUST hold the retry budget of `FAIL-033` per
+router instance, across every key that instance routes. One tenant's retries therefore consume a
+budget every tenant shares, and an integrator who needs per-tenant budgets holds a router per
+tenant. An implementation that does not expose `failover` holds no retry budget, so it has none to
+share.
 
 `SEC-033`. An implementation MUST bound the cost of one routing call by `maxKeyBytes` under
 `CFG-013` and by the eligible node set, within the figures `PLACE-070` gives. The dominant term

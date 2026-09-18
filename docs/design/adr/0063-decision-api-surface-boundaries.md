@@ -1,6 +1,13 @@
 # 0063. Decision API surface boundaries
 
-Status: accepted. Date: 2026-09-17.
+Status: accepted, with the conformance coverage of `CORE-048` extended to `place`
+by [`0065`](0065-level-coverage-inside-surface-boundaries.md). Date: 2026-09-17.
+
+Every boundary below stands. The Consequences note that the twelve formula cases naming `CORE-048`
+sit at `failover` and that the default resolution is covered at `place` through
+`materialisedEntries`. `0065` adds `vectors/formulas/attempt-limit.json` at `place`, so the
+`RouteOptions` and `CFG-020` branches are covered at a level a port declaring `core` runs. No value
+changes.
 
 ## Context
 

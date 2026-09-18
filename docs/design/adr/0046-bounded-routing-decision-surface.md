@@ -1,6 +1,13 @@
 # 0046. Bounded routing decision surface
 
-Status: accepted. Date: 2026-09-17.
+Status: accepted, with the default of `n + 2` rehomed from `FAIL-022` to `CORE-048`
+by [`0063`](0063-decision-api-surface-boundaries.md). Date: 2026-09-17.
+
+The bound on `entries` stands, and so does its length. Where the text below attributes the attempt
+limit's resolution, or its default of `n + 2`, to `FAIL-022`, `CORE-048` states it now, so that the
+rule belongs to the `routing` surface and an implementation exposing no attempt walk still
+materialises the prefix. `FAIL-022` keeps the clamp to the length of the attempt sequence. No value
+changes.
 
 ## Context
 

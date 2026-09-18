@@ -575,8 +575,7 @@
         "RV-020",
         "RV-021",
         "RV-022",
-        "PLACE-032",
-        "MOVE-241"
+        "PLACE-032"
       ],
       "topology": "topologies/rendezvous-plain.topology.json",
       "note": "`shards()` is empty, so `rendezvous` drives no ownership delta and no handoff.",

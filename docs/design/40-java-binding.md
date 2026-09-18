@@ -1389,10 +1389,13 @@ Both documentation checks live in `buildSrc` and attach to the root project.
 - an ADR reference names a file that exists under `docs/design/adr/`;
 - no identifier appears both as a requirement definition and as a row of the withdrawal register,
   which is what reusing a withdrawn number looks like;
+- every table row of a register section parses as a register row, so a register cannot shrink
+  unnoticed, and a prefix the register withdraws whole states no further requirement;
 - a live document names no withdrawn identifier. The register rows themselves and the decision
   records are the two places a withdrawn identifier resolves, under the Withdrawn identifiers
-  section of [`10-specification.md`](10-specification.md#withdrawn-identifiers), and the same rules
-  apply to the `OQ-*` register of [`90-open-questions.md`](90-open-questions.md#withdrawn-questions).
+  section of [`10-specification.md`](10-specification.md#withdrawn-identifiers), and the same
+  rules apply to the `OQ-*` register of
+  [`90-open-questions.md`](90-open-questions.md#withdrawn-questions).
 
 Failures are reported with file, line, and the unresolved reference, and every failure is reported
 rather than the first. `conformance/generator/verify_withdrawals.py` carries the last two checks

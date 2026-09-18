@@ -1059,7 +1059,7 @@ def build_shard_vectors(out):
     snapshot = SNAPSHOTS["rendezvous-plain"]
     cases.append({
         "name": "rendezvous-enumerates-no-shard",
-        "requirements": ["RV-020", "RV-021", "RV-022", "PLACE-032", "MOVE-241"],
+        "requirements": ["RV-020", "RV-021", "RV-022", "PLACE-032"],
         "topology": "topologies/rendezvous-plain.topology.json",
         "note": "`shards()` is empty, so `rendezvous` drives no ownership delta and no handoff.",
         "expect": {

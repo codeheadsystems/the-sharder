@@ -300,6 +300,9 @@ def run_formula(root, payload):
         "resolvedAttemptLimit": lambda i: formulas.resolved_attempt_limit(
             i["routeOptionsAttemptLimit"], i["configuredAttemptLimit"],
             i["factor"], i["attemptSequenceLength"]),
+        "resolvedAttemptLimitBeforeClamp": lambda i: (
+            formulas.resolved_attempt_limit_before_clamp(
+                i["routeOptionsAttemptLimit"], i["configuredAttemptLimit"], i["factor"])),
         "retryBackoffMillis": lambda i: formulas.retry_backoff_millis(
             i["attempt"], i["retryBackoffBaseMillis"], i["retryBackoffCapMillis"]),
         "policyRefused": lambda i: formulas.policy_refused(

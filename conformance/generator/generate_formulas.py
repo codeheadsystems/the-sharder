@@ -163,6 +163,38 @@ def build_failover_formulas(root):
           "FAIL-032", "FAIL-033", "FAIL-034", "FAIL-035", "CFG-020", "CFG-021"], cases)
 
 
+def build_attempt_limit_formulas(root):
+    """`CORE-048`, the resolution a routing decision carries before the clamp of `FAIL-022`.
+
+    `CORE-048` belongs to the `routing` surface and `CORE-046` makes the length of `entries` a
+    function of it, so a port that exposes no attempt walk resolves the same limit.  These cases
+    sit at `place` because that is the first level at which a port materialises a prefix, and they
+    reach the `RouteOptions` and `CFG-020` branches that the `materialisedEntries` of a placement
+    vector never leaves the default of.
+    """
+    cases = []
+    for supplied, configured, factor in [(None, None, 1), (None, None, 3), (None, None, 5),
+                                         (None, 5, 3), (7, 5, 3), (1, None, 3), (None, 12, 1)]:
+        cases.append({
+            "name": "resolvedAttemptLimit/%s-%s-%d"
+                    % ("none" if supplied is None else supplied,
+                       "none" if configured is None else configured, factor),
+            "requirements": ["CORE-048", "CFG-020", "CFG-021"],
+            "formula": "resolvedAttemptLimitBeforeClamp",
+            "inputs": {"routeOptionsAttemptLimit": supplied,
+                       "configuredAttemptLimit": configured,
+                       "factor": factor},
+            "note": "the call's limit, else the configured one, else `n + 2`, with no clamp; "
+                    "`FAIL-022` clamps this value for the attempt walk alone",
+            "expect": formulas.resolved_attempt_limit_before_clamp(supplied, configured, factor),
+        })
+
+    emit(root, "vectors/formulas/attempt-limit.json", "formulas-attempt-limit", "place",
+         "The attempt limit a routing decision resolves, in the order `CORE-048` states and "
+         "before the clamp the attempt walk applies.",
+         ["CORE-048", "CFG-020", "CFG-021"], cases)
+
+
 def build_virtual_node_count_formulas(root):
     cases = []
     for weight, per_unit, cap in [(1, 4, 4096), (0, 4, 4096), (1024, 4, 4096),
@@ -271,6 +303,7 @@ def main():
 
     build_health_formulas(root)
     build_failover_formulas(root)
+    build_attempt_limit_formulas(root)
     build_virtual_node_count_formulas(root)
     build_rate_formulas(root)
     build_skew_formulas(root)

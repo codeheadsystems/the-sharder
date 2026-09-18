@@ -4,10 +4,7 @@
   "level": "core",
   "description": "The ownership delta between two snapshots, the reorder-only case that gains and loses nothing, the entry order over sixteen slots, the replica set under a shortfall, and the changes that make shard identity incomparable.",
   "requirements": [
-    "ERR-050",
-    "MOVE-241",
-    "MOVE-251",
-    "MOVE-271",
+    "ERR-010",
     "PLACE-031",
     "REPL-017",
     "REPL-020",
@@ -148,7 +145,7 @@
       "requirements": [
         "TOPO-231",
         "SEC-013",
-        "ERR-050"
+        "ERR-010"
       ],
       "before": "topologies/delta-before.topology.json",
       "after": "topologies/delta-other-slot-count.topology.json",
@@ -168,7 +165,7 @@
       "requirements": [
         "TOPO-231",
         "SEC-013",
-        "ERR-050"
+        "ERR-010"
       ],
       "before": "topologies/delta-before.topology.json",
       "after": "topologies/delta-other-seed.topology.json",
@@ -427,29 +424,6 @@
             ]
           }
         ]
-      }
-    },
-    {
-      "name": "rendezvous-enumerates-no-shard",
-      "requirements": [
-        "TOPO-211",
-        "MOVE-241",
-        "MOVE-251",
-        "MOVE-271",
-        "RV-021"
-      ],
-      "before": "topologies/rendezvous-plain.topology.json",
-      "after": "topologies/rendezvous-plain.topology.json",
-      "note": "`MOVE-271`: under a strategy that enumerates no shard the delta is empty and a plan is refused naming the strategy kind.",
-      "expect": {
-        "shardsChanged": 0,
-        "delta": [],
-        "plannable": false,
-        "condition": {
-          "code": 401,
-          "name": "planRefused",
-          "cause": "strategyUnsupported"
-        }
       }
     }
   ]

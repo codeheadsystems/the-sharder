@@ -40,7 +40,7 @@ implementation to compute against, and so that a maintainer can regenerate the s
 | `generate_scenarios.py` | the simulation scenarios |
 | `build_manifest.py` | rebuilds `manifest.json`, with the suite revision, by scanning the tree |
 | `coverage.py` | computes `coverage.json` from the specification |
-| `verify_withdrawals.py` | checks that no withdrawn identifier is restated, cited, or named |
+| `verify_withdrawals.py` | checks that no withdrawn identifier is restated, cited, or named, and that every register row parses |
 
 ## Regenerating
 

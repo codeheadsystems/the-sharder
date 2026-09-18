@@ -193,19 +193,20 @@ names one in `scenarios/index.json`, a property names one in `properties/propert
 artefact carries two. The `levels` table of `manifest.json` carries the structure below, so a
 harness reads a level rather than inferring one from a file's path or its `kind`.
 
-Each level tests one conformance surface of
-[`10-specification.md`](10-specification.md#conformance-surfaces). Three levels test `routing`
-between them, because that surface is large and a port reaches it in stages.
+Each level tests one conformance surface of the specification, named in the Conformance surfaces
+section of [`10-specification.md`](10-specification.md#conformance-surfaces), and every requirement
+identifier the level's vector files, properties, and scenarios name belongs to that surface. Three
+levels test `routing` between them, because that surface is large and a port reaches it in stages.
 
 | Level | Requires | Surface | Contents | A port needs it when |
 |---|---|---|---|---|
 | `hash` | | `routing` | SipHash-2-4 and the framed domain-tagged construction | always; every other level rests on it |
-| `place` | `hash` | `routing` | the key transforms, the four placement strategies, overrides, replication and spread, shard enumeration, movement, the tie-breaks, the identity comparator, and the virtual node count, each over a topology the file carries already valid | always |
+| `place` | `hash` | `routing` | the key transforms, the four placement strategies, overrides, replication and spread, shard enumeration, movement, the tie-breaks, the identity comparator, the virtual node count, and the attempt limit a decision resolves under `CORE-048`, each over a topology the file carries already valid | always |
 | `core` | `place` | `routing` | the canonical form and the digest, document validation, the error taxonomy, the ownership delta, skew detection, the placement properties, and the rollback scenario | always |
 | `failover` | `core` | `failover` | the health arithmetic, the retry budget, the attempt walk and the clamp `FAIL-022` applies to it, and the three health scenarios | the port exposes `attempts` or a health view |
 | `readAffinity` | `core` | `readAffinity` | `routeForRead` and the bounded reordering of the replica prefix | the port exposes `routeForRead` |
-| `fencing` | `failover` | `fencing` | the fencing token encoding, the recipient scenarios, and the redirect walk | the port exposes the recipient check |
-| `migration` | `failover` | `migration` | the rate control formulas and the handoff scenarios | the port exposes the handoff coordinator |
+| `fencing` | `failover` | `fencing` | the fencing token encoding, the order in which a recipient reports a condition, the recipient scenarios, and the redirect walk | the port exposes the recipient check |
+| `migration` | `failover` | `migration` | the rate control formulas, the refused plan under a strategy that enumerates no shard, and the handoff scenarios | the port exposes the handoff coordinator |
 
 A declared level carries the levels it requires, transitively, so a port at `fencing` runs `hash`,
 `place`, `core`, `failover`, and `fencing`. `fencing` requires `failover` because `FENCE-231` bounds

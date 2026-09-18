@@ -250,7 +250,8 @@ def build_rollback_scenario():
     steps.append({
         "action": "installTopology",
         "topology": "topologies/migration-epoch-5-rollback.topology.json",
-        "note": "the rollback: the epoch 1 assignment republished at epoch 5, under `MOVE-471`",
+        "note": "the rollback: the epoch 1 assignment republished at epoch 5, because `TOPO-081` "
+                "accepts no lower epoch",
         "expect": {"outcome": "installed", "condition": None, "epochInForce": 5,
                    "digest": jcs_digest(EPOCH5_ROLLBACK)},
     })
@@ -264,8 +265,7 @@ def build_rollback_scenario():
              "An authority reverts an assignment.  The library never accepts a lower epoch, so "
              "the revert arrives as a higher epoch carrying the former assignment.  The "
              "scenario also covers the equal-epoch digest conflict and the foreign identifier.",
-             ["TOPO-051", "TOPO-061", "TOPO-081", "TOPO-091", "ERR-031", "ERR-032",
-              "MOVE-471"], steps)
+             ["TOPO-051", "TOPO-061", "TOPO-081", "TOPO-091", "ERR-031", "ERR-032"], steps)
 
 
 def build_stale_caller_scenario():

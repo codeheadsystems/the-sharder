@@ -5,7 +5,6 @@
   "requirements": [
     "ERR-031",
     "ERR-032",
-    "MOVE-471",
     "TOPO-051",
     "TOPO-061",
     "TOPO-081",
@@ -241,7 +240,7 @@
     {
       "action": "installTopology",
       "topology": "topologies/migration-epoch-5-rollback.topology.json",
-      "note": "the rollback: the epoch 1 assignment republished at epoch 5, under `MOVE-471`",
+      "note": "the rollback: the epoch 1 assignment republished at epoch 5, because `TOPO-081` accepts no lower epoch",
       "expect": {
         "outcome": "installed",
         "condition": null,

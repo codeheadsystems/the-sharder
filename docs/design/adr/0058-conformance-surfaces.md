@@ -1,6 +1,14 @@
 # 0058. Conformance surfaces
 
-Status: accepted. Date: 2026-09-17.
+Status: accepted, with the completeness claim in the Decision superseded
+by [`0063`](0063-decision-api-surface-boundaries.md). Date: 2026-09-17.
+
+The surfaces, the prefix rule, and the strategy axis the suite selects on all stand. The Decision's
+sentence that no other requirement paragraph changes does not. The prefix rule reaches a
+requirement's identifier and not the constructs its text names, and `0063` changed the paragraphs
+of `CORE-030`, `CORE-040`, `CORE-045`, and `CORE-046`, added `CORE-048`, moved the `attemptLimit`
+row of `CFG-020` and the whole of `CFG-021` to `routing`, and moved the fencing token out of
+the `fencing` row of the surfaces table. No expected value changed.
 
 ## Context
 
