@@ -70,7 +70,9 @@
         "maxConcurrentHandoffs": 4,
         "maxConcurrentPerSourceNode": 1,
         "maxConcurrentPerDestinationNode": 1,
-        "initialStepBudget": 1
+        "initialStepBudget": 1,
+        "commitDeadlineMillis": 30000,
+        "quiesceLeaseMarginMillis": 1000
       },
       "expect": {
         "handoffs": [
@@ -273,6 +275,22 @@
       }
     },
     {
+      "action": "handoffQuiesce",
+      "handoff": "h-0",
+      "leaseMillis": 60000,
+      "at": 12050,
+      "expect": {
+        "outcome": {
+          "outcome": "quiesced",
+          "quiesceInstant": 12050,
+          "leaseMillis": 60000,
+          "commitHorizon": 71050,
+          "state": "cutover"
+        },
+        "state": "cutover"
+      }
+    },
+    {
       "action": "handoffStep",
       "handoff": "h-0",
       "trigger": "cutoverCommitted",
@@ -343,6 +361,22 @@
           "id": "h-1",
           "fromState": "catchingUp",
           "toState": "cutover"
+        },
+        "state": "cutover"
+      }
+    },
+    {
+      "action": "handoffQuiesce",
+      "handoff": "h-1",
+      "leaseMillis": 60000,
+      "at": 13150,
+      "expect": {
+        "outcome": {
+          "outcome": "quiesced",
+          "quiesceInstant": 13150,
+          "leaseMillis": 60000,
+          "commitHorizon": 72150,
+          "state": "cutover"
         },
         "state": "cutover"
       }

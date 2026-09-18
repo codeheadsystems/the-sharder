@@ -343,7 +343,9 @@ levels, spreads over the finest one alone, and reuses rack identifiers across zo
 four of its nine cases place two replicas carrying one rack identifier under distinct rack paths.
 A port that read `SPREAD-006` as spanning `replication.spread` rather than `domainLevels` cannot
 produce those four. `vectors/read/affinity.json` fixes the same scope for `READ-013` with cases at
-a level whose coarser level `replication.spread` does not name.
+a level whose coarser level `replication.spread` does not name, and carries the four refusals of
+`READ-011` and `READ-017` so that a port answering a mismatched path rather than refusing it fails
+there.
 
 ### Adversarial vectors
 
@@ -472,6 +474,7 @@ compares the result field by field, as it does for a vector case.
 | `split-topology-view` | `fencing` | half the cluster on one epoch and half on another, disagreeing about a replica set |
 | `redirect-walk-depth-limit` | `fencing` | the redirect bound and a redirect naming an already attempted node |
 | `handoff-happy-path` | `migration` | the ownership delta and every state of `MOVE-021` |
+| `quiesce-lease-expiry` | `migration` | a commit horizon the lease no longer covers, and a lease too short to carry one |
 | `node-dies-mid-migration` | `migration` | a destination that stops answering during `transferring` |
 | `abort-during-catching-up` | `migration` | an abort in `catchingUp`, and a second abort |
 | `coordinator-death-and-recovery` | `migration` | death in each non-terminal state, against each observation |

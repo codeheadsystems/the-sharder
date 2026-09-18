@@ -1,8 +1,9 @@
 # 0016. Node health state machine
 
 Status: accepted, with probation admission moved to the attempt by
-[`0067`](0067-probe-admission-at-the-attempt.md) and the entry lifetime extended by
-[`0066`](0066-health-reset-on-placement-reentry.md). Date: 2026-09-16.
+[`0067`](0067-probe-admission-at-the-attempt.md), the entry lifetime extended by
+[`0066`](0066-health-reset-on-placement-reentry.md), and the ejection triggers ordered by
+[`0076`](0076-ordered-rows-in-a-precedence-table.md). Date: 2026-09-16.
 
 The five states, the transitions between them, and the arithmetic below are unchanged. Where the
 text says that a deterministic counter admits one attempt in `probationDivisor`, `HEALTH-017` now

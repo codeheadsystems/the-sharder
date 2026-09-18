@@ -1,7 +1,8 @@
 # 0018. Concurrent ownership during handoff
 
 Status: accepted, with the `advisory` declaration withdrawn by
-[`0056`](0056-advisory-cutover-withdrawal.md). Date: 2026-09-16.
+[`0056`](0056-advisory-cutover-withdrawal.md) and the quiesce lease given a margin by
+[`0074`](0074-quiesce-lease-margin-and-clock-assumption.md). Date: 2026-09-16.
 
 The cutover record, its single-winner write, and the refusal protocol around it stand unchanged. The
 second declaration this record admitted does not: `MOVE-401` stated that mutual exclusion is not

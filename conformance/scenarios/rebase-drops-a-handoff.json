@@ -301,6 +301,22 @@
       }
     },
     {
+      "action": "handoffQuiesce",
+      "handoff": "h-0",
+      "leaseMillis": 60000,
+      "at": 9150,
+      "expect": {
+        "outcome": {
+          "outcome": "quiesced",
+          "quiesceInstant": 9150,
+          "leaseMillis": 60000,
+          "commitHorizon": 68150,
+          "state": "cutover"
+        },
+        "state": "cutover"
+      }
+    },
+    {
       "action": "handoffStep",
       "handoff": "h-0",
       "trigger": "cutoverCommitted",

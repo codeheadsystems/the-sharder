@@ -171,6 +171,10 @@ states, not something that has run.
   a single-winner write the integrator's hooks perform. The cutover instant is the transition out of
   it, from `cutover` to `verifying`, at which the destination becomes the authoritative replica for
   a shard and the source ceases to be.
+- **quiesce lease**. The interval for which a source node undertakes to refuse writes for a shard
+  after a successful `quiesce`. The source grants it and enforces it on its own clock; the
+  coordinator evaluates it on the clock the integrator supplies, less a margin that covers the
+  divergence between the two.
 - **drain**. The administrative act of marking a node so that the authority moves its shards away
   before the node leaves the topology. A draining node continues to own and serve its shards until a
   later epoch reassigns them.

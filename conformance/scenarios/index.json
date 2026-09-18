@@ -1,10 +1,12 @@
 {
   "suite": "sharder simulation scenarios",
-  "scenarioCount": 20,
-  "stepCount": 266,
+  "scenarioCount": 21,
+  "stepCount": 285,
   "requirementsCovered": [
     "CFG-030",
     "CFG-040",
+    "CFG-050",
+    "CFG-055",
     "CORE-053",
     "ERR-031",
     "ERR-032",
@@ -113,7 +115,11 @@
     "MOVE-237",
     "MOVE-238",
     "MOVE-241",
+    "MOVE-311",
     "MOVE-331",
+    "MOVE-332",
+    "MOVE-333",
+    "MOVE-336",
     "MOVE-421",
     "MOVE-451",
     "MOVE-461",
@@ -234,7 +240,7 @@
       "scenario": "handoff-happy-path",
       "level": "migration",
       "description": "One shard moves from its source to its destination through every state of `MOVE-021`, with the ownership delta that produced the plan.",
-      "stepCount": 10,
+      "stepCount": 11,
       "requirements": [
         "MOVE-001",
         "MOVE-021",
@@ -246,8 +252,28 @@
         "MOVE-131",
         "MOVE-181",
         "MOVE-241",
+        "MOVE-331",
+        "MOVE-332",
+        "MOVE-333",
         "TOPO-211",
         "TOPO-221"
+      ]
+    },
+    {
+      "file": "scenarios/quiesce-lease-expiry.json",
+      "scenario": "quiesce-lease-expiry",
+      "level": "migration",
+      "description": "A quiesce lease runs out before the coordinator reaches `commitCutover`, so the commit is refused and a fresh quiesce restores the window.  A lease too short to carry the commit deadline and the margin is a failed quiesce.",
+      "stepCount": 14,
+      "requirements": [
+        "CFG-050",
+        "CFG-055",
+        "MOVE-021",
+        "MOVE-311",
+        "MOVE-331",
+        "MOVE-332",
+        "MOVE-333",
+        "MOVE-336"
       ]
     },
     {
@@ -338,7 +364,7 @@
       "scenario": "rebalance-survives-unrelated-epoch",
       "level": "migration",
       "description": "A node joins the fleet while a two-shard rebalance is in flight.  The plan is marked rebase pending rather than superseded, admits no new work until the integrator rebases it, and then finishes under the newer epoch.",
-      "stepCount": 20,
+      "stepCount": 22,
       "requirements": [
         "MOVE-091",
         "MOVE-092",
@@ -358,7 +384,7 @@
       "scenario": "rebase-drops-a-handoff",
       "level": "migration",
       "description": "An epoch arrives that reverses one of two moves in flight.  The handoff whose shard, source, and destination no longer hold is aborted and compensated; the other rebases and completes.  Three refusals cover the rebase preconditions.",
-      "stepCount": 18,
+      "stepCount": 19,
       "requirements": [
         "ERR-050",
         "MOVE-094",
@@ -378,7 +404,7 @@
       "scenario": "undetermined-resolves-both-ways",
       "level": "migration",
       "description": "A cutover whose outcome the library never established is looked at again.  The same failure resolves to `verifying` where the record landed, to `cutover` where it did not, and to `aborting` where another destination won.  The three failure kinds that need an operator are refused.",
-      "stepCount": 36,
+      "stepCount": 37,
       "requirements": [
         "ERR-052",
         "MOVE-011",

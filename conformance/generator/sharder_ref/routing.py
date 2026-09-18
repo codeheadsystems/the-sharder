@@ -22,6 +22,21 @@ class NoCandidate(Exception):
         super().__init__("noCandidate(%s)" % cause)
 
 
+class InvalidArgument(Exception):
+    """`ERR-025`: a caller-supplied argument outside the contract.
+
+    `READ-011` raises it for an affinity level `domainLevels` does not declare and `READ-017` for
+    an affinity path of the wrong length.  `ERR-025` gives no cause vocabulary for this condition,
+    so the detail is a message rather than a member a vector asserts.
+    """
+
+    def __init__(self, detail):
+        self.detail = detail
+        self.code = 105
+        self.name = "invalidArgument"
+        super().__init__("invalidArgument(%s)" % detail)
+
+
 def routing_key_of(snapshot, key: bytes) -> bytes:
     return apply_transform(snapshot.key_transform, key)
 
@@ -146,14 +161,23 @@ def build_preference_list(snapshot, ordering, n):
 
 
 def read_affinity_reorder(snapshot, entries, r, level, path, window):
-    """`READ-013`: a stable partition of the first `window` entries."""
+    """`READ-013`: a stable partition of the first `window` entries.
+
+    `READ-011` and `READ-017` check the two arguments before any reordering: the level is declared
+    and the path spans `domainLevels` from index 0 through the index of that level.  Neither is
+    truncated, extended, or answered as though no replica were local.
+    """
     if level not in snapshot.domain_levels:
-        raise ValueError("affinity level not declared: %r" % (level,))
+        raise InvalidArgument("affinity level not declared: %r (READ-011)" % (level,))
+    cut = snapshot.domain_levels.index(level) + 1
+    if len(path) != cut:
+        raise InvalidArgument(
+            "affinity path of length %d for level %r, which takes %d (READ-017)"
+            % (len(path), level, cut))
     window = min(window if window is not None else r, r)
     head, tail = entries[:window], entries[window:]
-    cut = snapshot.domain_levels.index(level) + 1
     wanted = tuple(item.encode("utf-8") if isinstance(item, str) else item
-                   for item in path[:cut])
+                   for item in path)
     local = [e for e in head if snapshot.by_id[e["node"]].domain_path(level) == wanted]
     remote = [e for e in head if snapshot.by_id[e["node"]].domain_path(level) != wanted]
     merged = local + remote + tail

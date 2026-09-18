@@ -4,6 +4,10 @@ Status: accepted, with the two carve-outs of `MOVE-233` withdrawn by
 [`0054`](0054-range-strategy-withdrawal.md) and
 [`0056`](0056-advisory-cutover-withdrawal.md). Date: 2026-09-17.
 
+The row order of `MOVE-211` is stated by
+[`0076`](0076-ordered-rows-in-a-precedence-table.md), and a fresh quiesce after a resumption at
+`cutover` is bounded by [`0074`](0074-quiesce-lease-margin-and-clock-assumption.md).
+
 Re-observation stands as this record decided it. Both exceptions it had to admit are gone with the
 surfaces that forced them: `SPLIT-171` excluded a handoff whose local split had succeeded, and
 `MOVE-235` refused a resumption at `cutover` under `advisory` hooks. Every handoff that reaches

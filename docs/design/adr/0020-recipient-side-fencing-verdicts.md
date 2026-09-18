@@ -1,7 +1,8 @@
 # 0020. Recipient-side fencing verdicts
 
 Status: accepted, with the unfenced case stated by
-[`0068`](0068-ownership-of-an-unfenced-request.md). Date: 2026-09-16.
+[`0068`](0068-ownership-of-an-unfenced-request.md) and the relation rows ordered by
+[`0076`](0076-ordered-rows-in-a-precedence-table.md). Date: 2026-09-16.
 
 The two axes and the policy below are unchanged. Where the text says policy governs a request
 carrying no token, `FENCE-042` states that such a request still has an ownership axis, so `stable`

@@ -1,6 +1,12 @@
 # 0024. Closed numbered error taxonomy
 
-Status: accepted. Date: 2026-09-16.
+Status: accepted, with the `noCandidate` causes ordered by
+[`0076`](0076-ordered-rows-in-a-precedence-table.md). Date: 2026-09-16.
+
+The closed set, the numbering, and the precedence of `ERR-008` are unchanged. `ERR-021` now
+gives its causes as an ordered table of conditions rather than as a set of names, because more
+than one condition holds for a key an override constrains over a strategy that would also have
+produced no candidate.
 
 ## Context
 

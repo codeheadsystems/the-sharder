@@ -405,8 +405,19 @@ def run_pin_shard(root, payload):
 def run_read_affinity(root, payload):
     snapshot = load_topology(root, payload, payload["topology"])
     for case in payload["cases"]:
-        decision = routing.route(snapshot, decode_key(case["key"]),
-                                 affinity=case["affinity"])
+        try:
+            decision = routing.route(snapshot, decode_key(case["key"]),
+                                     affinity=case["affinity"])
+        except routing.InvalidArgument as failure:
+            # `READ-011` and `READ-017` refuse an affinity argument before any reordering.
+            if "expectError" not in case:
+                raise Failure("%s: unexpected %s" % (case["name"], failure))
+            compare_subset(case["name"], {"code": failure.code, "name": failure.name},
+                           case["expectError"])
+            continue
+        if "expectError" in case:
+            raise Failure("%s: expected %r, the call succeeded" % (case["name"],
+                                                                   case["expectError"]))
         compare_subset(case["name"], decision, case["expect"])
 
 

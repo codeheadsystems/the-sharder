@@ -1,6 +1,12 @@
 # 0019. Handoff coordination and recovery
 
-Status: accepted. Date: 2026-09-16.
+Status: accepted, with the clock discipline extended by
+[`0074`](0074-quiesce-lease-margin-and-clock-assumption.md). Date: 2026-09-16.
+
+The passive coordinator, the eleven states, and the recovery through `observe` are unchanged.
+`MOVE-063` states that the clock the integrator supplies to `step` is one monotonic source
+across the calls of one plan, because the quiesce lease and a `deferred` result are both
+measured from an instant one call records and a later call reads.
 
 ## Context
 

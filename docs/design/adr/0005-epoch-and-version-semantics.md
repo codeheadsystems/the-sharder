@@ -1,6 +1,11 @@
 # 0005. Epoch and version semantics
 
-Status: accepted. Date: 2026-09-16.
+Status: accepted, with the acceptance rows ordered by
+[`0076`](0076-ordered-rows-in-a-precedence-table.md). Date: 2026-09-16.
+
+The monotonicity rule and the acceptance outcomes are unchanged. `TOPO-061` now states that its
+rows are evaluated in order, and carries the identity row and the `minEpoch` row above the row
+for a first document, which is the order a document under a foreign identifier needs.
 
 ## Context
 

@@ -60,6 +60,14 @@ MAX_ATTEMPTS_PER_STEP = 5
 RETRY_BACKOFF_BASE_MILLIS = 1000
 RETRY_BACKOFF_CAP_MILLIS = 60000
 
+# `CFG-050`: the two settings the commit horizon of `MOVE-332` is computed from.
+COMMIT_DEADLINE_MILLIS = 30000
+QUIESCE_LEASE_MARGIN_MILLIS = 1000
+
+# The triggers that follow a call to `commitCutover`, which `MOVE-333` admits only inside the
+# commit horizon.  An undetermined outcome is one the call reached the deadline without.
+COMMIT_TRIGGERS = ("cutoverCommitted", "commitUndetermined")
+
 
 def retry_backoff(attempt):
     """`RATE-051`, by integer arithmetic."""
@@ -114,6 +122,17 @@ class Handoff:
         self.target_epoch = target_epoch
         # `MOVE-231`: consecutive `unavailable` answers from `observe` during `recover`.
         self.observe_attempts = 0
+        # `MOVE-332`: the reading taken immediately before the last successful `quiesce`, and the
+        # `leaseMillis` that call answered with.  Both are discarded when the handoff leaves
+        # `cutover`.
+        self.quiesce_instant = None
+        self.lease_millis = None
+
+    def commit_horizon(self, margin):
+        """`MOVE-332`: the quiesce instant plus the lease, less the margin."""
+        if self.quiesce_instant is None:
+            return None
+        return self.quiesce_instant + self.lease_millis - margin
 
     def apply(self, trigger, at=None):
         key = (self.state, trigger)
@@ -123,6 +142,11 @@ class Handoff:
         self.history.append({"from": self.state, "to": target, "trigger": trigger, "at": at})
         if target == "failed":
             self.failure_kind = FAILURE_KIND_FOR_TRIGGER.get(key)
+        if self.state == "cutover" and target != "cutover":
+            # `MOVE-332`: the quiesce instant and the lease are discarded when the handoff leaves
+            # `cutover`, so a resumption there takes a fresh `quiesce` under `MOVE-331`.
+            self.quiesce_instant = None
+            self.lease_millis = None
         self.state = target
         return target
 
@@ -143,7 +167,10 @@ class Plan:
         self.policy = dict({"maxConcurrentHandoffs": 4,
                             "maxConcurrentPerSourceNode": 1,
                             "maxConcurrentPerDestinationNode": 1,
-                            "initialStepBudget": 1}, **(policy or {}))
+                            "initialStepBudget": 1,
+                            "commitDeadlineMillis": COMMIT_DEADLINE_MILLIS,
+                            "quiesceLeaseMarginMillis": QUIESCE_LEASE_MARGIN_MILLIS},
+                           **(policy or {}))
         self.events = []
 
     def state(self, handoff_id):
@@ -207,6 +234,17 @@ class Plan:
                                               "residueAboveRetransferThreshold"):
             # `RATE-091`: `transfer` and `catchUp` are withheld; later hooks still run.
             return {"outcome": "idle", "reason": "pressure:hard"}
+        if trigger in COMMIT_TRIGGERS and handoff.state == "cutover":
+            admissible, horizon = self.commit_admissible(handoff_id, at)
+            if not admissible:
+                # `MOVE-331` and `MOVE-333`: the commit window no longer fits inside the lease,
+                # so `commitCutover` is not called and the coordinator quiesces again.
+                self.events.append({"event": "sharder.migration.quiesce_expired",
+                                    "handoff": handoff.id, "shard": handoff.shard,
+                                    "leaseMillis": handoff.lease_millis,
+                                    "marginMillis": self.policy["quiesceLeaseMarginMillis"],
+                                    "commitHorizon": horizon, "at": at})
+                return {"outcome": "idle", "reason": "quiesceExpired", "commitHorizon": horizon}
         before = handoff.state
         after = handoff.apply(trigger, at)
         self.events.append({"event": "sharder.migration.state_changed", "handoff": handoff.id,
@@ -216,6 +254,43 @@ class Plan:
             return {"outcome": "settled", "id": handoff.id, "terminalState": after,
                     "failureKind": handoff.failure_kind}
         return {"outcome": "advanced", "id": handoff.id, "fromState": before, "toState": after}
+
+    def quiesce(self, handoff_id, lease_millis, at):
+        """`MOVE-331` through `MOVE-336`: a successful `quiesce` and the horizon it fixes.
+
+        `at` is the quiesce instant of `MOVE-332`, which the coordinator reads immediately before
+        it calls the hook rather than after the hook returns, so the request's transit and the
+        source's own processing fall inside the interval the coordinator measures.
+        """
+        handoff = self.handoffs[handoff_id]
+        if handoff.state != "cutover":
+            raise HandoffError("quiesce is called in `cutover`, not %s (MOVE-021)" % handoff.state)
+        margin = self.policy["quiesceLeaseMarginMillis"]
+        deadline = self.policy["commitDeadlineMillis"]
+        if lease_millis <= margin + deadline:
+            # `MOVE-336`: no reading admits a commit, so this is a failed quiesce rather than a
+            # call to repeat.  The handoff aborts and compensates.
+            before = handoff.state
+            after = handoff.apply("quiesceFailedNoRecord", at)
+            self.events.append({"event": "sharder.migration.state_changed",
+                                "handoff": handoff.id, "shard": handoff.shard,
+                                "from": before, "to": after,
+                                "trigger": "quiesceFailedNoRecord", "at": at})
+            return {"outcome": "advanced", "reason": "leaseBelowCommitWindow",
+                    "leaseMillis": lease_millis, "state": after}
+        handoff.quiesce_instant = at
+        handoff.lease_millis = lease_millis
+        return {"outcome": "quiesced", "quiesceInstant": at, "leaseMillis": lease_millis,
+                "commitHorizon": handoff.commit_horizon(margin), "state": handoff.state}
+
+    def commit_admissible(self, handoff_id, at):
+        """`MOVE-333`: the reading at the call plus the commit deadline, against the horizon."""
+        handoff = self.handoffs[handoff_id]
+        margin = self.policy["quiesceLeaseMarginMillis"]
+        horizon = handoff.commit_horizon(margin)
+        if horizon is None:
+            return False, None
+        return at + self.policy["commitDeadlineMillis"] <= horizon, horizon
 
     def abort(self, handoff_id, reason, at=None, record_exists=False):
         """`MOVE-411` through `MOVE-491`."""

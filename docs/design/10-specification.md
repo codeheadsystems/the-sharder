@@ -171,7 +171,7 @@ A setting under `CFG-*` belongs to the surface of the behaviour it configures.
 | `CFG-020` to `CFG-022` | `failover`, apart from the `attemptLimit` row of `CFG-020` and the whole of `CFG-021`, which are `routing`, and the `readAffinityWindow` row, which is `readAffinity` |
 | `CFG-030` to `CFG-032` | `failover` |
 | `CFG-040` to `CFG-042` | `fencing` |
-| `CFG-050`, `CFG-051`, `CFG-052`, and `CFG-054` | `migration` |
+| `CFG-050`, `CFG-051`, `CFG-052`, `CFG-054`, and `CFG-055` | `migration` |
 | `CFG-060`, `CFG-061`, `CFG-062`, and `CFG-064` | `routing` |
 
 A requirement under `OBS-*` belongs to `routing`, and the rows of the tables `OBS-010` and
@@ -2261,9 +2261,15 @@ The comparison is exact over both products under `CORE-005`.
 total is at least `minimumSamples`.
 
 `HEALTH-043`. `suspect` MUST become `unavailable`, subject to `HEALTH-034`, where any of these
-holds: the consecutive failure counter is at least `consecutiveFailureThreshold`; the window total
-is at least `minimumSamples` and `f(x)` is at least `failureRatePercent`; or the node is an outlier
-under `HEALTH-032`.
+holds.
+
+1. The consecutive failure counter is at least `consecutiveFailureThreshold`.
+2. The window total is at least `minimumSamples` and `f(x)` is at least `failureRatePercent`.
+3. The node is an outlier under `HEALTH-032`.
+
+The three are not exclusive, and a node failing every attempt reaches all three together. The
+transition is the same whichever holds, and the trigger the event of `HEALTH-048` carries MUST name
+the first that holds in the order written above.
 
 `HEALTH-044`. `unavailable` MUST become `probation` once `ejectionMillis` has elapsed since entry
 into `unavailable`.
@@ -2544,6 +2550,14 @@ step of a routing call.
 `READ-016`. The routing decision MUST carry the unreordered preference list alongside the reordered
 one, and MUST identify the primary as the head of the unreordered list.
 
+`READ-017`. `path` MUST hold one identifier for each level of `domainLevels` from index 0 through
+the index of `level`, which is the length `READ-013` indexes it at. A request whose `path` is of any
+other length MUST fail with the invalid-argument condition (`ERR-*`). An implementation MUST NOT
+truncate the path, MUST NOT extend it, and MUST NOT fall back to no affinity, as `READ-011` also
+requires for an undeclared level. A path one level short agrees with no domain path at `level`, an
+outcome `READ-023` makes indistinguishable from a cluster holding no local replica, so the request
+is refused rather than answered.
+
 `READ-020`. A caller MUST NOT use a read-affinity result to select a write target. Write routing
 uses the unreordered preference list.
 
@@ -2612,17 +2626,22 @@ integer comparison of `epoch` and octet comparison of `topologyId`. The comparis
 clock, a provider revision, a document timestamp, or any floating point value.
 
 `TOPO-061`. The acceptance outcome MUST be exactly one of the following, and an implementation MUST
-NOT define others.
+NOT define others. An implementation MUST evaluate the rows in the order written and MUST take the
+outcome of the first row that holds.
 
 | Condition | Outcome |
 |---|---|
-| No snapshot in force, `epoch` at or above `minEpoch` | accept and install |
 | `topologyId` differs from the one in force or configured | reject, topology conflict |
 | `epoch` below `minEpoch` | reject, stale topology |
+| no snapshot in force | accept and install |
 | `epoch` below the epoch in force | reject, stale topology |
 | `epoch` equal, digest equal | accept as a no-op, refresh freshness |
 | `epoch` equal, digest differs | reject, topology conflict |
 | `epoch` above the epoch in force | accept and install |
+
+The first two rows precede the third, so a first document under a foreign identifier is a conflict
+and a first document below `minEpoch` is stale, rather than an installation. The remaining rows are
+reached only where a snapshot is in force, and no two of them hold at once.
 
 An answer of `unchanged` under `CORE-086` delivers no document and therefore reaches no row of this
 table. It refreshes freshness as the no-op row does and leaves everything else unchanged.
@@ -2779,15 +2798,19 @@ Verdict = {
 ```
 
 `FENCE-071`. An implementation MUST compute `relation` as follows, comparing `topologyId` as
-unsigned octets and `epoch` as an unsigned integer.
+unsigned octets and `epoch` as an unsigned integer. An implementation MUST evaluate the rows in the
+order written and MUST report the `relation` of the first row that holds.
 
 | Condition at the recipient | `relation` |
 |---|---|
-| `topologyId` differs | `identityMismatch` |
 | no snapshot in force | `unknownEpoch` |
+| `topologyId` differs from the one in force | `identityMismatch` |
 | token epoch equals the epoch in force | `same` |
 | token epoch below the epoch in force | `senderBehind` |
 | token epoch above the epoch in force | `senderAhead` |
+
+The first row precedes the second because a recipient holding no snapshot holds no identifier to
+compare the token's against. The last three rows are mutually exclusive.
 
 `FENCE-081`. Where `relation` is `same`, `senderBehind`, or `senderAhead`, an implementation MUST
 compute `ownership` by evaluating the preference list for `routingKey` against the snapshot in force
@@ -2947,7 +2970,8 @@ storage protocol.
 | `failed` | `preparing` | `reobserve` finds no record and the destination not prepared |
 
 The five rows leaving `failed` are admitted only under `MOVE-233`, only for the failure kind
-`undetermined`, and only from a call the integrator makes.
+`undetermined`, and only from a call the integrator makes. They restate the mapping of `MOVE-211`,
+which `MOVE-234` applies, and they carry that mapping's row order with them.
 
 `MOVE-031`. `complete`, `aborted`, and `failed` are terminal. An implementation MUST NOT
 transition out of a terminal state except under `MOVE-233`, and MUST require a new plan to retry
@@ -2995,8 +3019,14 @@ StepOutcome = one of {
 
 `MOVE-062`. The `MonotonicClock` a call to `step` or `recover` supplies MUST be the source the plan
 reads for the duration of that call, superseding the source of `CORE-004` for that call alone. An
-implementation MUST NOT mix readings from the two sources within one call and MUST NOT carry a
-reading from one call into the next.
+implementation MUST NOT mix readings from the two sources within one call, and MUST NOT treat a
+reading taken in one call as the current instant in a later one.
+
+`MOVE-063`. Two requirements name an instant a plan records in one call and compares against a
+reading taken in a later one: the quiesce instant of `MOVE-332`, and the instant a `deferred` result
+is measured from under `MOVE-171`. Recording an instant is not what `MOVE-062` forbids, which is
+reusing a reading as the current instant. An integrator MUST supply one monotonic source across the
+calls of one plan, because a comparison between readings of two sources measures nothing.
 
 `MOVE-071`. `step` MUST advance at most one handoff by at most one hook call. An implementation MUST
 permit concurrent calls to `step` and MUST NOT advance the same handoff from two calls at once.
@@ -3177,7 +3207,8 @@ implementation MUST treat the integrator's durable state, read through `observe`
 whenever the two disagree.
 
 `MOVE-211`. `recover` MUST call `observe` for every handoff whose state is not terminal, and MUST
-assign a state from an answer of `observed` using this mapping.
+assign a state from an answer of `observed` using this mapping. An implementation MUST evaluate the
+rows in the order written and MUST assign the state of the first row that holds.
 
 | Observation | Resumed state |
 |---|---|
@@ -3186,6 +3217,10 @@ assign a state from an answer of `observed` using this mapping.
 | no record, `sourceQuiesced` true | `cutover` |
 | no record, `destinationPrepared` true | `transferring` |
 | no record, `destinationPrepared` false | `preparing` |
+
+A quiesced source was a prepared destination first, so the third and fourth rows hold together
+whenever the source quiesced, and the order is what resumes such a handoff at `cutover` rather than
+at `transferring`.
 
 `MOVE-212`. A handoff resumed at `verifying` under `MOVE-211` MUST take the epoch of the observed
 record as its own target epoch. A handoff resumed at any other state keeps the plan's target epoch,
@@ -3304,8 +3339,41 @@ the destination read. An implementation MUST NOT commit a cutover through a hook
 the destination.
 
 `MOVE-331`. The coordinator MUST NOT call `commitCutover` before `quiesce` has returned success for
-the same context, and MUST NOT call it after the quiesce lease has expired on the supplied clock.
-Where the lease has expired, the coordinator MUST call `quiesce` again.
+the same context. Where `MOVE-333` refuses the call, the coordinator MUST call `quiesce` again for
+that context and MUST emit `migration.quiesce_expired` under `OBS-020`.
+
+`MOVE-332`. The **quiesce instant** of a handoff is the reading the coordinator takes from the clock
+of `MOVE-062` immediately before it calls `quiesce`, and not a reading taken after that call has
+returned. The **commit horizon** is the quiesce instant plus the `leaseMillis` that call answered
+with, less `quiesceLeaseMarginMillis` under `CFG-050`. An implementation MUST compute both by
+integer arithmetic on the supplied clock's own scale, MUST recompute both at every successful
+`quiesce`, and MUST discard both when the handoff leaves `cutover`.
+
+`MOVE-333`. The coordinator MUST NOT call `commitCutover` where the reading taken at the call, plus
+`commitDeadlineMillis`, is above the commit horizon. `MOVE-311` bounds the cutover window by that
+deadline, so the test keeps the whole window, up to and including an outcome of undetermined, inside
+the interval for which the coordinator believes the source is still quiesced.
+
+`MOVE-334`. The lease is granted and enforced by the source node on the source's own clock, and is
+evaluated by the coordinator on the clock `MOVE-062` supplies, which is a second monotonic source on
+a second machine. The two agree on neither origin nor rate. Taking the quiesce instant before the
+call places the request's transit and the source's own processing inside the interval the
+coordinator measures rather than outside it, and `quiesceLeaseMarginMillis` covers what remains,
+which is the divergence between the two rates over the lease.
+
+`MOVE-335`. Mutual exclusion across a cutover therefore rests on an assumption about the
+integrator's clocks, which this specification states and no implementation can verify: over any
+interval the source's clock measures as `leaseMillis`, the clock supplied to `step` MUST measure at
+least `leaseMillis` less `quiesceLeaseMarginMillis`. An integrator whose two clocks diverge by more
+than that raises the margin or shortens the lease. The library reads no clock of its own and has no
+third party to arbitrate between the two, so it establishes nothing here and observes the lease the
+source granted.
+
+`MOVE-336`. A `QuiesceResult` reporting success whose `leaseMillis` is at or below
+`quiesceLeaseMarginMillis` plus `commitDeadlineMillis` admits no reading at which `MOVE-333` permits
+a commit. An implementation MUST treat such a result as a failed quiesce, so the handoff reaches
+`aborting` under the `cutover` row of `MOVE-021` and compensates. It MUST NOT call `quiesce` again
+for that context, because nothing bounds how often the hook answers with the same lease.
 
 `MOVE-351`. A `CutoverResult` of `lost` MUST move the handoff to `aborting`. Another destination has
 taken ownership, and this handoff's copy is residue.
@@ -3322,6 +3390,12 @@ orchestrated migration, and moves a shard outside the library.
 - No acknowledged write is discarded by the handoff, because `cleanup` never runs before `verify`
   succeeds under `MOVE-181`.
 - A handoff that reaches `complete` has a verified destination copy.
+
+The first two rest on two things the library does not supply and cannot check: the single-winner
+cutover the integrator's hooks implement under `MOVE-321`, and the clock assumption of `MOVE-335`.
+Where either fails, the source can answer a write inside the window `MOVE-311` states that both
+nodes refuse in, and the guarantee is the integrator's to restore rather than the library's to
+report.
 
 `MOVE-391`. These properties are best-effort, and an implementation MUST NOT present them as
 guarantees.
@@ -3548,18 +3622,33 @@ response MUST be this one.
 
 `ERR-020`. `noCandidate` MUST be raised where the candidate ordering is empty: an empty eligible
 node set under `PLACE-005`, a constraint that excludes every node under `OVR-027`, a `directory`
-with no matching entry under `DIR-010`, a pin whose every identity is filtered out under `OVR-014`,
-a placement set in which no node has a non-zero virtual node count under `RV-012`, an authored node
-list none of whose identities is eligible under `PLACE-014`, or an eligible node set none of whose
-members owns a ring token under `RING-024`.
+with no matching entry under `DIR-010`, a slot index no entry covers under `SLOT-013`, a pin whose
+every identity is filtered out under `OVR-014`, a placement set in which no node has a non-zero
+virtual node count under `RV-012`, an authored node list none of whose identities is eligible
+under `PLACE-014`, or an eligible node set no member of which owns a ring token under `RING-024`.
 
-`ERR-021`. `noCandidate` MUST carry a `cause` from the closed set `emptyPlacementSet`,
-`constraintExcludedAll`, `noDirectoryEntry`, `pinExcludedAll`, `noSlotEntry`, `zeroVirtualNodes`,
-`authoredListExcludedAll`, and `noEligibleTokenOwner`. `authoredListExcludedAll` names a `slot` or
-`directory` entry that matched the routing key and whose every named node lies outside the eligible
-node set. `noEligibleTokenOwner` names a `ring`
-topology under `explicit` token assignment in which no eligible node carries a token. The set is
-total over the cases of `ERR-020`, so an implementation MUST NOT report `noCandidate` with no cause.
+`ERR-021`. `noCandidate` MUST carry a `cause` from the closed set this table gives. An
+implementation MUST evaluate the rows in the order written and MUST report the `cause` of the first
+row that holds.
+
+| Condition | `cause` |
+|---|---|
+| the placement set of `PLACE-001` is empty | `emptyPlacementSet` |
+| a `constrain` leaves the eligible node set empty, `OVR-027` | `constraintExcludedAll` |
+| the matched override carries a `pin`, `OVR-014` | `pinExcludedAll` |
+| `directory`, and no entry matches the routing key, `DIR-010` | `noDirectoryEntry` |
+| `slot`, and no entry covers the slot index, `SLOT-013` | `noSlotEntry` |
+| `slot` or `directory`, and no node of the matched entry is eligible, `PLACE-014` | `authoredListExcludedAll` |
+| `rendezvous`, or `ring` under `derived`, and no eligible node has a non-zero count, `RV-012` | `zeroVirtualNodes` |
+| `ring` under `explicit`, and no eligible node carries a token, `RING-024` | `noEligibleTokenOwner` |
+| no row above holds | `emptyPlacementSet` |
+
+More than one row holds for a routing key an override constrains over a strategy that would have
+produced no candidate of its own, which is why the order is part of the requirement rather than a
+property of an implementation's control flow. `emptyPlacementSet` appears twice because it names
+both a document with no node to place on and an ordering emptied for a reason no other row states.
+The set is total over the cases of `ERR-020`, so an implementation MUST NOT report `noCandidate`
+with no cause.
 
 `ERR-022`. `exhausted` MUST be raised where the attempt sequence answers `exhausted` after at least
 one attempt, under `FAIL-025`. It MUST carry the decision's materialised prefix under `CORE-046`,
@@ -3574,11 +3663,12 @@ with no snapshot in force. A recipient whose verdict has `relation` of `unknownE
 `serve`, a stale snapshot MUST produce an ordinary routing decision, and staleness MUST be reported
 through `OBS-010` and `OBS-020` alone.
 
-`ERR-025`. `invalidArgument` MUST be raised where an affinity request names a level absent
-from `domainLevels` under `READ-011`, where a key exceeds `maxKeyBytes` under `KEY-005`, where
-an attempt limit of zero is supplied, and where a setting supplied at construction is outside
-its range under `CFG-003`. It MUST NOT be raised for a key whose octets are not valid text,
-under `KEY-013`.
+`ERR-025`. `invalidArgument` MUST be raised where a key exceeds `maxKeyBytes` under `KEY-005`,
+where an attempt limit of zero is supplied, and where a setting supplied at construction is outside
+its range under `CFG-003`. An implementation that exposes `readAffinity` MUST also raise it for an
+affinity request `READ-011` or `READ-017` refuses, and an implementation that does not expose that
+surface accepts no affinity request and so raises it for none. It MUST NOT be raised for a key whose
+octets are not valid text, under `KEY-013`.
 
 ### Topology conditions
 
@@ -3825,6 +3915,7 @@ carries the prefix `sharder.`, which the table omits.
 | `migration.planned` | `plan` returns a plan | handoff count, policy |
 | `migration.state_changed` | a handoff changes state | handoff, shard, from, to, trigger |
 | `migration.cutover_committed` | a record is committed | shard, source, destination, window |
+| `migration.quiesce_expired` | `MOVE-333` refuses a commit | handoff, shard, lease, margin |
 | `migration.failed` | a handoff reaches `failed` | shard, kind, source, destination |
 | `migration.superseded` | a plan is superseded | epoch, aborted count, finishing count |
 | `migration.rebase_pending` | a plan is marked under `MOVE-091` | the installed epoch, the target |
@@ -4107,6 +4198,7 @@ it will probably refuse. An integrator whose provider pushes promptly raises it.
 | `retryBackoffBaseMillis` | 1000 | first retry backoff for a step |
 | `retryBackoffCapMillis` | 60000 | ceiling on the step retry backoff |
 | `commitDeadlineMillis` | 30000 | deadline past which a `commitCutover` outcome is undetermined |
+| `quiesceLeaseMarginMillis` | 1000 | margin `MOVE-332` subtracts from a quiesce lease |
 | `catchUpResidualThreshold` | 0 | residue at or below which `catchingUp` reaches `cutover` |
 | `reTransferResidualThreshold` | the largest u64 | residue returning a handoff to `transferring` |
 
@@ -4121,6 +4213,11 @@ defaults satisfy `RATE-021`.
 
 `CFG-054`. An implementation MUST accept an optional `pressureGauge` under `RATE-061` and an
 optional `shardMetricsSource` under `OBS-036`, both defaulting to unset.
+
+`CFG-055`. `quiesceLeaseMarginMillis` is what covers the divergence between the source's clock and
+the coordinator's over a quiesce lease, under `MOVE-334`. It defaults to 1000. The value 0 MUST be
+accepted, and under it the assumption of `MOVE-335` requires the two clocks to measure the lease
+identically. `MOVE-336` states what a lease too short to carry the margin does.
 
 ### Observability settings
 

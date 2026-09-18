@@ -1,78 +1,20 @@
 {
-  "scenario": "handoff-happy-path",
+  "scenario": "quiesce-lease-expiry",
   "level": "migration",
-  "description": "One shard moves from its source to its destination through every state of `MOVE-021`, with the ownership delta that produced the plan.",
+  "description": "A quiesce lease runs out before the coordinator reaches `commitCutover`, so the commit is refused and a fresh quiesce restores the window.  A lease too short to carry the commit deadline and the margin is a failed quiesce.",
   "requirements": [
-    "MOVE-001",
+    "CFG-050",
+    "CFG-055",
     "MOVE-021",
-    "MOVE-031",
-    "MOVE-041",
-    "MOVE-051",
-    "MOVE-071",
-    "MOVE-121",
-    "MOVE-131",
-    "MOVE-181",
-    "MOVE-241",
+    "MOVE-311",
     "MOVE-331",
     "MOVE-332",
     "MOVE-333",
-    "TOPO-211",
-    "TOPO-221"
+    "MOVE-336"
   ],
   "deterministic": true,
   "setup": {},
   "steps": [
-    {
-      "action": "ownershipDelta",
-      "from": "topologies/migration-epoch-1.topology.json",
-      "to": "topologies/migration-epoch-2.topology.json",
-      "expect": {
-        "shardsChanged": 1,
-        "delta": [
-          {
-            "shard": "1",
-            "before": [
-              "n2",
-              "n3"
-            ],
-            "after": [
-              "n4",
-              "n3"
-            ],
-            "gained": [
-              "n4"
-            ],
-            "lost": [
-              "n2"
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "action": "plan",
-      "from": "topologies/migration-epoch-1.topology.json",
-      "to": "topologies/migration-epoch-2.topology.json",
-      "policy": {
-        "maxConcurrentHandoffs": 4,
-        "maxConcurrentPerSourceNode": 1,
-        "maxConcurrentPerDestinationNode": 1,
-        "initialStepBudget": 1,
-        "commitDeadlineMillis": 30000,
-        "quiesceLeaseMarginMillis": 1000
-      },
-      "expect": {
-        "handoffs": [
-          {
-            "id": "h-1",
-            "shard": "1",
-            "source": "n2",
-            "destination": "n4",
-            "state": "planned"
-          }
-        ]
-      }
-    },
     {
       "action": "handoffStep",
       "handoff": "h-1",
@@ -136,14 +78,14 @@
     {
       "action": "handoffQuiesce",
       "handoff": "h-1",
-      "leaseMillis": 60000,
-      "at": 4500,
+      "leaseMillis": 40000,
+      "at": 5000,
       "expect": {
         "outcome": {
           "outcome": "quiesced",
-          "quiesceInstant": 4500,
-          "leaseMillis": 60000,
-          "commitHorizon": 63500,
+          "quiesceInstant": 5000,
+          "leaseMillis": 40000,
+          "commitHorizon": 44000,
           "state": "cutover"
         },
         "state": "cutover"
@@ -153,7 +95,39 @@
       "action": "handoffStep",
       "handoff": "h-1",
       "trigger": "cutoverCommitted",
-      "at": 5000,
+      "at": 20000,
+      "note": "`MOVE-333`: the reading plus `commitDeadlineMillis` is above the commit horizon, so `commitCutover` is not called and `MOVE-331` re-quiesces",
+      "expect": {
+        "outcome": {
+          "outcome": "idle",
+          "reason": "quiesceExpired",
+          "commitHorizon": 44000
+        },
+        "state": "cutover"
+      }
+    },
+    {
+      "action": "handoffQuiesce",
+      "handoff": "h-1",
+      "leaseMillis": 40000,
+      "at": 21000,
+      "expect": {
+        "outcome": {
+          "outcome": "quiesced",
+          "quiesceInstant": 21000,
+          "leaseMillis": 40000,
+          "commitHorizon": 60000,
+          "state": "cutover"
+        },
+        "state": "cutover"
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-1",
+      "trigger": "cutoverCommitted",
+      "at": 22000,
+      "note": "the fresh lease admits the whole window, so the commit is called",
       "expect": {
         "outcome": {
           "outcome": "advanced",
@@ -168,7 +142,7 @@
       "action": "handoffStep",
       "handoff": "h-1",
       "trigger": "verifySuccess",
-      "at": 6000,
+      "at": 23000,
       "expect": {
         "outcome": {
           "outcome": "advanced",
@@ -183,7 +157,7 @@
       "action": "handoffStep",
       "handoff": "h-1",
       "trigger": "cleanupSuccess",
-      "at": 7000,
+      "at": 24000,
       "expect": {
         "outcome": {
           "outcome": "settled",
@@ -198,6 +172,43 @@
       "action": "expectSummary",
       "expect": {
         "complete": 1
+      }
+    },
+    {
+      "action": "handoffQuiesce",
+      "handoff": "h-1",
+      "leaseMillis": 31000,
+      "at": 5000,
+      "note": "`MOVE-336`: the lease is at `quiesceLeaseMarginMillis` plus `commitDeadlineMillis`, so it is a failed quiesce rather than a call to repeat",
+      "expect": {
+        "outcome": {
+          "outcome": "advanced",
+          "reason": "leaseBelowCommitWindow",
+          "leaseMillis": 31000,
+          "state": "aborting"
+        },
+        "state": "aborting"
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-1",
+      "trigger": "rollbackSuccess",
+      "at": 6000,
+      "expect": {
+        "outcome": {
+          "outcome": "settled",
+          "id": "h-1",
+          "terminalState": "aborted",
+          "failureKind": null
+        },
+        "state": "aborted"
+      }
+    },
+    {
+      "action": "expectSummary",
+      "expect": {
+        "aborted": 1
       }
     }
   ]

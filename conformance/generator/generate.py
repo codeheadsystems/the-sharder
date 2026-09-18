@@ -1013,11 +1013,30 @@ def build_read_affinity_vectors(out):
                     "shard": decision["shard"],
                 },
             })
+    # `READ-011` and `READ-017`: the two argument checks, which run before any reordering.
+    # `domainLevels` is `["region", "zone"]`, so a `region` request takes a path of one and a
+    # `zone` request a path of two.
+    key = b"read-0"
+    for level, path, label, requirement in [
+        ("zone", ["eu"], "zone-path-too-short", "READ-017"),
+        ("region", ["eu", "a"], "region-path-too-long", "READ-017"),
+        ("zone", [], "zone-path-empty", "READ-017"),
+        ("rack", ["eu", "a", "r1"], "level-undeclared", "READ-011"),
+    ]:
+        cases.append({
+            "name": "refused/%s" % label,
+            "requirements": [requirement, "ERR-025"],
+            "key": key_spec(key),
+            "affinity": {"level": level, "path": path, "window": None},
+            "expectError": {"code": 105, "name": "invalidArgument"},
+        })
     simple_set(out, "vectors/read/affinity.json", "read-affinity", "readAffinity",
                "`routeForRead` partitions the first `window` entries towards a domain path, "
-               "stably, and leaves everything at or beyond `window` untouched.",
-               ["READ-001", "READ-010", "READ-012", "READ-013", "READ-014", "READ-015",
-                "READ-016", "READ-022", "READ-023", "SPREAD-006", "CORE-046"], cases,
+               "stably, and leaves everything at or beyond `window` untouched.  An affinity "
+               "argument outside the contract is refused rather than answered.",
+               ["READ-001", "READ-010", "READ-011", "READ-012", "READ-013", "READ-014",
+                "READ-015", "READ-016", "READ-017", "READ-022", "READ-023", "SPREAD-006",
+                "CORE-046", "ERR-025"], cases,
                topology="topologies/read-affinity.topology.json", level="readAffinity")
 
 

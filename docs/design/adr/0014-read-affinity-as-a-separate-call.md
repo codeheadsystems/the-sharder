@@ -1,6 +1,11 @@
 # 0014. Read affinity as a separate call
 
-Status: accepted. Date: 2026-09-16.
+Status: accepted, with the path length refusal stated by
+[`0075`](0075-affinity-path-length-refusal.md). Date: 2026-09-16.
+
+The separate call, the bounded window, and the stable partition are unchanged. `READ-017` now
+refuses an `AffinityRequest` whose `path` does not span the declared levels through `level`,
+rather than reordering nothing and answering as though no replica were local.
 
 ## Context
 

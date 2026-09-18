@@ -23,7 +23,7 @@ sys.path.insert(0, str(HERE))
 
 from generate import write_json, key_spec                        # noqa: E402
 from sharder_ref import fencing, hashing, routing                 # noqa: E402
-from sharder_ref.handoff import Handoff, Plan, ownership_delta    # noqa: E402
+from sharder_ref.handoff import COMMIT_TRIGGERS, Handoff, Plan, ownership_delta  # noqa: E402
 from sharder_ref.health import HealthView                         # noqa: E402
 from sharder_ref.jcs import digest as jcs_digest                  # noqa: E402
 from sharder_ref.topology import Snapshot                         # noqa: E402
@@ -41,6 +41,7 @@ LEVEL_OF_SCENARIO = {
     "split-topology-view": "fencing",
     "redirect-walk-depth-limit": "fencing",
     "handoff-happy-path": "migration",
+    "quiesce-lease-expiry": "migration",
     "node-dies-mid-migration": "migration",
     "abort-during-catching-up": "migration",
     "coordinator-death-and-recovery": "migration",
@@ -526,11 +527,39 @@ def one_handoff():
     return Plan(1, 2, "migration", [Handoff("h-1", "1", "n2", "n4")])
 
 
+# `MOVE-336`: a lease at or below `quiesceLeaseMarginMillis` plus `commitDeadlineMillis` admits no
+# commit at all, and at the defaults of `CFG-050` that sum is 31000.  A scenario that means to
+# reach a cutover grants a minute.
+QUIESCE_LEASE_MILLIS = 60000
+
+
+def quiesce_step(plan, handoff_id, at, lease=QUIESCE_LEASE_MILLIS):
+    """A recorded `quiesce`, whose instant `MOVE-332` takes before the hook call."""
+    outcome = plan.quiesce(handoff_id, lease, at)
+    return {"action": "handoffQuiesce", "handoff": handoff_id, "leaseMillis": lease, "at": at,
+            "expect": {"outcome": outcome, "state": plan.state(handoff_id)}}
+
+
+def advance(plan, handoff_id, trigger, at=None, **kwargs):
+    """`plan.step`, with the `quiesce` that `MOVE-331` requires before a commit taken first.
+
+    `MOVE-332` reads the quiesce instant immediately before the hook call, so it is taken one
+    millisecond ahead of the reading the commit is attempted at.  A scenario that asserts the
+    quiesce records it as a step of its own instead, through `quiesce_step`.
+    """
+    if (trigger in COMMIT_TRIGGERS and plan.state(handoff_id) == "cutover"
+            and plan.handoffs[handoff_id].quiesce_instant is None):
+        plan.quiesce(handoff_id, QUIESCE_LEASE_MILLIS, (at or 0) - 1)
+    return plan.step(handoff_id, trigger, at=at, **kwargs)
+
+
 def drive(plan, triggers, at_base=1000):
     """Apply a trigger sequence and return the steps with their computed outcomes."""
     steps = []
     for index, trigger in enumerate(triggers):
         at = at_base + index * 1000
+        if trigger in COMMIT_TRIGGERS and plan.state("h-1") == "cutover":
+            steps.append(quiesce_step(plan, "h-1", at - 500))
         outcome = plan.step("h-1", trigger, at=at)
         steps.append({"action": "handoffStep", "handoff": "h-1", "trigger": trigger, "at": at,
                       "expect": {"outcome": outcome, "state": plan.state("h-1")}})
@@ -557,7 +586,59 @@ def build_happy_path_scenario():
              "One shard moves from its source to its destination through every state of "
              "`MOVE-021`, with the ownership delta that produced the plan.",
              ["TOPO-211", "TOPO-221", "MOVE-001", "MOVE-021", "MOVE-031", "MOVE-041",
-              "MOVE-051", "MOVE-071", "MOVE-121", "MOVE-131", "MOVE-181", "MOVE-241"], steps)
+              "MOVE-051", "MOVE-071", "MOVE-121", "MOVE-131", "MOVE-181", "MOVE-241",
+              "MOVE-331", "MOVE-332", "MOVE-333"], steps)
+
+
+def build_quiesce_lease_scenario():
+    """`MOVE-331` through `MOVE-336`: the commit horizon, and a lease too short to carry one."""
+    steps = []
+
+    # The lease runs out before the coordinator reaches `commitCutover`, so the commit is not
+    # called and a fresh `quiesce` restores the window.
+    plan = one_handoff()
+    steps.extend(drive(plan, HAPPY_PATH[:4]))
+    steps.append(quiesce_step(plan, "h-1", 5000, lease=40000))
+    outcome = advance(plan, "h-1", "cutoverCommitted", at=20000)
+    steps.append({
+        "action": "handoffStep", "handoff": "h-1", "trigger": "cutoverCommitted", "at": 20000,
+        "note": "`MOVE-333`: the reading plus `commitDeadlineMillis` is above the commit "
+                "horizon, so `commitCutover` is not called and `MOVE-331` re-quiesces",
+        "expect": {"outcome": outcome, "state": plan.state("h-1")},
+    })
+    steps.append(quiesce_step(plan, "h-1", 21000, lease=40000))
+    outcome = advance(plan, "h-1", "cutoverCommitted", at=22000)
+    steps.append({
+        "action": "handoffStep", "handoff": "h-1", "trigger": "cutoverCommitted", "at": 22000,
+        "note": "the fresh lease admits the whole window, so the commit is called",
+        "expect": {"outcome": outcome, "state": plan.state("h-1")},
+    })
+    steps.extend(drive(plan, ["verifySuccess", "cleanupSuccess"], at_base=23000))
+    steps.append({"action": "expectSummary", "expect": plan.summary()})
+
+    # A lease at the sum of the margin and the commit deadline admits no reading at all.
+    short = one_handoff()
+    for index, trigger in enumerate(HAPPY_PATH[:4]):
+        advance(short, "h-1", trigger, at=1000 + index * 100)
+    outcome = short.quiesce("h-1", 31000, 5000)
+    steps.append({
+        "action": "handoffQuiesce", "handoff": "h-1", "leaseMillis": 31000, "at": 5000,
+        "note": "`MOVE-336`: the lease is at `quiesceLeaseMarginMillis` plus "
+                "`commitDeadlineMillis`, so it is a failed quiesce rather than a call to repeat",
+        "expect": {"outcome": outcome, "state": short.state("h-1")},
+    })
+    outcome = advance(short, "h-1", "rollbackSuccess", at=6000)
+    steps.append({"action": "handoffStep", "handoff": "h-1", "trigger": "rollbackSuccess",
+                  "at": 6000,
+                  "expect": {"outcome": outcome, "state": short.state("h-1")}})
+    steps.append({"action": "expectSummary", "expect": short.summary()})
+
+    register("quiesce-lease-expiry",
+             "A quiesce lease runs out before the coordinator reaches `commitCutover`, so the "
+             "commit is refused and a fresh quiesce restores the window.  A lease too short to "
+             "carry the commit deadline and the margin is a failed quiesce.",
+             ["MOVE-021", "MOVE-311", "MOVE-331", "MOVE-332", "MOVE-333", "MOVE-336",
+              "CFG-050", "CFG-055"], steps)
 
 
 def build_node_dies_scenario():
@@ -631,7 +712,7 @@ def build_coordinator_death_scenarios():
         for observation in observations:
             plan = one_handoff()
             for index, trigger in enumerate(triggers):
-                plan.step("h-1", trigger, at=1000 + index * 100)
+                advance(plan, "h-1", trigger, at=1000 + index * 100)
             assert plan.state("h-1") == died_in
             report = plan.recover({"h-1": observation}, at=20000)
             steps.append({
@@ -650,7 +731,7 @@ def build_coordinator_death_scenarios():
     # only a handoff in `cutover` whose attempts are spent reaches `failed`.
     plan = one_handoff()
     for index, trigger in enumerate(HAPPY_PATH[:4]):
-        plan.step("h-1", trigger, at=1000 + index * 100)
+        advance(plan, "h-1", trigger, at=1000 + index * 100)
     assert plan.state("h-1") == "cutover"
     for attempt in range(1, 6):
         at = 30000 + attempt * 1000
@@ -673,7 +754,7 @@ def build_coordinator_death_scenarios():
     # A definite `undetermined` answer fails a handoff in `cutover` on the first call.
     plan = one_handoff()
     for index, trigger in enumerate(HAPPY_PATH[:4]):
-        plan.step("h-1", trigger, at=1000 + index * 100)
+        advance(plan, "h-1", trigger, at=1000 + index * 100)
     report = plan.recover({"h-1": "undetermined"}, at=40000)
     steps.append({
         "action": "coordinatorRestart",
@@ -690,8 +771,8 @@ def build_coordinator_death_scenarios():
 
     # An `unavailable` answer for a handoff short of `cutover` never fails it.
     plan = one_handoff()
-    plan.step("h-1", "admittedByRatePolicy", at=1000)
-    plan.step("h-1", "prepareSuccess", at=1100)
+    advance(plan, "h-1", "admittedByRatePolicy", at=1000)
+    advance(plan, "h-1", "prepareSuccess", at=1100)
     for attempt in range(1, 6):
         report = plan.recover({"h-1": "unavailable"}, at=50000 + attempt * 1000)
     steps.append({
@@ -733,7 +814,7 @@ def build_failure_kind_scenarios():
     for kind, triggers, note in recipes:
         plan = one_handoff()
         for index, trigger in enumerate(triggers):
-            plan.step("h-1", trigger, at=1000 + index * 100)
+            advance(plan, "h-1", trigger, at=1000 + index * 100)
         handoff = plan.handoffs["h-1"]
         assert handoff.state == "failed", (kind, handoff.state)
         assert handoff.failure_kind == kind, (kind, handoff.failure_kind)
@@ -752,7 +833,7 @@ def build_failure_kind_scenarios():
         })
         further = None
         try:
-            plan.step("h-1", "cleanupSuccess", at=99000)
+            advance(plan, "h-1", "cleanupSuccess", at=99000)
         except Exception as exc:                       # `MOVE-031`: terminal states are terminal
             further = type(exc).__name__
         steps.append({"action": "expectTerminal", "failureKind": kind,
@@ -778,7 +859,7 @@ def build_supersession_scenario():
                                  ("h-b", ["admittedByRatePolicy", "prepareSuccess"]),
                                  ("h-c", [])]:
         for index, trigger in enumerate(triggers):
-            outcome = plan.step(handoff_id, trigger, at=1000 + index * 100)
+            outcome = advance(plan, handoff_id, trigger, at=1000 + index * 100)
             steps.append({"action": "handoffStep", "handoff": handoff_id, "trigger": trigger,
                           "at": 1000 + index * 100,
                           "expect": {"outcome": outcome, "state": plan.state(handoff_id)}})
@@ -793,7 +874,7 @@ def build_supersession_scenario():
         "expect": {"result": result, "states": {k: v.state for k, v in
                                                 sorted(plan.handoffs.items())}},
     })
-    outcome = plan.step("h-c", "admittedByRatePolicy", at=50100)
+    outcome = advance(plan, "h-c", "admittedByRatePolicy", at=50100)
     steps.append({"action": "handoffStep", "handoff": "h-c",
                   "trigger": "admittedByRatePolicy", "at": 50100,
                   "note": "`MOVE-093`: no handoff leaves `planned` while a rebase is pending",
@@ -824,28 +905,28 @@ def build_concurrency_scenario():
         Handoff("h-b", "1", "n1", "n3"),
     ])
     steps = []
-    outcome = plan.step("h-a", "admittedByRatePolicy", at=1000)
+    outcome = advance(plan, "h-a", "admittedByRatePolicy", at=1000)
     steps.append({"action": "handoffStep", "handoff": "h-a",
                   "trigger": "admittedByRatePolicy", "at": 1000,
                   "expect": {"outcome": outcome, "state": plan.state("h-a")}})
-    outcome = plan.step("h-b", "admittedByRatePolicy", at=1100)
+    outcome = advance(plan, "h-b", "admittedByRatePolicy", at=1100)
     steps.append({"action": "handoffStep", "handoff": "h-b",
                   "trigger": "admittedByRatePolicy", "at": 1100,
                   "note": "`maxConcurrentPerSourceNode` defaults to 1 and both handoffs leave n1",
                   "expect": {"outcome": outcome, "state": plan.state("h-b")}})
     for level in ["soft", "hard"]:
-        outcome = plan.step("h-b", "admittedByRatePolicy", at=1200, pressure=level)
+        outcome = advance(plan, "h-b", "admittedByRatePolicy", at=1200, pressure=level)
         steps.append({"action": "handoffStep", "handoff": "h-b",
                       "trigger": "admittedByRatePolicy", "at": 1200, "pressure": level,
                       "note": "`RATE-081` and `RATE-091`: neither level admits a handoff out of "
                               "`planned`",
                       "expect": {"outcome": outcome, "state": plan.state("h-b")}})
-    outcome = plan.step("h-a", "prepareSuccess", at=1300, pressure="hard")
+    outcome = advance(plan, "h-a", "prepareSuccess", at=1300, pressure="hard")
     steps.append({"action": "handoffStep", "handoff": "h-a", "trigger": "prepareSuccess",
                   "at": 1300, "pressure": "hard",
                   "note": "`RATE-091` withholds `transfer` and `catchUp` and no other hook",
                   "expect": {"outcome": outcome, "state": plan.state("h-a")}})
-    outcome = plan.step("h-a", "noBulkRemaining", at=1400, pressure="hard")
+    outcome = advance(plan, "h-a", "noBulkRemaining", at=1400, pressure="hard")
     steps.append({"action": "handoffStep", "handoff": "h-a", "trigger": "noBulkRemaining",
                   "at": 1400, "pressure": "hard",
                   "expect": {"outcome": outcome, "state": plan.state("h-a")}})
@@ -1048,7 +1129,9 @@ def fleet_plan():
 def fleet_step(plan, steps, handoff_id, triggers, at_base):
     for index, trigger in enumerate(triggers):
         at = at_base + index * 100
-        outcome = plan.step(handoff_id, trigger, at=at)
+        if trigger in COMMIT_TRIGGERS and plan.state(handoff_id) == "cutover":
+            steps.append(quiesce_step(plan, handoff_id, at - 50))
+        outcome = advance(plan, handoff_id, trigger, at=at)
         steps.append({"action": "handoffStep", "handoff": handoff_id, "trigger": trigger,
                       "at": at, "expect": {"outcome": outcome, "state": plan.state(handoff_id)}})
 
@@ -1084,7 +1167,7 @@ def build_rebase_survives_scenario():
         "expect": {"result": result, "states": {k: v.state for k, v in
                                                 sorted(plan.handoffs.items())}},
     })
-    outcome = plan.step("h-0", "residueAtOrBelowThreshold", at=10100)
+    outcome = advance(plan, "h-0", "residueAtOrBelowThreshold", at=10100)
     steps.append({"action": "handoffStep", "handoff": "h-0",
                   "trigger": "residueAtOrBelowThreshold", "at": 10100,
                   "note": "`MOVE-093`: a rebase-pending plan admits no handoff into `cutover`",
@@ -1201,7 +1284,7 @@ def to_undetermined(plan, steps, at_base):
     """`MOVE-021`: drive the single handoff to `failed` with the kind `undetermined`."""
     for index, trigger in enumerate(HAPPY_PATH[:4] + ["commitUndetermined"]):
         at = at_base + index * 100
-        outcome = plan.step("h-1", trigger, at=at)
+        outcome = advance(plan, "h-1", trigger, at=at)
         steps.append({"action": "handoffStep", "handoff": "h-1", "trigger": trigger, "at": at,
                       "expect": {"outcome": outcome, "state": plan.state("h-1")}})
 
@@ -1223,7 +1306,7 @@ def build_undetermined_recovery_scenario():
     })
     for index, trigger in enumerate(["verifySuccess", "cleanupSuccess"]):
         at = 21000 + index * 100
-        result = plan.step("h-1", trigger, at=at)
+        result = advance(plan, "h-1", trigger, at=at)
         steps.append({"action": "handoffStep", "handoff": "h-1", "trigger": trigger, "at": at,
                       "note": "`MOVE-236`: `cleanup` still never precedes a successful `verify`",
                       "expect": {"outcome": result, "state": plan.state("h-1")}})
@@ -1250,9 +1333,10 @@ def build_undetermined_recovery_scenario():
                 "next `commitCutover`",
         "expect": {"outcome": outcome, "state": plan.state("h-1")},
     })
+    steps.append(quiesce_step(plan, "h-1", 32500))
     for index, trigger in enumerate(["cutoverCommitted", "verifySuccess", "cleanupSuccess"]):
         at = 33000 + index * 100
-        result = plan.step("h-1", trigger, at=at)
+        result = advance(plan, "h-1", trigger, at=at)
         steps.append({"action": "handoffStep", "handoff": "h-1", "trigger": trigger, "at": at,
                       "expect": {"outcome": result, "state": plan.state("h-1")}})
     steps.append({"action": "expectSummary", "name": "noRecord", "expect": plan.summary()})
@@ -1290,7 +1374,7 @@ def build_undetermined_recovery_scenario():
     ]:
         plan = one_handoff()
         for index, trigger in enumerate(triggers):
-            plan.step("h-1", trigger, at=60000 + index * 100)
+            advance(plan, "h-1", trigger, at=60000 + index * 100)
         assert plan.handoffs["h-1"].failure_kind == kind
         outcome = plan.reobserve("h-1", observation(record("n4", 2)), at=61000)
         steps.append({
@@ -1305,7 +1389,7 @@ def build_undetermined_recovery_scenario():
 
     # `MOVE-233`: a handoff that is not in `failed` is refused.
     plan = one_handoff()
-    plan.step("h-1", "admittedByRatePolicy", at=70000)
+    advance(plan, "h-1", "admittedByRatePolicy", at=70000)
     outcome = plan.reobserve("h-1", observation(record("n4", 2)), at=70100)
     steps.append({
         "action": "reobserve", "handoff": "h-1", "at": 70100,
@@ -1571,6 +1655,7 @@ def main():
     build_split_view_scenario()
     build_redirect_scenario()
     build_happy_path_scenario()
+    build_quiesce_lease_scenario()
     build_node_dies_scenario()
     build_abort_during_catchup_scenario()
     build_coordinator_death_scenarios()

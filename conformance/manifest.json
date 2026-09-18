@@ -1,9 +1,9 @@
 {
   "suite": "sharder conformance suite",
   "revision": {
-    "id": "a9a07125112f2714e6a6d61ead6bf7e3fdd9b2c656fdbe4d2022f4013de196a5",
+    "id": "0c0e1aa719596e8f338741c445be203a0c2e1ae9e9bb76d09931be929cb8077c",
     "basis": "sha256 of the RFC 8785 canonical form of the file digests, the level table, and the strategy surfaces",
-    "fileCount": 180,
+    "fileCount": 181,
     "trees": [
       "vectors",
       "topologies",
@@ -16,12 +16,12 @@
   "generator": "conformance/generator",
   "counts": {
     "vectorFiles": 60,
-    "vectorCases": 573,
+    "vectorCases": 577,
     "topologyDocuments": 98,
-    "scenarios": 20,
-    "scenarioSteps": 266,
+    "scenarios": 21,
+    "scenarioSteps": 285,
     "properties": 28,
-    "requirementsNamed": 431
+    "requirementsNamed": 439
   },
   "requirementsNamed": [
     "CFG-020",
@@ -30,6 +30,7 @@
     "CFG-040",
     "CFG-050",
     "CFG-052",
+    "CFG-055",
     "CORE-002",
     "CORE-003",
     "CORE-004",
@@ -65,6 +66,7 @@
     "ERR-011",
     "ERR-020",
     "ERR-021",
+    "ERR-025",
     "ERR-030",
     "ERR-031",
     "ERR-032",
@@ -226,7 +228,11 @@
     "MOVE-241",
     "MOVE-251",
     "MOVE-271",
+    "MOVE-311",
     "MOVE-331",
+    "MOVE-332",
+    "MOVE-333",
+    "MOVE-336",
     "MOVE-421",
     "MOVE-441",
     "MOVE-451",
@@ -344,11 +350,13 @@
     "RATE-111",
     "READ-001",
     "READ-010",
+    "READ-011",
     "READ-012",
     "READ-013",
     "READ-014",
     "READ-015",
     "READ-016",
+    "READ-017",
     "READ-022",
     "READ-023",
     "REPL-001",
@@ -510,10 +518,10 @@
       ],
       "surface": "`routeForRead` and the bounded reordering of the replica prefix",
       "vectorFiles": 1,
-      "vectorCases": 42,
+      "vectorCases": 46,
       "scenarios": 0,
       "properties": 0,
-      "requirementsNamed": 11
+      "requirementsNamed": 14
     },
     {
       "level": "fencing",
@@ -535,9 +543,9 @@
       "surface": "the handoff coordinator and rate control",
       "vectorFiles": 2,
       "vectorCases": 13,
-      "scenarios": 10,
+      "scenarios": 11,
       "properties": 3,
-      "requirementsNamed": 70
+      "requirementsNamed": 75
     }
   ],
   "strategySurfaces": [
@@ -2154,23 +2162,26 @@
         "rendezvous"
       ],
       "caseStrategies": [],
-      "description": "`routeForRead` partitions the first `window` entries towards a domain path, stably, and leaves everything at or beyond `window` untouched.",
+      "description": "`routeForRead` partitions the first `window` entries towards a domain path, stably, and leaves everything at or beyond `window` untouched.  An affinity argument outside the contract is refused rather than answered.",
       "topology": "topologies/read-affinity.topology.json",
-      "caseCount": 42,
+      "caseCount": 46,
       "requirements": [
         "CORE-046",
+        "ERR-025",
         "READ-001",
         "READ-010",
+        "READ-011",
         "READ-012",
         "READ-013",
         "READ-014",
         "READ-015",
         "READ-016",
+        "READ-017",
         "READ-022",
         "READ-023",
         "SPREAD-006"
       ],
-      "sha256": "3a8775de7d74e2d025c1453c8824e8b145337ce24732ca23fe6ef033d3976e01"
+      "sha256": "951a3a66e0ca862c932f3090cba9867526c9a034fb9bed55e97759cb07ffdf92"
     },
     {
       "file": "vectors/rendezvous/cache-hash-tags.json",
@@ -2882,7 +2893,7 @@
       "scenario": "handoff-happy-path",
       "level": "migration",
       "description": "One shard moves from its source to its destination through every state of `MOVE-021`, with the ownership delta that produced the plan.",
-      "stepCount": 10,
+      "stepCount": 11,
       "requirements": [
         "MOVE-001",
         "MOVE-021",
@@ -2894,8 +2905,28 @@
         "MOVE-131",
         "MOVE-181",
         "MOVE-241",
+        "MOVE-331",
+        "MOVE-332",
+        "MOVE-333",
         "TOPO-211",
         "TOPO-221"
+      ]
+    },
+    {
+      "file": "scenarios/quiesce-lease-expiry.json",
+      "scenario": "quiesce-lease-expiry",
+      "level": "migration",
+      "description": "A quiesce lease runs out before the coordinator reaches `commitCutover`, so the commit is refused and a fresh quiesce restores the window.  A lease too short to carry the commit deadline and the margin is a failed quiesce.",
+      "stepCount": 14,
+      "requirements": [
+        "CFG-050",
+        "CFG-055",
+        "MOVE-021",
+        "MOVE-311",
+        "MOVE-331",
+        "MOVE-332",
+        "MOVE-333",
+        "MOVE-336"
       ]
     },
     {
@@ -2986,7 +3017,7 @@
       "scenario": "rebalance-survives-unrelated-epoch",
       "level": "migration",
       "description": "A node joins the fleet while a two-shard rebalance is in flight.  The plan is marked rebase pending rather than superseded, admits no new work until the integrator rebases it, and then finishes under the newer epoch.",
-      "stepCount": 20,
+      "stepCount": 22,
       "requirements": [
         "MOVE-091",
         "MOVE-092",
@@ -3006,7 +3037,7 @@
       "scenario": "rebase-drops-a-handoff",
       "level": "migration",
       "description": "An epoch arrives that reverses one of two moves in flight.  The handoff whose shard, source, and destination no longer hold is aborted and compensated; the other rebases and completes.  Three refusals cover the rebase preconditions.",
-      "stepCount": 18,
+      "stepCount": 19,
       "requirements": [
         "ERR-050",
         "MOVE-094",
@@ -3026,7 +3057,7 @@
       "scenario": "undetermined-resolves-both-ways",
       "level": "migration",
       "description": "A cutover whose outcome the library never established is looked at again.  The same failure resolves to `verifying` where the record landed, to `cutover` where it did not, and to `aborting` where another destination won.  The three failure kinds that need an operator are refused.",
-      "stepCount": 36,
+      "stepCount": 37,
       "requirements": [
         "ERR-052",
         "MOVE-011",

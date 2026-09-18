@@ -1,7 +1,7 @@
 {
   "specification": "docs/design/10-specification.md",
-  "statedRequirements": 648,
-  "coveredRequirements": 431,
+  "statedRequirements": 656,
+  "coveredRequirements": 439,
   "uncoveredRequirements": 217,
   "coveragePercent": 66,
   "identifiersNamedButNotStated": [],
@@ -9,8 +9,8 @@
     {
       "prefix": "CFG",
       "section": "Configuration surface",
-      "stated": 29,
-      "covered": 6,
+      "stated": 30,
+      "covered": 7,
       "uncovered": [
         "CFG-001",
         "CFG-002",
@@ -36,7 +36,7 @@
         "CFG-062",
         "CFG-064"
       ],
-      "percent": 20
+      "percent": 23
     },
     {
       "prefix": "CORE",
@@ -115,12 +115,11 @@
       "prefix": "ERR",
       "section": "Error taxonomy",
       "stated": 36,
-      "covered": 26,
+      "covered": 27,
       "uncovered": [
         "ERR-022",
         "ERR-023",
         "ERR-024",
-        "ERR-025",
         "ERR-033",
         "ERR-051",
         "ERR-060",
@@ -128,7 +127,7 @@
         "ERR-062",
         "ERR-063"
       ],
-      "percent": 72
+      "percent": 75
     },
     {
       "prefix": "OBS",
@@ -217,14 +216,13 @@
     {
       "prefix": "READ",
       "section": "Replication and failover",
-      "stated": 12,
-      "covered": 9,
+      "stated": 13,
+      "covered": 11,
       "uncovered": [
-        "READ-011",
         "READ-020",
         "READ-021"
       ],
-      "percent": 75
+      "percent": 84
     },
     {
       "prefix": "REPL",
@@ -370,11 +368,12 @@
     {
       "prefix": "MOVE",
       "section": "Topology change and rebalancing",
-      "stated": 65,
-      "covered": 47,
+      "stated": 71,
+      "covered": 51,
       "uncovered": [
         "MOVE-061",
         "MOVE-062",
+        "MOVE-063",
         "MOVE-081",
         "MOVE-111",
         "MOVE-141",
@@ -383,8 +382,9 @@
         "MOVE-281",
         "MOVE-291",
         "MOVE-301",
-        "MOVE-311",
         "MOVE-321",
+        "MOVE-334",
+        "MOVE-335",
         "MOVE-351",
         "MOVE-381",
         "MOVE-391",
@@ -392,7 +392,7 @@
         "MOVE-431",
         "MOVE-471"
       ],
-      "percent": 72
+      "percent": 71
     },
     {
       "prefix": "RATE",
@@ -843,19 +843,22 @@
       ],
       "requirements": [
         "CORE-046",
+        "ERR-025",
         "READ-001",
         "READ-010",
+        "READ-011",
         "READ-012",
         "READ-013",
         "READ-014",
         "READ-015",
         "READ-016",
+        "READ-017",
         "READ-022",
         "READ-023",
         "SPREAD-006"
       ],
-      "requirementsAtLevel": 11,
-      "requirementsWhenDeclared": 279
+      "requirementsAtLevel": 14,
+      "requirementsWhenDeclared": 282
     },
     {
       "level": "fencing",
@@ -913,6 +916,7 @@
       "requirements": [
         "CFG-050",
         "CFG-052",
+        "CFG-055",
         "ERR-050",
         "ERR-052",
         "ERR-053",
@@ -960,7 +964,11 @@
         "MOVE-241",
         "MOVE-251",
         "MOVE-271",
+        "MOVE-311",
         "MOVE-331",
+        "MOVE-332",
+        "MOVE-333",
+        "MOVE-336",
         "MOVE-421",
         "MOVE-441",
         "MOVE-451",
@@ -982,8 +990,8 @@
         "TOPO-221",
         "TOPO-231"
       ],
-      "requirementsAtLevel": 70,
-      "requirementsWhenDeclared": 386
+      "requirementsAtLevel": 75,
+      "requirementsWhenDeclared": 391
     }
   ],
   "coveredBy": {
@@ -1411,6 +1419,7 @@
       "vectors/formulas/health.json"
     ],
     "CFG-050": [
+      "scenarios/quiesce-lease-expiry.json",
       "vectors/formulas/migration-rate.json"
     ],
     "CFG-052": [
@@ -1807,10 +1816,16 @@
       "properties/properties.json",
       "vectors/properties/witnesses.json"
     ],
+    "ERR-025": [
+      "vectors/read/affinity.json"
+    ],
     "READ-001": [
       "vectors/read/affinity.json"
     ],
     "READ-010": [
+      "vectors/read/affinity.json"
+    ],
+    "READ-011": [
       "vectors/read/affinity.json"
     ],
     "READ-012": [
@@ -1826,6 +1841,9 @@
       "vectors/read/affinity.json"
     ],
     "READ-016": [
+      "vectors/read/affinity.json"
+    ],
+    "READ-017": [
       "vectors/read/affinity.json"
     ],
     "READ-022": [
@@ -2263,6 +2281,7 @@
       "scenarios/handoff-failure-kinds.json",
       "scenarios/handoff-happy-path.json",
       "scenarios/node-dies-mid-migration.json",
+      "scenarios/quiesce-lease-expiry.json",
       "scenarios/undetermined-resolves-both-ways.json"
     ],
     "MOVE-031": [
@@ -2436,6 +2455,28 @@
       "scenarios/handoff-happy-path.json",
       "scenarios/undetermined-resolves-both-ways.json"
     ],
+    "MOVE-331": [
+      "scenarios/handoff-happy-path.json",
+      "scenarios/quiesce-lease-expiry.json",
+      "scenarios/undetermined-resolves-both-ways.json"
+    ],
+    "MOVE-332": [
+      "scenarios/handoff-happy-path.json",
+      "scenarios/quiesce-lease-expiry.json"
+    ],
+    "MOVE-333": [
+      "scenarios/handoff-happy-path.json",
+      "scenarios/quiesce-lease-expiry.json"
+    ],
+    "CFG-055": [
+      "scenarios/quiesce-lease-expiry.json"
+    ],
+    "MOVE-311": [
+      "scenarios/quiesce-lease-expiry.json"
+    ],
+    "MOVE-336": [
+      "scenarios/quiesce-lease-expiry.json"
+    ],
     "HEALTH-005": [
       "scenarios/failover-and-recovery.json",
       "scenarios/health-filter-fails-open.json",
@@ -2558,9 +2599,6 @@
       "scenarios/undetermined-resolves-both-ways.json"
     ],
     "MOVE-238": [
-      "scenarios/undetermined-resolves-both-ways.json"
-    ],
-    "MOVE-331": [
       "scenarios/undetermined-resolves-both-ways.json"
     ],
     "RATE-011": [
