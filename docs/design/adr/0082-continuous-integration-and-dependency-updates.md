@@ -55,6 +55,11 @@ Changes land through a pull request from here, and the branch protection of `mai
 the two checks. Without a required check, a queued merge of an already mergeable pull request
 happens at once, which is the whole of what stands between a dependency update and merging itself.
 
+That protection is repository configuration rather than a file here, and it is set to require
+`every port built` and `verify the suite against the specification`, to require no approving review,
+and to leave an administrator free to push to `main` directly. A contributor who is not an
+administrator, and every pull request including a Dependabot one, satisfies both checks to merge.
+
 ## Consequences
 
 A regenerated suite runs against every port in the pull request that regenerates it, which is the
@@ -64,6 +69,11 @@ thing about that layout to become mechanical rather than stated.
 A port's build command stops being repository knowledge. What a contributor runs locally,
 `./build.sh`, is what continuous integration runs, so a build that passes locally and fails in the
 workflow is a difference in the environment rather than in the command.
+
+The arrangement was demonstrated by the two updates that landed before the protection was set:
+both merged the moment they opened, and both passed the builds afterwards. That is the failure mode
+this section describes rather than a hypothetical one, and what changed is the protection rather
+than the workflow.
 
 An update merges with no human reading it. Every dependency here is test scope or an action, so an
 update that passes the suite and every port's build has demonstrated what a reviewer would have
