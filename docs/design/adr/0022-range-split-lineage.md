@@ -1,6 +1,11 @@
 # 0022. Range split lineage
 
-Status: accepted. Date: 2026-09-16.
+Status: withdrawn by [`0054`](0054-range-strategy-withdrawal.md). Date: 2026-09-16.
+
+The whole `SPLIT` prefix is withdrawn with the `range` strategy, which was the only kind under which
+`SPLIT-001` admitted a split or a merge. The lineage classification, the two-epoch representation,
+the decomposition into local steps, and the `splitLocal` and `mergeLocal` hooks leave the design
+with it. The reasoning below is what a later minor version reads before adding the kind back.
 
 ## Context
 

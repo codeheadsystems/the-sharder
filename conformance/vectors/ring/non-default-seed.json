@@ -1,7 +1,7 @@
 {
   "vectorSet": "ring-non-default-seed",
   "kind": "routing",
-  "level": "core",
+  "level": "place",
   "description": "Ring placement under a non-default hash seed.  Every other vector in the suite uses the sixteen zero octets.",
   "requirements": [
     "CORE-046",
@@ -12,6 +12,39 @@
   ],
   "topology": "topologies/ring-seeded.topology.json",
   "topologyDigest": "d87982666b99da9bec68618eeddc31864b8dada1abd889121c54584434f6cc5e",
+  "topologyDocuments": {
+    "topologies/ring-seeded.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "ring-seeded",
+      "epoch": 118,
+      "hash": {
+        "algorithm": "siphash-2-4",
+        "seed": "9e3779b97f4a7c159e3779b97f4a7c15"
+      },
+      "replication": {
+        "factor": 2
+      },
+      "strategy": {
+        "kind": "ring",
+        "tokenAssignment": "derived",
+        "tokensPerWeightUnit": 1
+      },
+      "nodes": [
+        {
+          "id": "n1"
+        },
+        {
+          "id": "n2"
+        },
+        {
+          "id": "n3"
+        },
+        {
+          "id": "n4"
+        }
+      ]
+    }
+  },
   "cases": [
     {
       "name": "seeded/0",

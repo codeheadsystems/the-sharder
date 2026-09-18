@@ -34,10 +34,10 @@
       "view": "old",
       "key": {
         "encoding": "base16",
-        "value": "50"
+        "value": "05"
       },
       "expect": {
-        "shard": "r1",
+        "shard": "1",
         "token": {
           "topologyId": "migration",
           "epoch": 1
@@ -54,10 +54,10 @@
       "view": "new",
       "key": {
         "encoding": "base16",
-        "value": "50"
+        "value": "05"
       },
       "expect": {
-        "shard": "r1",
+        "shard": "1",
         "token": {
           "topologyId": "migration",
           "epoch": 3
@@ -73,7 +73,7 @@
       "action": "compareOwnership",
       "key": {
         "encoding": "base16",
-        "value": "50"
+        "value": "05"
       },
       "note": "the two halves disagree about who owns the key, which is what fencing detects",
       "expect": {
@@ -98,7 +98,7 @@
       },
       "key": {
         "encoding": "base16",
-        "value": "50"
+        "value": "05"
       },
       "selfId": "n2",
       "recipientPolicy": "strict",
@@ -133,7 +133,7 @@
       },
       "key": {
         "encoding": "base16",
-        "value": "50"
+        "value": "05"
       },
       "selfId": "n4",
       "recipientPolicy": "strict",
@@ -168,7 +168,7 @@
       },
       "key": {
         "encoding": "base16",
-        "value": "50"
+        "value": "05"
       },
       "selfId": "n4",
       "recipientPolicy": "strict",
@@ -203,7 +203,7 @@
       },
       "key": {
         "encoding": "base16",
-        "value": "50"
+        "value": "05"
       },
       "selfId": "n2",
       "recipientPolicy": "strict",

@@ -34,7 +34,7 @@
       },
       "key": {
         "encoding": "base16",
-        "value": "50"
+        "value": "05"
       },
       "selfId": "n1",
       "recipientPolicy": "strict",
@@ -112,7 +112,7 @@
       },
       "key": {
         "encoding": "base16",
-        "value": "50"
+        "value": "05"
       },
       "selfId": "n1",
       "recipientPolicy": "strict",
@@ -145,7 +145,7 @@
       },
       "key": {
         "encoding": "base16",
-        "value": "50"
+        "value": "05"
       },
       "selfId": "n1",
       "recipientPolicy": "stable",
@@ -178,7 +178,7 @@
       },
       "key": {
         "encoding": "base16",
-        "value": "50"
+        "value": "05"
       },
       "selfId": "n3",
       "recipientPolicy": "strict",
@@ -211,7 +211,7 @@
       },
       "key": {
         "encoding": "base16",
-        "value": "50"
+        "value": "05"
       },
       "selfId": "n3",
       "recipientPolicy": "stable",
@@ -239,7 +239,7 @@
       },
       "key": {
         "encoding": "base16",
-        "value": "50"
+        "value": "05"
       },
       "selfId": "n2",
       "recipientPolicy": "strict",
@@ -272,7 +272,7 @@
       },
       "key": {
         "encoding": "base16",
-        "value": "50"
+        "value": "05"
       },
       "selfId": "n2",
       "recipientPolicy": "stable",
@@ -305,7 +305,7 @@
       },
       "key": {
         "encoding": "base16",
-        "value": "50"
+        "value": "05"
       },
       "selfId": "n3",
       "recipientPolicy": "stable",
@@ -336,7 +336,7 @@
       "token": null,
       "key": {
         "encoding": "base16",
-        "value": "50"
+        "value": "05"
       },
       "selfId": "n1",
       "recipientPolicy": "strict",
@@ -369,7 +369,7 @@
       },
       "key": {
         "encoding": "base16",
-        "value": "50"
+        "value": "05"
       },
       "selfId": "n1",
       "recipientPolicy": "strict",
@@ -402,7 +402,7 @@
       },
       "key": {
         "encoding": "base16",
-        "value": "50"
+        "value": "05"
       },
       "selfId": "n1",
       "recipientPolicy": "stable",

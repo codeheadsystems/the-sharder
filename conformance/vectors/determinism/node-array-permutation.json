@@ -1,7 +1,7 @@
 {
   "vectorSet": "determinism-node-array-permutation",
   "kind": "permutation",
-  "level": "core",
+  "level": "place",
   "description": "Reversing the `nodes` array, changing the epoch, changing `topologyId`, and adding `metadata` leave every candidate ordering unchanged.",
   "requirements": [
     "CORE-002",
@@ -9,6 +9,114 @@
     "RING-013",
     "RV-013"
   ],
+  "topologyDocuments": {
+    "topologies/rendezvous-plain.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "rv-plain",
+      "epoch": 1,
+      "replication": {
+        "factor": 3
+      },
+      "strategy": {
+        "kind": "rendezvous"
+      },
+      "nodes": [
+        {
+          "id": "n1"
+        },
+        {
+          "id": "n2"
+        },
+        {
+          "id": "n3"
+        },
+        {
+          "id": "n4"
+        },
+        {
+          "id": "n5"
+        }
+      ]
+    },
+    "topologies/ring-plain.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "ring-plain",
+      "epoch": 1,
+      "strategy": {
+        "kind": "ring",
+        "tokenAssignment": "derived",
+        "tokensPerWeightUnit": 1,
+        "maxTokensPerNode": 4096
+      },
+      "nodes": [
+        {
+          "id": "n1"
+        },
+        {
+          "id": "n2"
+        },
+        {
+          "id": "n3"
+        },
+        {
+          "id": "n4"
+        }
+      ]
+    },
+    "topologies/slot-explicit.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "slot-explicit",
+      "epoch": 4,
+      "replication": {
+        "factor": 2
+      },
+      "strategy": {
+        "kind": "slot",
+        "slotCount": 16384,
+        "assignment": "explicit",
+        "assignments": [
+          {
+            "slots": [
+              "0-5460"
+            ],
+            "nodes": [
+              "shard-a",
+              "shard-b"
+            ]
+          },
+          {
+            "slots": [
+              "5461-10922"
+            ],
+            "nodes": [
+              "shard-b",
+              "shard-c"
+            ]
+          },
+          {
+            "slots": [
+              "10923-16383"
+            ],
+            "nodes": [
+              "shard-c",
+              "shard-a"
+            ]
+          }
+        ]
+      },
+      "nodes": [
+        {
+          "id": "shard-a"
+        },
+        {
+          "id": "shard-b"
+        },
+        {
+          "id": "shard-c"
+        }
+      ]
+    }
+  },
   "cases": [
     {
       "name": "ring-plain",
@@ -248,173 +356,64 @@
       }
     },
     {
-      "name": "slot-derived",
+      "name": "slot-explicit",
       "requirements": [
         "PROP-005",
         "RING-013",
         "RV-013",
         "CORE-002"
       ],
-      "topology": "topologies/slot-derived.topology.json",
+      "topology": "topologies/slot-explicit.topology.json",
       "permutedDocument": {
         "formatVersion": "1.0",
-        "topologyId": "slot-derived-permuted",
-        "epoch": 1002,
+        "topologyId": "slot-explicit-permuted",
+        "epoch": 1004,
         "replication": {
           "factor": 2
         },
         "strategy": {
           "kind": "slot",
-          "slotCount": 64,
-          "assignment": "derived"
-        },
-        "nodes": [
-          {
-            "id": "s4",
-            "weight": 0
-          },
-          {
-            "id": "s3",
-            "weight": 2
-          },
-          {
-            "id": "s2",
-            "weight": 1
-          },
-          {
-            "id": "s1",
-            "weight": 1
-          }
-        ],
-        "metadata": {
-          "note": "permuted, and at a different epoch"
-        }
-      },
-      "expect": {
-        "identicalCandidates": [
-          {
-            "key": {
-              "encoding": "utf8",
-              "value": "perm-0"
-            },
-            "candidates": [
-              "s2",
-              "s3",
-              "s1"
-            ]
-          },
-          {
-            "key": {
-              "encoding": "utf8",
-              "value": "perm-1"
-            },
-            "candidates": [
-              "s1",
-              "s2",
-              "s3"
-            ]
-          },
-          {
-            "key": {
-              "encoding": "utf8",
-              "value": "perm-2"
-            },
-            "candidates": [
-              "s3",
-              "s2",
-              "s1"
-            ]
-          },
-          {
-            "key": {
-              "encoding": "utf8",
-              "value": "perm-3"
-            },
-            "candidates": [
-              "s3",
-              "s1",
-              "s2"
-            ]
-          },
-          {
-            "key": {
-              "encoding": "utf8",
-              "value": "perm-4"
-            },
-            "candidates": [
-              "s2",
-              "s3",
-              "s1"
-            ]
-          },
-          {
-            "key": {
-              "encoding": "utf8",
-              "value": "perm-5"
-            },
-            "candidates": [
-              "s2",
-              "s3",
-              "s1"
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "name": "range-derived",
-      "requirements": [
-        "PROP-005",
-        "RING-013",
-        "RV-013",
-        "CORE-002"
-      ],
-      "topology": "topologies/range-derived.topology.json",
-      "permutedDocument": {
-        "formatVersion": "1.0",
-        "topologyId": "range-derived-permuted",
-        "epoch": 1003,
-        "replication": {
-          "factor": 2
-        },
-        "strategy": {
-          "kind": "range",
-          "assignment": "derived",
-          "ranges": [
+          "slotCount": 16384,
+          "assignment": "explicit",
+          "assignments": [
             {
-              "shardId": "r0",
-              "start": null,
-              "end": "40"
+              "slots": [
+                "0-5460"
+              ],
+              "nodes": [
+                "shard-a",
+                "shard-b"
+              ]
             },
             {
-              "shardId": "r1",
-              "start": "40",
-              "end": "80"
+              "slots": [
+                "5461-10922"
+              ],
+              "nodes": [
+                "shard-b",
+                "shard-c"
+              ]
             },
             {
-              "shardId": "r2",
-              "start": "80",
-              "end": "c0"
-            },
-            {
-              "shardId": "r3",
-              "start": "c0",
-              "end": null
+              "slots": [
+                "10923-16383"
+              ],
+              "nodes": [
+                "shard-c",
+                "shard-a"
+              ]
             }
           ]
         },
         "nodes": [
           {
-            "id": "n3",
-            "weight": 2
+            "id": "shard-c"
           },
           {
-            "id": "n2",
-            "weight": 1
+            "id": "shard-b"
           },
           {
-            "id": "n1",
-            "weight": 1
+            "id": "shard-a"
           }
         ],
         "metadata": {
@@ -429,9 +428,8 @@
               "value": "perm-0"
             },
             "candidates": [
-              "n2",
-              "n3",
-              "n1"
+              "shard-a",
+              "shard-b"
             ]
           },
           {
@@ -440,9 +438,8 @@
               "value": "perm-1"
             },
             "candidates": [
-              "n2",
-              "n3",
-              "n1"
+              "shard-c",
+              "shard-a"
             ]
           },
           {
@@ -451,9 +448,8 @@
               "value": "perm-2"
             },
             "candidates": [
-              "n2",
-              "n3",
-              "n1"
+              "shard-c",
+              "shard-a"
             ]
           },
           {
@@ -462,9 +458,8 @@
               "value": "perm-3"
             },
             "candidates": [
-              "n2",
-              "n3",
-              "n1"
+              "shard-c",
+              "shard-a"
             ]
           },
           {
@@ -473,9 +468,8 @@
               "value": "perm-4"
             },
             "candidates": [
-              "n2",
-              "n3",
-              "n1"
+              "shard-a",
+              "shard-b"
             ]
           },
           {
@@ -484,9 +478,8 @@
               "value": "perm-5"
             },
             "candidates": [
-              "n2",
-              "n3",
-              "n1"
+              "shard-b",
+              "shard-c"
             ]
           }
         ]

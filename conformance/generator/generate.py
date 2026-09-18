@@ -11,6 +11,7 @@ been checked against the published vectors in the same invocation of `run.sh`.
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -37,10 +38,7 @@ TOPOLOGY_FILES = {
     "rendezvous-plain": T.RENDEZVOUS_PLAIN,
     "rendezvous-capped": T.RENDEZVOUS_CAPPED,
     "slot-explicit": T.SLOT_EXPLICIT,
-    "slot-derived": T.SLOT_DERIVED,
     "slot-small": T.SLOT_SMALL,
-    "range-explicit": T.RANGE_EXPLICIT,
-    "range-derived": T.RANGE_DERIVED,
     "directory-tenants": T.DIRECTORY_TENANTS,
     "directory-sparse": T.DIRECTORY_SPARSE,
     "empty-nodes": T.EMPTY_NODES,
@@ -66,10 +64,6 @@ TOPOLOGY_FILES = {
     "movement-ring-after": T.MOVEMENT_RING_AFTER,
     "movement-rv-before": T.MOVEMENT_RV_BEFORE,
     "movement-rv-after": T.MOVEMENT_RV_AFTER,
-    "movement-slot-before": T.MOVEMENT_SLOT_BEFORE,
-    "movement-slot-after": T.MOVEMENT_SLOT_AFTER,
-    "movement-range-before": T.MOVEMENT_RANGE_BEFORE,
-    "movement-range-after": T.MOVEMENT_RANGE_AFTER,
 }
 
 MANIFEST_ENTRIES = []
@@ -78,8 +72,59 @@ SNAPSHOTS = {}
 
 # --------------------------------------------------------------------------- output
 
+TOPOLOGY_REFERENCE = re.compile(r"^topologies/[A-Za-z0-9./-]+\.topology\.json$")
+
+
+def conformance_root(path: Path):
+    """The suite root a generated file is being written under."""
+    for parent in path.parents:
+        if (parent / "topologies").is_dir():
+            return parent
+    raise SystemExit("%s: no conformance root above it" % path)
+
+
+def topology_references(value, found):
+    """Every topology document path a payload names, at any depth."""
+    if isinstance(value, str):
+        if TOPOLOGY_REFERENCE.match(value):
+            found.add(value)
+    elif isinstance(value, dict):
+        for member in value.values():
+            topology_references(member, found)
+    elif isinstance(value, list):
+        for member in value:
+            topology_references(member, found)
+    return found
+
+
+def inline_topologies(path: Path, payload):
+    """Carry the documents a `place` file names inside the file itself.
+
+    A file at the `place` level is run by a port that has no document pipeline, so it cannot read
+    a document out of `conformance/topologies/`, canonicalise it, or check a digest.  The document
+    travels in the file, under the same path the rest of the suite names it by, and
+    `build_manifest.py` refuses a copy that has drifted from the document it was taken from.
+    """
+    if payload.get("level") != "place":
+        return payload
+    root = conformance_root(path)
+    references = sorted(topology_references(payload, set()))
+    if not references:
+        return payload
+    documents = {name: json.loads((root / name).read_text()) for name in references}
+    rebuilt = {}
+    for name, value in payload.items():
+        if name == "cases":
+            rebuilt["topologyDocuments"] = documents
+        rebuilt[name] = value
+    if "topologyDocuments" not in rebuilt:
+        rebuilt["topologyDocuments"] = documents
+    return rebuilt
+
+
 def write_json(path: Path, payload):
     path.parent.mkdir(parents=True, exist_ok=True)
+    payload = inline_topologies(path, payload)
     path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n")
 
 
@@ -127,7 +172,7 @@ ROUTING_SET_REQUIREMENTS = ["CORE-046", "CORE-047"]
 
 
 def routing_set(out, path, vector_set, description, topology_name, requirements, cases,
-                level="core"):
+                level="place"):
     snapshot = SNAPSHOTS[topology_name]
     requirements = list(requirements) + ROUTING_SET_REQUIREMENTS
     payload = {
@@ -227,16 +272,6 @@ def build_hash_vectors(out):
                      [hashing.TAG_RENDEZVOUS, rk, node_id, hashing.u32be(index)],
                      hashing.rv_score(ZERO, rk, node_id, index), ("HASH-020", "PLACE-053"))
 
-    for slot in [0, 1, 16383, 1048575]:
-        case("slotScore/%d/s1/0" % slot, "slotScore", ZERO,
-             [hashing.TAG_SLOT, hashing.u32be(slot), b"s1", hashing.u32be(0)],
-             hashing.slot_score(ZERO, slot, b"s1", 0), ("HASH-020", "PLACE-053"))
-
-    for shard in [b"r0", b"range-with-a-longer-name"]:
-        case("rangeScore/%s/n1/0" % shard.decode(), "rangeScore", ZERO,
-             [hashing.TAG_RANGE, shard, b"n1", hashing.u32be(0)],
-             hashing.range_score(ZERO, shard, b"n1", 0), ("HASH-020", "PLACE-053", "PLACE-034"))
-
     simple_set(out, "vectors/hash/construction.json", "hash-construction", "hash",
                "The framed, domain-tagged hash construction of `HASH-020` through `HASH-032`, "
                "including the framed message octets so that a port can separate a framing defect "
@@ -296,7 +331,7 @@ def build_key_transform_vectors(out):
                ["KEY-001", "KEY-002", "KEY-004", "KEY-010", "KEY-013", "KEY-020"],
                transform_cases({"kind": "none"}, none_rows,
                                ["KEY-001", "KEY-002", "KEY-013", "KEY-020"]),
-               topology="topologies/kt-none.topology.json")
+               topology="topologies/kt-none.topology.json", level="place")
 
     continuation = {"kind": "prefixFields", "separator": "a9", "count": 1}
     continuation_rows = [
@@ -313,7 +348,7 @@ def build_key_transform_vectors(out):
                ["KEY-011", "KEY-012", "KEY-013", "KEY-014", "KEY-043"],
                transform_cases(continuation, continuation_rows,
                                ["KEY-012", "KEY-013", "KEY-014"]),
-               topology="topologies/kt-continuation.topology.json")
+               topology="topologies/kt-continuation.topology.json", level="place")
 
     brace = {"kind": "braceTag", "open": "7b", "close": "7d"}
     brace_rows = [
@@ -336,7 +371,7 @@ def build_key_transform_vectors(out):
                "The `braceTag` transform at the default delimiters.",
                ["KEY-030", "KEY-031", "KEY-032", "KEY-033", "KEY-034", "KEY-035", "KEY-036"],
                transform_cases(brace, brace_rows, ["KEY-030"]),
-               topology="topologies/kt-brace.topology.json")
+               topology="topologies/kt-brace.topology.json", level="place")
 
     same = {"kind": "braceTag", "open": "7c", "close": "7c"}
     same_rows = [
@@ -348,7 +383,7 @@ def build_key_transform_vectors(out):
                "keytransform-brace-tag-same-octet", "keyTransform",
                "The `braceTag` transform where `open` and `close` are the same octet.",
                ["KEY-037"], transform_cases(same, same_rows, ["KEY-037"]),
-               topology="topologies/kt-brace-same.topology.json")
+               topology="topologies/kt-brace-same.topology.json", level="place")
 
     prefix1 = {"kind": "prefixFields", "separator": "3a", "count": 1}
     prefix1_rows = [
@@ -365,7 +400,7 @@ def build_key_transform_vectors(out):
                "The `prefixFields` transform at a count of 1.",
                ["KEY-011", "KEY-014", "KEY-040", "KEY-041", "KEY-042", "KEY-043"],
                transform_cases(prefix1, prefix1_rows, ["KEY-041"]),
-               topology="topologies/kt-prefix-1.topology.json")
+               topology="topologies/kt-prefix-1.topology.json", level="place")
 
     prefix2 = {"kind": "prefixFields", "separator": "3a", "count": 2}
     prefix2_rows = [
@@ -379,7 +414,7 @@ def build_key_transform_vectors(out):
                "The `prefixFields` transform at a count of 2.",
                ["KEY-041", "KEY-042", "KEY-044"],
                transform_cases(prefix2, prefix2_rows, ["KEY-044"]),
-               topology="topologies/kt-prefix-2.topology.json")
+               topology="topologies/kt-prefix-2.topology.json", level="place")
 
 
 # ------------------------------------------------------------------- digest vectors
@@ -646,16 +681,6 @@ def build_slot_vectors(out):
                 ["SLOT-001", "SLOT-002", "SLOT-003", "SLOT-010", "SLOT-011", "SLOT-012",
                  "SLOT-014", "SLOT-030", "PLACE-013", "PLACE-014"], cases)
 
-    snapshot = SNAPSHOTS["slot-derived"]
-    cases = [routing_case(snapshot, ("d%d" % i).encode(), "derived/%d" % i,
-                          ["SLOT-020", "SLOT-021", "SLOT-022", "SLOT-023"]) for i in range(12)]
-    routing_set(out, "vectors/slot/derived-assignment.json", "slot-derived-assignment",
-                "Slot placement under derived assignment: the ordering is the rendezvous "
-                "ordering over the slot index, so two keys in one slot order identically.",
-                "slot-derived",
-                ["SLOT-020", "SLOT-021", "SLOT-022", "SLOT-023", "SLOT-030", "SLOT-031",
-                 "PLACE-042"], cases)
-
     snapshot = SNAPSHOTS["slot-small"]
     cases = [routing_case(snapshot, ("m%d" % i).encode(), "modulus/%d" % i,
                           ["SLOT-001", "SLOT-003"],
@@ -665,51 +690,6 @@ def build_slot_vectors(out):
                 "`keyHash mod slotCount` at a slot count of 7, which a bitwise mask cannot "
                 "reproduce.",
                 "slot-small", ["SLOT-001", "SLOT-002", "SLOT-003", "PROP-024"], cases)
-
-
-def build_range_vectors(out):
-    snapshot = SNAPSHOTS["range-explicit"]
-    cases = [routing_case(snapshot, k, n, r, note, enc) for n, k, r, note, enc in [
-        ("explicit/empty-key", b"", ["RANGE-004", "RANGE-010"],
-         "the empty sequence compares below every non-empty one, so it falls in the first range",
-         "utf8"),
-        ("explicit/below-first-bound", b"a", ["RANGE-011"], None, "utf8"),
-        ("explicit/at-bound", bytes([0x6d]), ["RANGE-012"],
-         "a key equal to a `start` falls inside that range", "base16"),
-        ("explicit/just-below-bound", bytes([0x6c, 0xff]), ["RANGE-011"], None, "base16"),
-        ("explicit/prefix-of-bound", bytes([0x7a]), ["RANGE-003"],
-         "`7a` compares less than the bound `7a00`, so it stays in r1", "base16"),
-        ("explicit/extends-bound", bytes([0x7a, 0x00]), ["RANGE-003", "RANGE-012"],
-         "`7a00` equals the bound and falls in the following range", "base16"),
-        ("explicit/high-octet", bytes([0xff]), ["RANGE-002"],
-         "an octet above 0x7f compares as unsigned, so it is above the bound", "base16"),
-        ("explicit/last-range", b"zzz", ["RANGE-010"], None, "utf8"),
-    ]]
-    routing_set(out, "vectors/range/explicit-bounds.json", "range-explicit-bounds",
-                "Unsigned bytewise bound comparison over half-open intervals, including the "
-                "prefix rule and the half-open endpoints.",
-                "range-explicit",
-                ["RANGE-001", "RANGE-002", "RANGE-003", "RANGE-004", "RANGE-005", "RANGE-010",
-                 "RANGE-011", "RANGE-012", "RANGE-013", "RANGE-020", "RANGE-040"], cases)
-
-    snapshot = SNAPSHOTS["range-derived"]
-    cases = []
-    for label, key in [("00", bytes([0x00])), ("3f", bytes([0x3f])), ("40", bytes([0x40])),
-                       ("7f", bytes([0x7f])), ("80", bytes([0x80])), ("c0", bytes([0xc0])),
-                       ("ff", bytes([0xff]))]:
-        cases.append(routing_case(snapshot, key, "derived/%s" % label,
-                                  ["RANGE-030", "RANGE-031", "RANGE-032", "RANGE-033"],
-                                  "the ordering depends on the key only through the shardId",
-                                  encoding="base16"))
-    cases.append(routing_case(snapshot, bytes([0x41, 0x99]), "derived/41-99",
-                              ["RANGE-033"],
-                              "a second key in r1, which orders identically to `40`",
-                              encoding="base16"))
-    routing_set(out, "vectors/range/derived-assignment.json", "range-derived-assignment",
-                "Range placement under derived assignment, where the ordering is the rendezvous "
-                "ordering over the `shardId`.",
-                "range-derived",
-                ["RANGE-030", "RANGE-031", "RANGE-032", "RANGE-033", "RANGE-040"], cases)
 
 
 def build_directory_vectors(out):
@@ -950,7 +930,7 @@ def build_spread_vectors(out):
                "has a distinct domain at each level.",
                ["SPREAD-005", "SPREAD-010", "SPREAD-011", "SPREAD-012", "SPREAD-013",
                 "SPREAD-015", "SPREAD-017", "SPREAD-018", "SPREAD-019", "SPREAD-020"],
-               ladder_cases)
+               ladder_cases, level="place")
 
     # `SPREAD-006` fixes the scope of a domain path to `domainLevels`.  This topology declares
     # three levels and spreads over the finest one alone, and reuses rack identifiers across
@@ -1044,9 +1024,7 @@ def build_shard_vectors(out):
     cases = []
     for name, keys in [("ring-plain", [b"user-42", b"k3", b""]),
                        ("slot-explicit", [b"slot-1", b"slot-7"]),
-                       ("slot-derived", [b"d1", b"d5"]),
-                       ("range-explicit", [b"a", b"zzz"]),
-                       ("range-derived", [bytes([0x50])]),
+                       ("slot-small", [b"m1", b"m5"]),
                        ("directory-tenants", [b"gov-high", b"anything-else"])]:
         snapshot = SNAPSHOTS[name]
         enumerated = placement.shards(snapshot)
@@ -1103,13 +1081,13 @@ def build_shard_vectors(out):
                "and `candidatesForShard` that `PLACE-033` requires.",
                ["PLACE-030", "PLACE-031", "PLACE-032", "PLACE-033", "RING-030", "RING-031",
                 "RING-032", "RV-020", "RV-021", "RV-022", "SLOT-030", "SLOT-031", "SLOT-032",
-                "RANGE-040", "RANGE-041", "RANGE-042", "DIR-020", "DIR-021", "DIR-022"], cases)
+                "DIR-020", "DIR-021", "DIR-022"], cases, level="place")
 
 
 def build_permutation_vectors(out):
     """`PROP-005`: a candidate ordering survives a permuted `nodes` array and a changed epoch."""
     cases = []
-    for name in ["ring-plain", "rendezvous-plain", "slot-derived", "range-derived"]:
+    for name in ["ring-plain", "rendezvous-plain", "slot-explicit"]:
         base = TOPOLOGY_FILES[name]
         permuted = dict(base)
         permuted["nodes"] = list(reversed(base["nodes"]))
@@ -1136,7 +1114,7 @@ def build_permutation_vectors(out):
                "determinism-node-array-permutation", "permutation",
                "Reversing the `nodes` array, changing the epoch, changing `topologyId`, and "
                "adding `metadata` leave every candidate ordering unchanged.",
-               ["PROP-005", "CORE-002", "RING-013", "RV-013"], cases)
+               ["PROP-005", "CORE-002", "RING-013", "RV-013"], cases, level="place")
 
 
 def build_colliding_key_vectors(out, kh_collision):
@@ -1170,7 +1148,7 @@ def build_colliding_key_vectors(out, kh_collision):
     slot, pair = next((s, v[:2]) for s, v in sorted(buckets.items()) if len(v) >= 2)
     cases.append({
         "name": "slot-collision",
-        "requirements": ["SLOT-001", "SLOT-023"],
+        "requirements": ["SLOT-001", "SLOT-030"],
         "topology": "topologies/slot-small.topology.json",
         "note": "distinct keys reduced to one slot index, found by enumeration",
         "keys": [key_spec(k) for k in pair],
@@ -1227,20 +1205,11 @@ def build_colliding_key_vectors(out, kh_collision):
                "collidingKeys",
                "Distinct keys that collide at the transform, at the slot index, at the ring "
                "token range, and at the 64-bit key hash itself.",
-               ["KEY-030", "SLOT-001", "RING-020", "SEC-001", "PROP-003"], cases)
+               ["KEY-030", "SLOT-001", "RING-020", "SEC-001", "PROP-003"], cases, level="place")
 
 
 def movement_keys(label):
-    """The sample a movement case draws.
-
-    Under `range` the shard is the covering interval of the raw routing key, so a sample of keys
-    that share a leading octet falls in one range and exercises nothing.  That case draws keys
-    that span the keyspace instead.
-    """
-    if label == "range-derived":
-        keys = [bytes([i]) for i in range(256)]
-        keys += [bytes([i, 0x80]) for i in range(0, 256, 2)]
-        return keys[:400]
+    """The sample a movement case draws."""
     return [("mv-%d" % i).encode() for i in range(400)]
 
 
@@ -1249,8 +1218,6 @@ def build_movement_vectors(out):
     for label, before_name, after_name, added in [
         ("ring", "movement-ring-before", "movement-ring-after", "m6"),
         ("rendezvous", "movement-rv-before", "movement-rv-after", "m6"),
-        ("slot-derived", "movement-slot-before", "movement-slot-after", "m6"),
-        ("range-derived", "movement-range-before", "movement-range-after", "m6"),
     ]:
         before, after = SNAPSHOTS[before_name], SNAPSHOTS[after_name]
         sample = movement_keys(label)
@@ -1297,7 +1264,7 @@ def build_movement_vectors(out):
                "Adding one node to a topology of five.  Every key keeps its first candidate or "
                "moves to the added node, and the whole candidate ordering is preserved as a "
                "subsequence.  The counts are golden, so a port reproduces them exactly.",
-               ["PROP-010", "PROP-011", "PROP-012", "PROP-016", "PROP-019"], cases)
+               ["PROP-010", "PROP-011", "PROP-012", "PROP-016", "PROP-019"], cases, level="place")
 
 
 def build_tie_vectors(out, root, collisions):
@@ -1357,77 +1324,31 @@ def build_tie_vectors(out, root, collisions):
             },
         })
 
-    for kind, (tag, builder) in {
-        "rendezvous": ("rendezvous", None),
-        "slot": ("slot", None),
-        "range": ("range", None),
-    }.items():
-        if kind not in collisions:
-            continue
+    if "rendezvous" in collisions:
+        kind = "rendezvous"
         a, b = collisions[kind]
-        if kind == "rendezvous":
-            key = b"tie-probe"
-            score = hashing.rv_score(ZERO, key, a.encode(), 0)
-            assert score == hashing.rv_score(ZERO, key, b.encode(), 0)
-            document = {
-                "formatVersion": "1.0", "topologyId": "rendezvous-score-tie", "epoch": 1,
-                "replication": {"factor": 2},
-                "strategy": {"kind": "rendezvous", "virtualNodesPerWeightUnit": 1,
-                             "maxVirtualNodesPerNode": 1},
-                "nodes": [{"id": a}, {"id": b}, {"id": "zz-third"}],
-                "metadata": {"note": "the first two identities score identically for `tie-probe`"},
-            }
-            path = "topologies/rendezvous-score-tie.topology.json"
-            requirements = ["RV-003", "RV-010", "PLACE-020", "PLACE-023"]
-            extra = {"routingKey": key.hex(), "equalScore": hashing.hex_u64(score)}
-        elif kind == "slot":
-            index = 0
-            score = hashing.slot_score(ZERO, index, a.encode(), 0)
-            assert score == hashing.slot_score(ZERO, index, b.encode(), 0)
-            document = {
-                "formatVersion": "1.0", "topologyId": "slot-score-tie", "epoch": 1,
-                "replication": {"factor": 2},
-                "strategy": {"kind": "slot", "slotCount": 64, "assignment": "derived"},
-                "nodes": [{"id": a}, {"id": b}, {"id": "zz-third"}],
-                "metadata": {"note": "the first two identities score identically for slot 0"},
-            }
-            path = "topologies/slot-score-tie.topology.json"
-            requirements = ["SLOT-021", "SLOT-022", "PLACE-020", "PLACE-023"]
-            extra = {"slotIndex": index, "equalScore": hashing.hex_u64(score)}
-            key = None
-        else:
-            shard = "r0"
-            score = hashing.range_score(ZERO, shard.encode(), a.encode(), 0)
-            assert score == hashing.range_score(ZERO, shard.encode(), b.encode(), 0)
-            document = {
-                "formatVersion": "1.0", "topologyId": "range-score-tie", "epoch": 1,
-                "replication": {"factor": 2},
-                "strategy": {"kind": "range", "assignment": "derived",
-                             "ranges": [{"shardId": "r0", "start": None, "end": "80"},
-                                        {"shardId": "r1", "start": "80", "end": None}]},
-                "nodes": [{"id": a}, {"id": b}, {"id": "zz-third"}],
-                "metadata": {"note": "the first two identities score identically for shard r0"},
-            }
-            path = "topologies/range-score-tie.topology.json"
-            requirements = ["RANGE-031", "RANGE-032", "PLACE-020", "PLACE-023"]
-            extra = {"shardId": shard, "equalScore": hashing.hex_u64(score)}
-            key = None
+        key = b"tie-probe"
+        score = hashing.rv_score(ZERO, key, a.encode(), 0)
+        assert score == hashing.rv_score(ZERO, key, b.encode(), 0)
+        document = {
+            "formatVersion": "1.0", "topologyId": "rendezvous-score-tie", "epoch": 1,
+            "replication": {"factor": 2},
+            "strategy": {"kind": "rendezvous", "virtualNodesPerWeightUnit": 1,
+                         "maxVirtualNodesPerNode": 1},
+            "nodes": [{"id": a}, {"id": b}, {"id": "zz-third"}],
+            "metadata": {"note": "the first two identities score identically for `tie-probe`"},
+        }
+        path = "topologies/rendezvous-score-tie.topology.json"
+        requirements = ["RV-003", "RV-010", "PLACE-020", "PLACE-023"]
+        extra = {"routingKey": key.hex(), "equalScore": hashing.hex_u64(score)}
 
         write_json(root / path, document)
         snapshot = Snapshot(document)
         lower = min(a, b, key=lambda s: s.encode())
-        if kind == "rendezvous":
-            probe_keys = [key]
-        elif kind == "slot":
-            probe_keys = [k for k in (("t%d" % i).encode() for i in range(4000))
-                          if placement.slot_index(snapshot, k) == 0][:2]
-        else:
-            probe_keys = [bytes([0x00]), bytes([0x7f])]
-
         rows = []
-        for probe in probe_keys:
+        for probe in [key]:
             decision = routing.route(snapshot, probe)
-            rows.append({"key": key_spec(probe, "base16" if kind == "range" else "utf8"),
+            rows.append({"key": key_spec(probe),
                          "candidates": decision["candidates"],
                          "shard": decision["shard"]})
         cases.append({
@@ -1448,7 +1369,7 @@ def build_tie_vectors(out, root, collisions):
                "Pollard rho search in `rho_search.c` and was recomputed through the reference "
                "before it was written."
                % ", ".join(c["name"] for c in cases),
-               ["PLACE-016", "PLACE-020", "PLACE-021", "PLACE-023"], cases)
+               ["PLACE-016", "PLACE-020", "PLACE-021", "PLACE-023"], cases, level="place")
 
 
 # --------------------------------------------------------------------------- main
@@ -1482,12 +1403,6 @@ def load_collisions(directory: Path):
         elif mode == "rendezvous":
             ok = (hashing.rv_score(ZERO, b"tie-probe", left, 0)
                   == hashing.rv_score(ZERO, b"tie-probe", right, 0))
-        elif mode == "slot":
-            ok = (hashing.slot_score(ZERO, 0, left, 0)
-                  == hashing.slot_score(ZERO, 0, right, 0))
-        elif mode == "range":
-            ok = (hashing.range_score(ZERO, b"r0", left, 0)
-                  == hashing.range_score(ZERO, b"r0", right, 0))
         elif mode == "keyHash":
             ok = hashing.key_hash(ZERO, left) == hashing.key_hash(ZERO, right)
         else:
@@ -1526,7 +1441,6 @@ def main():
     build_ring_vectors(root)
     build_rendezvous_vectors(root)
     build_slot_vectors(root)
-    build_range_vectors(root)
     build_directory_vectors(root)
     build_override_vectors(root)
     build_replication_vectors(root)

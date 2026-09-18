@@ -35,7 +35,6 @@
       "maximum": 9007199254740991
     },
     "hexU64": { "type": "string", "pattern": "^[0-9a-f]{16}$" },
-    "hexBytes": { "type": "string", "pattern": "^([0-9a-f]{2})*$" },
     "nodeId": { "type": "string", "minLength": 1, "maxLength": 256 },
     "levelName": { "type": "string", "minLength": 1, "maxLength": 64 },
     "stringMap": {
@@ -202,7 +201,6 @@
         { "$ref": "#/$defs/strategyRing" },
         { "$ref": "#/$defs/strategyRendezvous" },
         { "$ref": "#/$defs/strategySlot" },
-        { "$ref": "#/$defs/strategyRange" },
         { "$ref": "#/$defs/strategyDirectory" }
       ]
     },
@@ -251,8 +249,8 @@
         "slotCount": { "type": "integer", "minimum": 1, "maximum": 1048576 },
         "assignment": {
           "type": "string",
-          "enum": ["derived", "explicit"],
-          "default": "derived"
+          "enum": ["explicit"],
+          "default": "explicit"
         },
         "assignments": {
           "type": "array",
@@ -266,40 +264,6 @@
                 "minItems": 1,
                 "items": { "$ref": "#/$defs/slotRange" }
               },
-              "nodes": {
-                "type": "array",
-                "minItems": 1,
-                "uniqueItems": true,
-                "items": { "$ref": "#/$defs/nodeId" }
-              }
-            }
-          }
-        }
-      }
-    },
-
-    "strategyRange": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["kind", "ranges"],
-      "properties": {
-        "kind": { "const": "range" },
-        "assignment": {
-          "type": "string",
-          "enum": ["derived", "explicit"],
-          "default": "explicit"
-        },
-        "ranges": {
-          "type": "array",
-          "minItems": 1,
-          "items": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": ["shardId", "start", "end"],
-            "properties": {
-              "shardId": { "type": "string", "minLength": 1, "maxLength": 128 },
-              "start": { "oneOf": [{ "$ref": "#/$defs/hexBytes" }, { "type": "null" }] },
-              "end": { "oneOf": [{ "$ref": "#/$defs/hexBytes" }, { "type": "null" }] },
               "nodes": {
                 "type": "array",
                 "minItems": 1,

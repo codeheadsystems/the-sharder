@@ -11,11 +11,16 @@ maintainer asking what tests `SPREAD-013` reads the answer out of
 [`../../conformance/manifest.json`](../../conformance/manifest.json) rather than out of a test
 runner.
 
+Status: the suite, the reference generator, and the reference driver exist and run. No
+implementation of the sharder library exists, so no port has yet run the suite, and every level,
+kind, and driver rule below describes what a port will do rather than what one has done. The only
+implementation the suite has run against is the reference that computed its expectations.
+
 ## Suite layout
 
 | Path | Contents |
 |---|---|
-| `conformance/manifest.json` | the conformance levels, every vector file with its level and coverage, and every topology digest |
+| `conformance/manifest.json` | the suite revision, the conformance levels, the strategy surfaces, every vector file with its level and coverage, and every topology digest |
 | `conformance/coverage.json` | requirement coverage, computed from the specification |
 | `conformance/topologies/` | the topology documents the suite routes against |
 | `conformance/topologies/invalid/` | documents that fail a load-time rule |
@@ -24,8 +29,10 @@ runner.
 | `conformance/scenarios/` | the simulation scenarios |
 | `conformance/generator/` | the reference implementation and the generator scripts |
 
-A topology document is stored once and referenced by path from the vector files that use it, so a
-document appears in the suite in exactly one form and its digest is asserted in one place.
+A topology document is stored once under `conformance/topologies/` and referenced by path from the
+vector files that use it. A vector file at the `place` level carries a copy of every document it
+names, because a port at that level has no document pipeline to read one with; `build_manifest.py`
+refuses a copy that differs from the document it was taken from, so the two cannot drift.
 
 ## Vector file format
 
@@ -37,11 +44,12 @@ output the reference computed for it.
 {
   "vectorSet": "ring-derived-walk",
   "kind": "routing",
-  "level": "core",
+  "level": "place",
   "description": "The ring walk under derived tokens.",
   "requirements": ["RING-020", "RING-021"],
   "topology": "topologies/ring-plain.topology.json",
   "topologyDigest": "…",
+  "topologyDocuments": { "topologies/ring-plain.topology.json": {…} },
   "cases": [ { "name": "…", "requirements": ["RING-020"], "key": {…}, "expect": {…} } ]
 }
 ```
@@ -51,6 +59,10 @@ unknown kind fails rather than skipping the file.
 
 `level` names the conformance level the file belongs to, one of the levels the `levels` table of
 `manifest.json` states. A driver that meets an unknown level fails, as it does for an unknown kind.
+
+`topologyDocuments` maps each document path the file names to the document itself. It appears on a
+file at the `place` level and on no other, and the Placement before a document pipeline section
+below states what a port does with it.
 
 | `kind` | Input of a case | Output asserted |
 |---|---|---|
@@ -76,7 +88,9 @@ unknown kind fails rather than skipping the file.
 
 `topologyDigest` carries the SHA-256 of the RFC 8785 canonical form of the referenced document. A
 driver that checks it before running the cases separates a canonicalisation defect from a placement
-defect, which are otherwise hard to tell apart from a failing ordering.
+defect, which are otherwise hard to tell apart from a failing ordering. On a file at `place` it
+names the document rather than asking for a digest: a port that reaches `core` computes and checks
+it, and a port at `place` alone has no canonical form to check it with.
 
 ### Octet encoding
 
@@ -139,15 +153,19 @@ that a driver needs no parser beyond a JSON reader: the reference driver is five
 covering every kind, and a driver that starts at the `hash` and `routing` kinds alone is under a
 hundred.
 
-1. Read `manifest.json` and fail where any file it lists is absent.
+1. Read `manifest.json`, note the `revision` a declaration names, and fail where any file it lists
+   is absent.
 2. Read its `levels` table, and fail where a vector file or a scenario names a level the table does
    not list.
-3. For each vector file at a declared level, dispatch on `kind`.
-4. For a file naming a topology, load that document, validate it, install it, and assert the
-   digest against `topologyDigest`.
-5. For each case, decode the key by its `encoding`, run the call the kind names, and compare the
+3. Read its `strategySurfaces` list, and skip a vector file whose `strategies` name a surface the
+   port does not expose, and a case whose own documents name one.
+4. For each vector file at a declared level, dispatch on `kind`.
+5. For a file carrying `topologyDocuments`, prepare placement over the document it carries. For a
+   file naming a topology and carrying none, load that document, validate it, install it, and
+   assert the digest against `topologyDigest`.
+6. For each case, decode the key by its `encoding`, run the call the kind names, and compare the
    result to `expect` field by field.
-6. Report a failure by vector set, case name, field, and the requirement identifiers the case
+7. Report a failure by vector set, case name, field, and the requirement identifiers the case
    names, and report the vector files and cases run at each level.
 
 A driver compares only the fields a case carries. A case that omits `relaxedLevels` makes no claim
@@ -175,60 +193,108 @@ names one in `scenarios/index.json`, a property names one in `properties/propert
 artefact carries two. The `levels` table of `manifest.json` carries the structure below, so a
 harness reads a level rather than inferring one from a file's path or its `kind`.
 
-| Level | Requires | Contents | A port needs it when |
-|---|---|---|---|
-| `hash` | | SipHash-2-4 and the framed domain-tagged construction | always; every other level rests on it |
-| `core` | `hash` | the key transforms, the canonical form and the digest, document validation, the five placement strategies, overrides, replication and spread, shard enumeration, movement, the tie-breaks, the identity comparator, the virtual node count, the error taxonomy, the ownership delta, skew detection, and the rollback scenario | always |
-| `failover` | `core` | the health arithmetic, the retry budget, the attempt limit, and the three health scenarios | the port exposes `attempts` or a health view |
-| `readAffinity` | `core` | `routeForRead` and the bounded reordering of the replica prefix | the port exposes `routeForRead` |
-| `fencing` | `failover` | the fencing token encoding, the recipient scenarios, and the redirect walk | the port exposes the recipient check |
-| `migration` | `failover` | the rate control formulas, the split lineage vectors, and the handoff scenarios | the port exposes the handoff coordinator |
+Each level tests one conformance surface of
+[`10-specification.md`](10-specification.md#conformance-surfaces). Three levels test `routing`
+between them, because that surface is large and a port reaches it in stages.
+
+| Level | Requires | Surface | Contents | A port needs it when |
+|---|---|---|---|---|
+| `hash` | | `routing` | SipHash-2-4 and the framed domain-tagged construction | always; every other level rests on it |
+| `place` | `hash` | `routing` | the key transforms, the four placement strategies, overrides, replication and spread, shard enumeration, movement, the tie-breaks, the identity comparator, and the virtual node count, each over a topology the file carries already valid | always |
+| `core` | `place` | `routing` | the canonical form and the digest, document validation, the error taxonomy, the ownership delta, skew detection, the placement properties, and the rollback scenario | always |
+| `failover` | `core` | `failover` | the health arithmetic, the retry budget, the attempt walk and the clamp `FAIL-022` applies to it, and the three health scenarios | the port exposes `attempts` or a health view |
+| `readAffinity` | `core` | `readAffinity` | `routeForRead` and the bounded reordering of the replica prefix | the port exposes `routeForRead` |
+| `fencing` | `failover` | `fencing` | the fencing token encoding, the recipient scenarios, and the redirect walk | the port exposes the recipient check |
+| `migration` | `failover` | `migration` | the rate control formulas and the handoff scenarios | the port exposes the handoff coordinator |
 
 A declared level carries the levels it requires, transitively, so a port at `fencing` runs `hash`,
-`core`, `failover`, and `fencing`. `fencing` requires `failover` because `FENCE-231` bounds the
-redirect walk by the retry budget of `FAIL-031`, and `migration` requires it because a coordinator
-observes the health state of a destination that stops answering.
+`place`, `core`, `failover`, and `fencing`. `fencing` requires `failover` because `FENCE-231` bounds
+the redirect walk by the retry budget of `FAIL-031`, and `migration` requires it because a
+coordinator observes the health state of a destination that stops answering.
 
-| Level | Vector files | Cases | Scenarios | Properties | Requirements |
-|---|---|---|---|---|---|
-| `hash` | 2 | 40 | 0 | 0 | 18 |
-| `core` | 53 | 462 | 1 | 24 | 280 |
-| `failover` | 2 | 65 | 3 | 2 | 44 |
-| `readAffinity` | 1 | 42 | 0 | 0 | 11 |
-| `fencing` | 1 | 5 | 3 | 1 | 37 |
-| `migration` | 2 | 26 | 10 | 3 | 83 |
+The size of each level is computed rather than stated here. The `levels` table of
+[`../../conformance/manifest.json`](../../conformance/manifest.json) carries one row per level, and
+each row holds the artefact counts in `vectorFiles`, `vectorCases`, `scenarios`, and `properties`,
+and the number of requirement identifiers the level's own artefacts name in `requirementsNamed`.
 
-The last column counts the requirement identifiers a level's own artefacts name.
 [`../../conformance/coverage.json`](../../conformance/coverage.json) lists those identifiers under
-`byLevel`, together with the larger count a declaration of that level reaches once the levels it
-requires are added: 298 at `core`, 341 at `failover`, 307 at `readAffinity`, 375 at `fencing`, and
-415 at `migration`.
+`byLevel`. Each row there holds `requirementsAtLevel`, which is the level's own count, and
+`requirementsWhenDeclared`, which is the larger count a declaration of that level reaches once the
+levels it requires are added. `run_suite.py` prints both the file and the case count per level as it
+runs, against the totals the manifest holds.
 
-`core` is not optional. A port that declines `core` is not a port of the sharder library, because
-`core` is exactly the set of decisions that two callers in two languages have to agree on. The four
-levels above it are optional because the specification makes their surfaces optional: an integrator
-who routes a tenant identifier to one of five clusters never constructs a handoff coordinator, and a
-port serving that integrator carries no coordinator to test.
+`hash`, `place`, and `core` are not optional. Each tests part of the `routing` surface, which
+`CORE-110` requires every implementation to expose, and that surface is exactly the set of decisions
+two callers in two languages have to agree on. A port that declines any of the three is not a port
+of the sharder library. The four levels above them are optional because each tests a surface
+`CORE-110` leaves to the implementation: an integrator who routes a tenant identifier to one of five
+clusters never constructs a handoff coordinator, and a port serving that integrator carries no
+coordinator to test.
 
-A level is reached when every case in it passes. There is no partial credit, and the suite reports
-no score. A port at `core` and `failover` that fails one migration scenario declares `core` and
-`failover`, and says that `migration` is not implemented rather than that it is ninety per cent
-implemented.
+A level is reached when every case in it that the port's strategy surfaces admit passes. There is no
+partial credit, and the suite reports no score. A port at `core` and `failover` that fails one
+migration scenario declares `core` and `failover`, and says that `migration` is not implemented
+rather than that it is ninety per cent implemented.
+
+### Placement before a document pipeline
+
+`place` is the level a port reaches before it can read a topology document. A file at `place`
+carries every document it names in `topologyDocuments`, already validated. A port prepares
+placement over it, which is stage 6 of `TOPO-001`, and performs no stage 1 through 5: it needs no
+strict JSON reader for the document format, no schema validation, no semantic validation, no
+RFC 8785 canonical form, no SHA-256, no provider, and no snapshot lifecycle. What it needs is a JSON
+reader for the vector file, the hash construction of `hash`, and the placement engine.
+
+A file at `place` carries `topologyDigest` as provenance, so that the document it carries can be
+matched against the copy under `topologies/`. Step 5 of the driver contract asserts that member only
+for a file naming a topology and carrying none, so a run confined to `place` compares no digest.
+[`../../conformance/driver/python/run_suite.py`](../../conformance/driver/python/run_suite.py)
+runs `--level place` without entering its canonicaliser or its SHA-256, which is what makes the
+level cost what this section says it costs.
+
+`core` is what the document pipeline adds. A port reaches `place` with the placement engine alone
+and reaches `core` once a document becomes a snapshot, which is the order the work is done in.
+[`adr/0059`](adr/0059-place-conformance-level.md) records the partition and what moved into it.
+
+### Strategy surface selection
+
+`CORE-110` makes the four placement strategies selectable surfaces, and the suite selects on them
+along an axis of its own rather than by adding levels. `manifest.json` lists the surfaces in
+`strategySurfaces`. Each vector file carries the surfaces the documents it names outside its cases
+carry, in `strategies`, and the surfaces its cases name for themselves, in `caseStrategies`. Both
+are derived from the documents by `build_manifest.py` rather than authored.
+
+A port runs a file when it exposes every surface in the file's `strategies`, and within that file
+the cases whose own documents name surfaces it exposes. A file naming no document, and a case naming
+none, is run by every port. A file whose cases name documents of four kinds, such as the canonical
+form vectors, is therefore run by a port exposing one kind, for the cases naming that kind.
+
+A port exposing a subset of the four kinds therefore runs a subset of the cases a level reaches. The
+cases it does not run place keys under strategies it never configures and refuses a document that
+names one, under `CORE-112`. `run_suite.py --level core --strategy rendezvous,directory` reports the
+subset for that port against the totals the manifest holds.
 
 ## Declaring conformance
 
-A port declares conformance by publishing five things.
+A port declares conformance by publishing six things.
 
-1. The suite revision it ran, named by the commit that produced `manifest.json`.
+1. The suite revision it ran, named by the `id` of the `revision` object in the `manifest.json` it
+   ran.
 2. Every level the `levels` table of that manifest lists, each marked as reached or excluded.
-3. For an excluded level, the surface the port does not expose.
-4. The output of its driver, showing the case count per vector set and zero failures at every
+3. For an excluded level, the conformance surface the port does not expose.
+4. The placement strategy surfaces it exposes, of which `CORE-110` requires at least one.
+5. The output of its driver, showing the case count per vector set and zero failures at every
    reached level.
-5. Its deviations, as a list of case names with the reason for each.
+6. Its deviations, as a list of case names with the reason for each.
 
 A declaration names every level of the suite revision, so a level a port passed over is a claim it
 made rather than an omission. A port that reaches a level whose required levels it does not reach
 declares neither.
+
+The revision is a digest of the suite's own content rather than a number a maintainer bumps: it
+changes when any file a port runs changes, when the level structure changes, and when the strategy
+surfaces change. [`adr/0061`](adr/0061-suite-revision-identifier.md) states what it covers and what
+it leaves out.
 
 A deviation is permitted only against a requirement carrying one of the RFC 2119 keywords
 `SHOULD`, `SHOULD NOT`, or `MAY`, and the declaration names the requirement and the reason. A
@@ -263,10 +329,8 @@ naming. The ring sets cover the derived walk, an authored token set, the adminis
 filter, and a non-default hash seed. The rendezvous sets cover ordering, the virtual node cap, and
 the two worked examples of [`20-topology-format.md`](20-topology-format.md), whose documented
 outcomes the reference reproduces. The slot sets cover an authored assignment table at the Redis
-Cluster slot count, a derived assignment, and a slot count that is not a power of two. The range
-sets cover the half-open endpoints, the prefix rule, an octet above `0x7f`, and a derived
-assignment. The directory sets cover the reachable clauses of matcher precedence and the no-match
-result.
+Cluster slot count and a slot count that is not a power of two. The directory sets cover the
+reachable clauses of matcher precedence and the no-match result.
 
 `vectors/spread/relaxation-stages.json` records every relaxation stage of `SPREAD-010` for a key,
 the entries each admits, and the stage the builder chooses, which makes the ladder's behaviour data
@@ -315,11 +379,9 @@ output and recovers the collision by Brent's cycle detection at roughly 2^33 eva
 topology built on each collision names the two identities, and the expected ordering is the one the
 node identity tie-break of `PLACE-020` produces.
 
-The file holds a ring token collision, an equal maximum score under `rendezvous`, and an equal
-maximum score under `range`. It holds no `slot` case, because the search for one has not returned
-a collision. The three scoring strategies, `rendezvous`, `slot`, and `range`, share one comparator,
-ordering by score descending and then by node identity ascending, so the two cases present
-exercise the path a `slot` case would. `conformance/generator/README.md` says how to add it.
+The file holds a ring token collision and an equal maximum score under `rendezvous`, which are the
+two orderings a score ties in. `conformance/generator/README.md` says how each collision was
+searched for.
 
 A third tie-break case, equal-length competing prefixes in an override table, cannot exist in a
 valid document, because two entries surviving the first two clauses of `PLACE-065` carry identical
@@ -333,9 +395,9 @@ A property is a claim over a sample rather than over one key.
 states each one as data: its identifier, its name, the requirements it proves, its conformance
 level, its statement, the quantifier it ranges over, the sample it draws, and its check.
 
-Every bound and every sample size is the specification's own. `PROP-015`, `PROP-020`, `PROP-021`,
-`PROP-022`, and `PROP-023` state integer inequalities with preconditions on the sample size, and the
-property file carries those inequalities and those preconditions unchanged.
+Every bound and every sample size is the specification's own. `PROP-015`, `PROP-020`, and
+`PROP-021` state integer inequalities with preconditions on the sample size, and the property file
+carries those inequalities and those preconditions unchanged.
 
 ### Key sample
 
@@ -377,8 +439,6 @@ inequality, whether it holds, and whether the sample size satisfies the precondi
 | `P-MOVEMENT-006` | `core` | `PROP-016`, `PROP-017`, `PROP-018`, `SLOT-004` | yes |
 | `P-BALANCE-001` | `core` | `PROP-006`, `PROP-020`, `PROP-030`, `PROP-031`, `PROP-032` | yes |
 | `P-BALANCE-002` | `core` | `PROP-021` | yes |
-| `P-BALANCE-003` | `core` | `PROP-022`, `PROP-024`, `PROP-033` | yes |
-| `P-BALANCE-004` | `core` | `PROP-023`, `PROP-026` | none; `PROP-026` states that the bound carries no executable test |
 | `P-BALANCE-005` | `core` | `PROP-017`, `PROP-025`, `PLACE-044` | yes |
 | `P-REPLICA-001` | `core` | `REPL-011`, `REPL-020`, `SPREAD-002`, `PLACE-013` | yes |
 | `P-SPREAD-001` | `core` | `SPREAD-001`, `SPREAD-010`, `SPREAD-011`, `SPREAD-018`, `SPREAD-020` | yes |
@@ -432,43 +492,23 @@ rebases in a scenario file rebases because the placement says so.
 
 ## Requirement coverage
 
-[`../../conformance/coverage.json`](../../conformance/coverage.json) is computed by extracting every
-requirement identifier from [`10-specification.md`](10-specification.md) and comparing it against
-the identifiers the suite names. It reports the comparison twice, once by requirement prefix under
-`byPrefix` and once by conformance level under `byLevel`, so a declared level names the requirements
-it proves. The table below is transcribed from `byPrefix`.
+[`../../conformance/coverage.json`](../../conformance/coverage.json) holds the coverage figures. It
+is computed by extracting every requirement identifier from
+[`10-specification.md`](10-specification.md) and comparing that set against the identifiers the
+suite names. `statedRequirements`, `coveredRequirements`, and `uncoveredRequirements` are the
+totals, and `coveragePercent` is their ratio.
 
-| Section | Prefix | Stated | Covered | Uncovered |
-|---|---|---|---|---|
-| Configuration surface | `CFG-*` | 30 | 5 | 25 |
-| Core model | `CORE-*` | 57 | 10 | 47 |
-|  | `HASH-*` | 19 | 15 | 4 |
-| Error taxonomy | `ERR-*` | 36 | 26 | 10 |
-| Observability | `OBS-*` | 32 | 4 | 28 |
-| Replication and failover | `FAIL-*` | 30 | 16 | 14 |
-|  | `HEALTH-*` | 40 | 19 | 21 |
-|  | `READ-*` | 12 | 9 | 3 |
-|  | `REPL-*` | 20 | 15 | 5 |
-|  | `SPREAD-*` | 18 | 18 | 0 |
-| Routing keys and placement | `DIR-*` | 11 | 11 | 0 |
-|  | `KEY-*` | 24 | 22 | 2 |
-|  | `OVR-*` | 28 | 27 | 1 |
-|  | `PLACE-*` | 46 | 39 | 7 |
-|  | `PROP-*` | 36 | 36 | 0 |
-|  | `RANGE-*` | 21 | 19 | 2 |
-|  | `RING-*` | 19 | 18 | 1 |
-|  | `RV-*` | 11 | 11 | 0 |
-|  | `SLOT-*` | 17 | 16 | 1 |
-| Security and multi-tenancy | `SEC-*` | 20 | 7 | 13 |
-| Topology change and rebalancing | `FENCE-*` | 27 | 24 | 3 |
-|  | `MOVE-*` | 70 | 49 | 21 |
-|  | `RATE-*` | 15 | 10 | 5 |
-|  | `SPLIT-*` | 22 | 13 | 9 |
-|  | `TOPO-*` | 28 | 19 | 9 |
-| Total | | 689 | 458 | 231 |
+The comparison is reported twice over: once by requirement prefix under `byPrefix`, which lists the
+uncovered identifiers of each prefix by name, and once by conformance level under `byLevel`, so a
+declared level names the requirements it proves. `coveredBy` maps each covered identifier to the
+files that cover it, which is the join a maintainer asking what tests one requirement reads.
 
-The suite names 458 of the 689 requirements the specification states. The section below
-names what the remaining 231 are and why no data file carries them.
+`coverage.py` writes the file, and `run.sh` prints the totals at the end of a generation run. A
+requirement added to the specification and named by nothing shows up there as uncovered rather than
+going unnoticed.
+
+The section below names what the uncovered requirements are, group by group, and why no data file
+carries them.
 
 ## Requirements without an executable test
 
@@ -478,13 +518,23 @@ tells a maintainer nothing.
 
 ### Hash construction
 
-`vectors/hash/` names fifteen of the nineteen `HASH-*` requirements. The four it does not are
-`HASH-012`, which fixes the key for the lifetime of a snapshot, `HASH-041`, which fixes the integer
-widths, `HASH-042`, which makes the slot remainder the only division in placement, and `HASH-043`,
-which forbids a floating-point value in hash arithmetic. Each constrains how a value is produced
+`vectors/hash/` names most of the `HASH-*` requirements. The four it does not are `HASH-012`, which
+fixes the key for the lifetime of a snapshot, `HASH-041`, which fixes the integer widths,
+`HASH-042`, which makes the slot remainder the only division in placement, and `HASH-043`, which
+forbids a floating-point value in hash arithmetic. Each constrains how a value is produced
 rather than what it is. A port that departs from one of them produces a different value wherever the
 departure reaches a computation, and fails a hash vector or a routing vector there rather than a
 case that names the requirement.
+
+### Surface exposure
+
+`CORE-110` through `CORE-113` state which surfaces an implementation exposes, that a surface is
+exposed whole, that a document naming a strategy an implementation does not expose is refused, and
+that the surfaces exposed change no value a routing call computes. No suite artefact can carry
+their outputs, because the reference exposes every surface and a suite generated from it never
+reaches the refusal of `CORE-112`. A port witnesses them in its own tests, with a document naming a
+strategy it declines, and the suite witnesses `CORE-113` indirectly: a port exposing `rendezvous`
+and `directory` computes the same orderings on the cases it runs as a port exposing all four.
 
 ### Concurrency and visibility
 
@@ -532,19 +582,22 @@ asserting one adds no cross-language guarantee. The suite covers the arithmetic 
 skew detectors, `OBS-031` through `OBS-033`, because those are integer comparisons that change what
 is reported. The explain record of `OBS-040` through `OBS-048` is covered only through `OBS-044`,
 which requires it to agree with `route`, and a port checks that against its own routing vectors.
+`OBS-036` is the shape of a measurement source the integrator supplies, so nothing the suite
+generates carries one. `OBS-008` bounds the node label by `nodeLabelLimit`, and the cardinality a
+metric carries is a property of a running process rather than of a routing decision.
 
 ### Rate control and measurement
 
 `RATE-121` through `RATE-141` say what an implementation measures and what it refuses to infer.
 They are negative requirements about sources of information, and a data file cannot witness the
-absence of a wall-clock read. `RATE-021`, `RATE-041`, `RATE-051`, `RATE-071`, `RATE-081`,
-`RATE-091`, and `RATE-101` are covered, because each is an integer rule with an output.
+absence of a wall-clock read. `RATE-021`, `RATE-051`, `RATE-071`, `RATE-081`, `RATE-091`, and
+`RATE-101` are covered, because each is an integer rule with an output.
 
 ### Movement hooks
 
 `MOVE-111` through `MOVE-141` define the hook interface and the rule that the library interprets
 none of `budgetUnit`, `unitsMoved`, `bulkRemaining`, `residue`, or the opaque member of a cutover
-record. `MOVE-281` through `MOVE-401` describe the concurrent-holding window, which is a property of
+record. `MOVE-281` through `MOVE-391` describe the concurrent-holding window, which is a property of
 the integrator's storage rather than of the library. The suite covers the sequencing rules around
 them, `MOVE-151` through `MOVE-238`, because a state sequence is an output. `MOVE-091` through
 `MOVE-103` are the same case: a rebase is a classification of each handoff against a snapshot, and
@@ -552,19 +605,13 @@ both the classification and the state it leaves are outputs.
 
 ### Configuration and security
 
-`CFG-001` through `CFG-007` and `CFG-060` through `CFG-063` govern how settings are accepted,
-validated, and exposed. `CFG-004` is the load-bearing one and is covered by construction: no vector
-carries a setting, so a port whose settings change a candidate ordering fails every routing vector
-under one of its configurations. `SEC-001` through `SEC-004`, `SEC-014`, and `SEC-020` through
-`SEC-034` state what the library declines to defend and what it discloses. `SEC-010` and `SEC-012`
-are covered by the non-default seed vectors, and `SEC-001` by the key hash collision.
-
-### Split execution
-
-`SPLIT-021` through `SPLIT-051` accept integrator measurements and emit advice, and `SPLIT-171`
-through `SPLIT-211` describe in-flight requests across a split, which needs two nodes and a
-transport. Lineage, classification, the plan verdict, and the step decomposition are covered,
-because `SPLIT-061` through `SPLIT-161` are pure functions of two documents.
+`CFG-001` through `CFG-007`, `CFG-060` through `CFG-062`, and `CFG-064` govern how settings are
+accepted, validated, and exposed. `CFG-004` is the load-bearing one and is covered by construction:
+no vector carries a setting, so a port whose settings change a candidate ordering fails every
+routing vector under one of its configurations. What the library declines to defend and what it
+discloses are stated by `SEC-001` through `SEC-004`, `SEC-014`, and `SEC-020` through `SEC-034`.
+The non-default seed vectors cover `SEC-010` and `SEC-012`, and the key hash collision
+covers `SEC-001`.
 
 ## Specification defects and their repairs
 
@@ -584,7 +631,7 @@ joins each defect to the requirement that repairs it and to the vectors that now
 | the no-candidate cause set missed two cases | `ERR-020`, `ERR-021` | `vectors/directory/no-match.json` |
 | the recipient condition precedence was unstated | `ERR-045` | `scenarios/split-topology-view.json` |
 | `shards()` could enumerate one ring shard twice | `RING-031` | `vectors/determinism/tie-breaks.json` |
-| the range balance bound was untestable | `PROP-026` | none, by construction |
+| the range balance bound was untestable | withdrawn with the `range` strategy | none |
 | `RoutingDecision` declared no `primary` | `CORE-040`, `CORE-042` | every routing vector |
 | the pin duplication parenthetical contradicted `OVR-012` | `REPL-011` | `vectors/overrides/` |
 | the requirement count was reported as 603 | none; the figure was wrong | none |
@@ -597,7 +644,7 @@ and `RV-022` required an equality that holds only under the first reading while 
 implements the second. `RV-020` now names the hexadecimal and `PLACE-032` and `RV-022` state the
 decode.
 
-The specification states 689 requirement identifiers, each introduced as a backticked identifier
+Every requirement identifier the specification states is introduced as a backticked identifier
 followed by a full stop at the start of a line, with no duplicate. `coverage.py` extracts them and
 `run.sh` fails where the suite names one the specification does not state.
 

@@ -1,6 +1,13 @@
 # 0011. Derived assignment virtual nodes
 
-Status: accepted. Date: 2026-09-16.
+Status: withdrawn by [`0054`](0054-range-strategy-withdrawal.md) and
+[`0055`](0055-slot-derived-assignment-withdrawal.md). Date: 2026-09-16.
+
+Both configurations this record fixes the virtual node count for are withdrawn: the `range` kind
+entirely, and derived assignment under `slot`. `PLACE-050` no longer carries the two hardcoded rows,
+so every derived count in the design is configurable from the strategy object that governs it. The
+Context below is why the record was written, and it is also why the code path went: it records that
+the fields were omitted because the path had no known demand.
 
 ## Context
 

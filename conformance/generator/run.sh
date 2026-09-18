@@ -25,15 +25,13 @@ if [ "$1" = "--search" ]; then
     ./rho_search keyHash                                 > collisions/keyHash.txt &
     ./rho_search ring                                    > collisions/ring.txt &
     ./rho_search rendezvous 7469652d70726f6265           > collisions/rendezvous.txt &
-    ./rho_search slot 0                                  > collisions/slot.txt &
-    ./rho_search range r0                                > collisions/range.txt &
     wait
 fi
 
 echo "== generating golden vectors"
 python3 generate.py
 
-echo "== generating formula and lineage vectors"
+echo "== generating formula vectors"
 python3 generate_formulas.py
 
 echo "== generating the remaining vector sets"
@@ -56,6 +54,9 @@ python3 build_manifest.py
 
 echo "== computing requirement coverage"
 python3 coverage.py --check
+
+echo "== checking that no withdrawn identifier has been reused or cited"
+python3 verify_withdrawals.py
 
 echo "== running the reference driver over the generated suite"
 python3 ../driver/python/run_suite.py

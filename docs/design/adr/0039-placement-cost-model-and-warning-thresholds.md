@@ -1,7 +1,16 @@
 # 0039. Placement cost model and warning thresholds
 
 Status: accepted, with `PLACE-071` extended by
-[`0046`](0046-bounded-routing-decision-surface.md). Date: 2026-09-16.
+[`0046`](0046-bounded-routing-decision-surface.md) and the derived threshold withdrawn by
+[`0055`](0055-slot-derived-assignment-withdrawal.md). Date: 2026-09-16.
+
+The third threshold this record added, `derivedWarnEvaluations` with the
+`sharder.topology.derived_large` event, existed for `slot` and `range` with derived assignment. Both
+configurations are withdrawn, so no surviving configuration can cross it and the setting, the event
+name, and the `PLACE-072` escape clause go with them. The two remaining thresholds are sums rather
+than products, so `PLACE-073` compares totals and `PLACE-074` is restated over an accumulator. The
+cost model itself, its derivation from the requirements, and the argument against asymptotic
+notation stand.
 
 `PLACE-071` as written here described where laziness helps and did not say what bounds `p`. The
 routing decision consumed the whole ordering, so `p` was the eligible node count under `ring` as

@@ -19,17 +19,11 @@ sys.path.insert(0, str(HERE))
 from sharder_ref import hashing  # noqa: E402
 
 RENDEZVOUS_KEY = b"tie-probe"
-SLOT_INDEX = 0
-RANGE_SHARD = b"r0"
 
 MODES = {
     "ring": (["ring"], lambda ident: hashing.ring_token(hashing.ZERO_SEED, ident, 0)),
     "rendezvous": (["rendezvous", RENDEZVOUS_KEY.hex()],
                    lambda ident: hashing.rv_score(hashing.ZERO_SEED, RENDEZVOUS_KEY, ident, 0)),
-    "slot": (["slot", str(SLOT_INDEX)],
-             lambda ident: hashing.slot_score(hashing.ZERO_SEED, SLOT_INDEX, ident, 0)),
-    "range": (["range", RANGE_SHARD.decode()],
-              lambda ident: hashing.range_score(hashing.ZERO_SEED, RANGE_SHARD, ident, 0)),
 }
 
 

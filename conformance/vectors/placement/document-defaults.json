@@ -1,21 +1,303 @@
 {
   "vectorSet": "placement-document-defaults",
   "kind": "defaults",
-  "level": "core",
-  "description": "A document that omits every optional member and one that writes every default out produce identical orderings, weight changes nothing under an authored assignment, and an omitted `assignment` takes the default its strategy gives: `derived` under `slot` and `explicit` under `range`.",
+  "level": "place",
+  "description": "A document that omits every optional member and one that writes every default out produce identical orderings, weight changes nothing under an authored assignment, and an omitted `assignment` takes the default its strategy gives.",
   "requirements": [
     "DIR-004",
     "KEY-010",
     "PLACE-040",
     "PLACE-044",
-    "RANGE-021",
-    "RANGE-022",
     "REPL-001",
     "RING-006",
     "SLOT-014",
     "SLOT-024",
     "SPREAD-003"
   ],
+  "topologyDocuments": {
+    "topologies/defaults-explicit.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "defaults-explicit",
+      "epoch": 1,
+      "hash": {
+        "algorithm": "siphash-2-4",
+        "seed": "00000000000000000000000000000000"
+      },
+      "keyTransform": {
+        "kind": "none"
+      },
+      "domainLevels": [],
+      "replication": {
+        "factor": 1,
+        "spread": [],
+        "spreadPolicy": "relaxed"
+      },
+      "strategy": {
+        "kind": "ring",
+        "tokenAssignment": "derived",
+        "tokensPerWeightUnit": 4,
+        "maxTokensPerNode": 4096
+      },
+      "nodes": [
+        {
+          "id": "d1",
+          "state": "active",
+          "weight": 1,
+          "domains": {},
+          "tags": {}
+        },
+        {
+          "id": "d2",
+          "state": "active",
+          "weight": 1,
+          "domains": {},
+          "tags": {}
+        },
+        {
+          "id": "d3",
+          "state": "active",
+          "weight": 1,
+          "domains": {},
+          "tags": {}
+        }
+      ],
+      "overrides": [],
+      "metadata": {}
+    },
+    "topologies/defaults-omitted.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "defaults-omitted",
+      "epoch": 1,
+      "strategy": {
+        "kind": "ring"
+      },
+      "nodes": [
+        {
+          "id": "d1"
+        },
+        {
+          "id": "d2"
+        },
+        {
+          "id": "d3"
+        }
+      ]
+    },
+    "topologies/slot-assignment-named.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "slot-assignment-named",
+      "epoch": 4,
+      "replication": {
+        "factor": 2
+      },
+      "strategy": {
+        "kind": "slot",
+        "slotCount": 16384,
+        "assignment": "explicit",
+        "assignments": [
+          {
+            "slots": [
+              "0-5460"
+            ],
+            "nodes": [
+              "shard-a",
+              "shard-b"
+            ]
+          },
+          {
+            "slots": [
+              "5461-10922"
+            ],
+            "nodes": [
+              "shard-b",
+              "shard-c"
+            ]
+          },
+          {
+            "slots": [
+              "10923-16383"
+            ],
+            "nodes": [
+              "shard-c",
+              "shard-a"
+            ]
+          }
+        ]
+      },
+      "nodes": [
+        {
+          "id": "shard-a"
+        },
+        {
+          "id": "shard-b"
+        },
+        {
+          "id": "shard-c"
+        }
+      ]
+    },
+    "topologies/slot-assignment-omitted.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "slot-assignment-omitted",
+      "epoch": 4,
+      "replication": {
+        "factor": 2
+      },
+      "strategy": {
+        "kind": "slot",
+        "slotCount": 16384,
+        "assignments": [
+          {
+            "slots": [
+              "0-5460"
+            ],
+            "nodes": [
+              "shard-a",
+              "shard-b"
+            ]
+          },
+          {
+            "slots": [
+              "5461-10922"
+            ],
+            "nodes": [
+              "shard-b",
+              "shard-c"
+            ]
+          },
+          {
+            "slots": [
+              "10923-16383"
+            ],
+            "nodes": [
+              "shard-c",
+              "shard-a"
+            ]
+          }
+        ]
+      },
+      "nodes": [
+        {
+          "id": "shard-a"
+        },
+        {
+          "id": "shard-b"
+        },
+        {
+          "id": "shard-c"
+        }
+      ]
+    },
+    "topologies/slot-explicit-weighted.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "slot-explicit-weighted",
+      "epoch": 4,
+      "replication": {
+        "factor": 2
+      },
+      "strategy": {
+        "kind": "slot",
+        "slotCount": 16384,
+        "assignment": "explicit",
+        "assignments": [
+          {
+            "slots": [
+              "0-5460"
+            ],
+            "nodes": [
+              "shard-a",
+              "shard-b"
+            ]
+          },
+          {
+            "slots": [
+              "5461-10922"
+            ],
+            "nodes": [
+              "shard-b",
+              "shard-c"
+            ]
+          },
+          {
+            "slots": [
+              "10923-16383"
+            ],
+            "nodes": [
+              "shard-c",
+              "shard-a"
+            ]
+          }
+        ]
+      },
+      "nodes": [
+        {
+          "id": "shard-a",
+          "weight": 7
+        },
+        {
+          "id": "shard-b",
+          "weight": 1
+        },
+        {
+          "id": "shard-c",
+          "weight": 1
+        }
+      ]
+    },
+    "topologies/slot-explicit.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "slot-explicit",
+      "epoch": 4,
+      "replication": {
+        "factor": 2
+      },
+      "strategy": {
+        "kind": "slot",
+        "slotCount": 16384,
+        "assignment": "explicit",
+        "assignments": [
+          {
+            "slots": [
+              "0-5460"
+            ],
+            "nodes": [
+              "shard-a",
+              "shard-b"
+            ]
+          },
+          {
+            "slots": [
+              "5461-10922"
+            ],
+            "nodes": [
+              "shard-b",
+              "shard-c"
+            ]
+          },
+          {
+            "slots": [
+              "10923-16383"
+            ],
+            "nodes": [
+              "shard-c",
+              "shard-a"
+            ]
+          }
+        ]
+      },
+      "nodes": [
+        {
+          "id": "shard-a"
+        },
+        {
+          "id": "shard-b"
+        },
+        {
+          "id": "shard-c"
+        }
+      ]
+    }
+  },
   "cases": [
     {
       "name": "omitted-equals-explicit",
@@ -145,12 +427,11 @@
       "name": "weight-advisory-under-explicit-assignment",
       "requirements": [
         "PLACE-044",
-        "RANGE-021",
         "SLOT-014",
         "DIR-004"
       ],
-      "omittedDocument": "topologies/range-explicit.topology.json",
-      "explicitDocument": "topologies/range-explicit-weighted.topology.json",
+      "omittedDocument": "topologies/slot-explicit.topology.json",
+      "explicitDocument": "topologies/slot-explicit-weighted.topology.json",
       "note": "raising one node's weight sevenfold changes no ordering under an authored assignment; weight is advisory there.",
       "expect": {
         "identical": true,
@@ -158,31 +439,31 @@
           {
             "key": {
               "encoding": "utf8",
-              "value": "a"
+              "value": "slot-1"
             },
             "candidates": [
-              "n1",
-              "n2"
+              "shard-c",
+              "shard-a"
             ]
           },
           {
             "key": {
               "encoding": "utf8",
-              "value": "m"
+              "value": "slot-4"
             },
             "candidates": [
-              "n2",
-              "n3"
+              "shard-a",
+              "shard-b"
             ]
           },
           {
             "key": {
               "encoding": "utf8",
-              "value": "zzz"
+              "value": "slot-9"
             },
             "candidates": [
-              "n3",
-              "n1"
+              "shard-b",
+              "shard-c"
             ]
           }
         ]
@@ -196,7 +477,7 @@
       ],
       "omittedDocument": "topologies/slot-assignment-omitted.topology.json",
       "explicitDocument": "topologies/slot-assignment-named.topology.json",
-      "note": "a `slot` document that omits `assignment` routes as one naming `derived`.  The two strategies default opposite ways, so the mode cannot be carried across from the other.",
+      "note": "a `slot` document that omits `assignment` routes as one naming `explicit`.",
       "expect": {
         "identical": true,
         "rows": [
@@ -206,9 +487,8 @@
               "value": "slot-a"
             },
             "candidates": [
-              "s3",
-              "s1",
-              "s2"
+              "shard-b",
+              "shard-c"
             ]
           },
           {
@@ -217,9 +497,8 @@
               "value": "slot-b"
             },
             "candidates": [
-              "s3",
-              "s2",
-              "s1"
+              "shard-a",
+              "shard-b"
             ]
           },
           {
@@ -228,9 +507,8 @@
               "value": "slot-c"
             },
             "candidates": [
-              "s2",
-              "s1",
-              "s3"
+              "shard-b",
+              "shard-c"
             ]
           },
           {
@@ -239,64 +517,8 @@
               "value": "slot-d"
             },
             "candidates": [
-              "s2",
-              "s3",
-              "s1"
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "name": "range-assignment-default",
-      "requirements": [
-        "RANGE-022",
-        "PLACE-040"
-      ],
-      "omittedDocument": "topologies/range-assignment-omitted.topology.json",
-      "explicitDocument": "topologies/range-assignment-named.topology.json",
-      "note": "a `range` document that omits `assignment` routes as one naming `explicit`.  The two strategies default opposite ways, so the mode cannot be carried across from the other.",
-      "expect": {
-        "identical": true,
-        "rows": [
-          {
-            "key": {
-              "encoding": "utf8",
-              "value": "a"
-            },
-            "candidates": [
-              "n1",
-              "n2"
-            ]
-          },
-          {
-            "key": {
-              "encoding": "utf8",
-              "value": "m"
-            },
-            "candidates": [
-              "n2",
-              "n3"
-            ]
-          },
-          {
-            "key": {
-              "encoding": "utf8",
-              "value": "zzz"
-            },
-            "candidates": [
-              "n3",
-              "n1"
-            ]
-          },
-          {
-            "key": {
-              "encoding": "utf8",
-              "value": "z\u0000"
-            },
-            "candidates": [
-              "n3",
-              "n1"
+              "shard-b",
+              "shard-c"
             ]
           }
         ]

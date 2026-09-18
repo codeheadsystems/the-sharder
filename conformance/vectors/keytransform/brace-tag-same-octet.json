@@ -1,11 +1,31 @@
 {
   "vectorSet": "keytransform-brace-tag-same-octet",
   "kind": "keyTransform",
-  "level": "core",
+  "level": "place",
   "description": "The `braceTag` transform where `open` and `close` are the same octet.",
   "requirements": [
     "KEY-037"
   ],
+  "topologyDocuments": {
+    "topologies/kt-brace-same.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "kt-brace-same",
+      "epoch": 1,
+      "keyTransform": {
+        "kind": "braceTag",
+        "open": "7c",
+        "close": "7c"
+      },
+      "strategy": {
+        "kind": "rendezvous"
+      },
+      "nodes": [
+        {
+          "id": "n1"
+        }
+      ]
+    }
+  },
   "cases": [
     {
       "name": "pair",

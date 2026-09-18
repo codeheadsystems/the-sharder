@@ -1,6 +1,12 @@
 # 0041. Exact product comparison surface
 
-Status: accepted. Date: 2026-09-17.
+Status: accepted, with `SPLIT-041` rehomed by [`0054`](0054-range-strategy-withdrawal.md).
+Date: 2026-09-17.
+
+The key skew comparison this record sized is unchanged and is now stated by `OBS-032`, over operands
+`OBS-036` types as u64. `SPLIT-021` and `SPLIT-041` are withdrawn with the `range` strategy, and
+`CORE-005` names three comparisons rather than four, because the fourth is stated in the
+observability group beside the detector that evaluates it.
 
 ## Context
 

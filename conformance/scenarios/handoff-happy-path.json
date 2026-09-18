@@ -27,7 +27,7 @@
         "shardsChanged": 1,
         "delta": [
           {
-            "shard": "r1",
+            "shard": "1",
             "before": [
               "n2",
               "n3"
@@ -54,30 +54,29 @@
         "maxConcurrentHandoffs": 4,
         "maxConcurrentPerSourceNode": 1,
         "maxConcurrentPerDestinationNode": 1,
-        "requireLinearisableCutover": true
+        "initialStepBudget": 1
       },
       "expect": {
         "handoffs": [
           {
-            "id": "h-r1",
-            "shard": "r1",
+            "id": "h-1",
+            "shard": "1",
             "source": "n2",
             "destination": "n4",
             "state": "planned"
           }
-        ],
-        "guarantee": "linearisable"
+        ]
       }
     },
     {
       "action": "handoffStep",
-      "handoff": "h-r1",
+      "handoff": "h-1",
       "trigger": "admittedByRatePolicy",
       "at": 1000,
       "expect": {
         "outcome": {
           "outcome": "advanced",
-          "id": "h-r1",
+          "id": "h-1",
           "fromState": "planned",
           "toState": "preparing"
         },
@@ -86,13 +85,13 @@
     },
     {
       "action": "handoffStep",
-      "handoff": "h-r1",
+      "handoff": "h-1",
       "trigger": "prepareSuccess",
       "at": 2000,
       "expect": {
         "outcome": {
           "outcome": "advanced",
-          "id": "h-r1",
+          "id": "h-1",
           "fromState": "preparing",
           "toState": "transferring"
         },
@@ -101,13 +100,13 @@
     },
     {
       "action": "handoffStep",
-      "handoff": "h-r1",
+      "handoff": "h-1",
       "trigger": "noBulkRemaining",
       "at": 3000,
       "expect": {
         "outcome": {
           "outcome": "advanced",
-          "id": "h-r1",
+          "id": "h-1",
           "fromState": "transferring",
           "toState": "catchingUp"
         },
@@ -116,13 +115,13 @@
     },
     {
       "action": "handoffStep",
-      "handoff": "h-r1",
+      "handoff": "h-1",
       "trigger": "residueAtOrBelowThreshold",
       "at": 4000,
       "expect": {
         "outcome": {
           "outcome": "advanced",
-          "id": "h-r1",
+          "id": "h-1",
           "fromState": "catchingUp",
           "toState": "cutover"
         },
@@ -131,13 +130,13 @@
     },
     {
       "action": "handoffStep",
-      "handoff": "h-r1",
+      "handoff": "h-1",
       "trigger": "cutoverCommitted",
       "at": 5000,
       "expect": {
         "outcome": {
           "outcome": "advanced",
-          "id": "h-r1",
+          "id": "h-1",
           "fromState": "cutover",
           "toState": "verifying"
         },
@@ -146,13 +145,13 @@
     },
     {
       "action": "handoffStep",
-      "handoff": "h-r1",
+      "handoff": "h-1",
       "trigger": "verifySuccess",
       "at": 6000,
       "expect": {
         "outcome": {
           "outcome": "advanced",
-          "id": "h-r1",
+          "id": "h-1",
           "fromState": "verifying",
           "toState": "cleanup"
         },
@@ -161,13 +160,13 @@
     },
     {
       "action": "handoffStep",
-      "handoff": "h-r1",
+      "handoff": "h-1",
       "trigger": "cleanupSuccess",
       "at": 7000,
       "expect": {
         "outcome": {
           "outcome": "settled",
-          "id": "h-r1",
+          "id": "h-1",
           "terminalState": "complete",
           "failureKind": null
         },

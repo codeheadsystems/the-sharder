@@ -1,6 +1,13 @@
 # 0018. Concurrent ownership during handoff
 
-Status: accepted. Date: 2026-09-16.
+Status: accepted, with the `advisory` declaration withdrawn by
+[`0056`](0056-advisory-cutover-withdrawal.md). Date: 2026-09-16.
+
+The cutover record, its single-winner write, and the refusal protocol around it stand unchanged. The
+second declaration this record admitted does not: `MOVE-401` stated that mutual exclusion is not
+provided under `advisory`, which negates the property `MOVE-321` exists to give, so the mode, the
+grace window, the `requireLinearisableCutover` policy member, and the event that named the shortfall
+are withdrawn. A single-winner cutover is the only mode the coordinator supports.
 
 ## Context
 

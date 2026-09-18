@@ -1,6 +1,15 @@
 # 0001. Hash function and key encoding
 
-Status: accepted. Date: 2026-09-16.
+Status: accepted, with the `slotScore` function withdrawn by
+[`0055`](0055-slot-derived-assignment-withdrawal.md) and `range` placement withdrawn by
+[`0054`](0054-range-strategy-withdrawal.md). Date: 2026-09-16.
+
+The hash function, the framed domain-tagged construction, the key encoding, and the seed policy all
+stand. Two names in the measurement table and the prose below them do not. `slotScore` was the
+function that derived a slot map, which `0055` withdraws with `SLOT-020` to `SLOT-023`; a `slot`
+document now carries an authored map and evaluates no score. `range` placement is withdrawn with the
+`RANGE-*` and `SPLIT-*` identifiers by `0054`. The measured figures are kept as the record of what
+was measured on the date above.
 
 ## Context
 

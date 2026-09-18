@@ -1,14 +1,71 @@
 {
   "vectorSet": "determinism-tie-breaks",
   "kind": "tieBreak",
-  "level": "core",
-  "description": "The tie-break paths a total order needs but a random input almost never reaches. The file holds ring-token-collision, rendezvous-score-tie, range-score-tie. Every case was found by the Pollard rho search in `rho_search.c` and was recomputed through the reference before it was written.",
+  "level": "place",
+  "description": "The tie-break paths a total order needs but a random input almost never reaches. The file holds ring-token-collision, rendezvous-score-tie. Every case was found by the Pollard rho search in `rho_search.c` and was recomputed through the reference before it was written.",
   "requirements": [
     "PLACE-016",
     "PLACE-020",
     "PLACE-021",
     "PLACE-023"
   ],
+  "topologyDocuments": {
+    "topologies/rendezvous-score-tie.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "rendezvous-score-tie",
+      "epoch": 1,
+      "replication": {
+        "factor": 2
+      },
+      "strategy": {
+        "kind": "rendezvous",
+        "virtualNodesPerWeightUnit": 1,
+        "maxVirtualNodesPerNode": 1
+      },
+      "nodes": [
+        {
+          "id": "b08cfe34be8e9321"
+        },
+        {
+          "id": "e6d7fd19d016a1b2"
+        },
+        {
+          "id": "zz-third"
+        }
+      ],
+      "metadata": {
+        "note": "the first two identities score identically for `tie-probe`"
+      }
+    },
+    "topologies/ring-token-collision.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "ring-token-collision",
+      "epoch": 1,
+      "replication": {
+        "factor": 2
+      },
+      "strategy": {
+        "kind": "ring",
+        "tokenAssignment": "derived",
+        "tokensPerWeightUnit": 1,
+        "maxTokensPerNode": 1
+      },
+      "nodes": [
+        {
+          "id": "0b1a4700c87f5839"
+        },
+        {
+          "id": "e88025c0246a27df"
+        },
+        {
+          "id": "zz-third"
+        }
+      ],
+      "metadata": {
+        "note": "the first two identities derive the same token at index 0"
+      }
+    }
+  },
   "cases": [
     {
       "name": "ring-token-collision",
@@ -196,52 +253,6 @@
               "zz-third"
             ],
             "shard": "7469652d70726f6265"
-          }
-        ]
-      }
-    },
-    {
-      "name": "range-score-tie",
-      "requirements": [
-        "RANGE-031",
-        "RANGE-032",
-        "PLACE-020",
-        "PLACE-023"
-      ],
-      "topology": "topologies/range-score-tie.topology.json",
-      "note": "two node identities with an equal maximum score, found by a Pollard rho search.  The comparator falls through to ascending node identity.",
-      "expect": {
-        "shardId": "r0",
-        "equalScore": "720b915b9f7ff932",
-        "tiedNodes": [
-          "4e04bedabc32ed9e",
-          "b8f74fd98df56571"
-        ],
-        "lowerIdentity": "4e04bedabc32ed9e",
-        "candidates": [
-          {
-            "key": {
-              "encoding": "base16",
-              "value": "00"
-            },
-            "candidates": [
-              "4e04bedabc32ed9e",
-              "b8f74fd98df56571",
-              "zz-third"
-            ],
-            "shard": "r0"
-          },
-          {
-            "key": {
-              "encoding": "base16",
-              "value": "7f"
-            },
-            "candidates": [
-              "4e04bedabc32ed9e",
-              "b8f74fd98df56571",
-              "zz-third"
-            ],
-            "shard": "r0"
           }
         ]
       }

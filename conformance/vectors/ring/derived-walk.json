@@ -1,7 +1,7 @@
 {
   "vectorSet": "ring-derived-walk",
   "kind": "routing",
-  "level": "core",
+  "level": "place",
   "description": "The ring walk under derived tokens: every eligible node appears exactly once, in ring order from the owning entry, wrapping once.",
   "requirements": [
     "CORE-040",
@@ -22,6 +22,33 @@
   ],
   "topology": "topologies/ring-plain.topology.json",
   "topologyDigest": "3b304305d80fd970e789d00acd8409f4126b2b6c4e6b6ce6d891acbd5b0540eb",
+  "topologyDocuments": {
+    "topologies/ring-plain.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "ring-plain",
+      "epoch": 1,
+      "strategy": {
+        "kind": "ring",
+        "tokenAssignment": "derived",
+        "tokensPerWeightUnit": 1,
+        "maxTokensPerNode": 4096
+      },
+      "nodes": [
+        {
+          "id": "n1"
+        },
+        {
+          "id": "n2"
+        },
+        {
+          "id": "n3"
+        },
+        {
+          "id": "n4"
+        }
+      ]
+    }
+  },
   "cases": [
     {
       "name": "walk/user-42",

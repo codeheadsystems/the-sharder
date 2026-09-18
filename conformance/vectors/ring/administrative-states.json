@@ -1,7 +1,7 @@
 {
   "vectorSet": "ring-administrative-states",
   "kind": "routing",
-  "level": "core",
+  "level": "place",
   "description": "The placement set is `active` plus `draining`.  A `joining` or `leaving` node never reaches a candidate ordering.",
   "requirements": [
     "CORE-046",
@@ -12,6 +12,43 @@
   ],
   "topology": "topologies/ring-admin-states.topology.json",
   "topologyDigest": "389bfdcdacec4fbec1f6b8a9f3fe3c70f7e4f0e0a07df1a157e9eeefeb1c2bc5",
+  "topologyDocuments": {
+    "topologies/ring-admin-states.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "ring-admin-states",
+      "epoch": 5,
+      "replication": {
+        "factor": 3
+      },
+      "strategy": {
+        "kind": "ring",
+        "tokenAssignment": "derived",
+        "tokensPerWeightUnit": 2
+      },
+      "nodes": [
+        {
+          "id": "active-1",
+          "state": "active"
+        },
+        {
+          "id": "active-2",
+          "state": "active"
+        },
+        {
+          "id": "draining-1",
+          "state": "draining"
+        },
+        {
+          "id": "joining-1",
+          "state": "joining"
+        },
+        {
+          "id": "leaving-1",
+          "state": "leaving"
+        }
+      ]
+    }
+  },
   "cases": [
     {
       "name": "states/s0",

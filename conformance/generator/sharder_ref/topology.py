@@ -6,6 +6,8 @@ validation; the schema file is authoritative for that and the suite checks docum
 separately.
 """
 
+import itertools
+
 from .jcs import digest as jcs_digest
 
 SUPPORTED_FORMAT_MAJOR = 1
@@ -16,10 +18,12 @@ PLACEMENT_STATES = ("active", "draining")
 STRATEGY_DEFAULTS = {
     "ring": {"tokenAssignment": "derived", "tokensPerWeightUnit": 4, "maxTokensPerNode": 4096},
     "rendezvous": {"virtualNodesPerWeightUnit": 1, "maxVirtualNodesPerNode": 1024},
-    "slot": {"assignment": "derived"},
-    "range": {"assignment": "explicit"},
+    "slot": {"assignment": "explicit"},
     "directory": {},
 }
+
+
+_SERIAL = itertools.count()
 
 
 class ValidationError(Exception):
@@ -71,14 +75,24 @@ class Node:
 
 
 class Snapshot:
-    """The immutable, validated, prepared form of one topology document."""
+    """The immutable, validated, prepared form of one topology document.
 
-    def __init__(self, document):
-        errors = validate(document)
-        if errors:
-            raise ValidationError(errors)
+    `Snapshot(document)` performs stages 2 through 6 of `TOPO-001`: it validates the document,
+    refuses an invalid one, and prepares placement over the rest.  `Snapshot.prepared(document)`
+    performs stage 6 alone, over a document whose validity the caller already established.  The
+    digest is computed on first use rather than at construction, so a caller that prepares
+    placement and reads no digest runs without the canonical form of `TOPO-020` and without
+    SHA-256.  That is the `place` conformance level of `30-conformance.md`.
+    """
+
+    def __init__(self, document, validated=False):
+        if not validated:
+            errors = validate(document)
+            if errors:
+                raise ValidationError(errors)
         self.document = document
-        self.digest = jcs_digest(document)
+        self._digest = None
+        self.cache_key = next(_SERIAL)
         self.topology_id = document["topologyId"]
         self.epoch = document["epoch"]
         self.hash_config = dict({"algorithm": "siphash-2-4",
@@ -98,6 +112,18 @@ class Snapshot:
         self.nodes = [Node(raw, self.domain_levels) for raw in document["nodes"]]
         self.by_id = {node.id: node for node in self.nodes}
         self.placement_set = [n for n in self.nodes if n.state in PLACEMENT_STATES]
+
+    @classmethod
+    def prepared(cls, document):
+        """Placement over a document already known to be valid, without stages 1 through 5."""
+        return cls(document, validated=True)
+
+    @property
+    def digest(self):
+        """`TOPO-021`: the SHA-256 of the canonical form, computed on first use."""
+        if self._digest is None:
+            self._digest = jcs_digest(self.document)
+        return self._digest
 
     @property
     def token(self):
@@ -225,60 +251,26 @@ def _validate_strategy(document, nodes, known_ids):
 
     elif kind == "slot":
         slot_count = strategy.get("slotCount")
-        assignment = strategy.get("assignment", "derived")
-        if assignment == "explicit":
-            covered = {}
-            for e_index, entry in enumerate(strategy.get("assignments", [])):
-                path = "strategy.assignments[%d]" % e_index
-                _referenced(errors, path + ".nodes", entry.get("nodes", []), known_ids)
-                for text in entry.get("slots", []):
-                    low, high = parse_slot_range(text)
-                    if low > high:
-                        errors.append(_err(path + ".slots", "slotRangeInverted", text))
-                        continue
-                    if high >= slot_count:
-                        errors.append(_err(path + ".slots", "slotAboveCount", text))
-                        continue
-                    for slot in range(low, high + 1):
-                        if slot in covered:
-                            errors.append(_err(path + ".slots", "slotCoveredTwice", str(slot)))
-                        covered[slot] = e_index
-            missing = [s for s in range(slot_count) if s not in covered]
-            if missing:
-                errors.append(_err("strategy.assignments", "slotNotCovered",
-                                   "%d slots, first %d" % (len(missing), missing[0])))
-        elif "assignments" in strategy:
-            errors.append(_err("strategy.assignments", "assignmentsUnderDerived", ""))
-
-    elif kind == "range":
-        assignment = strategy.get("assignment", "explicit")
-        ranges = strategy.get("ranges", [])
-        shard_ids = set()
-        previous_end = "unset"
-        for r_index, entry in enumerate(ranges):
-            path = "strategy.ranges[%d]" % r_index
-            if entry["shardId"] in shard_ids:
-                errors.append(_err(path + ".shardId", "duplicateShardId", entry["shardId"]))
-            shard_ids.add(entry["shardId"])
-            start, end = entry["start"], entry["end"]
-            if r_index == 0 and start is not None:
-                errors.append(_err(path + ".start", "firstStartNotNull", str(start)))
-            if r_index == len(ranges) - 1 and end is not None:
-                errors.append(_err(path + ".end", "lastEndNotNull", str(end)))
-            if previous_end != "unset" and previous_end != start:
-                errors.append(_err(path + ".start", "rangeGapOrOverlap", str(start)))
-            if start is not None and end is not None:
-                if bytes.fromhex(start) >= bytes.fromhex(end):
-                    errors.append(_err(path, "startNotBelowEnd", "%s %s" % (start, end)))
-            previous_end = end
-            if assignment == "derived":
-                if "nodes" in entry:
-                    errors.append(_err(path + ".nodes", "nodesUnderDerived", entry["shardId"]))
-            else:
-                if "nodes" not in entry:
-                    errors.append(_err(path + ".nodes", "missingNodesUnderExplicit",
-                                       entry["shardId"]))
-                _referenced(errors, path + ".nodes", entry.get("nodes", []), known_ids)
+        covered = {}
+        for e_index, entry in enumerate(strategy.get("assignments", [])):
+            path = "strategy.assignments[%d]" % e_index
+            _referenced(errors, path + ".nodes", entry.get("nodes", []), known_ids)
+            for text in entry.get("slots", []):
+                low, high = parse_slot_range(text)
+                if low > high:
+                    errors.append(_err(path + ".slots", "slotRangeInverted", text))
+                    continue
+                if high >= slot_count:
+                    errors.append(_err(path + ".slots", "slotAboveCount", text))
+                    continue
+                for slot in range(low, high + 1):
+                    if slot in covered:
+                        errors.append(_err(path + ".slots", "slotCoveredTwice", str(slot)))
+                    covered[slot] = e_index
+        missing = [s for s in range(slot_count) if s not in covered]
+        if missing:
+            errors.append(_err("strategy.assignments", "slotNotCovered",
+                               "%d slots, first %d" % (len(missing), missing[0])))
 
     elif kind == "directory":
         entries = strategy.get("entries", [])

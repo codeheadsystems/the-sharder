@@ -1,7 +1,7 @@
 {
   "vectorSet": "directory-no-match",
   "kind": "routing",
-  "level": "core",
+  "level": "place",
   "description": "A routing key that no directory entry matches, and an entry whose every node is outside the placement set.",
   "requirements": [
     "CORE-046",
@@ -18,6 +18,61 @@
   ],
   "topology": "topologies/directory-sparse.topology.json",
   "topologyDigest": "801a8f04db57c5fffa78267d43e8c6f607ce69f63f69bed0e3c4799aeec61690",
+  "topologyDocuments": {
+    "topologies/directory-sparse.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "directory-sparse",
+      "epoch": 1,
+      "replication": {
+        "factor": 1
+      },
+      "strategy": {
+        "kind": "directory",
+        "entries": [
+          {
+            "match": {
+              "kind": "exact",
+              "value": "known"
+            },
+            "nodes": [
+              "c1"
+            ]
+          },
+          {
+            "match": {
+              "kind": "prefix",
+              "value": "pre"
+            },
+            "nodes": [
+              "c2",
+              "c1"
+            ]
+          },
+          {
+            "match": {
+              "kind": "exact",
+              "value": "gone"
+            },
+            "nodes": [
+              "c-leaving"
+            ]
+          }
+        ]
+      },
+      "nodes": [
+        {
+          "id": "c1"
+        },
+        {
+          "id": "c2"
+        },
+        {
+          "id": "c-leaving",
+          "state": "leaving"
+        }
+      ]
+    }
+  },
   "cases": [
     {
       "name": "known",

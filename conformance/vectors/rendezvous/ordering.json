@@ -1,7 +1,7 @@
 {
   "vectorSet": "rendezvous-ordering",
   "kind": "routing",
-  "level": "core",
+  "level": "place",
   "description": "Rendezvous ordering by descending score with the node identity tie-break, at one virtual node per node.",
   "requirements": [
     "CORE-046",
@@ -19,6 +19,36 @@
   ],
   "topology": "topologies/rendezvous-plain.topology.json",
   "topologyDigest": "088094afef54cb2a8709423959e29c2c66d279459feeed7b7422affee04615d6",
+  "topologyDocuments": {
+    "topologies/rendezvous-plain.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "rv-plain",
+      "epoch": 1,
+      "replication": {
+        "factor": 3
+      },
+      "strategy": {
+        "kind": "rendezvous"
+      },
+      "nodes": [
+        {
+          "id": "n1"
+        },
+        {
+          "id": "n2"
+        },
+        {
+          "id": "n3"
+        },
+        {
+          "id": "n4"
+        },
+        {
+          "id": "n5"
+        }
+      ]
+    }
+  },
   "cases": [
     {
       "name": "plain/0",

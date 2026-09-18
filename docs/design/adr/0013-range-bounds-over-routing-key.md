@@ -1,6 +1,11 @@
 # 0013. Range bounds over the routing key
 
-Status: accepted. Date: 2026-09-16.
+Status: withdrawn by [`0054`](0054-range-strategy-withdrawal.md). Date: 2026-09-16.
+
+The `range` strategy is withdrawn from format version 1.0, so no bound is compared against anything.
+The decision stands as the reading a later minor version takes if the kind returns: one definition
+of the routing key holds for the whole routing path, and a range bound sees the octets a key
+transform produced.
 
 ## Context
 

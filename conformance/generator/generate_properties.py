@@ -56,13 +56,6 @@ BALANCE_RING = {
     "nodes": [{"id": "t%d" % i, "weight": 64} for i in range(10)],
 }
 
-BALANCE_SLOT = {
-    "formatVersion": "1.0", "topologyId": "balance-slot", "epoch": 1,
-    "replication": {"factor": 1},
-    "strategy": {"kind": "slot", "slotCount": 65536, "assignment": "derived"},
-    "nodes": [{"id": "sl%d" % i, "weight": 1} for i in range(4)],
-}
-
 MOVEMENT_RV_BEFORE = {
     "formatVersion": "1.0", "topologyId": "movement-bound-rv", "epoch": 1,
     "replication": {"factor": 1},
@@ -85,7 +78,6 @@ PROPERTY_TOPOLOGIES = {
     "balance-rendezvous": BALANCE_RV,
     "balance-rendezvous-weighted": BALANCE_RV_WEIGHTED,
     "balance-ring": BALANCE_RING,
-    "balance-slot": BALANCE_SLOT,
     "movement-bound-rv-before": MOVEMENT_RV_BEFORE,
     "movement-bound-rv-after": MOVEMENT_RV_AFTER,
     "movement-bound-ring-before": MOVEMENT_RING_BEFORE,
@@ -243,28 +235,6 @@ def build(root: Path, quick: bool):
                 "the threshold below which `PROP-021` states no bound.",
         "sample": {"generator": "splitmix64", "seed": "%016x" % SAMPLE_SEED,
                    "count": ring_sample, "keyOctets": 16},
-        "expect": witness,
-    })
-
-    # --- PROP-022, slot derived balance over every slot
-    snapshot = snapshots["balance-slot"]
-    slot_count = snapshot.strategy["slotCount"]
-    weights = {node.id: min(node.weight, 1024) for node in snapshot.placement_set}
-    slot_counts = Counter()
-    limit = slot_count if not quick else 4096
-    for index in range(limit):
-        ordering = placement.slot_derived_candidates(snapshot, index, snapshot.placement_set)
-        if ordering:
-            slot_counts[ordering[0]] += 1
-    witness = balance_witness(snapshot, slot_counts, weights, limit, 20)
-    witness["precondition"]["form"] = "slotCount * v_min >= 10000 * V"
-    witnesses.append({
-        "name": "balance-slot-derived",
-        "property": "P-BALANCE-003",
-        "requirements": ["PROP-022", "PROP-033"],
-        "topology": "topologies/balance-slot.topology.json",
-        "note": "the sample is the set of all slots rather than a set of keys, under `PROP-022`.",
-        "sample": {"generator": "allSlots", "count": limit},
         "expect": witness,
     })
 

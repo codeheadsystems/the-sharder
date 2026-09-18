@@ -48,12 +48,12 @@ def retry_permitted(retries: int, first_attempts: int, percent: int, minimum: in
 
 
 def default_attempt_limit(factor: int, sequence_length: int) -> int:
-    """`FAIL-022`: `n + 2`, clamped to the length of the attempt sequence."""
+    """`CORE-048` and `FAIL-022`: `n + 2`, clamped to the length of the attempt sequence."""
     return min(factor + 2, sequence_length)
 
 
 def resolved_attempt_limit(supplied, configured, factor: int, sequence_length: int) -> int:
-    """`FAIL-022`: the call's limit, else the configured one, else `n + 2`, then clamped."""
+    """`CORE-048`: the call's limit, else the configured one, else `n + 2`; `FAIL-022` clamps."""
     if supplied is not None:
         limit = supplied
     elif configured is not None:
@@ -65,29 +65,17 @@ def resolved_attempt_limit(supplied, configured, factor: int, sequence_length: i
 
 # -------------------------------------------------------------- migration rate
 
-def budget_after_success(budget: int, increment: int, maximum: int) -> int:
-    """`RATE-041`."""
-    return min(budget + increment, maximum)
-
-
-def budget_after_deferral(budget: int, minimum: int) -> int:
-    """`RATE-041`, using unsigned integer division."""
-    return max(budget // 2, minimum)
-
-
 def retry_backoff_millis(attempt: int, base: int, cap: int) -> int:
     """`RATE-051`: `min(base * 2^(attempt - 1), cap)`."""
     return min(base * (2 ** (attempt - 1)), cap)
 
 
-def policy_refused(min_step_budget: int, max_step_budget: int,
+def policy_refused(initial_step_budget: int,
                    catch_up_threshold: int, retransfer_threshold: int):
-    """`RATE-021`: the three conditions under which a policy is refused."""
+    """`RATE-021`: the two conditions under which a policy is refused."""
     reasons = []
-    if min_step_budget == 0:
-        reasons.append("minStepBudgetZero")
-    if max_step_budget < min_step_budget:
-        reasons.append("maxBelowMinStepBudget")
+    if initial_step_budget == 0:
+        reasons.append("initialStepBudgetZero")
     if retransfer_threshold <= catch_up_threshold:
         reasons.append("retransferThresholdNotAboveCatchUp")
     return reasons
@@ -105,7 +93,7 @@ def shard_is_hot(shard_requests: int, shard_count: int, total_requests: int,
 
 
 def key_skew(hottest_key_requests: int, requests: int, skew_percent: int) -> bool:
-    """`SPLIT-041` and `OBS-032`: `hottestKeyRequests * 100 >= requests * skewPercent`."""
+    """`OBS-032`: `hottestKeyRequests * 100 >= requests * skewPercent`."""
     return hottest_key_requests * 100 >= requests * skew_percent
 
 

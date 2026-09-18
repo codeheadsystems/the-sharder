@@ -7,16 +7,21 @@ The design is complete across the whole scope, including rebalancing, concurrent
 stale callers. The staging is the order in which the Java implementation renders that design, and
 not a reduction of it.
 
+Status: no release has been made and no implementation exists. Every release below is planned, and
+no date is attached to any of them.
+
 ## Release v0.1
 
 The first release publishes the specification, the topology document format, the conformance suite,
-and a Java implementation that reaches the `hash`, `core`, `failover`, `fencing`, and `readAffinity`
-conformance levels of [`30-conformance.md`](30-conformance.md#conformance-levels).
+and a Java implementation that reaches the `hash`, `place`, `core`, `failover`, `fencing`, and
+`readAffinity` conformance levels of
+[`30-conformance.md`](30-conformance.md#conformance-levels), exposing all four placement strategy
+surfaces.
 
 | Surface | Contents |
 |---|---|
 | hash and key handling | SipHash-2-4, the framed domain-tagged construction, the three key transforms |
-| placement | `ring`, `rendezvous`, `slot`, `range`, and `directory`, with derived and authored assignment |
+| placement | `ring`, `rendezvous`, `slot`, and `directory`, with derived and authored assignment |
 | overrides | pins, constraints, per-entry replication factor, and the matcher precedence rule |
 | replication | the preference list, distinctness, failure domain spread, and the relaxation ladder |
 | health and failover | the five-state machine, signal ingestion, outlier ejection, probation, attempt sequences, retry budgets |
@@ -28,7 +33,7 @@ conformance levels of [`30-conformance.md`](30-conformance.md#conformance-levels
 | configuration | every setting of the `CFG-*` group with its default |
 | format | `formatVersion` 1.0, the JSON Schema, the canonical form, and the digest |
 | providers | the in-memory reference provider and the static file provider |
-| conformance | 61 vector files, 640 cases, 111 topology documents, 30 properties, and the manifest |
+| conformance | the vector files, topology documents, properties, and scenarios, with the manifest that counts and indexes them |
 
 An integrator who routes a tenant identifier to one of several clusters is served in full by v0.1
 and depends on `sharder-api` and `sharder-core` alone.
@@ -42,9 +47,14 @@ owning interface. `OQ-01`, the provider contract's absence from the normative su
 
 The second release implements the migration surface: the handoff coordinator, the eleven-state
 machine, the movement hook interface, idempotence and recovery, plan rebase onto a newer snapshot,
-concurrent ownership and the cutover record, abort and rollback, rate control and backpressure, and
-range split and merge lineage. It reaches the `migration` conformance level, which carries ten of
-the seventeen simulation scenarios, the rate control vectors, and the split lineage vectors.
+concurrent ownership and the cutover record, abort and rollback, and rate control and backpressure.
+It reaches the `migration` conformance level, which carries the handoff scenarios and the rate
+control vectors.
+
+Orchestrated migration rests on one primitive the integrator supplies. `MOVE-321` requires
+`commitCutover` to be a single-winner write over a store both the source and the destination read,
+and the coordinator supports no weaker mode. An integrator whose store offers no such write moves a
+shard outside the library.
 
 The specification, the conformance scenarios, and the Java binding for that surface are complete at
 v0.1 and unimplemented. `sharder-migrate` is a separate artifact, so an integrator who never
@@ -54,6 +64,7 @@ migrates carries none of it either way.
 
 | Item | Shape of the change |
 |---|---|
+| a `range` strategy, withdrawn at v0.1 | a minor format version adding a fifth kind, under [`adr/0054`](adr/0054-range-strategy-withdrawal.md) |
 | per-domain replication factors, `OQ-03` | a minor format version adding `replication.byDomain` |
 | a matcher kind beyond exact and prefix, `OQ-05` | a minor format version with a stated precedence rule |
 | ports beyond Java | Go, Rust, and Python, each declaring its levels against a suite revision |
@@ -72,7 +83,7 @@ second implementation exists, or once a deployment holds data placed under them.
 ### Format and wire
 
 The hash function and its framing. SipHash-2-4, the 128-bit key derived from `hash.seed`, the
-`u32be` length framing, and the five domain tags fix every placement decision the library makes.
+`u32be` length framing, and the three domain tags fix every placement decision the library makes.
 Changing any of them moves every key in every topology. Rotating the seed alone is already a full
 data migration under [`adr/0027`](adr/0027-hash-seed-exposure-and-tenancy.md); changing the function
 is that migration for every deployment at once, with no way to stage it. `HASH-001` to `HASH-044`
@@ -105,9 +116,11 @@ and a conformance vector join on, and a binding may group the conditions and may
 Renumbering one silently changes what a dashboard counts. `ERR-010`, `ERR-062`, and
 [`adr/0024`](adr/0024-closed-numbered-error-taxonomy.md).
 
-The strategy kind names and the closed core set. `ring`, `rendezvous`, `slot`, `range`, and
-`directory` appear in documents an authority has already published. A sixth kind is a minor version;
-renaming one of the five is not available. [`adr/0002`](adr/0002-placement-strategy-set.md).
+The strategy kind names and the closed core set. `ring`, `rendezvous`, `slot`, and `directory`
+appear in documents an authority has already published. A fifth kind is a minor version, which is
+how `range` returns if a deployment asks for it; renaming one of the four is not available.
+[`adr/0002`](adr/0002-placement-strategy-set.md) and
+[`adr/0054`](adr/0054-range-strategy-withdrawal.md).
 
 Shard identifier rendering. A shard identifier appears in an ownership delta, an event, an explain
 record, and a handoff plan, and it is the join key between two epochs. Changing a rendering renames
@@ -150,12 +163,13 @@ floating-point operation on the placement path makes a result depend on a platfo
 failure the conformance suite cannot repair after the fact. `HASH-043`, `OBS-002`, and
 [`adr/0030`](adr/0030-unsigned-integer-discipline.md).
 
-Requirement identifiers. An identifier names one requirement permanently, a withdrawn requirement is
-marked and never reused, and a new requirement takes a free number. The conformance suite joins to
-the specification on these identifiers, so a renumbered identifier silently retargets a test rather
-than breaking it. The Conventions section of
-[`10-specification.md`](10-specification.md#conventions) and
-[`adr/0037`](adr/0037-specification-defect-repairs.md).
+Requirement identifiers. An identifier names one requirement permanently, a withdrawn requirement
+keeps a register row and never a second meaning, and a new requirement takes a free number. The
+conformance suite joins to the specification on these identifiers, so a renumbered identifier
+silently retargets a test rather than breaking it. The Conventions section of
+[`10-specification.md`](10-specification.md#withdrawn-identifiers),
+[`adr/0037`](adr/0037-specification-defect-repairs.md), and
+[`adr/0053`](adr/0053-requirement-withdrawal-convention.md).
 
 ### Java binding
 
@@ -210,7 +224,7 @@ observes anything but an output. A repair that was intended to change nothing is
 changed nothing, which is how the `HASH-*` transcription was shown to move no computed value.
 
 Harder. A requirement identifier is permanent, because the suite joins on it; withdrawing one means
-marking it withdrawn rather than reclaiming the number. A behaviour change means regenerating
+entering it in the register rather than reclaiming the number. A behaviour change means regenerating
 vectors, and every port that has declared conformance against a suite revision has to run the new
 revision and declare again. The vector file format itself is close to fixed: a driver that meets a
 `kind` it does not recognise fails rather than skips, so a new kind fails every existing driver

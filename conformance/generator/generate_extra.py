@@ -44,7 +44,7 @@ CONDITIONS = [
     (101, "noCandidate", "no", "the candidate ordering is empty",
      "inspect the topology; the same key answers the same way",
      ["emptyPlacementSet", "constraintExcludedAll", "noDirectoryEntry", "pinExcludedAll",
-      "noSlotEntry", "noRangeEntry", "zeroVirtualNodes", "authoredListExcludedAll",
+      "noSlotEntry", "zeroVirtualNodes", "authoredListExcludedAll",
       "noEligibleTokenOwner"]),
     (102, "exhausted", "yes", "the attempt sequence ran out after at least one attempt",
      "back off, then retry; a retryBudget cause means the cluster is shedding",
@@ -74,10 +74,9 @@ CONDITIONS = [
     (401, "planRefused", "no", "a plan cannot be built from the two snapshots and the policy",
      "correct the snapshots or the policy member named in cause",
      ["incomparableShards", "epochNotAdvancing", "strategyUnsupported",
-      "destinationOutsidePlacementSet", "unalignedRanges", "policyInvalid",
-      "guaranteeTooWeak"]),
+      "destinationOutsidePlacementSet", "policyInvalid"]),
     (402, "quiesced", "yes", "the shard is inside the cutover window",
-     "retry after the window, which cutoverGraceMillis bounds", []),
+     "retry after the window, which commitDeadlineMillis bounds", []),
     (403, "handoffFailed", "no", "a handoff reached failed",
      "operator action, directed by the failure kind in cause",
      ["unverified", "residue", "undetermined", "rollbackFailed"]),
@@ -166,33 +165,26 @@ EXPLICIT = {
     "metadata": {},
 }
 
-# `SLOT-024` and `RANGE-022` give the assignment mode a document that omits the member.  The two
-# defaults differ, so each pair carries one document that omits `assignment` and one that names the
-# mode the default supplies, and the suite asserts that the two route identically.
-SLOT_ASSIGNMENT_OMITTED = copy.deepcopy(T.SLOT_DERIVED)
+# `SLOT-024` gives the assignment mode a document that omits the member.  The pair carries one
+# document that omits `assignment` and one that names the mode the default supplies, and the suite
+# asserts that the two route identically.
+SLOT_ASSIGNMENT_OMITTED = copy.deepcopy(T.SLOT_EXPLICIT)
 SLOT_ASSIGNMENT_OMITTED["topologyId"] = "slot-assignment-omitted"
 del SLOT_ASSIGNMENT_OMITTED["strategy"]["assignment"]
 
-SLOT_ASSIGNMENT_NAMED = copy.deepcopy(T.SLOT_DERIVED)
+SLOT_ASSIGNMENT_NAMED = copy.deepcopy(T.SLOT_EXPLICIT)
 SLOT_ASSIGNMENT_NAMED["topologyId"] = "slot-assignment-named"
 
-RANGE_ASSIGNMENT_OMITTED = copy.deepcopy(T.RANGE_EXPLICIT)
-RANGE_ASSIGNMENT_OMITTED["topologyId"] = "range-assignment-omitted"
-del RANGE_ASSIGNMENT_OMITTED["strategy"]["assignment"]
-
-RANGE_ASSIGNMENT_NAMED = copy.deepcopy(T.RANGE_EXPLICIT)
-RANGE_ASSIGNMENT_NAMED["topologyId"] = "range-assignment-named"
-
-RANGE_WEIGHTED = copy.deepcopy(T.RANGE_EXPLICIT)
-RANGE_WEIGHTED["topologyId"] = "range-explicit-weighted"
-for node in RANGE_WEIGHTED["nodes"]:
-    node["weight"] = 7 if node["id"] == "n1" else 1
+SLOT_WEIGHTED = copy.deepcopy(T.SLOT_EXPLICIT)
+SLOT_WEIGHTED["topologyId"] = "slot-explicit-weighted"
+for node in SLOT_WEIGHTED["nodes"]:
+    node["weight"] = 7 if node["id"] == "shard-a" else 1
 
 
 def build_defaults(root):
     write_json(root / "topologies/defaults-omitted.topology.json", MINIMAL)
     write_json(root / "topologies/defaults-explicit.topology.json", EXPLICIT)
-    write_json(root / "topologies/range-explicit-weighted.topology.json", RANGE_WEIGHTED)
+    write_json(root / "topologies/slot-explicit-weighted.topology.json", SLOT_WEIGHTED)
 
     minimal, explicit = Snapshot(MINIMAL), Snapshot(EXPLICIT)
     rows = []
@@ -218,18 +210,18 @@ def build_defaults(root):
         "expect": {"identical": True, "rows": rows},
     }]
 
-    base, weighted = Snapshot(T.RANGE_EXPLICIT), Snapshot(RANGE_WEIGHTED)
+    base, weighted = Snapshot(T.SLOT_EXPLICIT), Snapshot(SLOT_WEIGHTED)
     weighted_rows = []
-    for label, key in [("a", b"a"), ("m", bytes([0x6d])), ("z", b"zzz")]:
+    for key in [b"slot-1", b"slot-4", b"slot-9"]:
         left = routing.route(base, key)
         right = routing.route(weighted, key)
         assert left["candidates"] == right["candidates"]
         weighted_rows.append({"key": key_spec(key), "candidates": left["candidates"]})
     cases.append({
         "name": "weight-advisory-under-explicit-assignment",
-        "requirements": ["PLACE-044", "RANGE-021", "SLOT-014", "DIR-004"],
-        "omittedDocument": "topologies/range-explicit.topology.json",
-        "explicitDocument": "topologies/range-explicit-weighted.topology.json",
+        "requirements": ["PLACE-044", "SLOT-014", "DIR-004"],
+        "omittedDocument": "topologies/slot-explicit.topology.json",
+        "explicitDocument": "topologies/slot-explicit-weighted.topology.json",
         "note": "raising one node's weight sevenfold changes no ordering under an authored "
                 "assignment; weight is advisory there.",
         "expect": {"identical": True, "rows": weighted_rows},
@@ -238,8 +230,6 @@ def build_defaults(root):
     for label, omitted, named, keys, requirement in [
         ("slot", SLOT_ASSIGNMENT_OMITTED, SLOT_ASSIGNMENT_NAMED,
          [b"slot-a", b"slot-b", b"slot-c", b"slot-d"], "SLOT-024"),
-        ("range", RANGE_ASSIGNMENT_OMITTED, RANGE_ASSIGNMENT_NAMED,
-         [b"a", bytes([0x6d]), b"zzz", bytes([0x7a, 0x00])], "RANGE-022"),
     ]:
         write_json(root / ("topologies/%s-assignment-omitted.topology.json" % label), omitted)
         write_json(root / ("topologies/%s-assignment-named.topology.json" % label), named)
@@ -256,9 +246,8 @@ def build_defaults(root):
             "requirements": [requirement, "PLACE-040"],
             "omittedDocument": "topologies/%s-assignment-omitted.topology.json" % label,
             "explicitDocument": "topologies/%s-assignment-named.topology.json" % label,
-            "note": "a `%s` document that omits `assignment` routes as one naming `%s`.  The two "
-                    "strategies default opposite ways, so the mode cannot be carried across from "
-                    "the other." % (label, mode),
+            "note": "a `%s` document that omits `assignment` routes as one naming `%s`."
+                    % (label, mode),
             "expect": {"identical": True, "rows": assignment_rows},
         })
 
@@ -266,10 +255,9 @@ def build_defaults(root):
          "defaults",
          "A document that omits every optional member and one that writes every default out "
          "produce identical orderings, weight changes nothing under an authored assignment, and "
-         "an omitted `assignment` takes the default its strategy gives: `derived` under `slot` "
-         "and `explicit` under `range`.",
-         ["PLACE-040", "PLACE-044", "KEY-010", "REPL-001", "SPREAD-003", "RANGE-021",
-          "RANGE-022", "SLOT-014", "SLOT-024", "RING-006", "DIR-004"], cases)
+         "an omitted `assignment` takes the default its strategy gives.",
+         ["PLACE-040", "PLACE-044", "KEY-010", "REPL-001", "SPREAD-003", "SLOT-014",
+          "SLOT-024", "RING-006", "DIR-004"], cases, level="place")
 
 
 # ------------------------------------------------------- node identity comparison
@@ -309,7 +297,7 @@ def build_identity_comparison(root):
          "with a proper prefix comparing less.  It is the final tie-break of every ordering the "
          "specification defines, so a port that compares by code point, by collation, or case "
          "insensitively passes every ordering vector and fails on the first tie.",
-         ["PLACE-020", "PLACE-021", "PLACE-022", "PLACE-023", "CORE-003"], cases)
+         ["PLACE-020", "PLACE-021", "PLACE-022", "PLACE-023", "CORE-003"], cases, level="place")
 
 
 # ------------------------------------------------------------------ ownership delta
@@ -514,7 +502,7 @@ def build_ring_and_pin_cases(root):
     emit(root, "vectors/ring/weight-zero.json", "ring-weight-zero", "routing",
          "A node of weight 0 under derived token assignment owns no token and never appears.",
          ["RING-001", "RING-002", "PLACE-042", "PLACE-043", "CORE-046", "CORE-047"], cases,
-         topology="topologies/ring-weight-zero.topology.json")
+         topology="topologies/ring-weight-zero.topology.json", level="place")
 
     snapshot = Snapshot(RING_PINNED)
     cases = []
@@ -538,7 +526,8 @@ def build_ring_and_pin_cases(root):
     emit(root, "vectors/overrides/pin-keeps-shard.json", "overrides-pin-keeps-shard", "pinShard",
          "A pinned routing key keeps its shard identifier, and its candidate ordering differs "
          "from the ordering the shard itself produces.",
-         ["OVR-010", "OVR-016", "PLACE-030", "PLACE-033"], cases)
+         ["OVR-010", "OVR-016", "PLACE-030", "PLACE-033"], cases,
+         topology="topologies/ring-pinned.topology.json", level="place")
 
     snapshot = Snapshot(SPREAD_PINNED)
     cases = []
@@ -557,7 +546,7 @@ def build_ring_and_pin_cases(root):
          "spread-applies-to-pinned-ordering", "routing",
          "A pin is exempt from the balance and movement bounds and is not exempt from spread.",
          ["SPREAD-004", "OVR-013", "PROP-050", "REPL-013", "CORE-046", "CORE-047"], cases,
-         topology="topologies/spread-pinned.topology.json")
+         topology="topologies/spread-pinned.topology.json", level="place")
 
 
 def main():

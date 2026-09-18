@@ -11,10 +11,8 @@
     "PROP-015",
     "PROP-020",
     "PROP-021",
-    "PROP-022",
     "PROP-030",
-    "PROP-032",
-    "PROP-033"
+    "PROP-032"
   ],
   "cases": [
     {
@@ -314,67 +312,6 @@
           "tokensPerNodeAtLeast256": true
         },
         "tokensPerNode": 256
-      }
-    },
-    {
-      "name": "balance-slot-derived",
-      "property": "P-BALANCE-003",
-      "requirements": [
-        "PROP-022",
-        "PROP-033"
-      ],
-      "topology": "topologies/balance-slot.topology.json",
-      "note": "the sample is the set of all slots rather than a set of keys, under `PROP-022`.",
-      "sample": {
-        "generator": "allSlots",
-        "count": 65536
-      },
-      "expect": {
-        "sumVirtualNodes": 4,
-        "sampleSize": 65536,
-        "multiplier": 20,
-        "perNode": [
-          {
-            "node": "sl0",
-            "virtualNodes": 1,
-            "observed": 16511,
-            "left": 10160,
-            "right": 65536,
-            "holds": true
-          },
-          {
-            "node": "sl1",
-            "virtualNodes": 1,
-            "observed": 16246,
-            "left": 11040,
-            "right": 65536,
-            "holds": true
-          },
-          {
-            "node": "sl2",
-            "virtualNodes": 1,
-            "observed": 16326,
-            "left": 4640,
-            "right": 65536,
-            "holds": true
-          },
-          {
-            "node": "sl3",
-            "virtualNodes": 1,
-            "observed": 16453,
-            "left": 5520,
-            "right": 65536,
-            "holds": true
-          }
-        ],
-        "passed": true,
-        "precondition": {
-          "form": "slotCount * v_min >= 10000 * V",
-          "vMin": 1,
-          "value": 65536,
-          "threshold": 40000,
-          "holds": true
-        }
       }
     },
     {

@@ -1,6 +1,16 @@
 # 0002. Placement strategy set
 
-Status: accepted. Date: 2026-09-16.
+Status: accepted, with the `range` kind withdrawn by
+[`0054`](0054-range-strategy-withdrawal.md) and derived assignment under `slot` withdrawn by
+[`0055`](0055-slot-derived-assignment-withdrawal.md). Date: 2026-09-16.
+
+The core set shipped here was five kinds. `range` is withdrawn from format version 1.0 because no
+use case the design is validated against has an ordered keyspace, and it carried the whole split and
+merge surface behind it. Derived assignment under `slot` is withdrawn because it derived a map the
+strategy was chosen to delegate to an authority. The core set is `ring`, `rendezvous`, `slot` with
+authored assignment, and `directory`, and the clause below that one ordering rule covers three kinds
+now covers `rendezvous` alone. Everything else this record decides stands, including the pluggable
+strategy interface, which is the answer to a deployment that has an ordered keyspace.
 
 ## Context
 

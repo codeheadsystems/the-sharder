@@ -1,7 +1,7 @@
 {
   "vectorSet": "keytransform-none",
   "kind": "keyTransform",
-  "level": "core",
+  "level": "place",
   "description": "The `none` transform returns the key octet for octet.",
   "requirements": [
     "KEY-001",
@@ -11,6 +11,24 @@
     "KEY-013",
     "KEY-020"
   ],
+  "topologyDocuments": {
+    "topologies/kt-none.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "kt-none",
+      "epoch": 1,
+      "keyTransform": {
+        "kind": "none"
+      },
+      "strategy": {
+        "kind": "rendezvous"
+      },
+      "nodes": [
+        {
+          "id": "n1"
+        }
+      ]
+    }
+  },
   "cases": [
     {
       "name": "empty",

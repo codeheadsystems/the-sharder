@@ -1,7 +1,7 @@
 /* Pollard rho search for 64-bit collisions in the sharder hash construction.
  *
  * The determinism vectors need cases that reach a tie-break: two nodes that derive the same ring
- * token, and two nodes that score identically under rendezvous, slot, or range placement.  Both
+ * token, and two nodes that score identically under rendezvous placement.  Both
  * are 64-bit collisions, so they are found rather than chosen.  A birthday table would need
  * roughly 2^32 stored values; Brent's cycle detection finds the same collision in constant
  * memory.
@@ -21,8 +21,6 @@
  * RHO_START overrides the start state, so several instances of one mode can race.
  *         ring
  *         rendezvous <routing-key-hex>
- *         slot <slot-index>
- *         range <shard-id-ascii>
  */
 
 #include <stdint.h>
@@ -154,18 +152,6 @@ static void build_template(int argc, char **argv)
         TEMPLATE.id_offset = TEMPLATE.length + 4;
         frame_append(&TEMPLATE, placeholder, 16);
         frame_append_u32(&TEMPLATE, 0);
-    } else if (strcmp(mode, "slot") == 0) {
-        frame_append(&TEMPLATE, (const uint8_t *)"sharder/slot-rendezvous/v1", 26);
-        frame_append_u32(&TEMPLATE, (uint32_t)strtoul(argv[2], NULL, 10));
-        TEMPLATE.id_offset = TEMPLATE.length + 4;
-        frame_append(&TEMPLATE, placeholder, 16);
-        frame_append_u32(&TEMPLATE, 0);
-    } else if (strcmp(mode, "range") == 0) {
-        frame_append(&TEMPLATE, (const uint8_t *)"sharder/range-rendezvous/v1", 27);
-        frame_append(&TEMPLATE, (const uint8_t *)argv[2], (uint32_t)strlen(argv[2]));
-        TEMPLATE.id_offset = TEMPLATE.length + 4;
-        frame_append(&TEMPLATE, placeholder, 16);
-        frame_append_u32(&TEMPLATE, 0);
     } else {
         fprintf(stderr, "unknown mode %s\n", mode);
         exit(2);
@@ -195,7 +181,7 @@ int main(int argc, char **argv)
         start = strtoull(start_env, NULL, 0);
 
     if (argc < 2) {
-        fprintf(stderr, "usage: rho_search <keyHash|ring|rendezvous|slot|range> [argument] [--probe]\n");
+        fprintf(stderr, "usage: rho_search <keyHash|ring|rendezvous> [argument] [--probe]\n");
         return 2;
     }
     build_template(argc, argv);

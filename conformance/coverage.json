@@ -1,15 +1,15 @@
 {
   "specification": "docs/design/10-specification.md",
-  "statedRequirements": 689,
-  "coveredRequirements": 458,
-  "uncoveredRequirements": 231,
-  "coveragePercent": 66,
+  "statedRequirements": 637,
+  "coveredRequirements": 415,
+  "uncoveredRequirements": 222,
+  "coveragePercent": 65,
   "identifiersNamedButNotStated": [],
   "byPrefix": [
     {
       "prefix": "CFG",
       "section": "Configuration surface",
-      "stated": 30,
+      "stated": 29,
       "covered": 5,
       "uncovered": [
         "CFG-001",
@@ -31,20 +31,19 @@
         "CFG-041",
         "CFG-042",
         "CFG-051",
-        "CFG-053",
         "CFG-054",
         "CFG-060",
         "CFG-061",
         "CFG-062",
-        "CFG-063"
+        "CFG-064"
       ],
-      "percent": 16
+      "percent": 17
     },
     {
       "prefix": "CORE",
       "section": "Core model",
-      "stated": 57,
-      "covered": 10,
+      "stated": 62,
+      "covered": 11,
       "uncovered": [
         "CORE-001",
         "CORE-010",
@@ -92,7 +91,11 @@
         "CORE-092",
         "CORE-093",
         "CORE-100",
-        "CORE-101"
+        "CORE-101",
+        "CORE-110",
+        "CORE-111",
+        "CORE-112",
+        "CORE-113"
       ],
       "percent": 17
     },
@@ -131,7 +134,7 @@
     {
       "prefix": "OBS",
       "section": "Observability",
-      "stated": 32,
+      "stated": 34,
       "covered": 4,
       "uncovered": [
         "OBS-001",
@@ -141,6 +144,7 @@
         "OBS-005",
         "OBS-006",
         "OBS-007",
+        "OBS-008",
         "OBS-011",
         "OBS-012",
         "OBS-020",
@@ -153,6 +157,7 @@
         "OBS-030",
         "OBS-034",
         "OBS-035",
+        "OBS-036",
         "OBS-040",
         "OBS-041",
         "OBS-042",
@@ -163,7 +168,7 @@
         "OBS-047",
         "OBS-048"
       ],
-      "percent": 12
+      "percent": 11
     },
     {
       "prefix": "FAIL",
@@ -284,13 +289,13 @@
     {
       "prefix": "PLACE",
       "section": "Routing keys and placement",
-      "stated": 46,
-      "covered": 39,
+      "stated": 45,
+      "covered": 38,
       "uncovered": [
         "PLACE-004",
+        "PLACE-034",
         "PLACE-070",
         "PLACE-071",
-        "PLACE-072",
         "PLACE-073",
         "PLACE-074",
         "PLACE-075"
@@ -300,21 +305,10 @@
     {
       "prefix": "PROP",
       "section": "Routing keys and placement",
-      "stated": 36,
-      "covered": 36,
+      "stated": 32,
+      "covered": 32,
       "uncovered": [],
       "percent": 100
-    },
-    {
-      "prefix": "RANGE",
-      "section": "Routing keys and placement",
-      "stated": 21,
-      "covered": 19,
-      "uncovered": [
-        "RANGE-014",
-        "RANGE-015"
-      ],
-      "percent": 90
     },
     {
       "prefix": "RING",
@@ -337,12 +331,12 @@
     {
       "prefix": "SLOT",
       "section": "Routing keys and placement",
-      "stated": 17,
-      "covered": 16,
+      "stated": 13,
+      "covered": 12,
       "uncovered": [
         "SLOT-013"
       ],
-      "percent": 94
+      "percent": 92
     },
     {
       "prefix": "SEC",
@@ -381,8 +375,8 @@
     {
       "prefix": "MOVE",
       "section": "Topology change and rebalancing",
-      "stated": 70,
-      "covered": 49,
+      "stated": 65,
+      "covered": 48,
       "uncovered": [
         "MOVE-061",
         "MOVE-062",
@@ -396,49 +390,28 @@
         "MOVE-301",
         "MOVE-311",
         "MOVE-321",
-        "MOVE-341",
         "MOVE-351",
-        "MOVE-361",
-        "MOVE-371",
         "MOVE-381",
         "MOVE-391",
-        "MOVE-401",
         "MOVE-411",
         "MOVE-431"
       ],
-      "percent": 70
+      "percent": 73
     },
     {
       "prefix": "RATE",
       "section": "Topology change and rebalancing",
-      "stated": 15,
-      "covered": 10,
+      "stated": 14,
+      "covered": 8,
       "uncovered": [
         "RATE-031",
         "RATE-061",
+        "RATE-101",
         "RATE-121",
         "RATE-131",
         "RATE-141"
       ],
-      "percent": 66
-    },
-    {
-      "prefix": "SPLIT",
-      "section": "Topology change and rebalancing",
-      "stated": 22,
-      "covered": 13,
-      "uncovered": [
-        "SPLIT-021",
-        "SPLIT-031",
-        "SPLIT-051",
-        "SPLIT-141",
-        "SPLIT-151",
-        "SPLIT-181",
-        "SPLIT-191",
-        "SPLIT-201",
-        "SPLIT-211"
-      ],
-      "percent": 59
+      "percent": 57
     },
     {
       "prefix": "TOPO",
@@ -479,24 +452,20 @@
         "HASH-032",
         "HASH-040",
         "HASH-044",
-        "PLACE-034",
         "PLACE-053",
         "SEC-015"
       ],
-      "requirementsAtLevel": 18,
-      "requirementsWhenDeclared": 18
+      "requirementsAtLevel": 17,
+      "requirementsWhenDeclared": 17
     },
     {
-      "level": "core",
+      "level": "place",
       "requires": [
         "hash"
       ],
       "requirements": [
         "CORE-002",
         "CORE-003",
-        "CORE-004",
-        "CORE-005",
-        "CORE-020",
         "CORE-040",
         "CORE-046",
         "CORE-047",
@@ -511,25 +480,9 @@
         "DIR-020",
         "DIR-021",
         "DIR-022",
-        "ERR-001",
-        "ERR-002",
-        "ERR-003",
-        "ERR-004",
-        "ERR-005",
-        "ERR-006",
-        "ERR-007",
-        "ERR-008",
         "ERR-009",
-        "ERR-010",
-        "ERR-011",
         "ERR-020",
         "ERR-021",
-        "ERR-030",
-        "ERR-031",
-        "ERR-032",
-        "ERR-034",
-        "ERR-045",
-        "ERR-050",
         "KEY-001",
         "KEY-002",
         "KEY-004",
@@ -553,12 +506,6 @@
         "KEY-043",
         "KEY-044",
         "MOVE-241",
-        "MOVE-251",
-        "MOVE-271",
-        "MOVE-471",
-        "OBS-031",
-        "OBS-032",
-        "OBS-033",
         "OVR-001",
         "OVR-002",
         "OVR-003",
@@ -570,7 +517,6 @@
         "OVR-012",
         "OVR-013",
         "OVR-014",
-        "OVR-015",
         "OVR-016",
         "OVR-020",
         "OVR-021",
@@ -580,10 +526,8 @@
         "OVR-025",
         "OVR-026",
         "OVR-027",
-        "OVR-028",
         "OVR-030",
         "OVR-031",
-        "OVR-032",
         "OVR-040",
         "OVR-041",
         "PLACE-001",
@@ -591,11 +535,8 @@
         "PLACE-003",
         "PLACE-005",
         "PLACE-010",
-        "PLACE-011",
-        "PLACE-012",
         "PLACE-013",
         "PLACE-014",
-        "PLACE-015",
         "PLACE-016",
         "PLACE-017",
         "PLACE-020",
@@ -622,63 +563,18 @@
         "PLACE-064",
         "PLACE-065",
         "PLACE-066",
-        "PLACE-067",
-        "PROP-001",
-        "PROP-002",
         "PROP-003",
-        "PROP-004",
         "PROP-005",
-        "PROP-006",
         "PROP-010",
         "PROP-011",
         "PROP-012",
-        "PROP-013",
-        "PROP-014",
-        "PROP-015",
         "PROP-016",
-        "PROP-017",
-        "PROP-018",
         "PROP-019",
-        "PROP-020",
-        "PROP-021",
-        "PROP-022",
-        "PROP-023",
         "PROP-024",
-        "PROP-025",
-        "PROP-026",
-        "PROP-030",
-        "PROP-031",
-        "PROP-032",
-        "PROP-033",
-        "PROP-042",
-        "PROP-043",
-        "PROP-044",
         "PROP-050",
-        "PROP-051",
-        "PROP-052",
-        "RANGE-001",
-        "RANGE-002",
-        "RANGE-003",
-        "RANGE-004",
-        "RANGE-005",
-        "RANGE-010",
-        "RANGE-011",
-        "RANGE-012",
-        "RANGE-013",
-        "RANGE-020",
-        "RANGE-021",
-        "RANGE-022",
-        "RANGE-030",
-        "RANGE-031",
-        "RANGE-032",
-        "RANGE-033",
-        "RANGE-040",
-        "RANGE-041",
-        "RANGE-042",
         "REPL-001",
         "REPL-002",
         "REPL-003",
-        "REPL-004",
         "REPL-005",
         "REPL-011",
         "REPL-012",
@@ -722,26 +618,18 @@
         "SEC-010",
         "SEC-011",
         "SEC-012",
-        "SEC-013",
         "SLOT-001",
         "SLOT-002",
         "SLOT-003",
-        "SLOT-004",
         "SLOT-010",
         "SLOT-011",
         "SLOT-012",
         "SLOT-014",
-        "SLOT-020",
-        "SLOT-021",
-        "SLOT-022",
-        "SLOT-023",
         "SLOT-024",
         "SLOT-030",
         "SLOT-031",
         "SLOT-032",
-        "SPLIT-041",
         "SPREAD-001",
-        "SPREAD-002",
         "SPREAD-003",
         "SPREAD-004",
         "SPREAD-005",
@@ -758,6 +646,117 @@
         "SPREAD-019",
         "SPREAD-020",
         "SPREAD-021",
+        "TOPO-151"
+      ],
+      "requirementsAtLevel": 183,
+      "requirementsWhenDeclared": 200
+    },
+    {
+      "level": "core",
+      "requires": [
+        "place"
+      ],
+      "requirements": [
+        "CORE-002",
+        "CORE-004",
+        "CORE-005",
+        "CORE-020",
+        "ERR-001",
+        "ERR-002",
+        "ERR-003",
+        "ERR-004",
+        "ERR-005",
+        "ERR-006",
+        "ERR-007",
+        "ERR-008",
+        "ERR-009",
+        "ERR-010",
+        "ERR-011",
+        "ERR-021",
+        "ERR-030",
+        "ERR-031",
+        "ERR-032",
+        "ERR-034",
+        "ERR-045",
+        "ERR-050",
+        "MOVE-241",
+        "MOVE-251",
+        "MOVE-271",
+        "MOVE-471",
+        "OBS-031",
+        "OBS-032",
+        "OBS-033",
+        "OVR-010",
+        "OVR-013",
+        "OVR-015",
+        "OVR-020",
+        "OVR-028",
+        "OVR-032",
+        "PLACE-010",
+        "PLACE-011",
+        "PLACE-012",
+        "PLACE-013",
+        "PLACE-015",
+        "PLACE-031",
+        "PLACE-041",
+        "PLACE-044",
+        "PLACE-067",
+        "PROP-001",
+        "PROP-002",
+        "PROP-003",
+        "PROP-004",
+        "PROP-005",
+        "PROP-006",
+        "PROP-010",
+        "PROP-011",
+        "PROP-012",
+        "PROP-013",
+        "PROP-014",
+        "PROP-015",
+        "PROP-016",
+        "PROP-017",
+        "PROP-018",
+        "PROP-019",
+        "PROP-020",
+        "PROP-021",
+        "PROP-025",
+        "PROP-030",
+        "PROP-031",
+        "PROP-032",
+        "PROP-042",
+        "PROP-043",
+        "PROP-044",
+        "PROP-050",
+        "PROP-051",
+        "PROP-052",
+        "REPL-004",
+        "REPL-011",
+        "REPL-012",
+        "REPL-013",
+        "REPL-014",
+        "REPL-015",
+        "REPL-017",
+        "REPL-020",
+        "REPL-021",
+        "REPL-025",
+        "RING-013",
+        "RV-013",
+        "RV-021",
+        "SEC-013",
+        "SLOT-004",
+        "SLOT-031",
+        "SPREAD-001",
+        "SPREAD-002",
+        "SPREAD-010",
+        "SPREAD-011",
+        "SPREAD-012",
+        "SPREAD-013",
+        "SPREAD-014",
+        "SPREAD-015",
+        "SPREAD-017",
+        "SPREAD-018",
+        "SPREAD-020",
+        "SPREAD-021",
         "TOPO-001",
         "TOPO-011",
         "TOPO-051",
@@ -765,7 +764,6 @@
         "TOPO-071",
         "TOPO-081",
         "TOPO-091",
-        "TOPO-151",
         "TOPO-191",
         "TOPO-211",
         "TOPO-213",
@@ -773,8 +771,8 @@
         "TOPO-231",
         "TOPO-241"
       ],
-      "requirementsAtLevel": 280,
-      "requirementsWhenDeclared": 298
+      "requirementsAtLevel": 113,
+      "requirementsWhenDeclared": 269
     },
     {
       "level": "failover",
@@ -786,6 +784,7 @@
         "CFG-021",
         "CORE-005",
         "CORE-045",
+        "CORE-048",
         "FAIL-001",
         "FAIL-002",
         "FAIL-003",
@@ -827,8 +826,8 @@
         "REPL-016",
         "SEC-031"
       ],
-      "requirementsAtLevel": 44,
-      "requirementsWhenDeclared": 341
+      "requirementsAtLevel": 45,
+      "requirementsWhenDeclared": 313
     },
     {
       "level": "readAffinity",
@@ -849,7 +848,7 @@
         "SPREAD-006"
       ],
       "requirementsAtLevel": 11,
-      "requirementsWhenDeclared": 307
+      "requirementsWhenDeclared": 278
     },
     {
       "level": "fencing",
@@ -896,7 +895,7 @@
         "TOPO-171"
       ],
       "requirementsAtLevel": 37,
-      "requirementsWhenDeclared": 375
+      "requirementsWhenDeclared": 347
     },
     {
       "level": "migration",
@@ -947,12 +946,10 @@
         "MOVE-232",
         "MOVE-233",
         "MOVE-234",
-        "MOVE-235",
         "MOVE-236",
         "MOVE-237",
         "MOVE-238",
         "MOVE-241",
-        "MOVE-251",
         "MOVE-331",
         "MOVE-421",
         "MOVE-441",
@@ -963,33 +960,19 @@
         "RATE-001",
         "RATE-011",
         "RATE-021",
-        "RATE-041",
         "RATE-051",
         "RATE-071",
         "RATE-081",
         "RATE-091",
-        "RATE-101",
         "RATE-111",
-        "SPLIT-001",
-        "SPLIT-011",
-        "SPLIT-061",
-        "SPLIT-071",
-        "SPLIT-081",
-        "SPLIT-091",
-        "SPLIT-101",
-        "SPLIT-111",
-        "SPLIT-121",
-        "SPLIT-131",
-        "SPLIT-161",
-        "SPLIT-171",
         "TOPO-111",
         "TOPO-131",
         "TOPO-211",
         "TOPO-221",
         "TOPO-231"
       ],
-      "requirementsAtLevel": 83,
-      "requirementsWhenDeclared": 415
+      "requirementsAtLevel": 67,
+      "requirementsWhenDeclared": 372
     }
   ],
   "coveredBy": {
@@ -1026,9 +1009,10 @@
       "vectors/slot/explicit-assignment.json",
       "vectors/slot/non-power-of-two-modulus.json"
     ],
-    "SLOT-023": [
+    "SLOT-030": [
       "vectors/adversarial/colliding-keys.json",
-      "vectors/slot/derived-assignment.json"
+      "vectors/placement/shard-enumeration.json",
+      "vectors/slot/explicit-assignment.json"
     ],
     "CORE-046": [
       "vectors/adversarial/empty-topology-ring.json",
@@ -1039,8 +1023,6 @@
       "vectors/directory/no-match.json",
       "vectors/overrides/pin-admits-weight-zero.json",
       "vectors/overrides/precedence-and-composition.json",
-      "vectors/range/derived-assignment.json",
-      "vectors/range/explicit-bounds.json",
       "vectors/read/affinity.json",
       "vectors/rendezvous/cache-hash-tags.json",
       "vectors/rendezvous/ordering.json",
@@ -1055,7 +1037,6 @@
       "vectors/ring/explicit-tokens.json",
       "vectors/ring/non-default-seed.json",
       "vectors/ring/weight-zero.json",
-      "vectors/slot/derived-assignment.json",
       "vectors/slot/explicit-assignment.json",
       "vectors/slot/non-power-of-two-modulus.json",
       "vectors/spread/all-nodes-one-domain-relaxed.json",
@@ -1073,8 +1054,6 @@
       "vectors/directory/no-match.json",
       "vectors/overrides/pin-admits-weight-zero.json",
       "vectors/overrides/precedence-and-composition.json",
-      "vectors/range/derived-assignment.json",
-      "vectors/range/explicit-bounds.json",
       "vectors/rendezvous/cache-hash-tags.json",
       "vectors/rendezvous/ordering.json",
       "vectors/rendezvous/tenant-router.json",
@@ -1088,7 +1067,6 @@
       "vectors/ring/explicit-tokens.json",
       "vectors/ring/non-default-seed.json",
       "vectors/ring/weight-zero.json",
-      "vectors/slot/derived-assignment.json",
       "vectors/slot/explicit-assignment.json",
       "vectors/slot/non-power-of-two-modulus.json",
       "vectors/spread/all-nodes-one-domain-relaxed.json",
@@ -1129,8 +1107,7 @@
       "vectors/adversarial/weight-zero.json",
       "vectors/overrides/pin-admits-weight-zero.json",
       "vectors/rendezvous/cache-hash-tags.json",
-      "vectors/ring/weight-zero.json",
-      "vectors/slot/derived-assignment.json"
+      "vectors/ring/weight-zero.json"
     ],
     "PLACE-043": [
       "vectors/adversarial/weight-zero.json",
@@ -1188,14 +1165,6 @@
       "vectors/determinism/tie-breaks.json",
       "vectors/placement/identity-comparison.json",
       "vectors/rendezvous/ordering.json"
-    ],
-    "RANGE-031": [
-      "vectors/determinism/tie-breaks.json",
-      "vectors/range/derived-assignment.json"
-    ],
-    "RANGE-032": [
-      "vectors/determinism/tie-breaks.json",
-      "vectors/range/derived-assignment.json"
     ],
     "RING-010": [
       "vectors/determinism/tie-breaks.json",
@@ -1353,6 +1322,9 @@
     "CORE-045": [
       "vectors/formulas/failover.json"
     ],
+    "CORE-048": [
+      "vectors/formulas/failover.json"
+    ],
     "FAIL-021": [
       "vectors/formulas/failover.json"
     ],
@@ -1426,7 +1398,6 @@
     "ERR-050": [
       "scenarios/rebase-drops-a-handoff.json",
       "vectors/formulas/migration-rate.json",
-      "vectors/split/lineage.json",
       "vectors/topology/ownership-delta.json"
     ],
     "MOVE-171": [
@@ -1437,14 +1408,8 @@
     "RATE-021": [
       "vectors/formulas/migration-rate.json"
     ],
-    "RATE-041": [
-      "vectors/formulas/migration-rate.json"
-    ],
     "RATE-051": [
       "scenarios/coordinator-death-and-recovery.json",
-      "vectors/formulas/migration-rate.json"
-    ],
-    "RATE-101": [
       "vectors/formulas/migration-rate.json"
     ],
     "OBS-031": [
@@ -1454,9 +1419,6 @@
       "vectors/formulas/skew-detection.json"
     ],
     "OBS-033": [
-      "vectors/formulas/skew-detection.json"
-    ],
-    "SPLIT-041": [
       "vectors/formulas/skew-detection.json"
     ],
     "HASH-010": [
@@ -1492,9 +1454,6 @@
     "HASH-044": [
       "vectors/hash/construction.json",
       "vectors/hash/siphash-primitive.json"
-    ],
-    "PLACE-034": [
-      "vectors/hash/construction.json"
     ],
     "PLACE-053": [
       "vectors/hash/construction.json"
@@ -1721,12 +1680,6 @@
       "vectors/rendezvous/virtual-node-cap.json",
       "vectors/ring/derived-zoned.json"
     ],
-    "RANGE-021": [
-      "vectors/placement/document-defaults.json"
-    ],
-    "RANGE-022": [
-      "vectors/placement/document-defaults.json"
-    ],
     "REPL-001": [
       "vectors/placement/document-defaults.json"
     ],
@@ -1764,7 +1717,6 @@
     "MOVE-241": [
       "scenarios/handoff-happy-path.json",
       "vectors/placement/shard-enumeration.json",
-      "vectors/split/lineage.json",
       "vectors/topology/ownership-delta.json"
     ],
     "PLACE-031": [
@@ -1772,17 +1724,6 @@
       "vectors/topology/ownership-delta.json"
     ],
     "PLACE-032": [
-      "vectors/placement/shard-enumeration.json"
-    ],
-    "RANGE-040": [
-      "vectors/placement/shard-enumeration.json",
-      "vectors/range/derived-assignment.json",
-      "vectors/range/explicit-bounds.json"
-    ],
-    "RANGE-041": [
-      "vectors/placement/shard-enumeration.json"
-    ],
-    "RANGE-042": [
       "vectors/placement/shard-enumeration.json"
     ],
     "RING-032": [
@@ -1800,14 +1741,8 @@
     "RV-022": [
       "vectors/placement/shard-enumeration.json"
     ],
-    "SLOT-030": [
-      "vectors/placement/shard-enumeration.json",
-      "vectors/slot/derived-assignment.json",
-      "vectors/slot/explicit-assignment.json"
-    ],
     "SLOT-031": [
       "vectors/placement/shard-enumeration.json",
-      "vectors/slot/derived-assignment.json",
       "vectors/topology/ownership-delta.json"
     ],
     "SLOT-032": [
@@ -1849,10 +1784,6 @@
       "properties/properties.json",
       "vectors/properties/witnesses.json"
     ],
-    "PROP-022": [
-      "properties/properties.json",
-      "vectors/properties/witnesses.json"
-    ],
     "PROP-030": [
       "properties/properties.json",
       "vectors/properties/witnesses.json"
@@ -1860,46 +1791,6 @@
     "PROP-032": [
       "properties/properties.json",
       "vectors/properties/witnesses.json"
-    ],
-    "PROP-033": [
-      "properties/properties.json",
-      "vectors/properties/witnesses.json"
-    ],
-    "RANGE-030": [
-      "vectors/range/derived-assignment.json"
-    ],
-    "RANGE-033": [
-      "vectors/range/derived-assignment.json"
-    ],
-    "RANGE-001": [
-      "vectors/range/explicit-bounds.json"
-    ],
-    "RANGE-002": [
-      "vectors/range/explicit-bounds.json"
-    ],
-    "RANGE-003": [
-      "vectors/range/explicit-bounds.json"
-    ],
-    "RANGE-004": [
-      "vectors/range/explicit-bounds.json"
-    ],
-    "RANGE-005": [
-      "vectors/range/explicit-bounds.json"
-    ],
-    "RANGE-010": [
-      "vectors/range/explicit-bounds.json"
-    ],
-    "RANGE-011": [
-      "vectors/range/explicit-bounds.json"
-    ],
-    "RANGE-012": [
-      "vectors/range/explicit-bounds.json"
-    ],
-    "RANGE-013": [
-      "vectors/range/explicit-bounds.json"
-    ],
-    "RANGE-020": [
-      "vectors/range/explicit-bounds.json"
     ],
     "READ-001": [
       "vectors/read/affinity.json"
@@ -2080,15 +1971,6 @@
     "RING-002": [
       "vectors/ring/weight-zero.json"
     ],
-    "SLOT-020": [
-      "vectors/slot/derived-assignment.json"
-    ],
-    "SLOT-021": [
-      "vectors/slot/derived-assignment.json"
-    ],
-    "SLOT-022": [
-      "vectors/slot/derived-assignment.json"
-    ],
     "SLOT-002": [
       "vectors/slot/explicit-assignment.json",
       "vectors/slot/non-power-of-two-modulus.json"
@@ -2107,49 +1989,7 @@
       "vectors/slot/explicit-assignment.json"
     ],
     "PROP-024": [
-      "properties/properties.json",
       "vectors/slot/non-power-of-two-modulus.json"
-    ],
-    "MOVE-251": [
-      "vectors/split/lineage.json",
-      "vectors/topology/ownership-delta.json"
-    ],
-    "SPLIT-001": [
-      "vectors/split/lineage.json"
-    ],
-    "SPLIT-011": [
-      "vectors/split/lineage.json"
-    ],
-    "SPLIT-061": [
-      "vectors/split/lineage.json"
-    ],
-    "SPLIT-071": [
-      "vectors/split/lineage.json"
-    ],
-    "SPLIT-081": [
-      "vectors/split/lineage.json"
-    ],
-    "SPLIT-091": [
-      "vectors/split/lineage.json"
-    ],
-    "SPLIT-101": [
-      "vectors/split/lineage.json"
-    ],
-    "SPLIT-111": [
-      "vectors/split/lineage.json"
-    ],
-    "SPLIT-121": [
-      "vectors/split/lineage.json"
-    ],
-    "SPLIT-131": [
-      "vectors/split/lineage.json"
-    ],
-    "SPLIT-161": [
-      "vectors/split/lineage.json"
-    ],
-    "SPLIT-171": [
-      "scenarios/undetermined-resolves-both-ways.json",
-      "vectors/split/lineage.json"
     ],
     "SPREAD-010": [
       "properties/properties.json",
@@ -2196,6 +2036,9 @@
       "properties/properties.json",
       "vectors/spread/degradation-ladder.json",
       "vectors/spread/relaxation-stages.json"
+    ],
+    "MOVE-251": [
+      "vectors/topology/ownership-delta.json"
     ],
     "MOVE-271": [
       "vectors/topology/ownership-delta.json"
@@ -2305,12 +2148,6 @@
       "properties/properties.json"
     ],
     "PROP-031": [
-      "properties/properties.json"
-    ],
-    "PROP-023": [
-      "properties/properties.json"
-    ],
-    "PROP-026": [
       "properties/properties.json"
     ],
     "PROP-025": [
@@ -2667,9 +2504,6 @@
       "scenarios/undetermined-resolves-both-ways.json"
     ],
     "MOVE-234": [
-      "scenarios/undetermined-resolves-both-ways.json"
-    ],
-    "MOVE-235": [
       "scenarios/undetermined-resolves-both-ways.json"
     ],
     "MOVE-236": [

@@ -1,7 +1,7 @@
 {
   "vectorSet": "adversarial-weight-zero",
   "kind": "routing",
-  "level": "core",
+  "level": "place",
   "description": "Nodes of weight 0 stay in the placement set, receive no virtual node, and never reach a candidate ordering under a derived assignment.",
   "requirements": [
     "CORE-046",
@@ -13,6 +13,38 @@
   ],
   "topology": "topologies/weight-zero.topology.json",
   "topologyDigest": "77b803fb37ac0134ee05083f568eb643d94e26b7c7b70498928b44a2ce108d87",
+  "topologyDocuments": {
+    "topologies/weight-zero.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "weight-zero",
+      "epoch": 1,
+      "replication": {
+        "factor": 2
+      },
+      "strategy": {
+        "kind": "rendezvous"
+      },
+      "nodes": [
+        {
+          "id": "live-1",
+          "weight": 1
+        },
+        {
+          "id": "live-2",
+          "weight": 1
+        },
+        {
+          "id": "zero-1",
+          "weight": 0
+        },
+        {
+          "id": "zero-2",
+          "weight": 0,
+          "state": "draining"
+        }
+      ]
+    }
+  },
   "cases": [
     {
       "name": "weight-zero/0",

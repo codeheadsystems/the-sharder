@@ -1,6 +1,19 @@
 # 0052. Conformance level partition
 
-Status: accepted. Date: 2026-09-17.
+Status: accepted, with the split lineage vectors withdrawn by
+[`0054`](0054-range-strategy-withdrawal.md), a `place` level added by
+[`0059`](0059-place-conformance-level.md), and a strategy axis added by
+[`0058`](0058-conformance-surfaces.md). Date: 2026-09-17.
+
+The partition holds. `migration` loses `vectors/split/lineage.json` and keeps the rate control
+formulas and the handoff scenarios, which is a set of artefacts shrinking rather than a level
+moving, and no other level gains or loses a file because of it. The two prerequisite edges above
+`core` and the rule that each artefact names its own level are unchanged.
+
+`0059` adds the level this record said a later level would be: 44 files move from `core` to `place`
+and `core` requires it, which is the data change this record's Consequences describe. `0058` selects
+placement strategies on an axis orthogonal to the levels rather than by adding levels, so every
+artefact still names exactly one level and no case moved to make a strategy selectable.
 
 ## Context
 

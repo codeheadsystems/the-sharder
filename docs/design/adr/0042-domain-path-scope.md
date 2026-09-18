@@ -55,11 +55,11 @@ identifier at `level` alone cannot reproduce.
 ## Consequences
 
 Domain identifiers stay ancestor scoped everywhere, which is what
-[`0006`](0006-failure-domain-model.md) locked and what the glossary in
-[`../00-overview.md`](../00-overview.md) already says: a failure domain path holds one identifier
-per declared level, and two nodes share a domain at a level when their paths agree at that level and
-at every coarser one. A rack named `r01` in one zone and a rack named `r01` in another are distinct
-racks under every spread a topology can declare.
+[`0006`](0006-failure-domain-model.md) locked and what [`../05-glossary.md`](../05-glossary.md)
+already says: a failure domain path holds one identifier per declared level, and two nodes share a
+domain at a level when their paths agree at that level and at every coarser one. A rack named `r01`
+in one zone and a rack named `r01` in another are distinct racks under every spread a topology can
+declare.
 
 The choice is forced by [`0036`](0036-spread-relaxation-ladder-direction.md) rather than free. That
 record rejected an alternative repair, comparing the identifier at `L` alone, on the ground that it

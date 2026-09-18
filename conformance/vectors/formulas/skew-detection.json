@@ -7,8 +7,7 @@
     "CORE-005",
     "OBS-031",
     "OBS-032",
-    "OBS-033",
-    "SPLIT-041"
+    "OBS-033"
   ],
   "cases": [
     {
@@ -143,7 +142,6 @@
       "name": "keySkew/50-100",
       "requirements": [
         "CORE-005",
-        "SPLIT-041",
         "OBS-032"
       ],
       "formula": "keySkew",
@@ -152,14 +150,13 @@
         "requests": 100,
         "keySkewPercent": 50
       },
-      "note": "a shard showing key skew is marked as not addressable by a split",
+      "note": "the left-hand side reaches 71 bits, so a 64-bit product is not conforming",
       "expect": true
     },
     {
       "name": "keySkew/49-100",
       "requirements": [
         "CORE-005",
-        "SPLIT-041",
         "OBS-032"
       ],
       "formula": "keySkew",
@@ -168,14 +165,13 @@
         "requests": 100,
         "keySkewPercent": 50
       },
-      "note": "a shard showing key skew is marked as not addressable by a split",
+      "note": "the left-hand side reaches 71 bits, so a 64-bit product is not conforming",
       "expect": false
     },
     {
       "name": "keySkew/1-1",
       "requirements": [
         "CORE-005",
-        "SPLIT-041",
         "OBS-032"
       ],
       "formula": "keySkew",
@@ -184,14 +180,13 @@
         "requests": 1,
         "keySkewPercent": 50
       },
-      "note": "a shard showing key skew is marked as not addressable by a split",
+      "note": "the left-hand side reaches 71 bits, so a 64-bit product is not conforming",
       "expect": true
     },
     {
       "name": "keySkew/0-0",
       "requirements": [
         "CORE-005",
-        "SPLIT-041",
         "OBS-032"
       ],
       "formula": "keySkew",
@@ -200,14 +195,13 @@
         "requests": 0,
         "keySkewPercent": 50
       },
-      "note": "a shard showing key skew is marked as not addressable by a split",
+      "note": "the left-hand side reaches 71 bits, so a 64-bit product is not conforming",
       "expect": true
     },
     {
       "name": "keySkew/9223372036854775808-18446744073709551615",
       "requirements": [
         "CORE-005",
-        "SPLIT-041",
         "OBS-032"
       ],
       "formula": "keySkew",
@@ -216,14 +210,13 @@
         "requests": 18446744073709551615,
         "keySkewPercent": 50
       },
-      "note": "a shard showing key skew is marked as not addressable by a split",
+      "note": "the left-hand side reaches 71 bits, so a 64-bit product is not conforming",
       "expect": true
     },
     {
       "name": "keySkew/4611686018427387904-18446744073709551615",
       "requirements": [
         "CORE-005",
-        "SPLIT-041",
         "OBS-032"
       ],
       "formula": "keySkew",
@@ -232,7 +225,7 @@
         "requests": 18446744073709551615,
         "keySkewPercent": 50
       },
-      "note": "a shard showing key skew is marked as not addressable by a split",
+      "note": "the left-hand side reaches 71 bits, so a 64-bit product is not conforming",
       "expect": false
     }
   ]

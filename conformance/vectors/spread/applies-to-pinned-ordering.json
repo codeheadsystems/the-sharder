@@ -1,7 +1,7 @@
 {
   "vectorSet": "spread-applies-to-pinned-ordering",
   "kind": "routing",
-  "level": "core",
+  "level": "place",
   "description": "A pin is exempt from the balance and movement bounds and is not exempt from spread.",
   "requirements": [
     "CORE-046",
@@ -11,6 +11,66 @@
     "REPL-013",
     "SPREAD-004"
   ],
+  "topologyDocuments": {
+    "topologies/spread-pinned.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "spread-pinned",
+      "epoch": 1,
+      "domainLevels": [
+        "zone"
+      ],
+      "replication": {
+        "factor": 3,
+        "spread": [
+          "zone"
+        ],
+        "spreadPolicy": "strict"
+      },
+      "strategy": {
+        "kind": "rendezvous"
+      },
+      "nodes": [
+        {
+          "id": "sp-a1",
+          "domains": {
+            "zone": "za"
+          }
+        },
+        {
+          "id": "sp-a2",
+          "domains": {
+            "zone": "za"
+          }
+        },
+        {
+          "id": "sp-b1",
+          "domains": {
+            "zone": "zb"
+          }
+        },
+        {
+          "id": "sp-c1",
+          "domains": {
+            "zone": "zc"
+          }
+        }
+      ],
+      "overrides": [
+        {
+          "match": {
+            "kind": "exact",
+            "value": "pinned-key"
+          },
+          "pin": [
+            "sp-a1",
+            "sp-a2",
+            "sp-b1",
+            "sp-c1"
+          ]
+        }
+      ]
+    }
+  },
   "cases": [
     {
       "name": "pinned",

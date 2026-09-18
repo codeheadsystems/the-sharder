@@ -7,9 +7,13 @@ becomes a snapshot, how ownership of a shard moves from one node to another, and
 reports while it does any of it.
 
 Its reader is an implementer writing a port, an integrator deciding what the library guarantees, and
-a conformance author turning a requirement into a test. A term carries the meaning the glossary in
-[`00-overview.md`](00-overview.md) gives it. A quoted document member names a member of the format
-in [`20-topology-format.md`](20-topology-format.md).
+a conformance author turning a requirement into a test. A term carries the meaning that the glossary
+in [`05-glossary.md`](05-glossary.md) gives it, and a quoted document member names a member of the
+format that [`20-topology-format.md`](20-topology-format.md) states.
+
+Status: no implementation of this specification exists. Every requirement below states what a
+conforming implementation does, and none reports what one did. The conformance
+suite of [`30-conformance.md`](30-conformance.md) runs against the reference generator alone.
 
 ## Conventions
 
@@ -28,45 +32,194 @@ one, or an explanation of a term.
 
 Every requirement carries an identifier of the form `PREFIX-NNN`, where the prefix names the subject
 area and `NNN` is a three-digit number. An identifier names one requirement permanently. A
-requirement is withdrawn by marking it withdrawn and never by reassigning its identifier, and a new
+requirement is withdrawn under the rule below and never by reassigning its identifier, and a new
 requirement takes the next free number in its group rather than a number a neighbour has vacated.
 
 Numbers are assigned in groups of ten within a prefix, so that a requirement added to an existing
 group keeps the group contiguous. A gap in the numbering carries no meaning.
 
-A reference of the form `PREFIX-*` names every requirement under that prefix.
+A reference of the form `PREFIX-*` names the live requirements under that prefix, and names none
+where every identifier under the prefix is withdrawn.
+
+### Withdrawn identifiers
+
+A requirement is **withdrawn** when this specification stops stating the behaviour it required. Its
+definition paragraph is removed and its identifier is entered in the register below. A withdrawn
+identifier stays in that register for the life of the specification rather than vanishing from it,
+and it is never reused: no later requirement takes its number, and a prefix every one of whose
+identifiers is withdrawn is itself withdrawn and admits no further number.
+
+A live document cites live identifiers alone. This specification, the topology document format, the
+conformance design, the Java binding, the overview, the roadmap, and the open questions are the live
+documents, and the conformance suite generated against this revision names live identifiers alone.
+
+A reference to a withdrawn identifier survives in two places, and each resolves through the
+register. A decision record states what was decided on the date it carries, so it is amended with a
+withdrawal note rather than rewritten, and it keeps the identifier it argued about. A conformance
+suite revision published before a withdrawal keeps the identifiers it was generated against, because
+a port that ran it declared its levels against that revision. A reader who meets either reference
+reads the register row for the identifier, and the record that row names states what the identifier
+required and what, if anything, carries the behaviour now.
+
+These records state the convention and the withdrawals the register lists.
+
+- [`adr/0053`](adr/0053-requirement-withdrawal-convention.md), which states this convention.
+- [`adr/0054`](adr/0054-range-strategy-withdrawal.md), the `range` strategy and split lineage.
+- [`adr/0055`](adr/0055-slot-derived-assignment-withdrawal.md), derived assignment under `slot`.
+- [`adr/0056`](adr/0056-advisory-cutover-withdrawal.md), the `advisory` cutover mode.
+- [`adr/0057`](adr/0057-step-budget-adjustment-withdrawal.md), the step budget adjustment.
+
+| Identifier | Record |
+|---|---|
+| `CFG-053` | `0056` |
+| `CFG-063` | `0054` |
+| `MOVE-235` | `0056` |
+| `MOVE-341` | `0056` |
+| `MOVE-361` | `0056` |
+| `MOVE-371` | `0056` |
+| `MOVE-401` | `0056` |
+| `PLACE-072` | `0055` |
+| `PROP-022` | `0055` |
+| `PROP-023` | `0054` |
+| `PROP-026` | `0054` |
+| `PROP-033` | `0055` |
+| `RANGE-001` | `0054` |
+| `RANGE-002` | `0054` |
+| `RANGE-003` | `0054` |
+| `RANGE-004` | `0054` |
+| `RANGE-005` | `0054` |
+| `RANGE-010` | `0054` |
+| `RANGE-011` | `0054` |
+| `RANGE-012` | `0054` |
+| `RANGE-013` | `0054` |
+| `RANGE-014` | `0054` |
+| `RANGE-015` | `0054` |
+| `RANGE-020` | `0054` |
+| `RANGE-021` | `0054` |
+| `RANGE-022` | `0054` |
+| `RANGE-030` | `0054` |
+| `RANGE-031` | `0054` |
+| `RANGE-032` | `0054` |
+| `RANGE-033` | `0054` |
+| `RANGE-040` | `0054` |
+| `RANGE-041` | `0054` |
+| `RANGE-042` | `0054` |
+| `RATE-041` | `0057` |
+| `SLOT-020` | `0055` |
+| `SLOT-021` | `0055` |
+| `SLOT-022` | `0055` |
+| `SLOT-023` | `0055` |
+| `SPLIT-001` | `0054` |
+| `SPLIT-011` | `0054` |
+| `SPLIT-021` | `0054` |
+| `SPLIT-031` | `0054` |
+| `SPLIT-041` | `0054` |
+| `SPLIT-051` | `0054` |
+| `SPLIT-061` | `0054` |
+| `SPLIT-071` | `0054` |
+| `SPLIT-081` | `0054` |
+| `SPLIT-091` | `0054` |
+| `SPLIT-101` | `0054` |
+| `SPLIT-111` | `0054` |
+| `SPLIT-121` | `0054` |
+| `SPLIT-131` | `0054` |
+| `SPLIT-141` | `0054` |
+| `SPLIT-151` | `0054` |
+| `SPLIT-161` | `0054` |
+| `SPLIT-171` | `0054` |
+| `SPLIT-181` | `0054` |
+| `SPLIT-191` | `0054` |
+| `SPLIT-201` | `0054` |
+| `SPLIT-211` | `0054` |
+
+### Conformance surfaces
+
+A **conformance surface** is a named part of the behaviour this document states that an
+implementation either exposes or does not. `CORE-110` requires every implementation to expose
+`routing` and at least one placement strategy surface, and leaves the remaining surfaces to the
+implementation.
+
+| Surface | What exposing it means |
+|---|---|
+| `routing` | a key becomes an ordered list of nodes, a topology document becomes a snapshot, and both are reported |
+| `ring` | placement under the `ring` strategy |
+| `rendezvous` | placement under the `rendezvous` strategy |
+| `slot` | placement under the `slot` strategy |
+| `directory` | placement under the `directory` strategy |
+| `failover` | the health view, the attempt sequence, and the retry budget |
+| `readAffinity` | `routeForRead` and the bounded reordering of the replica prefix |
+| `fencing` | the fencing token encoding, the recipient verdict, and the redirect walk |
+| `migration` | the handoff coordinator and its rate control |
+
+Every requirement belongs to exactly one surface, and it binds an implementation that exposes that
+surface. A requirement of a surface an implementation does not expose is neither satisfied nor
+violated by that implementation, because the behaviour it states is absent rather than wrong. A
+surface is exposed whole or not at all under `CORE-111`, so it is a unit of declaration rather than
+a list of parts, and the surfaces an implementation exposes change no value a routing call computes,
+under `CORE-113`.
+
+A requirement declares its surface through its prefix rather than one requirement at a time. The
+`Surface` column of the table in the next section names the surface every requirement under a prefix
+belongs to. Three prefixes carry requirements of more than one surface, and each states its rule
+once here.
+
+A setting under `CFG-*` belongs to the surface of the behaviour it configures.
+
+| Identifiers | Surface |
+|---|---|
+| `CFG-001` to `CFG-014` | `routing` |
+| `CFG-020` to `CFG-022` | `failover`, apart from the `attemptLimit` row of `CFG-020` and the whole of `CFG-021`, which are `routing`, and the `readAffinityWindow` row, which is `readAffinity` |
+| `CFG-030` to `CFG-032` | `failover` |
+| `CFG-040` to `CFG-042` | `fencing` |
+| `CFG-050`, `CFG-051`, `CFG-052`, and `CFG-054` | `migration` |
+| `CFG-060`, `CFG-061`, `CFG-062`, and `CFG-064` | `routing` |
+
+A requirement under `OBS-*` belongs to `routing`, and the rows of the tables `OBS-010` and
+`OBS-020` carry are the exception. A metric and an event each belong to the surface the first
+segment of its name gives: `health.` is `failover`, `fencing.` is `fencing`, `migration.` is
+`migration`, and every other segment is `routing`. An implementation exposes the metrics and emits
+the events of the surfaces it exposes, and the rules stated about them hold wherever it reports
+one.
+
+The closed set of `ERR-010` is exposed whole by every implementation under `ERR-001`, so `ERR-001`
+through `ERR-011` and `ERR-060` through `ERR-063` belong to `routing`. A requirement stating when a
+condition is raised belongs to the surface that raises it, so `ERR-040` through `ERR-045` belong to
+`fencing` and `ERR-050` through `ERR-053` belong to `migration`. The rest belong to `routing`, and
+an implementation raises none of them for a surface it does not expose.
+
+Which conformance level tests which surface, and the rule by which a port declares the surfaces it
+exposes, are stated by [`30-conformance.md`](30-conformance.md#conformance-levels).
 
 ### Requirement prefixes
 
-The section named in each row is a level-two heading of this document.
+The section named in each row is a level-two heading of this document, and the surface named in each
+row is the surface the Conformance surfaces section defines.
 
-| Prefix | Covers | Section |
-|---|---|---|
-| `CORE` | shared types, the provider contract, visibility, thread ownership | Core model |
-| `HASH` | the keyed hash, its framing, and its domain tags | Core model |
-| `KEY` | key opacity and the key transforms | Routing keys and placement |
-| `PLACE` | rules common to every strategy | Routing keys and placement |
-| `RING` | tokens, ring order, and the ring walk | Routing keys and placement |
-| `RV` | rendezvous scores and ordering | Routing keys and placement |
-| `SLOT` | slot index and slot assignment | Routing keys and placement |
-| `RANGE` | bound comparison and covering range | Routing keys and placement |
-| `DIR` | directory evaluation and no-match | Routing keys and placement |
-| `OVR` | override matching, pins, constraints | Routing keys and placement |
-| `PROP` | determinism, movement, balance bounds | Routing keys and placement |
-| `REPL` | the factor and the preference list | Replication and failover |
-| `SPREAD` | failure domain spread and degradation | Replication and failover |
-| `HEALTH` | health states, signals, ejection | Replication and failover |
-| `FAIL` | attempt sequence, depth, retry budgets | Replication and failover |
-| `READ` | read routing and read affinity | Replication and failover |
-| `TOPO` | load pipeline, snapshots, ownership delta | Topology change and rebalancing |
-| `FENCE` | fencing tokens and recipient verdicts | Topology change and rebalancing |
-| `MOVE` | handoff states, hooks, coordination | Topology change and rebalancing |
-| `RATE` | migration concurrency and backpressure | Topology change and rebalancing |
-| `SPLIT` | range splits, merges, and lineage | Topology change and rebalancing |
-| `ERR` | the closed set of failure conditions | Error taxonomy |
-| `OBS` | metrics, events, skew, the explain API | Observability |
-| `CFG` | every setting, default, and meaning | Configuration surface |
-| `SEC` | adversarial keys, seed, disclosure | Security and multi-tenancy |
+| Prefix | Covers | Section | Surface |
+|---|---|---|---|
+| `CORE` | shared types, the provider contract, visibility, thread ownership | Core model | `routing` |
+| `HASH` | the keyed hash, its framing, and its domain tags | Core model | `routing` |
+| `KEY` | key opacity and the key transforms | Routing keys and placement | `routing` |
+| `PLACE` | rules common to every strategy | Routing keys and placement | `routing` |
+| `RING` | tokens, ring order, and the ring walk | Routing keys and placement | `ring` |
+| `RV` | rendezvous scores and ordering | Routing keys and placement | `rendezvous` |
+| `SLOT` | slot index and slot assignment | Routing keys and placement | `slot` |
+| `DIR` | directory evaluation and no-match | Routing keys and placement | `directory` |
+| `OVR` | override matching, pins, constraints | Routing keys and placement | `routing` |
+| `PROP` | determinism, movement, balance bounds | Routing keys and placement | `routing` |
+| `REPL` | the factor and the preference list | Replication and failover | `routing` |
+| `SPREAD` | failure domain spread and degradation | Replication and failover | `routing` |
+| `HEALTH` | health states, signals, ejection | Replication and failover | `failover` |
+| `FAIL` | attempt sequence, depth, retry budgets | Replication and failover | `failover` |
+| `READ` | read routing and read affinity | Replication and failover | `readAffinity` |
+| `TOPO` | load pipeline, snapshots, ownership delta | Topology change and rebalancing | `routing` |
+| `FENCE` | fencing tokens and recipient verdicts | Topology change and rebalancing | `fencing` |
+| `MOVE` | handoff states, hooks, coordination | Topology change and rebalancing | `migration` |
+| `RATE` | migration concurrency and backpressure | Topology change and rebalancing | `migration` |
+| `ERR` | the closed set of failure conditions | Error taxonomy | stated above |
+| `OBS` | metrics, events, skew, the explain API | Observability | stated above |
+| `CFG` | every setting, default, and meaning | Configuration surface | stated above |
+| `SEC` | adversarial keys, seed, disclosure | Security and multi-tenancy | `routing` |
 
 ### Notation
 
@@ -120,7 +273,7 @@ clock, and MUST NOT require the source to be shared with any other component.
 comparison MUST hold over the exact products. An implementation MUST evaluate it in an integer type
 wide enough to hold both sides, or by a rule that agrees with the exact comparison over the whole
 range of its operands, and MUST NOT let a product or a sum of products wrap. `HEALTH-034`,
-`FAIL-031`, `OBS-031`, and `SPLIT-041` each state such a comparison, as does every inequality of
+`FAIL-031`, `OBS-031`, and `OBS-032` each state such a comparison, as does every inequality of
 `PROP-*`. Two of the four are not a single product on each side: the left side of `OBS-031` is a
 product of three operands, and the right side of `FAIL-031` is a sum of two products.
 
@@ -130,11 +283,41 @@ The operand ranges differ, and they decide the width each comparison needs.
 |---|---|---|
 | `HEALTH-034` | two counts over the placement set, and a percentage `CFG-031` holds at or below 100 | neither side reaches 2^38, so 64 bits are sufficient |
 | `FAIL-031` | the window counts of `FAIL-030`, which this specification does not bound, and two settings | 64 bits are sufficient only where an implementation bounds the counts it holds |
-| `OBS-031` | `shardRequests` and `totalRequests` are u64 under `SPLIT-021`, and `shardCount` reaches 1048576 under `SLOT-001` | the left side reaches 91 bits, so 64 bits are not sufficient |
-| `SPLIT-041` | `hottestKeyRequests` and `requests` are u64 under `SPLIT-021` | the left side reaches 71 bits, so 64 bits are not sufficient |
+| `OBS-031` | `shardRequests` and `totalRequests` are u64 under `OBS-036`, and `shardCount` reaches 1048576 under `SLOT-001` | the left side reaches 91 bits, so 64 bits are not sufficient |
+| `OBS-032` | `hottestKeyRequests` and `requests` are u64 under `OBS-036`, and the `keySkewPercent` of `CFG-060` | the left side reaches 71 bits, so 64 bits are not sufficient |
 
 `PLACE-051` and `PLACE-074` compare one product against one value rather than two products against
 each other, and each states the width it needs.
+
+### Exposed surfaces
+
+The Conventions section defines a conformance surface and names the surface every requirement
+belongs to. This section states what an implementation does about the surfaces it exposes and about
+the surfaces it does not.
+
+`CORE-110`. An implementation MUST expose the `routing` surface, and MUST expose at least one of
+`ring`, `rendezvous`, `slot`, and `directory`. It MUST state the surfaces it exposes wherever it
+declares conformance,
+which [`30-conformance.md`](30-conformance.md#declaring-conformance) states the rule for.
+
+`CORE-111`. A surface MUST be exposed whole. An implementation exposing a surface MUST satisfy every
+requirement belonging to it, MUST accept every setting of `CFG-*` belonging to it, and MUST report
+every metric and event of `OBS-*` belonging to it. An implementation not exposing a surface MUST
+refuse a setting belonging to it under `CFG-003`, and MUST NOT report a metric or emit an event
+belonging to it.
+
+`CORE-112`. An implementation MUST refuse a topology document whose `strategy.kind` names a
+placement strategy whose surface it does not expose. The document MUST fail stage 3 of `TOPO-001`,
+the refusal MUST be reported as `invalidTopology` under `ERR-030`, and the condition MUST carry a
+`ValidationError` whose `path` is `strategy.kind` and whose `rule` is `unsupportedStrategy`. An
+implementation MUST NOT place a key under a strategy whose surface it does not expose, and MUST NOT
+substitute another strategy for it.
+
+`CORE-113`. The set of surfaces an implementation exposes MUST NOT change a routing key, a shard
+identifier, a candidate ordering, a preference list, or an effective replication factor. Two
+implementations exposing different surfaces compute the same values for the same snapshot and the
+same key, which is what lets a caller of one agree with a caller of the other. `CFG-004` states the
+same rule for configuration.
 
 ### Hash construction
 
@@ -195,8 +378,8 @@ field MUST NOT exceed 4294967295 octets.
 
 #### Domain-tagged functions
 
-`HASH-030`. The five hash functions this specification uses MUST be exactly these, and an
-implementation MUST NOT introduce a sixth, MUST NOT reuse a tag for a second purpose, and MUST NOT
+`HASH-030`. The three hash functions this specification uses MUST be exactly these, and an
+implementation MUST NOT introduce a fourth, MUST NOT reuse a tag for a second purpose, and MUST NOT
 omit a tag.
 
 | Function | Domain tag | Framed fields after the tag |
@@ -204,8 +387,6 @@ omit a tag.
 | `keyHash(rk)` | `sharder/key/v1` | `rk` |
 | `ringToken(id, i)` | `sharder/ring-token/v1` | `id`, `u32be(i)` |
 | `rvScore(rk, id, i)` | `sharder/rendezvous/v1` | `rk`, `id`, `u32be(i)` |
-| `slotScore(s, id, i)` | `sharder/slot-rendezvous/v1` | `u32be(s)`, `id`, `u32be(i)` |
-| `rangeScore(sh, id, i)` | `sharder/range-rendezvous/v1` | `sh`, `id`, `u32be(i)` |
 
 `HASH-031`. The fields MUST carry these octets, and `i` MUST be zero-based under `PLACE-053`.
 
@@ -213,8 +394,6 @@ omit a tag.
 |---|---|
 | `rk` | the routing key, after the key transform of `KEY-*` |
 | `id` | the node identity, as `CORE-001` defines it |
-| `sh` | the shard identifier octets, as `PLACE-034` gives them |
-| `s` | the slot index of `SLOT-001`, framed as `u32be(s)` |
 | `i` | the token index under `ring`, the virtual node index elsewhere, framed as `u32be(i)` |
 
 `HASH-032`. Each function MUST answer the unsigned 64-bit value `H` produces over its frame. An
@@ -292,9 +471,9 @@ nodes, so that a caller can resolve the address of a node named by a redirect un
 
 ### Router interface
 
-`CORE-030`. An implementation MUST expose the routing surface with this shape, and every requirement
-of this specification that names `route`, `routeForRead`, `RoutingDecision`, or `AttemptSequence`
-refers to this definition.
+`CORE-030`. An implementation MUST expose the router with this shape, omitting the members of a
+surface it does not expose, and every requirement of this specification that names `route`,
+`routeForRead`, `RoutingDecision`, or `AttemptSequence` refers to this definition.
 
 ```
 interface Router:
@@ -309,9 +488,21 @@ interface Router:
     close()
 
 record RouteOptions:
-    attemptLimit: u32 | none      # none takes the default of FAIL-022
+    attemptLimit: u32 | none      # none takes the resolution of CORE-048
     explain:      boolean         # false by default; OBS-046 forbids computing one unasked
 ```
+
+A member of this interface belongs to the surface of the behaviour it performs. An implementation
+carries the members of the surfaces it exposes and no others, under `CORE-111`.
+
+| Member | Surface |
+|---|---|
+| `route`, `explain`, `snapshot`, `refresh`, `close` | `routing` |
+| `routeForRead` | `readAffinity` |
+| `attempts`, `health` | `failover` |
+
+`RouteOptions` belongs to `routing`. `CORE-048` resolves `attemptLimit` for every implementation,
+and `OBS-046` states `explain` for every implementation.
 
 `CORE-031`. `route` MUST serve writes and MUST NOT reorder the preference list. `routeForRead` MUST
 serve reads under `READ-*` and MUST differ from `route` only in the reordering `READ-013` defines.
@@ -346,7 +537,7 @@ record RoutingDecision:
     factor          : u32                         # the effective replication factor n, REPL-003
     replicaCount    : u32                         # the achieved replica count r, REPL-020
     primary         : NodeId                      # the head of entries, CORE-042
-    attemptLimit    : u32                         # resolved at route time, FAIL-021 and FAIL-022
+    attemptLimit    : u32                         # resolved at route time, CORE-048
     entries         : list<PreferenceEntry>       # a prefix of the list, unreordered, CORE-046
     ordered         : list<PreferenceEntry>       # after read affinity; equals entries otherwise
     relaxedLevels   : list<string>                # SPREAD-015
@@ -355,6 +546,13 @@ record RoutingDecision:
     matchedOverride : { index: u32, mode: one of { pin, constrain, both } } | none
     explain         : ExplainRecord | none        # present only where requested, OBS-046
 ```
+
+`health` and `attemptable` report what the health view of `HEALTH-010` held when the entry was
+materialised. An implementation that does not expose `failover` holds no health view, so every entry
+carries `unknown` and every entry is attemptable, which is the state `HEALTH-004` and `HEALTH-005`
+give a caller that has ingested no signal. `TOPO-151` requires `token` of every implementation,
+whether or not it exposes `fencing`. The `fencing` surface is the token encoding and the recipient's
+use of it, not the token the decision carries.
 
 `CORE-041`. A `RoutingDecision` MUST be immutable once returned.
 
@@ -370,17 +568,17 @@ from `CORE-020`.
 positions, differing only in sequence, and `ordered` MUST equal `entries` unless `routeForRead`
 produced the decision.
 
-`CORE-045`. `attemptLimit` MUST be the limit `FAIL-022` resolves for the decision. `attempts` MUST
-take the limit from the decision and MUST NOT resolve it again.
+`CORE-045`. `attemptLimit` MUST be the resolved attempt limit of `CORE-048`. `attempts` MUST take
+the limit from the decision and MUST NOT resolve it again.
 
 `CORE-046`. `entries` MUST hold a prefix of the preference list of `REPL-014`. The length of that
 prefix, the **materialised prefix**, MUST be the lesser of the length of the preference list and the
-greater of the achieved replica count `r` and the attempt limit `FAIL-022` resolves before its
-clamp. `entries` MUST NOT hold an entry beyond it. A routing call MUST NOT compute one except where
-`FAIL-012` and `FAIL-014` require it, and MUST NOT read a health state for a node named by no entry
-it computes. The length MUST be a function of the snapshot, the routing key, and the resolved limit
-alone. Two callers whose health views differ therefore materialise the same entries. `ordered` MUST
-hold the same prefix after the reordering of `READ-013`, which `READ-012` confines to the first `r`
+greater of the achieved replica count `r` and the resolved attempt limit of `CORE-048`. `entries`
+MUST NOT hold an entry beyond it. A routing call MUST NOT compute one except where `FAIL-012` and
+`FAIL-014` require it, and MUST NOT read a health state for a node named by no entry it computes.
+The length MUST be a function of the snapshot, the routing key, and the resolved limit alone. Two
+callers whose health views differ therefore materialise the same entries. `ordered` MUST hold the
+same prefix after the reordering of `READ-013`, which `READ-012` confines to the first `r`
 positions.
 
 `CORE-047`. A routing decision MUST expose the whole preference list on demand.
@@ -396,6 +594,18 @@ instant of the call. The call MUST NOT change the decision, MUST NOT change a sn
 state, or a retry budget, and MUST be safe for any number of units of execution under `CORE-056`. A
 routing call MUST NOT make it. A routing decision MUST retain the snapshot it was computed from,
 which `TOPO-101` makes immutable and `CORE-055` keeps readable.
+
+`CORE-048`. The **resolved attempt limit** of a routing decision MUST be the value `RouteOptions`
+supplies, where it supplies one; otherwise the configured `attemptLimit` of `CFG-020`, where the
+integrator configures one; otherwise the effective replication factor `n` plus 2. An implementation
+MUST NOT consult the configured setting where `RouteOptions` supplies a limit, and MUST NOT bypass
+the configured setting where it does not.
+
+The resolved attempt limit belongs to the `routing` surface. Every implementation resolves it by the
+rule above, whether or not it exposes `failover`, and `CORE-046` makes the length of `entries` a
+function of it. A topology at factor 1 therefore materialises three entries by default, and a
+topology at factor 3 materialises two beyond the replica prefix. `FAIL-022` states the further clamp
+the attempt walk applies to the same value.
 
 ### Snapshot visibility
 
@@ -629,8 +839,8 @@ its own, over a set of rules that holds for all of them.
 ### Routing key handling
 
 A routing call receives a key and derives the routing key from it before any placement arithmetic
-runs. The routing key is the input to override matching, to directory matching, to range bound
-comparison, and to `keyHash`.
+runs. The routing key is the input to override matching, to directory matching, and to
+`keyHash`.
 
 #### Key opacity
 
@@ -851,7 +1061,6 @@ constraint never renames a shard.
 | `ring` | the owning token as sixteen lowercase hexadecimal digits | ascending ring order |
 | `rendezvous` | the routing key octets in lowercase hexadecimal | empty |
 | `slot` | the slot index in decimal ASCII with no leading zeros | ascending slot index |
-| `range` | the covering range's `shardId` | document order |
 | `directory` | `<kind>:<base16 of the decoded matcher value>` | `entries` array order |
 
 `PLACE-032`. Under `rendezvous`, `shards` MUST be empty and `candidatesForShard(s, eligible)` MUST
@@ -863,10 +1072,9 @@ equal `candidatesForShard(shardOf(rk), E)`, except where `rk` is matched by an o
 `pin` under `OVR-016`, and except where `shardOf(rk)` answers with no shard under `DIR-020`.
 
 `PLACE-034`. The octets of a `ShardId` under `CORE-001` MUST be the UTF-8 encoding of the rendering
-`PLACE-031` gives. Under `ring`, `slot`, and `directory` that rendering is ASCII; under `range` it
-is the `shardId` string as the document spells it; under `rendezvous` it is the hexadecimal text
-rather than the routing key octets. The same octets are framed into `rangeScore` under `HASH-031`
-and compared under `CORE-003`.
+`PLACE-031` gives. Under `ring`, `slot`, and `directory` that rendering is ASCII; under `rendezvous`
+it is the hexadecimal text rather than the routing key octets. `CORE-003` compares those octets as
+an unsigned sequence.
 
 #### Node weights
 
@@ -879,17 +1087,15 @@ hash value or a score.
 
 `PLACE-042`. A node of weight 0 in the placement set MUST receive a virtual node count of 0 under
 every derived assignment, and MUST NOT appear in a candidate ordering produced by `ring` with
-`derived` token assignment, by `rendezvous`, by `slot` with `derived` assignment, or by `range` with
-`derived` assignment.
+`derived` token assignment or by `rendezvous`.
 
 `PLACE-043`. A node of weight 0 in the placement set MUST remain in the placement set, MUST be
 eligible for an override `pin`, and MUST appear in a candidate ordering produced from an authored
 node list or from an authored token list.
 
 `PLACE-044`. Weight MUST NOT affect placement under `ring` with `explicit` token assignment, under
-`slot` with `explicit` assignment, under `range` with `explicit` assignment, or under `directory`.
-Under those configurations weight is advisory, and an implementation reports observed balance
-against it without changing any ordering.
+`slot`, or under `directory`. Under those configurations weight is advisory, and an implementation
+reports observed balance against it without changing any ordering.
 
 #### Virtual node counts
 
@@ -900,8 +1106,6 @@ against it without changing any ordering.
 |---|---|---|
 | `ring` with `derived` | `tokensPerWeightUnit`, default 4 | `maxTokensPerNode`, default 4096 |
 | `rendezvous` | `virtualNodesPerWeightUnit`, default 1 | `maxVirtualNodesPerNode`, default 1024 |
-| `slot` with `derived` | 1, not configurable | 1024, not configurable |
-| `range` with `derived` | 1, not configurable | 1024, not configurable |
 
 `PLACE-051`. An implementation MUST compute `weight * perWeightUnit` in an integer type of at least
 64 bits, or by a saturating multiplication, before applying the cap. The product reaches 4096000000
@@ -949,7 +1153,7 @@ the **matched entry** by this precedence, applied in order until one entry remai
 Clause 3 is unreachable in a valid document. Two entries that survive clauses 1 and 2 carry the same
 `kind` and the same decoded octets, which `PLACE-067` makes a validation failure. The clause is
 retained so that the precedence stays total over a table an implementation evaluates without having
-validated it, as `RANGE-015` is retained for the same reason.
+validated it.
 
 `PLACE-066`. An implementation MUST NOT evaluate more than one matched entry for a routing key.
 
@@ -971,7 +1175,6 @@ extended with the counts of the authored tables.
 | `t_i` | node `i`'s token count under `RING-001` or `RING-003` |
 | `T` | the sum of `t_j` over that set |
 | `slotCount` | the `slot` strategy's `slotCount` member, at most 1048576 under `SLOT-001` |
-| `rangeCount` | the count of entries in a `range` strategy's `ranges` array |
 | `entryCount` | the count of entries in a `directory` strategy's `entries` array |
 | `S` | the count of shards `shards` enumerates under `PLACE-031` |
 | `p` | the count of candidates a caller consumes from an ordering |
@@ -984,8 +1187,8 @@ of the others.
 
 `PLACE-070`. An implementation MUST bound the cost of preparing a placement strategy, the cost of
 one routing call, and the resident size of the `PreparedPlacement` of `CORE-010` by the three tables
-below, except where `PLACE-072` moves a figure from one table to another. Each figure is an upper
-bound to within a constant factor that does not depend on the topology.
+below. Each figure is an upper bound to within a constant factor that does not depend on the
+topology.
 
 Preparation, performed once per snapshot in stage 6 of `TOPO-001`.
 
@@ -994,10 +1197,7 @@ Preparation, performed once per snapshot in stage 6 of `TOPO-001`.
 | `ring` with `derived` | `T` hash evaluations and `T log T` comparisons |
 | `ring` with `explicit` | `T log T` comparisons and no hash evaluation |
 | `rendezvous` | `N` virtual node counts computed and no hash evaluation |
-| `slot` with `explicit` | `slotCount` index entries and no hash evaluation |
-| `slot` with `derived` | `slotCount * V` hash evaluations, `slotCount * N log N` comparisons |
-| `range` with `explicit` | `rangeCount log rangeCount` comparisons and no hash evaluation |
-| `range` with `derived` | `rangeCount * V` hash evaluations, `rangeCount * N log N` comparisons |
+| `slot` | `slotCount` index entries and no hash evaluation |
 | `directory` | `entryCount` index entries and no hash evaluation |
 
 One routing call, consuming a prefix of `p` candidates.
@@ -1007,10 +1207,7 @@ One routing call, consuming a prefix of `p` candidates.
 | `ring` with `derived` | 1 hash evaluation, `log T` comparisons, up to `T` entries walked |
 | `ring` with `explicit` | 1 hash evaluation, `log T` comparisons, up to `T` entries walked |
 | `rendezvous` | `V` hash evaluations and `N log p` comparisons |
-| `slot` with `explicit` | 1 hash evaluation, one lookup, and `N` references filtered |
-| `slot` with `derived` | 1 hash evaluation and one lookup |
-| `range` with `explicit` | `log rangeCount` comparisons and `N` references filtered |
-| `range` with `derived` | `log rangeCount` comparisons and one lookup |
+| `slot` | 1 hash evaluation, one lookup, and `N` references filtered |
 | `directory` | one lookup or `entryCount` comparisons, and `N` references filtered |
 
 Resident size of one prepared placement.
@@ -1020,10 +1217,7 @@ Resident size of one prepared placement.
 | `ring` with `derived` | `T` ring entries and `N` nodes |
 | `ring` with `explicit` | `T` ring entries and `N` nodes |
 | `rendezvous` | `N` nodes |
-| `slot` with `explicit` | `slotCount` index entries and the authored table |
-| `slot` with `derived` | `slotCount * N` node references |
-| `range` with `explicit` | `rangeCount` bounds and the authored table |
-| `range` with `derived` | `rangeCount * N` node references |
+| `slot` | `slotCount` index entries and the authored table |
 | `directory` | `entryCount` matchers and the authored table |
 
 Under `ring` the ring order of `RING-010` carries one entry per token, so it carries `T` entries and
@@ -1041,15 +1235,8 @@ term depends on the key beyond the framing of `HASH-030`. Preparation computes v
 under `PLACE-050` and nothing further, because a score is a function of the routing key.
 
 Under `slot` a routing call reduces the key to a slot index with one `keyHash` and one remainder
-under `SLOT-001`. Under `explicit` the covering entry is unique under `SLOT-011` and the ordering is
-that entry's `nodes` array filtered under `PLACE-014`. Under `derived` the ordering for a slot is a
-rendezvous ordering over the slot index under `SLOT-021`, and `SLOT-031` enumerates `slotCount`
-slots, so computing every slot's ordering is `slotCount * V` hash evaluations.
-
-Under `range` a routing call locates the covering range by the bound comparison of `RANGE-011` and
-performs no hash evaluation, each comparison reading at most `maxKeyBytes` octets under `CFG-013`.
-Under `derived` the ordering for a range is a rendezvous ordering over the range's `shardId` under
-`RANGE-031`, so computing every range's ordering is `rangeCount * V` hash evaluations.
+under `SLOT-001`. The covering entry is unique under `SLOT-011` and the ordering is that entry's
+`nodes` array filtered under `PLACE-014`.
 
 Under `directory` a routing call evaluates the matcher table under `DIR-001` and the precedence of
 `PLACE-065`, and performs no hash evaluation. An `exact` match is one lookup where the table is
@@ -1062,40 +1249,30 @@ filter skips an entry, so `p` is that bound raised by the count of entries skipp
 whole ordering only where `FAIL-012` fails the filter open, which requires every entry to be
 skipped. `CORE-047` and `OBS-046` are the two surfaces that consume the whole ordering
 unconditionally, and a routing call makes neither.
-Under `ring`, `slot`, `range`, and `directory` the lazy prefix property of `PLACE-015` removes the
+Under `ring`, `slot`, and `directory` the lazy prefix property of `PLACE-015` removes the
 cost of the ordering a caller does not consume, which under `ring` is the walk beyond the `p`
 entries the caller reads. Under `rendezvous` it does not: `RV-003` and `RV-010` determine
 the first candidate from the scores of the whole eligible node set, so no prefix of the scoring
 answers the call. Laziness under `rendezvous` removes the `N log N` ordering term and leaves the `V`
 scoring term, which is the dominant one.
 
-`PLACE-072`. Under `slot` with `derived` assignment and `range` with `derived` assignment, an
-implementation MAY compute a shard's candidate ordering when it prepares the strategy or when it
-routes. Computing every shard's ordering at preparation costs `slotCount * V` or `rangeCount * V`
-hash evaluations, which `TOPO-021` places before installation and `TOPO-041` serialises. Computing a
-shard's ordering when it routes removes those terms from preparation, reduces the resident size to
-`N` nodes, and costs `V` hash evaluations and `N log p` comparisons per routing call. Both
-placements produce the ordering `PLACE-012` requires.
+`PLACE-073`. At snapshot publication an implementation MUST compute the totals below over the
+placement set and MUST emit the named event where a total exceeds the threshold in force. Every name
+carries the prefix `sharder.`, which the table omits.
 
-`PLACE-073`. At snapshot publication an implementation MUST compute the products below over the
-placement set and MUST emit the named event where a product exceeds the threshold in force. Every
-name carries the prefix `sharder.`, which the table omits.
-
-| Configuration | Product | Threshold | Event |
+| Configuration | Total | Threshold | Event |
 |---|---|---|---|
 | `rendezvous` | `V` | `rendezvousWarnVirtualNodes` | `topology.rendezvous_large` |
 | `ring` with `derived` | `T` | `ringWarnTokens` | `topology.ring_large` |
-| `slot` with `derived` | `slotCount * V` | `derivedWarnEvaluations` | `topology.derived_large` |
-| `range` with `derived` | `rangeCount * V` | `derivedWarnEvaluations` | `topology.derived_large` |
 
 Crossing a threshold MUST NOT be a validation failure, MUST NOT clamp any count, and MUST NOT change
 any candidate ordering, any shard identifier, or any resident structure.
 
-`PLACE-074`. An implementation MUST compute a product of `PLACE-073` in an integer type of at least
-64 bits, or by a saturating multiplication. `slotCount` reaches 1048576 under `SLOT-001` and a
-node's virtual node count reaches the cap `PLACE-050` takes from the configuration, so the product
-reaches 2147483648 for two nodes at the default `rendezvous` cap of 1024 and rises with the cap in
-force, which overflows a signed 32-bit integer.
+`PLACE-074`. An implementation MUST compute a total of `PLACE-073` in an integer type of at least 64
+bits, or by a saturating addition. A node's virtual node count reaches the cap `PLACE-050` takes
+from the configuration and a node's token count reaches `maxTokensPerNode`, so a total rises with
+the node count and with the cap in force, and a signed 32-bit accumulator overflows on a placement
+set large enough to cross either threshold by a wide margin.
 
 `PLACE-075`. An implementation MUST bound the cost of one ownership delta under `TOPO-211` by two
 candidate orderings per shard, one under each snapshot, over the shards the two snapshots enumerate
@@ -1293,28 +1470,13 @@ to `slotCount - 1` is covered exactly once, so the covering entry is unique.
 filtered to the eligible node set under `PLACE-014` and deduplicated under `PLACE-013`.
 
 `SLOT-013`. Where no entry covers the slot index, the candidate ordering MUST be empty. An
-implementation MUST NOT fall back to derived ordering, MUST NOT choose a neighbouring entry, and
-MUST NOT interpolate.
+implementation MUST NOT choose a neighbouring entry and MUST NOT interpolate.
 
 `SLOT-014`. `weight` MUST NOT affect the ordering under `explicit` assignment.
 
-#### Slot derived assignment
-
-`SLOT-020`. Under `assignment` of `derived`, a node's virtual node count MUST be `min(weight, 1024)`
-under `PLACE-050`, and a node of count 0 MUST NOT appear in the candidate ordering.
-
-`SLOT-021`. A node's score for a slot index MUST be the largest of `slotScore(slotIndex, id, i)`
-over `i` from 0 to its virtual node count minus one, compared as unsigned 64-bit integers.
-
-`SLOT-022`. The candidate ordering MUST order the eligible nodes of non-zero virtual node count by
-score descending, then by node identity ascending under `PLACE-020`.
-
-`SLOT-023`. The candidate ordering for a slot index MUST NOT depend on the routing key beyond the
-slot index it reduces to. Two routing keys with the same slot index MUST produce the same ordering.
-
-`SLOT-024`. Where the `slot` strategy object omits `assignment`, the assignment mode MUST be
-`derived`, and the document MUST behave exactly as one that names the mode. An
-implementation MUST NOT infer the mode from the presence or absence of `assignments`.
+`SLOT-024`. `explicit` MUST be the only assignment mode the `slot` strategy object accepts. Where
+that object omits `assignment`, the mode MUST be `explicit`, and the document MUST behave exactly as
+one that names the mode.
 
 #### Slot shards
 
@@ -1322,100 +1484,8 @@ implementation MUST NOT infer the mode from the presence or absence of `assignme
 
 `SLOT-031`. `shards()` MUST enumerate every slot index from 0 to `slotCount - 1` in ascending order.
 
-`SLOT-032`. `candidatesForShard(s, eligible)` MUST parse `s` as a decimal slot index and
-apply `SLOT-012` or `SLOT-022` according to the configured assignment mode.
-
-### Range strategy
-
-#### Bound comparison
-
-`RANGE-001`. An implementation MUST compare a routing key against a range bound by unsigned bytewise
-comparison.
-
-```
-compare(a, b):
-    n = the lesser of length(a) and length(b)
-    for i in 0 .. n - 1:
-        if a[i] < b[i]: return LESS
-        if a[i] > b[i]: return GREATER
-    if length(a) < length(b): return LESS
-    if length(a) > length(b): return GREATER
-    return EQUAL
-```
-
-`RANGE-002`. Each octet MUST be compared as an unsigned value between 0 and 255. An implementation
-MUST NOT compare octets as signed values and MUST NOT compare the operands as text.
-
-`RANGE-003`. Where one sequence is a proper prefix of the other, the shorter sequence MUST compare
-less. The bound `6d` therefore compares less than the key `6d00`.
-
-`RANGE-004`. The empty octet sequence MUST compare less than every non-empty sequence and equal to
-itself.
-
-`RANGE-005`. A range bound MUST be decoded from lowercase hexadecimal before comparison, and MUST be
-compared against the routing key rather than against the key.
-
-#### Covering range
-
-`RANGE-010`. A range MUST be the half-open interval from `start` inclusive to `end` exclusive. A
-`start` of `null` MUST be treated as the beginning of the keyspace and an `end` of `null` as its
-end.
-
-`RANGE-011`. The **covering range** for a routing key MUST be the range for which `start` is `null`
-or `compare(rk, start)` is not `LESS`, and `end` is `null` or `compare(rk, end)` is `LESS`.
-
-`RANGE-012`. A routing key equal to a range's `start` MUST fall inside that range. A routing key
-equal to a range's `end` MUST fall outside it, in the following range.
-
-`RANGE-013`. Validation under `TOPO-*` requires the first `start` to be `null`, the last `end` to be
-`null`, and each `end` to equal the following `start`, so no gap and no overlap exists and every
-routing key including the empty one has exactly one covering range. A routing key can therefore
-never fall below the lowest bound or above the highest.
-
-`RANGE-014`. Where an implementation nonetheless evaluates a routing key that no range covers, the
-candidate ordering MUST be empty. It MUST NOT select the nearest range, MUST NOT extend a bound, and
-MUST NOT wrap from the last range to the first.
-
-`RANGE-015`. Where an implementation nonetheless evaluates a routing key covered by more than one
-range, it MUST select the range at the lower array index, and MUST NOT merge the two orderings.
-
-#### Range explicit assignment
-
-`RANGE-020`. Under `assignment` of `explicit`, the candidate ordering MUST be the covering range's
-`nodes` array in array order, filtered to the eligible node set under `PLACE-014` and deduplicated
-under `PLACE-013`.
-
-`RANGE-021`. `weight` MUST NOT affect the ordering under `explicit` assignment.
-
-`RANGE-022`. Where the `range` strategy object omits `assignment`, the assignment mode MUST be
-`explicit`, and the document MUST behave exactly as one that names the mode. An
-implementation MUST NOT infer the mode from the presence or absence of a range's `nodes` member.
-
-#### Range derived assignment
-
-`RANGE-030`. Under `assignment` of `derived`, a node's virtual node count MUST be
-`min(weight, 1024)` under `PLACE-050`, and a node of count 0 MUST NOT appear in the candidate
-ordering.
-
-`RANGE-031`. A node's score for a range MUST be the largest of `rangeScore(shardId, id, i)` over `i`
-from 0 to its virtual node count minus one, where `shardId` is framed as its UTF-8 octets.
-
-`RANGE-032`. The candidate ordering MUST order the eligible nodes of non-zero virtual node count by
-score descending, then by node identity ascending under `PLACE-020`.
-
-`RANGE-033`. The candidate ordering MUST depend on the routing key only through the covering range's
-`shardId`. Two routing keys in the same range MUST produce the same ordering.
-
-#### Range shards
-
-`RANGE-040`. `shardOf(rk)` MUST be the covering range's `shardId`.
-
-`RANGE-041`. `shards()` MUST enumerate the `shardId` of every range in document order, which is
-ascending order of `start`.
-
-`RANGE-042`. `candidatesForShard(s, eligible)` MUST locate the range whose `shardId` is `s` and
-apply `RANGE-020` or `RANGE-032` according to the configured assignment mode. Where no range carries
-that identifier, the candidate ordering MUST be empty.
+`SLOT-032`. `candidatesForShard(s, eligible)` MUST parse `s` as a decimal slot index and MUST apply
+the rule of `SLOT-012` to the covering entry.
 
 ### Directory strategy
 
@@ -1549,10 +1619,9 @@ constraint MUST filter the pinned ordering. The strategy MUST NOT run.
 `OVR-031`. Under `OVR-030` the filters MUST be applied in either order with the same result, because
 the placement set filter and the constraint filter both remove identities and neither reorders.
 
-`OVR-032`. Under a constraint, an authored node list belonging to a `slot` assignment entry,
-a `range` entry, or a `directory` entry MUST be filtered to the constrained eligible set
-under `PLACE-014`. A constraint therefore composes with explicit assignment as well as with a
-hash strategy.
+`OVR-032`. Under a constraint, an authored node list belonging to a `slot` assignment entry or a
+`directory` entry MUST be filtered to the constrained eligible set under `PLACE-014`. A constraint
+therefore composes with explicit assignment as well as with a hash strategy.
 
 `OVR-033`. An implementation MUST record the matched entry, the constraint applied, and every
 identity the constraint excluded, in the explain record.
@@ -1609,21 +1678,21 @@ Let `D` and `D'` be two valid topology documents that are identical except for t
 where `D'` adds one node `x` to the node set of `D` or removes one node `x` from it, and where every
 other node's `weight`, `state`, `domains`, and `tokens` are unchanged.
 
-`PROP-010`. Under `ring`, `rendezvous`, `slot` with `derived` assignment, and `range` with `derived`
-assignment, on addition of `x`, for every key the first candidate under `D'` MUST be either the
-first candidate under `D` or `x`. No key may move between two nodes that both exist in `D`.
+`PROP-010`. Under `ring` and `rendezvous`, on addition of `x`, for every key the first candidate
+under `D'` MUST be either the first candidate under `D` or `x`. No key may move between two nodes
+that both exist in `D`.
 
-`PROP-011`. Under the same four configurations, on removal of `x`, for every key whose first
+`PROP-011`. Under the same two configurations, on removal of `x`, for every key whose first
 candidate under `D` is not `x`, the first candidate under `D'` MUST be the same node.
 
-`PROP-012`. Under the same four configurations, the candidate ordering under `D` with `x` deleted
+`PROP-012`. Under the same two configurations, the candidate ordering under `D` with `x` deleted
 from it MUST equal the candidate ordering under `D'` on removal, and the candidate ordering under
 `D'` with `x` deleted from it MUST equal the candidate ordering under `D` on addition. The whole
 ordering is preserved as a subsequence, not only its first entry.
 
-`PROP-013`. Under `rendezvous`, `slot` with `derived`, and `range` with `derived`, the expected
-fraction of keys that change first candidate MUST be `v_x / (V + v_x)` on addition and `v_x / V` on
-removal. With `N` nodes of equal weight this is `1 / (N + 1)` on addition and `1 / N` on removal.
+`PROP-013`. Under `rendezvous`, the expected fraction of keys that change first candidate MUST be
+`v_x / (V + v_x)` on addition and `v_x / V` on removal. With `N` nodes of equal weight this is
+`1 / (N + 1)` on addition and `1 / N` on removal.
 
 `PROP-014`. Under `ring`, the expected fraction of keys that change first candidate MUST be
 `t_x / (T + t_x)` on addition and `t_x / T` on removal.
@@ -1631,26 +1700,24 @@ removal. With `N` nodes of equal weight this is `1 / (N + 1)` on addition and `1
 `PROP-015`. The expected fractions of `PROP-013` and `PROP-014` MUST be checked as a bound. With `m`
 the count of sampled keys whose first candidate differs between `D` and `D'`, and `p_num` and
 `p_den` the numerator and denominator of the expected fraction, a conforming implementation MUST
-satisfy `20 * |m * p_den - M * p_num| <= M * p_num` under `rendezvous`, `slot` with `derived`, and
-`range` with `derived`, provided `M * p_num >= 10000 * p_den`. Under `ring` the multiplier MUST be 4
-rather than 20, and the bound applies only where every node holds at least 256 tokens.
+satisfy `20 * |m * p_den - M * p_num| <= M * p_num` under `rendezvous`, provided
+`M * p_num >= 10000 * p_den`. Under `ring` the multiplier MUST be 4 rather than 20, and the bound
+applies only where every node holds at least 256 tokens.
 
-`PROP-016`. Under `slot`, `range`, `rendezvous`, and `directory`, adding or removing a node MUST NOT
+`PROP-016`. Under `slot`, `rendezvous`, and `directory`, adding or removing a node MUST NOT
 change `shardOf(k)` for any key. Under `ring`, adding `x` MAY change `shardOf(k)`, and where it does
 the new value MUST be one of `x`'s tokens; removing `x` MAY change `shardOf(k)`, and where it does
 the old value MUST have been one of `x`'s tokens.
 
-`PROP-017`. Under `slot` with `explicit` assignment, `range` with `explicit` assignment, and
-`directory`, this specification states no movement bound. Movement between two epochs is exactly the
-difference between the authored tables.
+`PROP-017`. Under `slot` and `directory`, this specification states no movement bound. Movement
+between two epochs is exactly the difference between the authored tables.
 
-`PROP-018`. Under those three configurations, a key's shard MUST NOT change while the shard-defining
-fields are unchanged: `slotCount` under `slot`, every range's `start` and `end` under `range`, and
-the matcher of every entry under `directory`.
+`PROP-018`. Under those two configurations, a key's shard MUST NOT change while the shard-defining
+fields are unchanged: `slotCount` under `slot`, and the matcher of every entry under `directory`.
 
 `PROP-019`. Let `D` and `D'` be identical except for node `x`'s `weight`, with the weight higher in
-`D'`. Under `ring` with `derived`, `rendezvous`, `slot` with `derived`, and `range` with `derived`,
-for every key the first candidate under `D'` MUST be either the first candidate under `D` or `x`,
+`D'`. Under `ring` with `derived` and `rendezvous`, for every key the first candidate under `D'`
+MUST be either the first candidate under `D` or `x`,
 and a key whose first candidate under `D` is `x` MUST keep `x`. Lowering a weight is the same
 statement with `D` and `D'` exchanged. A weight change therefore moves keys only between `x` and the
 rest, never between two other nodes.
@@ -1667,27 +1734,11 @@ of five per cent around the node's weighted expected share.
 `M * t_min >= 10000 * T`. The bound is a band of twenty five per cent. Below 256 tokens per node
 this specification states no balance bound for `ring`.
 
-`PROP-022`. Under `slot` with `derived` assignment, the bound of `PROP-020` MUST hold with the
-sample replaced by the set of all `slotCount` slots and `c_i` replaced by the count of slots whose
-candidate ordering begins with node `i`, provided `slotCount * v_min >= 10000 * V`.
-
-`PROP-023`. Under `range` with `derived` assignment, the bound of `PROP-020` MUST hold with the
-sample replaced by the set of all ranges and `c_i` replaced by the count of ranges whose candidate
-ordering begins with node `i`, provided the range count times `v_min` is at least `10000 * V`. No
-bound over keys is stated, because range extents are authored rather than derived.
-
 `PROP-024`. The reduction `keyHash(rk) mod slotCount` distributes keys over slots with a bias per
 slot of at most `slotCount / 2^64`. A balance bound over keys under `slot` MUST ignore that bias.
 
-`PROP-025`. Under `slot` with `explicit` assignment, `range` with `explicit` assignment, and
-`directory`, this specification states no balance bound. An implementation reports observed balance
-against weight and changes no ordering.
-
-`PROP-026`. The precondition of `PROP-023` is met only by a document authoring at least
-`10000 * V / v_min` ranges, which is at least 20000 for the two-node topology on which the bound
-first says anything. Range extents are authored rather than derived, so no topology of a workable
-size reaches it. `PROP-023` therefore states a bound and carries no executable test, and a
-conformance suite MUST report it as uncovered by a witness rather than as covered.
+`PROP-025`. Under `slot` and `directory`, this specification states no balance bound. An
+implementation reports observed balance against weight and changes no ordering.
 
 #### Proportionality
 
@@ -1702,10 +1753,6 @@ A conformance test MUST NOT assert `PROP-030` more tightly than that bound allow
 `PROP-032`. `PROP-030` MUST hold without any floating-point operation in the library. The
 proportionality is a property of the distribution of the maximum of `v_i` independent uniform
 64-bit values, not a quantity the library computes.
-
-`PROP-033`. Under `slot` with `derived` assignment and `range` with `derived` assignment, `PROP-030`
-MUST hold with the routing key replaced by the slot index and by the `shardId` respectively, over
-shards rather than over keys.
 
 #### Purity
 
@@ -1731,7 +1778,7 @@ preference list and never reorders it.
 #### Exemptions
 
 `PROP-050`. A routing key matched by an override entry carrying a `pin` is exempt from `PROP-010`
-through `PROP-024` and from `PROP-030` through `PROP-033`. Its ordering is authored, so its balance
+through `PROP-024` and from `PROP-030` through `PROP-032`. Its ordering is authored, so its balance
 and its movement are properties of the document rather than of the strategy.
 
 `PROP-051`. A routing key matched by an override entry carrying a `constrain` and no `pin` carries
@@ -1768,9 +1815,9 @@ at most one `factor` supersedes.
 implementation MUST NOT route a key at factor 0.
 
 `REPL-005`. An implementation MUST NOT infer a replication factor from the length of a `slot`
-assignment entry's `nodes`, a `range` entry's `nodes`, a `directory` entry's `nodes`, or an
-override's `pin`. Those lists are candidate orderings; the effective replication factor alone
-decides how many of their entries are replicas.
+assignment entry's `nodes`, a `directory` entry's `nodes`, or an override's `pin`. Those lists are
+candidate orderings; the effective replication factor alone decides how many of their entries are
+replicas.
 
 `REPL-006`. The topology document carries no per-shard replication factor. An implementation MUST
 NOT accept one, and MUST NOT derive one from a shard identifier.
@@ -2228,14 +2275,11 @@ attempt a node, and MUST NOT retry anything.
 `FAIL-021`. An implementation MUST expose an attempt limit on a routing call, counted in attempts
 rather than in preference list positions. The attempt sequence MUST be truncated to that limit.
 
-`FAIL-022`. The attempt limit in force for a routing decision MUST be resolved in this order: the
-value `RouteOptions` supplies, where it supplies one; otherwise the configured `attemptLimit`
-of `CFG-020`. Where the integrator configures no value, `CFG-020` supplies `n + 2` against the
-decision's effective replication factor. The resolved limit MUST be clamped to the length of the
-attempt sequence. An implementation MUST NOT consult the configured setting where `RouteOptions`
-supplies a limit, and MUST NOT bypass the configured setting where it does not. A topology at factor
-1 therefore offers two fallback attempts by default, and a topology at factor 3 offers two beyond
-the replica prefix.
+`FAIL-022`. The attempt limit in force for the attempt walk MUST be the resolved attempt limit of
+`CORE-048`, clamped to the length of the attempt sequence. The clamp applies to the walk alone:
+`CORE-046` fixes the materialised prefix from the value before it. A topology at factor 1 therefore
+offers two fallback attempts by default, and a topology at factor 3 offers two beyond the replica
+prefix.
 
 `FAIL-023`. An implementation MUST expose the attempt walk as this surface.
 
@@ -2875,8 +2919,8 @@ costing what the routing table of `PLACE-070` states for its configuration at `p
 replication factor.
 
 `MOVE-097`. Rebasing a handoff MUST advance that handoff's target epoch to `to`'s epoch and MUST
-change nothing else about it. Its state, its attempt count, its step budget, and its accumulated
-measurements MUST be unchanged, and `rebase` MUST NOT call a movement hook for it.
+change nothing else about it. Its state, its attempt count, and its accumulated measurements MUST
+be unchanged, and `rebase` MUST NOT call a movement hook for it.
 
 `MOVE-098`. Aborting a handoff under `MOVE-096` MUST follow `MOVE-411` and `MOVE-421`. A handoff in
 `planned` reaches `aborted` with no hook called, and one in `preparing`, `transferring`, or
@@ -2928,7 +2972,6 @@ HandoffContext ctx = {
 }
 
 HookDeclaration = {
-    cutoverGuarantee: one of { linearisable, advisory },
     budgetUnit:       string,          # opaque to the library
     supportsRollback: boolean,
     supportsVerify:   boolean
@@ -3050,10 +3093,9 @@ reobserve(id: HandoffId, clock: MonotonicClock) -> Result<ReobserveOutcome, Erro
 ReobserveOutcome = one of { resumed(HandoffState), unresolved, refused(reason) }
 ```
 
-It MUST admit exactly a handoff in `failed` whose kind is `undetermined` and which did not reach
-`failed` under `SPLIT-171`. It MUST answer `refused` for a handoff in any other state, for a handoff
-whose kind is `unverified`, `residue`, or `rollbackFailed`, and for a handoff that reached `failed`
-under `SPLIT-171`.
+It MUST admit exactly a handoff in `failed` whose kind is `undetermined`. It MUST answer `refused`
+for a handoff in any other state and for a handoff whose kind is `unverified`, `residue`, or
+`rollbackFailed`.
 
 `MOVE-234`. `reobserve` MUST call `observe` exactly once and MUST call no other movement hook.
 Where the answer is `observed`, it MUST assign a state by the mapping of `MOVE-211`, MUST apply
@@ -3061,13 +3103,9 @@ Where the answer is `observed`, it MUST assign a state by the mapping of `MOVE-2
 `undetermined`, the handoff MUST stay in `failed` with the kind `undetermined` and `reobserve` MUST
 answer `unresolved`.
 
-`MOVE-235`. `reobserve` MUST NOT resume a handoff at `cutover` where the hooks declare
-`cutoverGuarantee` of `advisory`. Such a handoff MUST stay in `failed` with the kind `undetermined`
-and `reobserve` MUST answer `refused`. Where the declaration is `linearisable`, a resumption at
-`cutover` follows an observation that reports no record, and `MOVE-331` requires a fresh successful
-`quiesce` before the next `commitCutover`.
-
 `MOVE-236`. A handoff resumed by `reobserve` MUST obey `MOVE-181` and `MOVE-191` without variation.
+A resumption at `cutover` follows an observation that reports no record, and `MOVE-331` requires a
+fresh successful `quiesce` before the next `commitCutover`.
 A resumption at `verifying` MUST NOT reach `cleanup` before `verify` has returned `matched`, and a
 resumption at `aborting` is admitted only where no cutover record belongs to the handoff under
 `MOVE-102`, which the observation that produced the resumption establishes.
@@ -3086,8 +3124,8 @@ MUST be admissible a second time. An implementation MUST NOT call `reobserve` fr
 
 `MOVE-241`. A strategy supports orchestrated migration exactly when its prepared placement
 enumerates shards, that is when `shards()` is non-empty for a non-empty placement set and `shardOf`
-returns a shard identifier rather than the routing key. `ring`, `slot`, `range`, and `directory`
-support orchestrated migration. `rendezvous` does not.
+returns a shard identifier rather than the routing key. `ring`, `slot`, and `directory` support
+orchestrated migration. `rendezvous` does not.
 
 `MOVE-251`. `plan` MUST refuse a pair of snapshots whose strategy does not support orchestrated
 migration, and MUST report the refusal under `ERR-*` naming the strategy kind. It MUST NOT return an
@@ -3119,7 +3157,7 @@ specified in `MOVE-311`.
 `MOVE-311`. Between the success of `quiesce` and the return of `commitCutover`, both nodes MUST
 refuse writes for the shard, and the refusal MUST be reported as retryable under `ERR-*`. The source
 MAY continue to answer reads during this interval. An implementation MUST bound this interval by
-`cutoverGraceMillis` plus the `commitCutover` deadline, and MUST count it in its migration events.
+the `commitCutover` deadline of `commitDeadlineMillis`, and MUST count it in its migration events.
 
 #### Cutover commitment
 
@@ -3131,40 +3169,30 @@ the destination.
 the same context, and MUST NOT call it after the quiesce lease has expired on the supplied clock.
 Where the lease has expired, the coordinator MUST call `quiesce` again.
 
-`MOVE-341`. Where `cutoverGuarantee` is `advisory`, the coordinator MUST wait `cutoverGraceMillis`
-after `quiesce` returns success before calling `commitCutover`, and `cutoverGraceMillis` MUST be
-greater than zero. Where it is `linearisable`, the coordinator MAY call `commitCutover` immediately.
-
 `MOVE-351`. A `CutoverResult` of `lost` MUST move the handoff to `aborting`. Another destination has
 taken ownership, and this handoff's copy is residue.
 
-#### Guarantee levels
+#### Provided guarantees
 
-`MOVE-361`. An implementation MUST report the guarantee level of every plan, taken from
-`cutoverGuarantee`, in the plan summary and in its migration events.
+A single-winner cutover is the only mode the coordinator supports. An integrator whose store offers
+no single-winner write over a record both the source and the destination read cannot use
+orchestrated migration, and moves a shard outside the library.
 
-`MOVE-371`. A `MigrationPolicy` MUST carry `requireLinearisableCutover`, which defaults to true.
-Where it is true and the hooks declare `advisory`, `plan` MUST refuse.
-
-`MOVE-381`. Under a `linearisable` declaration the library provides these guarantees.
+`MOVE-381`. The library provides these guarantees.
 
 - At most one node is the authoritative owner of a shard at any instant.
 - No acknowledged write is discarded by the handoff, because `cleanup` never runs before `verify`
   succeeds under `MOVE-181`.
 - A handoff that reaches `complete` has a verified destination copy.
 
-`MOVE-391`. These properties are best-effort under every declaration, and an implementation MUST NOT
-present them as guarantees.
+`MOVE-391`. These properties are best-effort, and an implementation MUST NOT present them as
+guarantees.
 
 - That a caller's first attempt reaches the authoritative owner.
 - That a partitioned source stops answering promptly. The bound is the quiesce lease, which the
   integrator enforces and the library only observes.
 - That the destination is complete without `catchUp`, where the integrator replicates writes during
   the transfer.
-
-`MOVE-401`. Under an `advisory` declaration, mutual exclusion is not provided. An implementation
-MUST emit an event at plan construction naming the shortfall and MUST repeat the level in every
-handoff event for that plan.
 
 ### Migration abort and rollback
 
@@ -3214,30 +3242,21 @@ non-negative integers except where stated.
 | `maxConcurrentHandoffs` | handoffs in a non-terminal, post-`planned` state across the plan |
 | `maxConcurrentPerSourceNode` | the same bound per source node |
 | `maxConcurrentPerDestinationNode` | the same bound per destination node |
-| `initialStepBudget` | the budget passed to the first `transfer` or `catchUp` of a handoff |
-| `minStepBudget` | the floor for a reduced budget, at least 1 |
-| `maxStepBudget` | the ceiling for an increased budget |
-| `budgetIncrement` | the additive increase applied after a successful step |
+| `initialStepBudget` | the budget passed to every `transfer` and `catchUp`, at least 1 |
 | `stepDeadlineMillis` | the deadline placed in a hook context |
 | `maxAttemptsPerStep` | retryable attempts before a step fails |
 | `retryBackoffBaseMillis`, `retryBackoffCapMillis` | the backoff bounds |
-| `cutoverGraceMillis` | the wait between `quiesce` and `commitCutover` under `advisory` |
 | `catchUpResidualThreshold` | the residue at or below which `catchingUp` reaches `cutover` |
 | `reTransferResidualThreshold` | the residue above which `catchingUp` returns to `transferring` |
-| `requireLinearisableCutover` | boolean, default true |
 
-`RATE-021`. An implementation MUST refuse a policy in which `minStepBudget` is zero,
-`maxStepBudget` is below `minStepBudget`, or `reTransferResidualThreshold` is at or below
-`catchUpResidualThreshold`.
+`RATE-021`. An implementation MUST refuse a policy in which `initialStepBudget` is zero or
+`reTransferResidualThreshold` is at or below `catchUpResidualThreshold`.
 
-`RATE-031`. The budget an implementation passes to `transfer` and `catchUp` is a count in the
-integrator's own `budgetUnit`. The library MUST treat it as opaque, MUST pass it unmodified, and
-MUST NOT convert it to any other unit.
-
-`RATE-041`. An implementation MUST adjust the per-handoff budget by integer arithmetic only. After a
-step that returns success, `budget = min(budget + budgetIncrement, maxStepBudget)`. After a step
-that returns `deferred`, or that runs under a pressure level above `none`, `budget = max(budget / 2,
-minStepBudget)` using unsigned integer division. No other adjustment is permitted.
+`RATE-031`. The budget an implementation passes to `transfer` and `catchUp` MUST be
+`initialStepBudget`, a count in the integrator's own `budgetUnit`. The library MUST treat it as
+opaque, MUST pass it unmodified to every step of every handoff, MUST NOT convert it to any other
+unit, and MUST NOT adjust it between steps. An integrator whose rate varies computes the variation
+in the hook that owns the unit.
 
 `RATE-051`. Retry backoff MUST be computed by integer arithmetic as
 `min(retryBackoffBaseMillis * 2^(attempt - 1), retryBackoffCapMillis)`, with any jitter drawn as an
@@ -3259,8 +3278,8 @@ PressureScope = one of { cluster, node(NodeId) }
 source, and at `node` scope for the destination before each `step`, and MUST take the highest of the
 three levels, ordered `none` below `soft` below `hard`.
 
-`RATE-081`. At `soft`, an implementation MUST NOT move a handoff out of `planned`, MUST reduce the
-budget under `RATE-041`, and MAY continue every other step.
+`RATE-081`. At `soft`, an implementation MUST NOT move a handoff out of `planned`, and MAY continue
+every other step.
 
 `RATE-091`. At `hard`, an implementation MUST NOT move a handoff out of `planned` and MUST NOT call
 `transfer` or `catchUp`. It MUST still call `quiesce`, `commitCutover`, `verify`, `cleanup`,
@@ -3268,7 +3287,7 @@ budget under `RATE-041`, and MAY continue every other step.
 leave shards in the concurrent-holding window indefinitely.
 
 `RATE-101`. A hook result of `deferred` MUST be treated as a backpressure signal for that handoff
-alone. An implementation MUST NOT let it reduce the budget of another handoff.
+alone. An implementation MUST NOT let it delay, defer, or withhold a step of another handoff.
 
 `RATE-111`. An implementation MUST return `idle` from `step` when the pressure level or the
 concurrency bounds leave nothing admissible, and MUST NOT spin, wait, or sleep inside `step`.
@@ -3285,123 +3304,6 @@ nowhere else.
 
 `RATE-141`. Measurements MAY use floating point where they are reported and MUST NOT enter any
 admission, budget, threshold, or ordering decision.
-
-### Range splits and merges
-
-A split divides one range shard into two or more; a merge is its inverse. Both are available under
-the `range` strategy only.
-
-`SPLIT-001`. An implementation MUST support orchestrated split and merge under `range` and MUST NOT
-offer them under `ring`, `rendezvous`, `slot`, or `directory`. A token addition under `ring` divides
-a token range as a consequence of placement and is an ordinary ownership delta, not a split.
-
-`SPLIT-011`. The topology authority decides a split or a merge and expresses it by publishing a
-document in which one range is replaced by two or more contiguous ranges, or the reverse. The
-library MUST NOT edit a topology document, MUST NOT choose a split point, and MUST NOT publish an
-epoch.
-
-`SPLIT-021`. An implementation MAY accept shard measurements from the integrator with this shape,
-and MUST treat every member as an integer count.
-
-```
-interface ShardMetricsSource:
-    report(shard: ShardId) -> ShardReport | none
-
-ShardReport = { bytes: u64, keys: u64, requests: u64, hottestKeyRequests: u64,
-                intervalMillis: u32 }
-```
-
-`SPLIT-031`. Where a split advice policy is configured, an implementation MUST emit a split advice
-event for a shard whose `bytes` or `keys` exceeds its configured threshold, or whose `requests`
-exceeds its configured threshold over `intervalMillis`. The event names the shard, the crossed
-threshold, and the observed value.
-
-`SPLIT-041`. An implementation MUST report key skew by the integer comparison
-`hottestKeyRequests * 100 >= requests * skewPercent`, evaluated exactly over both products under
-`CORE-005`, and where it holds MUST mark the advice as not addressable by a split. A split cannot
-divide a single key.
-
-`SPLIT-051`. Split advice is advisory. An implementation MUST NOT let advice change a snapshot, a
-plan, or a routing decision.
-
-#### Split lineage
-
-`SPLIT-061`. An implementation MUST derive the relationship between the shards of two `range`
-snapshots from their bounds and MUST NOT derive it from `shardId`. A null `start` compares below
-every routing key and a null `end` compares above every routing key; every other comparison is the
-unsigned bytewise ordering that `PLACE-*` fixes for `range`.
-
-`SPLIT-071`. A shard `b` of the target snapshot is a child of shard `a` of the source snapshot when
-`a.start <= b.start` and `b.end <= a.end`. A shard `a` is a parent of `b` under the same condition.
-
-`SPLIT-081`. An implementation MUST classify each source shard against the target snapshot as
-exactly one of the following.
-
-| Classification | Condition |
-|---|---|
-| `unchanged` | one child with identical bounds |
-| `split` | two or more children, together covering the source shard exactly |
-| `merged` | the source shard is one of two or more shards contained in one target shard |
-| `unaligned` | neither of the above |
-
-`SPLIT-091`. An implementation MUST refuse to plan a migration across an `unaligned` classification
-and MUST name the offending bounds. An authority that moves a boundary publishes the change as a
-split epoch followed by a merge epoch, each of which is plannable.
-
-`SPLIT-101`. The contiguity and coverage rules of `20-topology-format.md` apply to both snapshots
-independently. An implementation MUST NOT accept a partially applied split, because a document
-whose ranges do not cover the keyspace is invalid at load.
-
-#### Split and merge execution
-
-`SPLIT-111`. A split is represented in flight by two epochs, not by a third state within one epoch.
-The source epoch names the parent and the target epoch names the children. There is no epoch at
-which both the parent and its children are addressable.
-
-`SPLIT-121`. An implementation MUST decompose a `split` classification into one local split step
-followed by one handoff per child whose replica set differs from the parent's. The local split step
-MUST complete before any of those handoffs leaves `planned`.
-
-`SPLIT-131`. An implementation MUST decompose a `merged` classification into one handoff per parent
-whose replica set differs from the target shard's, followed by one local merge step. Every such
-handoff MUST reach `complete` before the local merge step begins.
-
-`SPLIT-141`. An implementation MUST define the local steps as two further movement hooks.
-
-```
-interface MovementHooks (continued):
-    splitLocal(ctx, children: list<ShardBounds>) -> HookResult
-    mergeLocal(ctx, parents: list<ShardId>)      -> HookResult
-```
-
-`SPLIT-151`. `splitLocal` and `mergeLocal` MUST be idempotent, and MUST be retryable under the
-rule of `MOVE-171`. Each runs on the node that holds every shard it names, and the library MUST
-refuse to sequence one where that node is not a replica of every shard named.
-
-`SPLIT-161`. A split whose children keep the parent's replica set is a local step alone, with no
-handoff. The ownership delta for that shard names no node gained and no node lost.
-
-`SPLIT-171`. A split MUST NOT run under a plan that a snapshot install has superseded, and MUST
-NOT run under a plan that a rebase has moved to a target snapshot naming other shards. Where the
-local split step has already succeeded, the shard identity of the source snapshot no longer matches
-the data, so the plan MUST move its remaining handoffs to `failed` with the kind `undetermined`
-rather than roll back. `MOVE-233` does not admit a re-observation for a handoff failed this way.
-
-#### In-flight requests across a split
-
-`SPLIT-181`. A routing call resolves a key to exactly one shard under exactly one snapshot, so no
-call ever addresses a parent and a child at once. This follows from `TOPO-121`.
-
-`SPLIT-191`. A recipient MUST evaluate `FENCE-061` over the routing key rather than over the shard
-identifier. A key whose parent shard at the sender's epoch and whose child shard at the recipient's
-epoch have the same owner yields `ownership` of `owner`, and yields `ownershipStable` of true where
-the sender's epoch is retained.
-
-`SPLIT-201`. A request routed against a parent that arrives at a node owning none of the children
-covering its key MUST be refused with `currentOwner` naming the owner of the child that covers the
-key at the recipient's epoch.
-
-`SPLIT-211`. A merge is the same case in reverse, and the same rules apply without variation.
 
 ## Error taxonomy
 
@@ -3501,7 +3403,7 @@ response MUST be this one.
 | `identityMismatch` | operator action; epochs under two identifiers are incomparable |
 | `redirectExhausted` | surface the failure; a `retryBudget` cause means the cluster is shedding |
 | `planRefused` | correct the snapshots or the policy member named in `cause` |
-| `quiesced` | retry after the window, which `cutoverGraceMillis` bounds |
+| `quiesced` | retry after the window, which `commitDeadlineMillis` bounds |
 | `handoffFailed` | operator action, directed by the failure kind in `cause`; `undetermined` takes a re-observation |
 
 ### Routing conditions
@@ -3514,10 +3416,10 @@ list none of whose identities is eligible under `PLACE-014`, or an eligible node
 members owns a ring token under `RING-024`.
 
 `ERR-021`. `noCandidate` MUST carry a `cause` from the closed set `emptyPlacementSet`,
-`constraintExcludedAll`, `noDirectoryEntry`, `pinExcludedAll`, `noSlotEntry`, `noRangeEntry`,
-`zeroVirtualNodes`, `authoredListExcludedAll`, and `noEligibleTokenOwner`.
-`authoredListExcludedAll` names a `slot`, `range`, or `directory` entry that matched the routing key
-and whose every named node lies outside the eligible node set. `noEligibleTokenOwner` names a `ring`
+`constraintExcludedAll`, `noDirectoryEntry`, `pinExcludedAll`, `noSlotEntry`, `zeroVirtualNodes`,
+`authoredListExcludedAll`, and `noEligibleTokenOwner`. `authoredListExcludedAll` names a `slot` or
+`directory` entry that matched the routing key and whose every named node lies outside the eligible
+node set. `noEligibleTokenOwner` names a `ring`
 topology under `explicit` token assignment in which no eligible node carries a token. The set is
 total over the cases of `ERR-020`, so an implementation MUST NOT report `noCandidate` with no cause.
 
@@ -3543,9 +3445,9 @@ under `KEY-013`.
 ### Topology conditions
 
 `ERR-030`. `invalidTopology` MUST be raised for a document that fails any stage of `TOPO-001`
-through stage 4, including an unsupported `formatVersion`, an unknown member, and any rule of
-[`20-topology-format.md`](20-topology-format.md). It MUST carry every validation error the document
-produced rather than the first, so that an operator fixes the document once.
+through stage 4, including an unsupported `formatVersion`, an unknown member, and any rule
+of [`20-topology-format.md`](20-topology-format.md). It MUST carry every validation error the
+document produced rather than the first, so that an operator fixes the document once.
 
 `ERR-031`. `topologyConflict` MUST be raised for a `topologyId` that differs from the configured or
 adopted one, and for an epoch equal to the epoch in force whose digest differs, under `TOPO-061`.
@@ -3598,10 +3500,9 @@ routing conditions and does not govern these.
 
 ### Migration conditions
 
-`ERR-050`. `planRefused` MUST be raised by `plan` under `MOVE-081`, `MOVE-251`, `MOVE-371`,
-`RATE-021`, and `SPLIT-091`, and by `rebase` under `MOVE-095`. It MUST carry a `cause` from the
-closed set `incomparableShards`, `epochNotAdvancing`, `strategyUnsupported`,
-`destinationOutsidePlacementSet`, `unalignedRanges`, `policyInvalid`, `guaranteeTooWeak`, and
+`ERR-050`. `planRefused` MUST be raised by `plan` under `MOVE-081`, `MOVE-251`, and `RATE-021`, and
+by `rebase` under `MOVE-095`. It MUST carry a `cause` from the closed set `incomparableShards`,
+`epochNotAdvancing`, `strategyUnsupported`, `destinationOutsidePlacementSet`, `policyInvalid`, and
 `topologyMismatch`.
 
 `ERR-051`. `quiesced` MUST be raised for a write to a shard between the success of `quiesce` and the
@@ -3639,9 +3540,9 @@ integrator supplied.
 
 ### Metric rules
 
-`OBS-001`. An implementation MUST expose every metric of `OBS-010`, MUST name it exactly as given,
-and MUST carry exactly the labels given. It MAY expose further metrics of its own, under a name that
-does not begin with `sharder.`.
+`OBS-001`. An implementation MUST expose every metric of `OBS-010` that belongs to a surface it
+exposes, MUST name it exactly as given, and MUST carry exactly the labels given. It MAY expose
+further metrics of its own, under a name that does not begin with `sharder.`.
 
 `OBS-002`. A metric value MAY be a floating-point number. This is the single exception to the rule
 that the library uses no floating point. A metric value MUST NOT be read by placement, by
@@ -3650,8 +3551,8 @@ comparison. Every such comparison MUST use the integer arithmetic its own requir
 
 `OBS-003`. Every label value MUST come from a bounded set. A key, a routing key, and a shard
 identifier under `ring` or `rendezvous` MUST NOT be a label value, because each is unbounded in
-cardinality. A shard identifier MAY be a label under `slot`, `range`, and `directory` while the
-shard count is at or below `shardLabelLimit`, and MUST be dropped from the labels above it.
+cardinality. A shard identifier MAY be a label under `slot` and `directory` while the shard count is
+at or below `shardLabelLimit`, and MUST be dropped from the labels above it.
 
 `OBS-004`. Metrics MUST be reported through a registry the integrator supplies under `CFG-060`.
 Where none is supplied, an implementation MUST maintain the values internally, MUST expose them
@@ -3669,6 +3570,19 @@ as a label, because an epoch sequence is unbounded; the epoch is reported by
 `OBS-007`. `sharder.health.ejections` and `sharder.health.failure_percent` MUST carry `node` alone
 and MUST NOT carry `topology_id`. Health state is keyed by node identity and survives an epoch
 change under `HEALTH-006`, so neither value describes work against one snapshot.
+
+`OBS-008`. A node identity MAY be a label value while the number of distinct identities the metric
+would carry is at or below `nodeLabelLimit`, and MUST be dropped from the labels above it. The count
+MUST be taken over the identities the implementation holds health entries for under `HEALTH-006`,
+and not over the node count of the snapshot in force: `HEALTH-011` ingests a signal for any
+identity, including one absent from that snapshot, so the set a health metric would label is
+bounded by what a caller reports rather than by what a document declares.
+
+Where the node label is dropped, an implementation MUST report `sharder.health.ejections` without
+it, carrying the sum over the identities it held, MUST NOT report the gauges
+`sharder.health.failure_percent` and `sharder.balance.observed_share`, because a gauge has no value
+over a set of nodes, and MUST emit `sharder.observability.bound_reached` under `OBS-020` naming the
+label and the bound.
 
 ### Required metrics
 
@@ -3709,7 +3623,6 @@ Gauges.
 | `topology.stale` | `topology_id` | 1 where the snapshot in force is stale |
 | `topology.nodes` | `topology_id`, `state` | nodes in each administrative state |
 | `migration.handoffs` | `topology_id`, `state` | handoffs in each state |
-| `migration.step_budget` | `topology_id` | the current per-handoff budget |
 | `migration.pressure` | `scope`, `level` | the level the gauge last reported |
 | `balance.observed_share` | `topology_id`, `node` | observed share over expected share |
 
@@ -3736,8 +3649,9 @@ permits it.
 
 ### Required events
 
-`OBS-020`. An implementation MUST emit these events, MUST name them exactly as given, and MUST carry
-at least the payload given. Every name carries the prefix `sharder.`, which the table omits.
+`OBS-020`. An implementation MUST emit every event of this table that belongs to a surface it
+exposes, MUST name it exactly as given, and MUST carry at least the payload given. Every name
+carries the prefix `sharder.`, which the table omits.
 
 | Name | When | Payload beyond `OBS-021` |
 |---|---|---|
@@ -3751,7 +3665,6 @@ at least the payload given. Every name carries the prefix `sharder.`, which the 
 | `topology.directory_large` | a directory exceeds its threshold | entry count, threshold |
 | `topology.rendezvous_large` | a rendezvous set exceeds its threshold | nodes, total, threshold |
 | `topology.ring_large` | a ring exceeds its token threshold | nodes, total, threshold |
-| `topology.derived_large` | a derived map exceeds its threshold | shards, product, threshold |
 | `topology.default_seed` | a zero seed meets multi-tenancy | the evidence, under `SEC-011` |
 | `topology.delta` | `TOPO-211` is called | shards changed, gained, lost |
 | `routing.shortfall` | a replica prefix is short | factor, achieved, cause, shard |
@@ -3761,8 +3674,7 @@ at least the payload given. Every name carries the prefix `sharder.`, which the 
 | `health.transition` | a health state changes | node, prior state, new state, trigger |
 | `health.ejection_refused` | the ceiling refuses a transition | node, ejected, set size |
 | `fencing.refused` | a recipient refuses a request | relation, ownership, owner, token |
-| `migration.planned` | `plan` returns a plan | handoff count, guarantee, policy |
-| `migration.advisory` | a plan is built on `advisory` hooks | the shortfall of `MOVE-401` |
+| `migration.planned` | `plan` returns a plan | handoff count, policy |
 | `migration.state_changed` | a handoff changes state | handoff, shard, from, to, trigger |
 | `migration.cutover_committed` | a record is committed | shard, source, destination, window |
 | `migration.failed` | a handoff reaches `failed` | shard, kind, source, destination |
@@ -3770,9 +3682,9 @@ at least the payload given. Every name carries the prefix `sharder.`, which the 
 | `migration.rebase_pending` | a plan is marked under `MOVE-091` | the installed epoch, the target |
 | `migration.rebased` | `rebase` returns a report | the report of `MOVE-094` |
 | `migration.reobserved` | `reobserve` returns | handoff, shard, answer, resumed state |
-| `shard.split_advice` | a split threshold is crossed | shard, threshold, value, addressable |
 | `shard.hot` | a shard is hot under `OBS-031` | shard, observed share, expected share |
 | `shard.key_skew` | key skew is detected | shard, hottest key requests, requests |
+| `observability.bound_reached` | a label or a structure reaches its bound | what was bounded, the setting, the bound, the count |
 
 `OBS-021`. Every event MUST carry its name, the `Instant` at which it was emitted, the `topologyId`
 and `epoch` in force, and a severity from the closed set `info`, `warning`, and `error`.
@@ -3797,13 +3709,13 @@ buffer their payloads.
 `shardLabelLimit`, counted in distinct shard identifiers per epoch. Where the shard identifier is
 not a permitted label value under `OBS-003`, or where the bound is reached, an implementation MUST
 deduplicate per combination of epoch and cause alone, MUST NOT record a further shard identifier for
-that epoch, and MUST emit one event naming the suppression and the bound. The structure MUST be
-discarded when the epoch it was built for is no longer in force.
+that epoch, and MUST emit `sharder.observability.bound_reached` under `OBS-020`. The structure MUST
+be discarded when the epoch it was built for is no longer in force.
 
 ### Skew detection
 
 `OBS-030`. Hot-shard and key-skew detection MUST consume only the routing counters the library
-holds and the `ShardReport` values an integrator supplies under `SPLIT-021`. An implementation MUST
+holds and the `ShardReport` values an integrator supplies under `OBS-036`. An implementation MUST
 NOT probe a node, MUST NOT sample traffic, and MUST NOT infer load from a wall clock.
 
 `OBS-031`. A shard MUST be reported as hot when this holds, in unsigned integer arithmetic, over one
@@ -3814,25 +3726,36 @@ shardRequests * shardCount * 100 >= totalRequests * hotShardFactorPercent
 ```
 
 Both sides MUST be evaluated exactly under `CORE-005`. `shardRequests` and `totalRequests` are
-u64 under `SPLIT-021` and `shardCount` reaches 1048576 under `slot`, so the left-hand side exceeds
+u64 under `OBS-036` and `shardCount` reaches 1048576 under `slot`, so the left-hand side exceeds
 64 bits within the declared range and a 64-bit multiplication is not conforming.
 
 `shardCount` is the number of shards `shards()` enumerates. Where a strategy enumerates no shards,
 no shard is hot and the library MUST NOT report one.
 
-`OBS-032`. Key skew MUST be reported by the comparison of `SPLIT-041`,
-`hottestKeyRequests * 100 >= requests * keySkewPercent`. A hot shard that also shows key skew MUST
-be marked as not addressable by a split.
+`OBS-032`. Key skew MUST be reported by the comparison
+`hottestKeyRequests * 100 >= requests * keySkewPercent`. `CORE-005` requires both products to be
+evaluated exactly. Both operands are u64 under `OBS-036`, so the left-hand side reaches 71 bits and
+a 64-bit multiplication is not conforming.
 
 `OBS-033`. Detection MUST use unsigned integer arithmetic throughout, whatever the metric surface
 reports. `OBS-002` permits a floating-point metric value and forbids one reaching a comparison.
 
 `OBS-034`. Detection MUST emit an event and MUST NOT change a routing decision, a snapshot, a
-preference list, or a plan, under `SPLIT-051`.
+preference list, or a plan.
 
 `OBS-035`. Where a `ShardMetricsSource` is not supplied and the shard label is dropped under
-`OBS-003`, an implementation MUST NOT report a hot shard. It reports the balance gauge of `OBS-010`,
-which is per node and always available.
+`OBS-003`, an implementation MUST NOT report a hot shard. It reports the balance gauge of
+`OBS-010`, which is per node while `OBS-008` admits the node label.
+
+`OBS-036`. An implementation MAY accept shard measurements from the integrator with this shape, and
+MUST treat every member as an integer count.
+
+```
+interface ShardMetricsSource:
+    report(shard: ShardId) -> ShardReport | none
+
+ShardReport = { requests: u64, hottestKeyRequests: u64, intervalMillis: u32 }
+```
 
 ### Explain API
 
@@ -3869,9 +3792,8 @@ record ExplainRecord:
 
 `OBS-042`. `strategyInputs` MUST name the arithmetic the configured strategy performed: `keyHash`
 and the owning token under `ring`, `keyHash` and `slotIndex` under `slot`, the winning score and the
-virtual node count under `rendezvous`, the covering range's bounds under `range`, and the matched
-entry's index under `directory`. Every value MUST be rendered as text, a u64 as sixteen lowercase
-hexadecimal digits.
+virtual node count under `rendezvous`, and the matched entry's index under `directory`. Every value
+MUST be rendered as text, a u64 as sixteen lowercase hexadecimal digits.
 
 `OBS-043`. Every member of the eligible node set MUST appear exactly once, either in `candidates` or
 in `exclusions`. Every member of the placement set that the eligible set omits MUST appear in
@@ -3904,8 +3826,11 @@ carries what is agreed between callers; configuration carries what is local to o
 
 ### Configuration rules
 
-`CFG-001`. An implementation MUST accept every setting named in this section, MUST apply the default
-given where the integrator supplies no value, and MUST behave as the default's row describes.
+`CFG-001`. An implementation MUST accept every setting named in this section that belongs to a
+surface it exposes, MUST apply the default given where the integrator supplies no value, and MUST
+behave as the default's row describes. The Conformance surfaces section names the surface each
+setting belongs to, and `CORE-111` states what an implementation does with a setting of a surface it
+does not expose.
 
 `CFG-002`. A setting MUST NOT appear in a topology document. A document member whose name matches a
 setting is an unknown member and a validation failure under `TOPO-*`.
@@ -3952,7 +3877,6 @@ deployment manifest.
 | `directoryWarnEntries` | 10000 | entry count above which the directory event is emitted |
 | `rendezvousWarnVirtualNodes` | 4096 | summed virtual node count above which the event is emitted |
 | `ringWarnTokens` | 1000000 | ring token total above which the event is emitted |
-| `derivedWarnEvaluations` | 100000000 | preparation product above which the event is emitted |
 
 `CFG-011`. `reconcileIntervalMillis` MUST be at least `pollIntervalMillis`. A provider that both
 pushes and pulls is reconciled rarely, because the push path carries the change.
@@ -3964,10 +3888,9 @@ under `CORE-033` is the only path by which a document arrives on a pull-only pro
 `CFG-013`. `maxKeyBytes` bounds the hash cost of one routing call. An implementation MUST compare
 the key length against it before applying the key transform, and MUST NOT truncate under `KEY-005`.
 
-`CFG-014`. `rendezvousWarnVirtualNodes`, `ringWarnTokens`, and `derivedWarnEvaluations` are the
-thresholds `PLACE-073` compares its products against. Each is evaluated once per accepted snapshot,
-and the value 0 MUST disable the event it governs. None of the three refuses a document, and
-`CFG-004` holds for each of them.
+`CFG-014`. `rendezvousWarnVirtualNodes` and `ringWarnTokens` are the thresholds `PLACE-073` compares
+its totals against. Each is evaluated once per accepted snapshot, and the value 0 MUST disable the
+event it governs. Neither refuses a document, and `CFG-004` holds for both.
 
 ### Routing and failover settings
 
@@ -3975,7 +3898,7 @@ and the value 0 MUST disable the event it governs. None of the three refuses a d
 
 | Setting | Default | Meaning |
 |---|---|---|
-| `attemptLimit` | the factor plus 2 | limit a call inherits where it supplies none; `FAIL-022` |
+| `attemptLimit` | the factor plus 2 | limit a call inherits where it supplies none; `CORE-048` |
 | `retryBudgetWindowMillis` | 10000 | accounting window for the retry budget |
 | `retryBudgetPercent` | 20 | retries permitted as a percentage of first attempts |
 | `retryBudgetMinimum` | 3 | retries permitted in the window regardless of the percentage |
@@ -3983,6 +3906,9 @@ and the value 0 MUST disable the event it governs. None of the three refuses a d
 
 `CFG-021`. `attemptLimit` MUST be at least 1. A limit of 0 MUST refuse construction, because a
 routing call that permits no attempt is a configuration defect rather than a load shedding policy.
+The setting belongs to `routing` rather than to `failover`. `CORE-046` makes the length of a
+decision's `entries` a function of the limit `CORE-048` resolves, so an implementation that exposes
+no attempt walk accepts the setting and resolves the limit the same way.
 
 `CFG-022`. The retry budget defaults permit a fifth of the first-attempt rate as retries, plus three
 retries in the window regardless. A cluster losing one replica of three therefore retries freely,
@@ -4027,35 +3953,26 @@ it will probably refuse. An integrator whose provider pushes promptly raises it.
 | `maxConcurrentHandoffs` | 4 | handoffs past `planned` and short of terminal, across the plan |
 | `maxConcurrentPerSourceNode` | 1 | the same bound per source node |
 | `maxConcurrentPerDestinationNode` | 1 | the same bound per destination node |
-| `initialStepBudget` | 1 | budget passed to the first `transfer` or `catchUp` of a handoff |
-| `minStepBudget` | 1 | floor for a reduced budget |
-| `maxStepBudget` | 64 | ceiling for an increased budget |
-| `budgetIncrement` | 1 | additive increase after a step that returns success |
+| `initialStepBudget` | 1 | budget passed to every `transfer` and `catchUp` |
 | `stepDeadlineMillis` | 30000 | deadline placed in a hook context |
 | `maxAttemptsPerStep` | 5 | retryable attempts before a step fails |
 | `retryBackoffBaseMillis` | 1000 | first retry backoff for a step |
 | `retryBackoffCapMillis` | 60000 | ceiling on the step retry backoff |
-| `cutoverGraceMillis` | 5000 | wait between `quiesce` and `commitCutover` under `advisory` |
 | `commitDeadlineMillis` | 30000 | deadline past which a `commitCutover` outcome is undetermined |
 | `catchUpResidualThreshold` | 0 | residue at or below which `catchingUp` reaches `cutover` |
 | `reTransferResidualThreshold` | the largest u64 | residue returning a handoff to `transferring` |
-| `requireLinearisableCutover` | true | whether `plan` refuses hooks that declare `advisory` |
 
-`CFG-051`. The budget defaults move one unit per step and grow by one after each success, so an
-integrator who has not measured their own `budgetUnit` gets a migration that starts slowly and finds
-its rate, rather than one that saturates a cluster on its first step.
+`CFG-051`. `initialStepBudget` defaults to 1, so an integrator who has not measured their own
+`budgetUnit` gets a migration that moves one unit per step rather than one that saturates a cluster
+on its first step.
 
 `CFG-052`. `catchUpResidualThreshold` defaults to 0, so a cutover happens only once the residue
 is empty. `reTransferResidualThreshold` defaults to the largest u64, so `catchingUp` never
 returns to `transferring` until an integrator chooses a threshold in their own unit. Both
 defaults satisfy `RATE-021`.
 
-`CFG-053`. `requireLinearisableCutover` defaults to true, so a plan built on hooks that cannot
-exclude two owners refuses rather than proceeds. An integrator who accepts the weaker guarantee sets
-it to false and reads the shortfall in every event under `MOVE-401`.
-
 `CFG-054`. An implementation MUST accept an optional `pressureGauge` under `RATE-061` and an
-optional `shardMetricsSource` under `SPLIT-021`, both defaulting to unset.
+optional `shardMetricsSource` under `OBS-036`, both defaulting to unset.
 
 ### Observability settings
 
@@ -4066,11 +3983,9 @@ optional `shardMetricsSource` under `SPLIT-021`, both defaulting to unset.
 | `metricsRegistry` | unset | the registry metrics are reported through under `OBS-004` |
 | `eventSink` | unset | the sink events are delivered to under `OBS-023` |
 | `shardLabelLimit` | 1024 | shard count at or below which a shard may be a label |
+| `nodeLabelLimit` | 1024 | distinct node identities at or below which a node may be a label |
 | `hotShardFactorPercent` | 400 | share of the expected share at which a shard is hot |
 | `keySkewPercent` | 50 | share of a shard's requests one key must draw to be reported as skew |
-| `splitAdviceBytes` | unset | shard size above which split advice is emitted |
-| `splitAdviceKeys` | unset | shard key count above which split advice is emitted |
-| `splitAdviceRequests` | unset | request count per interval above which advice is emitted |
 | `includeKeysInDiagnostics` | false | whether `detail` may carry key octets, `ERR-005` |
 
 `CFG-061`. `includeKeysInDiagnostics` defaults to false, so a key that is a tenant identifier, an
@@ -4081,8 +3996,10 @@ which forbids keys in events under every setting.
 Where `metricsRegistry` is unset it MUST hold the values internally under `OBS-004`. Neither absence
 may change behaviour beyond reporting.
 
-`CFG-063`. The split advice thresholds default to unset, so no advice is emitted until an operator
-states a threshold in the units their storage uses. An implementation MUST NOT choose one.
+`CFG-064`. `nodeLabelLimit` bounds the label cardinality a node identity contributes under
+`OBS-008`, as `shardLabelLimit` bounds the cardinality a shard identifier contributes under
+`OBS-003` above. The value 0 MUST mean that a node identity is never a label value, and `CFG-004`
+holds for both settings: neither changes a candidate ordering.
 
 ## Security and multi-tenancy
 
@@ -4174,12 +4091,11 @@ per-tenant budgets holds a router per tenant.
 `SEC-033`. An implementation MUST bound the cost of one routing call by `maxKeyBytes` under
 `CFG-013` and by the eligible node set, within the figures `PLACE-070` gives. The dominant term
 differs by strategy. Under `ring` and `slot` it is the key: one hash evaluation over at most
-`maxKeyBytes` octets, and a search logarithmic in the prepared structure. Under `range` and
-`directory` it is the authored table, searched by comparisons each reading at most `maxKeyBytes`
-octets, with no hash evaluation. Under `rendezvous` it is the eligible node set: `V` hash
-evaluations under `RV-003`, independent of the key beyond one framing. Under `slot` and `range`
-with `derived` assignment the eligible node set dominates preparation rather than the routing call,
-under `PLACE-072`. An implementation SHOULD index `exact` matchers of a `directory` table and an
+`maxKeyBytes` octets, and a search logarithmic in the prepared structure. Under `directory` it is
+the authored table, searched by comparisons each reading at most `maxKeyBytes` octets, with no hash
+evaluation. Under `rendezvous` it is the eligible node set: `V` hash evaluations under `RV-003`,
+independent of the key beyond one framing. An implementation SHOULD index `exact` matchers of a
+`directory` table and an
 `overrides` table so that matching cost does not grow linearly with the table for every key.
 
 `SEC-034`. An implementation MUST NOT allocate memory proportional to a caller-supplied value other

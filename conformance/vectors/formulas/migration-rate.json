@@ -2,137 +2,13 @@
   "vectorSet": "formulas-migration-rate",
   "kind": "formula",
   "level": "migration",
-  "description": "Step budget adjustment, retry backoff, and migration policy validation.",
+  "description": "Retry backoff and migration policy validation.",
   "requirements": [
     "MOVE-171",
     "RATE-021",
-    "RATE-041",
-    "RATE-051",
-    "RATE-101"
+    "RATE-051"
   ],
   "cases": [
-    {
-      "name": "budgetAfterSuccess/1-1-64",
-      "requirements": [
-        "RATE-041"
-      ],
-      "formula": "budgetAfterSuccess",
-      "inputs": {
-        "budget": 1,
-        "budgetIncrement": 1,
-        "maxStepBudget": 64
-      },
-      "expect": 2
-    },
-    {
-      "name": "budgetAfterSuccess/63-1-64",
-      "requirements": [
-        "RATE-041"
-      ],
-      "formula": "budgetAfterSuccess",
-      "inputs": {
-        "budget": 63,
-        "budgetIncrement": 1,
-        "maxStepBudget": 64
-      },
-      "expect": 64
-    },
-    {
-      "name": "budgetAfterSuccess/64-1-64",
-      "requirements": [
-        "RATE-041"
-      ],
-      "formula": "budgetAfterSuccess",
-      "inputs": {
-        "budget": 64,
-        "budgetIncrement": 1,
-        "maxStepBudget": 64
-      },
-      "expect": 64
-    },
-    {
-      "name": "budgetAfterSuccess/60-8-64",
-      "requirements": [
-        "RATE-041"
-      ],
-      "formula": "budgetAfterSuccess",
-      "inputs": {
-        "budget": 60,
-        "budgetIncrement": 8,
-        "maxStepBudget": 64
-      },
-      "expect": 64
-    },
-    {
-      "name": "budgetAfterDeferral/64-1",
-      "requirements": [
-        "RATE-041",
-        "RATE-101"
-      ],
-      "formula": "budgetAfterDeferral",
-      "inputs": {
-        "budget": 64,
-        "minStepBudget": 1
-      },
-      "note": "unsigned integer division, so 3 halves to 1 rather than to 2",
-      "expect": 32
-    },
-    {
-      "name": "budgetAfterDeferral/3-1",
-      "requirements": [
-        "RATE-041",
-        "RATE-101"
-      ],
-      "formula": "budgetAfterDeferral",
-      "inputs": {
-        "budget": 3,
-        "minStepBudget": 1
-      },
-      "note": "unsigned integer division, so 3 halves to 1 rather than to 2",
-      "expect": 1
-    },
-    {
-      "name": "budgetAfterDeferral/2-1",
-      "requirements": [
-        "RATE-041",
-        "RATE-101"
-      ],
-      "formula": "budgetAfterDeferral",
-      "inputs": {
-        "budget": 2,
-        "minStepBudget": 1
-      },
-      "note": "unsigned integer division, so 3 halves to 1 rather than to 2",
-      "expect": 1
-    },
-    {
-      "name": "budgetAfterDeferral/1-1",
-      "requirements": [
-        "RATE-041",
-        "RATE-101"
-      ],
-      "formula": "budgetAfterDeferral",
-      "inputs": {
-        "budget": 1,
-        "minStepBudget": 1
-      },
-      "note": "unsigned integer division, so 3 halves to 1 rather than to 2",
-      "expect": 1
-    },
-    {
-      "name": "budgetAfterDeferral/9-4",
-      "requirements": [
-        "RATE-041",
-        "RATE-101"
-      ],
-      "formula": "budgetAfterDeferral",
-      "inputs": {
-        "budget": 9,
-        "minStepBudget": 4
-      },
-      "note": "unsigned integer division, so 3 halves to 1 rather than to 2",
-      "expect": 4
-    },
     {
       "name": "retryBackoffMillis/1",
       "requirements": [
@@ -232,7 +108,7 @@
       "expect": 60000
     },
     {
-      "name": "policyRefused/1-64-0",
+      "name": "policyRefused/1-0-18446744073709551615",
       "requirements": [
         "RATE-021",
         "ERR-050",
@@ -241,15 +117,14 @@
       ],
       "formula": "policyRefused",
       "inputs": {
-        "minStepBudget": 1,
-        "maxStepBudget": 64,
+        "initialStepBudget": 1,
         "catchUpResidualThreshold": 0,
         "reTransferResidualThreshold": 18446744073709551615
       },
       "expect": []
     },
     {
-      "name": "policyRefused/0-64-0",
+      "name": "policyRefused/0-0-10",
       "requirements": [
         "RATE-021",
         "ERR-050",
@@ -258,17 +133,16 @@
       ],
       "formula": "policyRefused",
       "inputs": {
-        "minStepBudget": 0,
-        "maxStepBudget": 64,
+        "initialStepBudget": 0,
         "catchUpResidualThreshold": 0,
         "reTransferResidualThreshold": 10
       },
       "expect": [
-        "minStepBudgetZero"
+        "initialStepBudgetZero"
       ]
     },
     {
-      "name": "policyRefused/8-4-0",
+      "name": "policyRefused/1-10-10",
       "requirements": [
         "RATE-021",
         "ERR-050",
@@ -277,27 +151,7 @@
       ],
       "formula": "policyRefused",
       "inputs": {
-        "minStepBudget": 8,
-        "maxStepBudget": 4,
-        "catchUpResidualThreshold": 0,
-        "reTransferResidualThreshold": 10
-      },
-      "expect": [
-        "maxBelowMinStepBudget"
-      ]
-    },
-    {
-      "name": "policyRefused/1-64-10",
-      "requirements": [
-        "RATE-021",
-        "ERR-050",
-        "CFG-050",
-        "CFG-052"
-      ],
-      "formula": "policyRefused",
-      "inputs": {
-        "minStepBudget": 1,
-        "maxStepBudget": 64,
+        "initialStepBudget": 1,
         "catchUpResidualThreshold": 10,
         "reTransferResidualThreshold": 10
       },
@@ -306,7 +160,7 @@
       ]
     },
     {
-      "name": "policyRefused/1-64-10",
+      "name": "policyRefused/1-10-5",
       "requirements": [
         "RATE-021",
         "ERR-050",
@@ -315,12 +169,30 @@
       ],
       "formula": "policyRefused",
       "inputs": {
-        "minStepBudget": 1,
-        "maxStepBudget": 64,
+        "initialStepBudget": 1,
         "catchUpResidualThreshold": 10,
         "reTransferResidualThreshold": 5
       },
       "expect": [
+        "retransferThresholdNotAboveCatchUp"
+      ]
+    },
+    {
+      "name": "policyRefused/0-10-5",
+      "requirements": [
+        "RATE-021",
+        "ERR-050",
+        "CFG-050",
+        "CFG-052"
+      ],
+      "formula": "policyRefused",
+      "inputs": {
+        "initialStepBudget": 0,
+        "catchUpResidualThreshold": 10,
+        "reTransferResidualThreshold": 5
+      },
+      "expect": [
+        "initialStepBudgetZero",
         "retransferThresholdNotAboveCatchUp"
       ]
     }

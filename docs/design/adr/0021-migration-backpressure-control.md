@@ -1,6 +1,13 @@
 # 0021. Migration backpressure control
 
-Status: accepted. Date: 2026-09-16.
+Status: accepted, with the budget adjustment withdrawn by
+[`0057`](0057-step-budget-adjustment-withdrawal.md). Date: 2026-09-16.
+
+The concurrency bounds, the three pressure levels, the asymmetric response at `soft` and at `hard`,
+the `deferred` route, and the confinement of measurement to what the hooks report all stand. The
+additive increase and multiplicative decrease do not: they are arithmetic on a quantity the same
+record requires the library to treat as opaque, so `RATE-041` and the three policy members that
+configured it are withdrawn and `initialStepBudget` is passed unchanged to every step.
 
 ## Context
 

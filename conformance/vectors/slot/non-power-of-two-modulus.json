@@ -1,7 +1,7 @@
 {
   "vectorSet": "slot-non-power-of-two",
   "kind": "routing",
-  "level": "core",
+  "level": "place",
   "description": "`keyHash mod slotCount` at a slot count of 7, which a bitwise mask cannot reproduce.",
   "requirements": [
     "CORE-046",
@@ -12,7 +12,62 @@
     "SLOT-003"
   ],
   "topology": "topologies/slot-small.topology.json",
-  "topologyDigest": "fa02f2afdc8e8f2edb1b660264cbbcef0e508fbb4b8546e009d8116505912b6f",
+  "topologyDigest": "c6968798e55f3743abf417cf2c99ebfdb8b21cdf26eef4dcad13d4fab5eeafb6",
+  "topologyDocuments": {
+    "topologies/slot-small.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "slot-small",
+      "epoch": 1,
+      "replication": {
+        "factor": 1
+      },
+      "strategy": {
+        "kind": "slot",
+        "slotCount": 7,
+        "assignment": "explicit",
+        "assignments": [
+          {
+            "slots": [
+              "0-2"
+            ],
+            "nodes": [
+              "a",
+              "b"
+            ]
+          },
+          {
+            "slots": [
+              "3-4"
+            ],
+            "nodes": [
+              "b",
+              "c"
+            ]
+          },
+          {
+            "slots": [
+              "5-6"
+            ],
+            "nodes": [
+              "c",
+              "a"
+            ]
+          }
+        ]
+      },
+      "nodes": [
+        {
+          "id": "a"
+        },
+        {
+          "id": "b"
+        },
+        {
+          "id": "c"
+        }
+      ]
+    }
+  },
   "cases": [
     {
       "name": "modulus/0",
@@ -35,28 +90,22 @@
         "factor": 1,
         "replicaCount": 1,
         "candidates": [
-          "a",
-          "b",
-          "c"
+          "c",
+          "a"
         ],
         "preferenceList": [
           {
-            "node": "a",
+            "node": "c",
             "position": 0,
             "role": "replica"
           },
           {
-            "node": "b",
+            "node": "a",
             "position": 1,
-            "role": "fallback"
-          },
-          {
-            "node": "c",
-            "position": 2,
             "role": "fallback"
           }
         ],
-        "materialisedEntries": 3,
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -85,7 +134,6 @@
         "replicaCount": 1,
         "candidates": [
           "a",
-          "c",
           "b"
         ],
         "preferenceList": [
@@ -95,17 +143,12 @@
             "role": "replica"
           },
           {
-            "node": "c",
-            "position": 1,
-            "role": "fallback"
-          },
-          {
             "node": "b",
-            "position": 2,
+            "position": 1,
             "role": "fallback"
           }
         ],
-        "materialisedEntries": 3,
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -133,13 +176,12 @@
         "factor": 1,
         "replicaCount": 1,
         "candidates": [
-          "c",
-          "b",
-          "a"
+          "a",
+          "b"
         ],
         "preferenceList": [
           {
-            "node": "c",
+            "node": "a",
             "position": 0,
             "role": "replica"
           },
@@ -147,14 +189,9 @@
             "node": "b",
             "position": 1,
             "role": "fallback"
-          },
-          {
-            "node": "a",
-            "position": 2,
-            "role": "fallback"
           }
         ],
-        "materialisedEntries": 3,
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -183,7 +220,6 @@
         "replicaCount": 1,
         "candidates": [
           "c",
-          "b",
           "a"
         ],
         "preferenceList": [
@@ -193,17 +229,12 @@
             "role": "replica"
           },
           {
-            "node": "b",
-            "position": 1,
-            "role": "fallback"
-          },
-          {
             "node": "a",
-            "position": 2,
+            "position": 1,
             "role": "fallback"
           }
         ],
-        "materialisedEntries": 3,
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -232,7 +263,6 @@
         "replicaCount": 1,
         "candidates": [
           "c",
-          "b",
           "a"
         ],
         "preferenceList": [
@@ -242,17 +272,12 @@
             "role": "replica"
           },
           {
-            "node": "b",
-            "position": 1,
-            "role": "fallback"
-          },
-          {
             "node": "a",
-            "position": 2,
+            "position": 1,
             "role": "fallback"
           }
         ],
-        "materialisedEntries": 3,
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -281,7 +306,6 @@
         "replicaCount": 1,
         "candidates": [
           "a",
-          "c",
           "b"
         ],
         "preferenceList": [
@@ -291,17 +315,12 @@
             "role": "replica"
           },
           {
-            "node": "c",
-            "position": 1,
-            "role": "fallback"
-          },
-          {
             "node": "b",
-            "position": 2,
+            "position": 1,
             "role": "fallback"
           }
         ],
-        "materialisedEntries": 3,
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -329,13 +348,12 @@
         "factor": 1,
         "replicaCount": 1,
         "candidates": [
-          "a",
-          "c",
-          "b"
+          "b",
+          "c"
         ],
         "preferenceList": [
           {
-            "node": "a",
+            "node": "b",
             "position": 0,
             "role": "replica"
           },
@@ -343,14 +361,9 @@
             "node": "c",
             "position": 1,
             "role": "fallback"
-          },
-          {
-            "node": "b",
-            "position": 2,
-            "role": "fallback"
           }
         ],
-        "materialisedEntries": 3,
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -378,13 +391,12 @@
         "factor": 1,
         "replicaCount": 1,
         "candidates": [
-          "a",
-          "c",
-          "b"
+          "b",
+          "c"
         ],
         "preferenceList": [
           {
-            "node": "a",
+            "node": "b",
             "position": 0,
             "role": "replica"
           },
@@ -392,14 +404,9 @@
             "node": "c",
             "position": 1,
             "role": "fallback"
-          },
-          {
-            "node": "b",
-            "position": 2,
-            "role": "fallback"
           }
         ],
-        "materialisedEntries": 3,
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -427,13 +434,12 @@
         "factor": 1,
         "replicaCount": 1,
         "candidates": [
-          "c",
-          "b",
-          "a"
+          "a",
+          "b"
         ],
         "preferenceList": [
           {
-            "node": "c",
+            "node": "a",
             "position": 0,
             "role": "replica"
           },
@@ -441,14 +447,9 @@
             "node": "b",
             "position": 1,
             "role": "fallback"
-          },
-          {
-            "node": "a",
-            "position": 2,
-            "role": "fallback"
           }
         ],
-        "materialisedEntries": 3,
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -476,28 +477,22 @@
         "factor": 1,
         "replicaCount": 1,
         "candidates": [
-          "b",
-          "c",
-          "a"
+          "a",
+          "b"
         ],
         "preferenceList": [
           {
-            "node": "b",
+            "node": "a",
             "position": 0,
             "role": "replica"
           },
           {
-            "node": "c",
+            "node": "b",
             "position": 1,
-            "role": "fallback"
-          },
-          {
-            "node": "a",
-            "position": 2,
             "role": "fallback"
           }
         ],
-        "materialisedEntries": 3,
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -526,7 +521,6 @@
         "replicaCount": 1,
         "candidates": [
           "a",
-          "c",
           "b"
         ],
         "preferenceList": [
@@ -536,17 +530,12 @@
             "role": "replica"
           },
           {
-            "node": "c",
-            "position": 1,
-            "role": "fallback"
-          },
-          {
             "node": "b",
-            "position": 2,
+            "position": 1,
             "role": "fallback"
           }
         ],
-        "materialisedEntries": 3,
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -574,28 +563,22 @@
         "factor": 1,
         "replicaCount": 1,
         "candidates": [
-          "b",
-          "c",
-          "a"
+          "a",
+          "b"
         ],
         "preferenceList": [
           {
-            "node": "b",
+            "node": "a",
             "position": 0,
             "role": "replica"
           },
           {
-            "node": "c",
+            "node": "b",
             "position": 1,
-            "role": "fallback"
-          },
-          {
-            "node": "a",
-            "position": 2,
             "role": "fallback"
           }
         ],
-        "materialisedEntries": 3,
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -623,13 +606,12 @@
         "factor": 1,
         "replicaCount": 1,
         "candidates": [
-          "c",
-          "b",
-          "a"
+          "a",
+          "b"
         ],
         "preferenceList": [
           {
-            "node": "c",
+            "node": "a",
             "position": 0,
             "role": "replica"
           },
@@ -637,14 +619,9 @@
             "node": "b",
             "position": 1,
             "role": "fallback"
-          },
-          {
-            "node": "a",
-            "position": 2,
-            "role": "fallback"
           }
         ],
-        "materialisedEntries": 3,
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",
@@ -673,7 +650,6 @@
         "replicaCount": 1,
         "candidates": [
           "c",
-          "b",
           "a"
         ],
         "preferenceList": [
@@ -683,17 +659,12 @@
             "role": "replica"
           },
           {
-            "node": "b",
-            "position": 1,
-            "role": "fallback"
-          },
-          {
             "node": "a",
-            "position": 2,
+            "position": 1,
             "role": "fallback"
           }
         ],
-        "materialisedEntries": 3,
+        "materialisedEntries": 2,
         "relaxedLevels": [],
         "spreadStage": 0,
         "shortfall": "none",

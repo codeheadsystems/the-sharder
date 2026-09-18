@@ -15,8 +15,6 @@ ZERO_SEED = bytes(16)
 TAG_KEY = b"sharder/key/v1"
 TAG_RING_TOKEN = b"sharder/ring-token/v1"
 TAG_RENDEZVOUS = b"sharder/rendezvous/v1"
-TAG_SLOT = b"sharder/slot-rendezvous/v1"
-TAG_RANGE = b"sharder/range-rendezvous/v1"
 
 
 def u32be(value: int) -> bytes:
@@ -47,14 +45,6 @@ def ring_token(seed: bytes, node_id: bytes, index: int) -> int:
 
 def rv_score(seed: bytes, routing_key: bytes, node_id: bytes, index: int) -> int:
     return H(seed, TAG_RENDEZVOUS, routing_key, node_id, u32be(index))
-
-
-def slot_score(seed: bytes, slot_index: int, node_id: bytes, index: int) -> int:
-    return H(seed, TAG_SLOT, u32be(slot_index), node_id, u32be(index))
-
-
-def range_score(seed: bytes, shard_id: bytes, node_id: bytes, index: int) -> int:
-    return H(seed, TAG_RANGE, shard_id, node_id, u32be(index))
 
 
 def hex_u64(value: int) -> str:

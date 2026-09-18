@@ -276,122 +276,6 @@
       }
     },
     {
-      "name": "range-duplicate-shard-id",
-      "requirements": [
-        "TOPO-001",
-        "TOPO-011",
-        "TOPO-191",
-        "ERR-030"
-      ],
-      "document": "topologies/invalid/range-duplicate-shard-id.topology.json",
-      "stage": "semantic",
-      "note": "rejected at stage 3, the semantic rules of TOPO-001",
-      "expect": {
-        "valid": false,
-        "condition": {
-          "code": 201,
-          "name": "invalidTopology"
-        },
-        "rules": [
-          "duplicateShardId"
-        ],
-        "errors": [
-          {
-            "path": "strategy.ranges[1].shardId",
-            "rule": "duplicateShardId",
-            "detail": "r0"
-          }
-        ]
-      }
-    },
-    {
-      "name": "range-explicit-missing-nodes",
-      "requirements": [
-        "TOPO-001",
-        "TOPO-011",
-        "TOPO-191",
-        "ERR-030"
-      ],
-      "document": "topologies/invalid/range-explicit-missing-nodes.topology.json",
-      "stage": "semantic",
-      "note": "rejected at stage 3, the semantic rules of TOPO-001",
-      "expect": {
-        "valid": false,
-        "condition": {
-          "code": 201,
-          "name": "invalidTopology"
-        },
-        "rules": [
-          "missingNodesUnderExplicit"
-        ],
-        "errors": [
-          {
-            "path": "strategy.ranges[1].nodes",
-            "rule": "missingNodesUnderExplicit",
-            "detail": "r1"
-          }
-        ]
-      }
-    },
-    {
-      "name": "range-first-start-not-null",
-      "requirements": [
-        "TOPO-001",
-        "TOPO-011",
-        "TOPO-191",
-        "ERR-030"
-      ],
-      "document": "topologies/invalid/range-first-start-not-null.topology.json",
-      "stage": "semantic",
-      "note": "rejected at stage 3, the semantic rules of TOPO-001",
-      "expect": {
-        "valid": false,
-        "condition": {
-          "code": 201,
-          "name": "invalidTopology"
-        },
-        "rules": [
-          "firstStartNotNull"
-        ],
-        "errors": [
-          {
-            "path": "strategy.ranges[0].start",
-            "rule": "firstStartNotNull",
-            "detail": "00"
-          }
-        ]
-      }
-    },
-    {
-      "name": "range-gap",
-      "requirements": [
-        "TOPO-001",
-        "TOPO-011",
-        "TOPO-191",
-        "ERR-030"
-      ],
-      "document": "topologies/invalid/range-gap.topology.json",
-      "stage": "semantic",
-      "note": "rejected at stage 3, the semantic rules of TOPO-001",
-      "expect": {
-        "valid": false,
-        "condition": {
-          "code": 201,
-          "name": "invalidTopology"
-        },
-        "rules": [
-          "rangeGapOrOverlap"
-        ],
-        "errors": [
-          {
-            "path": "strategy.ranges[1].start",
-            "rule": "rangeGapOrOverlap",
-            "detail": "50"
-          }
-        ]
-      }
-    },
-    {
       "name": "ring-derived-carries-tokens",
       "requirements": [
         "TOPO-001",
@@ -830,32 +714,6 @@
       }
     },
     {
-      "name": "valid/movement-range-after",
-      "requirements": [
-        "TOPO-001"
-      ],
-      "document": "topologies/movement-range-after.topology.json",
-      "stage": "none",
-      "expect": {
-        "valid": true,
-        "rules": [],
-        "errors": []
-      }
-    },
-    {
-      "name": "valid/movement-range-before",
-      "requirements": [
-        "TOPO-001"
-      ],
-      "document": "topologies/movement-range-before.topology.json",
-      "stage": "none",
-      "expect": {
-        "valid": true,
-        "rules": [],
-        "errors": []
-      }
-    },
-    {
       "name": "valid/movement-ring-after",
       "requirements": [
         "TOPO-001"
@@ -908,32 +766,6 @@
       }
     },
     {
-      "name": "valid/movement-slot-after",
-      "requirements": [
-        "TOPO-001"
-      ],
-      "document": "topologies/movement-slot-after.topology.json",
-      "stage": "none",
-      "expect": {
-        "valid": true,
-        "rules": [],
-        "errors": []
-      }
-    },
-    {
-      "name": "valid/movement-slot-before",
-      "requirements": [
-        "TOPO-001"
-      ],
-      "document": "topologies/movement-slot-before.topology.json",
-      "stage": "none",
-      "expect": {
-        "valid": true,
-        "rules": [],
-        "errors": []
-      }
-    },
-    {
       "name": "valid/one-domain-relaxed",
       "requirements": [
         "TOPO-001"
@@ -965,32 +797,6 @@
         "TOPO-001"
       ],
       "document": "topologies/overrides-precedence.topology.json",
-      "stage": "none",
-      "expect": {
-        "valid": true,
-        "rules": [],
-        "errors": []
-      }
-    },
-    {
-      "name": "valid/range-derived",
-      "requirements": [
-        "TOPO-001"
-      ],
-      "document": "topologies/range-derived.topology.json",
-      "stage": "none",
-      "expect": {
-        "valid": true,
-        "rules": [],
-        "errors": []
-      }
-    },
-    {
-      "name": "valid/range-explicit",
-      "requirements": [
-        "TOPO-001"
-      ],
-      "document": "topologies/range-explicit.topology.json",
       "stage": "none",
       "expect": {
         "valid": true,
@@ -1134,19 +940,6 @@
         "TOPO-001"
       ],
       "document": "topologies/single-node.topology.json",
-      "stage": "none",
-      "expect": {
-        "valid": true,
-        "rules": [],
-        "errors": []
-      }
-    },
-    {
-      "name": "valid/slot-derived",
-      "requirements": [
-        "TOPO-001"
-      ],
-      "document": "topologies/slot-derived.topology.json",
       "stage": "none",
       "expect": {
         "valid": true,

@@ -1,7 +1,7 @@
 {
   "vectorSet": "placement-virtual-node-count",
   "kind": "formula",
-  "level": "core",
+  "level": "place",
   "description": "The virtual node count a weight yields under a per-unit multiplier and a cap.",
   "requirements": [
     "PLACE-050",

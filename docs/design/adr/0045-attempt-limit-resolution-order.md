@@ -1,6 +1,14 @@
 # 0045. Attempt limit resolution order
 
-Status: accepted. Date: 2026-09-17.
+Status: accepted, with the resolution rehomed from `FAIL-022` to `CORE-048` by
+[`0063`](0063-decision-api-surface-boundaries.md). Date: 2026-09-17.
+
+The two-level order stands, and so does every consequence below: the call before the setting, the
+setting reachable, `n + 2` where neither supplies a value, and one home for the rule. `0063` moves
+that home from `FAIL-022` to `CORE-048` so that the rule belongs to the `routing` surface, because
+`CORE-046` makes the length of a decision's `entries` a function of it and an implementation that
+exposes no attempt walk still produces one. `FAIL-022` keeps the clamp to the length of the attempt
+sequence. No value changes.
 
 ## Context
 
@@ -22,8 +30,8 @@ forbids `attempts` resolving it again, and a caller reads it.
 The setting is reachable, and the resolution has two levels rather than three.
 
 `FAIL-022` now states the whole resolution in one place: the limit in force is the value
-`RouteOptions` supplies where it supplies one, and otherwise the configured `attemptLimit` of
-`CFG-020`. Where the integrator configures no value, `CFG-020` supplies `n + 2` against the
+`RouteOptions` supplies where it supplies one, and otherwise the configured `attemptLimit`
+of `CFG-020`. Where the integrator configures no value, `CFG-020` supplies `n + 2` against the
 decision's effective replication factor. The resolved limit is clamped to the length of the attempt
 sequence. `FAIL-022` also forbids consulting the setting where the call supplies a limit, and
 forbids bypassing the setting where it does not.

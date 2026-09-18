@@ -21,7 +21,7 @@
         "outcome": "installed",
         "condition": null,
         "epochInForce": 1,
-        "digest": "b72298adeaee5522ec0fff88198278ea468425717bde86ee7363ed30b2e64f82"
+        "digest": "cd1f26b41f447f1d7007fafe9211a09ba8db1b8a78e9461f62c9a3c3d0568276"
       }
     },
     {
@@ -31,7 +31,7 @@
         "outcome": "installed",
         "condition": null,
         "epochInForce": 2,
-        "digest": "06406fb0a9b72820d7192cf560b299e846aa1bb8970f66ccb4fb825449ad97a9"
+        "digest": "88174beca86efc281ac17c76a28b20728055b2a526d2cd9a216a3ca5f2307bb8"
       }
     },
     {
@@ -45,7 +45,7 @@
           "detail": "an epoch below the epoch in force"
         },
         "epochInForce": 2,
-        "digest": "b72298adeaee5522ec0fff88198278ea468425717bde86ee7363ed30b2e64f82"
+        "digest": "cd1f26b41f447f1d7007fafe9211a09ba8db1b8a78e9461f62c9a3c3d0568276"
       }
     },
     {
@@ -55,7 +55,7 @@
         "outcome": "noop",
         "condition": null,
         "epochInForce": 2,
-        "digest": "06406fb0a9b72820d7192cf560b299e846aa1bb8970f66ccb4fb825449ad97a9"
+        "digest": "88174beca86efc281ac17c76a28b20728055b2a526d2cd9a216a3ca5f2307bb8"
       }
     },
     {
@@ -71,31 +71,32 @@
           "factor": 2
         },
         "strategy": {
-          "kind": "range",
+          "kind": "slot",
+          "slotCount": 3,
           "assignment": "explicit",
-          "ranges": [
+          "assignments": [
             {
-              "shardId": "r0",
-              "start": null,
-              "end": "40",
+              "slots": [
+                "0"
+              ],
               "nodes": [
                 "n1",
                 "n2"
               ]
             },
             {
-              "shardId": "r1",
-              "start": "40",
-              "end": "80",
+              "slots": [
+                "1"
+              ],
               "nodes": [
                 "n4",
                 "n3"
               ]
             },
             {
-              "shardId": "r2",
-              "start": "80",
-              "end": null,
+              "slots": [
+                "2"
+              ],
               "nodes": [
                 "n3",
                 "n1"
@@ -146,7 +147,7 @@
           "detail": "an equal epoch whose digest differs"
         },
         "epochInForce": 2,
-        "digest": "b4eff927cf1e3a7a0ec3e6f1cbebf13c71d24474d26ea9ca45032cc3e324e7a1"
+        "digest": "74972bc6ce126108d0287b7ee0385d77f0dbb86d5a3c442433de5b0c7f45a7de"
       }
     },
     {
@@ -162,31 +163,32 @@
           "factor": 2
         },
         "strategy": {
-          "kind": "range",
+          "kind": "slot",
+          "slotCount": 3,
           "assignment": "explicit",
-          "ranges": [
+          "assignments": [
             {
-              "shardId": "r0",
-              "start": null,
-              "end": "40",
+              "slots": [
+                "0"
+              ],
               "nodes": [
                 "n1",
                 "n2"
               ]
             },
             {
-              "shardId": "r1",
-              "start": "40",
-              "end": "80",
+              "slots": [
+                "1"
+              ],
               "nodes": [
                 "n4",
                 "n1"
               ]
             },
             {
-              "shardId": "r2",
-              "start": "80",
-              "end": null,
+              "slots": [
+                "2"
+              ],
               "nodes": [
                 "n3",
                 "n1"
@@ -244,17 +246,17 @@
         "outcome": "installed",
         "condition": null,
         "epochInForce": 5,
-        "digest": "428523c78b5b10cfd2ba60a31cb1c8cf5d484b52ffb0d803a4a9c7538662f697"
+        "digest": "5e8f44c72edd94e7aa528d96cfe6498d0ce328042df6127ab87b3ae30a9fd0ff"
       }
     },
     {
       "action": "route",
       "key": {
         "encoding": "base16",
-        "value": "50"
+        "value": "05"
       },
       "expect": {
-        "shard": "r1",
+        "shard": "1",
         "token": {
           "topologyId": "migration",
           "epoch": 5

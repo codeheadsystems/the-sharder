@@ -44,7 +44,6 @@
               "noDirectoryEntry",
               "pinExcludedAll",
               "noSlotEntry",
-              "noRangeEntry",
               "zeroVirtualNodes",
               "authoredListExcludedAll",
               "noEligibleTokenOwner"
@@ -165,9 +164,7 @@
               "epochNotAdvancing",
               "strategyUnsupported",
               "destinationOutsidePlacementSet",
-              "unalignedRanges",
-              "policyInvalid",
-              "guaranteeTooWeak"
+              "policyInvalid"
             ]
           },
           {
@@ -175,7 +172,7 @@
             "name": "quiesced",
             "retryable": "yes",
             "condition": "the shard is inside the cutover window",
-            "callerResponse": "retry after the window, which cutoverGraceMillis bounds",
+            "callerResponse": "retry after the window, which commitDeadlineMillis bounds",
             "causes": []
           },
           {

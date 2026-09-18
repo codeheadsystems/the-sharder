@@ -1,7 +1,7 @@
 {
   "vectorSet": "spread-degradation-ladder",
   "kind": "routing",
-  "level": "core",
+  "level": "place",
   "description": "Three spread levels, factor 4, and a node set that forces the relaxation ladder past stage 0.  Stage k of `SPREAD-010` enforces the finest m-k levels, which `SPREAD-018` makes equivalent to enforcing `spread[k]` alone, so the chosen stage is the coarsest level at which a full replica prefix exists.  `vectors/spread/relaxation-stages.json` records each stage separately.",
   "requirements": [
     "CORE-046",
@@ -22,6 +22,80 @@
   ],
   "topology": "topologies/spread-ladder.topology.json",
   "topologyDigest": "603a8ce1a2c447149b7076017b4997c1fd06b54e8e5c6d341d5612cc3e31a89e",
+  "topologyDocuments": {
+    "topologies/spread-ladder.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "spread-ladder",
+      "epoch": 1,
+      "domainLevels": [
+        "region",
+        "zone",
+        "rack"
+      ],
+      "replication": {
+        "factor": 4,
+        "spread": [
+          "region",
+          "zone",
+          "rack"
+        ],
+        "spreadPolicy": "relaxed"
+      },
+      "strategy": {
+        "kind": "rendezvous"
+      },
+      "nodes": [
+        {
+          "id": "eu-a-1",
+          "domains": {
+            "region": "eu",
+            "zone": "a",
+            "rack": "r1"
+          }
+        },
+        {
+          "id": "eu-a-2",
+          "domains": {
+            "region": "eu",
+            "zone": "a",
+            "rack": "r2"
+          }
+        },
+        {
+          "id": "eu-b-1",
+          "domains": {
+            "region": "eu",
+            "zone": "b",
+            "rack": "r1"
+          }
+        },
+        {
+          "id": "eu-b-2",
+          "domains": {
+            "region": "eu",
+            "zone": "b",
+            "rack": "r1"
+          }
+        },
+        {
+          "id": "us-a-1",
+          "domains": {
+            "region": "us",
+            "zone": "a",
+            "rack": "r1"
+          }
+        },
+        {
+          "id": "us-a-2",
+          "domains": {
+            "region": "us",
+            "zone": "a",
+            "rack": "r1"
+          }
+        }
+      ]
+    }
+  },
   "cases": [
     {
       "name": "ladder/0",

@@ -1,7 +1,7 @@
 {
   "vectorSet": "adversarial-weight-zero-all",
   "kind": "routing",
-  "level": "core",
+  "level": "place",
   "description": "Every node at weight 0: the candidate ordering is empty and the cause is `zeroVirtualNodes`.",
   "requirements": [
     "CORE-046",
@@ -13,6 +13,29 @@
   ],
   "topology": "topologies/weight-zero-all.topology.json",
   "topologyDigest": "9e6855e02d4144bbcbe86621349e28b53c029ca39766feea0351e6fe334fe884",
+  "topologyDocuments": {
+    "topologies/weight-zero-all.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "weight-zero-all",
+      "epoch": 1,
+      "replication": {
+        "factor": 1
+      },
+      "strategy": {
+        "kind": "rendezvous"
+      },
+      "nodes": [
+        {
+          "id": "z1",
+          "weight": 0
+        },
+        {
+          "id": "z2",
+          "weight": 0
+        }
+      ]
+    }
+  },
   "cases": [
     {
       "name": "all-weight-zero",

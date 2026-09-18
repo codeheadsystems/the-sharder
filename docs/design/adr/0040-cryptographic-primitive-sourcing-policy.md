@@ -6,8 +6,8 @@ Status: accepted. Date: 2026-09-16.
 
 The library computes two hashes. Stage 4 of `TOPO-001` takes SHA-256 over the RFC 8785 canonical
 form of a topology document to produce the digest of [`0008`](0008-json-canonical-serialisation.md).
-Every placement decision takes SipHash-2-4 over a framed, domain-tagged input under `HASH-001` and
-`HASH-030`.
+Every placement decision takes SipHash-2-4 over a framed, domain-tagged input under
+`HASH-001` and `HASH-030`.
 
 A hand-written cryptographic primitive fails in a particular way. It produces an answer that looks
 like the right shape, passes the author's own unit tests, and is wrong in a way that surfaces as a

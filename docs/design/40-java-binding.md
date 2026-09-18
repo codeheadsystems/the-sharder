@@ -9,6 +9,12 @@ requirement that constrains it.
 The reader is an implementer writing the Java port, an integrator reading the types before adopting
 them, and a reviewer checking that the port has not quietly changed the contract.
 
+Status: the Java binding does not exist. No source of the library, no Gradle build, no build check,
+and no published artifact has been written, and every type, task, module, gate, and benchmark below
+states what the port will carry rather than what one did. Where a figure below comes from a
+measurement, it comes from a prototype written to settle a decision record, and it names the record
+that states the conditions the measurement was taken under.
+
 ## Artifacts and modules
 
 ### Artifact set
@@ -21,8 +27,8 @@ alone; it appears in no artifact, package, or module name.
 |---|---|---|
 | `sharder-bom` | | a `java-platform` aligning the versions of the artifacts below |
 | `sharder-api` | `com.codeheadsystems.sharder` | the core model types, the extension point interfaces, the error taxonomy, the configuration records |
-| `sharder-core` | `com.codeheadsystems.sharder.core` | the hash, the document pipeline, the five strategies, routing, health, fencing, observability, the in-memory provider |
-| `sharder-migrate` | `com.codeheadsystems.sharder.migrate` | the handoff coordinator, the movement hooks, the migration policy, split and merge lineage |
+| `sharder-core` | `com.codeheadsystems.sharder.core` | the hash, the document pipeline, the four strategies, routing, health, fencing, observability, the in-memory provider |
+| `sharder-migrate` | `com.codeheadsystems.sharder.migrate` | the handoff coordinator, the movement hooks, the migration policy |
 | `sharder-provider-file` | `com.codeheadsystems.sharder.provider.file` | the static file reference provider |
 | `sharder-conformance` | `com.codeheadsystems.sharder.conformance` | the JUnit harness that drives the vectors |
 | `sharder-conformance-vectors` | | the `conformance/` tree packaged as classpath resources |
@@ -33,7 +39,7 @@ What each split lets a consumer avoid is the reason the split exists.
 | Split | The consumer avoids |
 |---|---|
 | `sharder-api` from `sharder-core` | A third-party topology provider, health view, or placement strategy compiles against the types alone. It gains no dependency on the routing engine, the JSON reader, or any core internal, and it does not recompile when a core internal changes. |
-| `sharder-migrate` from `sharder-core` | The handoff state machine, the movement hook types, the pressure gauge, and the split lineage classifier. An integrator routing a tenant identifier to one of five clusters depends on `sharder-core` and never sees a handoff type on the classpath or in an IDE completion list. |
+| `sharder-migrate` from `sharder-core` | The handoff state machine, the movement hook types, and the pressure gauge. An integrator routing a tenant identifier to one of five clusters depends on `sharder-core` and never sees a handoff type on the classpath or in an IDE completion list. |
 | `sharder-provider-file` from `sharder-core` | Filesystem access and a poll schedule. A deployment whose control plane pushes documents supplies its own provider or uses the in-memory provider in `sharder-core`, and reads no file. |
 | `sharder-conformance` from everything | The JUnit dependency. The harness is the only artifact that carries a test framework, and it is consumed at test scope by the port and by a third-party strategy author who runs the suite against their own build. |
 | `sharder-conformance-vectors` from `sharder-conformance` | A repository checkout. The harness resolves vectors from the classpath, so a downstream consumer runs the suite from published artifacts alone. |
@@ -44,10 +50,9 @@ control-plane integration both use.
 
 The ownership delta of `TOPO-211` lives in `sharder-core` rather than in `sharder-migrate`, because
 a delta is computed and published at snapshot installation under `MOVE-101` by an integrator who may
-never build a plan. Split advice and key skew detection under `SPLIT-021` to `SPLIT-051` and
-`OBS-030` to `OBS-035` live in `sharder-core` for the same reason: both consume a `ShardReport` and
-emit an event, and neither plans anything. The split lineage classification of `SPLIT-061` to
-`SPLIT-211` lives in `sharder-migrate`, because it exists to decide whether a plan is admissible.
+never build a plan. Hot-shard and key-skew detection under `OBS-030` to `OBS-036` live in
+`sharder-core` for the same reason: each consumes a `ShardReport` and emits an event, and neither
+plans anything.
 
 ### Gradle project structure
 
@@ -132,7 +137,7 @@ that carry behaviour or that an integrator implements are interfaces.
 | `com.codeheadsystems.sharder.observe` | api | Observability | `MetricsRegistry`, `Labels`, `MetricsView`, `EventSink`, `Event`, `Severity`, `ExplainRecord`, `Exclusion`, `ShardMetricsSource`, `ShardReport` |
 | `com.codeheadsystems.sharder.config` | api | Configuration surface | `RouterConfig`, `ProviderSettings`, `RoutingSettings`, `HealthSettings`, `FencingSettings`, `ObservabilitySettings`, `ConfigurationView` |
 | `com.codeheadsystems.sharder.core` | core | the whole of it | `Sharder`, `TopologyLoader`, `InMemoryTopologyProvider` |
-| `com.codeheadsystems.sharder.migrate` | migrate | Shard ownership handoff, Migration rate control, Range splits and merges | `HandoffCoordinator`, `MigrationPlan`, `MigrationPolicy`, `MovementHooks`, `HandoffContext`, `HandoffState`, `HandoffId`, `HookResult`, `CutoverResult`, `ObserveResult`, `StepOutcome`, `RebaseReport`, `RecoveryReport`, `ReobserveOutcome`, `PressureGauge` |
+| `com.codeheadsystems.sharder.migrate` | migrate | Shard ownership handoff, Migration rate control | `HandoffCoordinator`, `MigrationPlan`, `MigrationPolicy`, `MovementHooks`, `HandoffContext`, `HandoffState`, `HandoffId`, `HookResult`, `CutoverResult`, `ObserveResult`, `StepOutcome`, `RebaseReport`, `RecoveryReport`, `ReobserveOutcome`, `PressureGauge` |
 | `com.codeheadsystems.sharder.provider.file` | provider-file | Topology provider contract | `FileTopologyProvider` |
 | `com.codeheadsystems.sharder.conformance` | conformance | the conformance suite | `ConformanceSuite`, `VectorSource`, `VectorManifest`, `ConformanceLevel`, `ConformanceReport` |
 
@@ -148,12 +153,12 @@ compatibility rules of the release it belongs to.
 | `core.internal.hash` | `SipHash24`, `Frame`, `U64` |
 | `core.internal.json` | `JsonReader`, `JsonValue`, `JcsWriter` |
 | `core.internal.document` | `TopologyDocument`, `StructuralValidator`, `SemanticValidator` |
-| `core.internal.placement` | `RingPlacement`, `RendezvousPlacement`, `SlotPlacement`, `RangePlacement`, `DirectoryPlacement`, `Matchers`, `KeyTransforms` |
+| `core.internal.placement` | `RingPlacement`, `RendezvousPlacement`, `SlotPlacement`, `DirectoryPlacement`, `Matchers`, `KeyTransforms` |
 | `core.internal.route` | `DefaultRouter`, `OverrideTable`, `PreferenceListBuilder`, `SpreadLadder`, `DefaultAttemptSequence`, `RetryBudget` |
 | `core.internal.snapshot` | `SnapshotHolder`, `LoadPipeline`, `RetentionRing`, `ProviderDriver` |
 | `core.internal.health` | `SlidingWindowHealthView`, `Buckets`, `OutlierEjection` |
 | `core.internal.observe` | `MetricRecorder`, `EventEmitter`, `ExplainBuilder`, `SkewDetector` |
-| `migrate.internal` | `DefaultCoordinator`, `HandoffMachine`, `RateAdmission`, `RangeLineage` |
+| `migrate.internal` | `DefaultCoordinator`, `HandoffMachine`, `RateAdmission` |
 
 ## Integer widths
 
@@ -171,7 +176,7 @@ These quantities are unsigned 64-bit.
 |---|---|
 | `keyHash(rk)` and every framed hash output | `10-specification.md` notation, STAGE1 hash specification |
 | a ring token value, derived or decoded from `tokens` | `RING-003`, `RING-010` |
-| a rendezvous score, a slot score, a range score | `RV-003`, `SLOT-021`, `RANGE-031` |
+| a rendezvous score | `RV-003` |
 | `bulkRemaining`, `residue`, `reTransferResidualThreshold` | `MOVE-111`, `CFG-050` |
 
 The sanctioned operations are these, and no others.
@@ -249,7 +254,7 @@ exception and are `long`, for the reason "Exact product comparisons" below gives
 | `weight` | 1000000, `PLACE-040` |
 | `slotCount` | 1048576, `SLOT-001` |
 | a virtual node count | 65536, `PLACE-050` against `topology-v1.schema.json` |
-| `perWeightUnit` | 4096 under `ring`, 1024 under `rendezvous`, 1 under `slot` and `range` |
+| `perWeightUnit` | 4096 under `ring`, 1024 under `rendezvous` |
 | `factor`, `position`, `attemptLimit`, `unitsMoved` | bounded by the node count or the policy |
 | every `Millis` setting | bounded by `CFG-003` validation at construction |
 
@@ -269,7 +274,7 @@ Two products escape 32 bits and are computed in `long`.
 ### Exact product comparisons
 
 `CORE-005` requires four threshold comparisons to hold over the exact products: `HEALTH-034`,
-`FAIL-031`, `OBS-031`, and `SPLIT-041`. Their operand ranges differ, so one is evaluated in `long`
+`FAIL-031`, `OBS-031`, and `OBS-032`. Their operand ranges differ, so one is evaluated in `long`
 and three go through an unsigned 128-bit surface.
 
 `HEALTH-034` compares `(ejected + 1) * 100` against `maxEjectionPercent * placementSetSize`. Both
@@ -280,7 +285,7 @@ neither side reaches 2^38. Both are formed in `long` and compared with the signe
 boolean refused = (ejected + 1L) * 100L > (long) maxEjectionPercent * (long) placementSetSize;
 ```
 
-The other three do not fit. `OBS-031` and `SPLIT-041` take operands `SPLIT-021` types as u64, and
+The other three do not fit. `OBS-031` and `OBS-032` take operands `OBS-036` types as u64, and
 `FAIL-031` compares window counts that an accounting window of several days carries past 2^31, which
 is why the binding holds them as `long` rather than as `int`.
 
@@ -318,15 +323,15 @@ boolean permitted = U64.compareProductToSum(
 boolean hot = U64.compareProducts(
         shardRequests, (long) shardCount * 100L, totalRequests, hotShardFactorPercent) >= 0;
 
-// SPLIT-041
+// OBS-032
 boolean skewed = U64.compareProducts(
         hottestKeyRequests, 100L, requests, keySkewPercent) >= 0;
 ```
 
-`PLACE-051` and `PLACE-074` compare one product against one value rather than two products against
+`PLACE-051` and `PLACE-074` compare one value against one threshold rather than two products against
 each other, and each states the width it needs, so neither reaches a helper. `PLACE-051` is the
-`weight * perWeightUnit` above, and `PLACE-074` is the warning-threshold product of `PLACE-073`,
-computed in `long`.
+`weight * perWeightUnit` above, and `PLACE-074` is the warning-threshold total of `PLACE-073`,
+accumulated in `long`.
 
 ### Floating point
 
@@ -406,7 +411,7 @@ handles. Null crosses no API boundary, in either direction, and a record compone
 | a token's diagnostic digest absent | `FENCE-011` | `Optional<Digest>` |
 | `next` answering `exhausted` | `FAIL-023` | `Optional<NodeId>` |
 | `attemptLimit` unset | `CORE-030` | `OptionalInt` |
-| `report` answering with no report | `SPLIT-021` | `Optional<ShardReport>` |
+| `report` answering with no report | `OBS-036` | `Optional<ShardReport>` |
 
 Internal code uses a sentinel or a null field and neither escapes. The candidate cursor of the next
 section carries no `Optional`, because it is consumed once per candidate on the routing path.
@@ -433,7 +438,7 @@ is an enum.
 | `HealthState`, `Outcome`, `Relation`, `Ownership`, `HandoffState`, `Role` | enums |
 
 `TransferResult`, `CatchUpResult`, and `QuiesceResult` are written `HookResult plus { ... }` in
-`MOVE-111`. They compose rather than extend, because `HookResult` is sealed over records and a
+`MOVE-111`, and they compose rather than extend, because `HookResult` is sealed over records and a
 record is final.
 
 ```java
@@ -649,7 +654,7 @@ public record MatchedOverride(int index, OverrideMode mode) { }   // PIN, CONSTR
 
 `primary()` renders the `primary` member `CORE-040` declares and `CORE-042` constrains, as an
 accessor over the head of `entries` rather than as a second stored field. `attemptLimit` is the
-member `CORE-045` requires: the value `RouteOptions` supplied or that `FAIL-022` defaulted, carried
+member `CORE-045` requires: the value `RouteOptions` supplied or that `CORE-048` resolved, carried
 on the decision because `Router.attempts(decision)` has no other path to it and `CORE-041` forbids
 the router holding per-decision state.
 
@@ -806,8 +811,8 @@ public record Event(String name, long at, String topologyId, long epoch,
 `Labels` is a small fixed-arity value type rather than a `Map`, because a metric is recorded on the
 routing path and a map allocation per decision is not.
 
-An event reaches the sink synchronously, on the unit of execution that produced it, under
-`OBS-023`. The emitter wraps every sink call in a `catch (Throwable)`, counts the failure under
+An event reaches the sink synchronously, on the unit of execution that produced it, under `OBS-023`.
+The emitter wraps every sink call in a `catch (Throwable)`, counts the failure under
 `sharder.events.sink_failures`, and does not rethrow, so a defective sink cannot fail a routing
 call. This is one of two places the binding catches `Throwable`; the other is the provider boundary
 of `ERR-063`.
@@ -879,8 +884,7 @@ public record RebaseReport(long fromEpoch, long toEpoch, List<HandoffId> rebased
 ```
 
 `MovementHooks` is declared in `sharder-migrate` rather than in `sharder-api`, because only a
-consumer of `sharder-migrate` implements it. It carries `splitLocal` and `mergeLocal` from
-`SPLIT-141` on the same interface.
+consumer of `sharder-migrate` implements it.
 
 `step` takes the clock per call, as `MOVE-061` writes it, although the router already holds a
 monotonic source from `CORE-004`. `MOVE-062` makes the supplied clock the source the plan reads for
@@ -1026,8 +1030,8 @@ The features the design depends on, and the release that finalised each.
 | `HexFormat` | 17 | sixteen-digit token rendering, digest rendering, matcher `base16` decoding |
 | Pattern matching for `switch` | 21 | exhaustive handling of every sealed result type with no default branch |
 | Record patterns | 21 | destructuring a `CutoverResult` and a `StepOutcome` in one step |
-| `Arrays.compareUnsigned` | 9 | `PLACE-020` node identity comparison and `RANGE-001` bound comparison |
-| `Math.unsignedMultiplyHigh` | 18 | the exact product comparison of `FAIL-031`, `OBS-031`, `SPLIT-041` |
+| `Arrays.compareUnsigned` | 9 | `PLACE-020` node identity comparison |
+| `Math.unsignedMultiplyHigh` | 18 | the exact product comparison of `FAIL-031`, `OBS-031`, `OBS-032` |
 | `Long.compareUnsigned`, `Long.remainderUnsigned` | 8 | every unsigned 64-bit operation |
 
 Java 21 is a long-term-support release with a support window that outlasts several versions of this
@@ -1116,9 +1120,12 @@ cryptographic primitive protecting a secret.
 
 It is tuned rather than transcribed. Message words are loaded from the frame buffer through a
 `VarHandle` in little-endian order rather than assembled an octet at a time, and rotation is
-`Long.rotateLeft`. That form measured 29 nanoseconds per evaluation over the 67-octet `rvScore`
-frame of `HASH-030` on OpenJDK 25, against 49 for the octet-at-a-time form. Neither allocates, and
-the allocation gate under "Benchmarks" is what holds the tuned one to that.
+`Long.rotateLeft`. Measured on OpenJDK 25 on an AMD Ryzen 7 7840U, over the 67-octet `rvScore` frame
+of `HASH-030`, that form costs 29 nanoseconds per evaluation against 49 for the octet-at-a-time
+form; [`adr/0040`](adr/0040-cryptographic-primitive-sourcing-policy.md) states the conditions the 29
+was taken under and compares it with a library implementation. The figures are from a prototype
+rather than from this binding, which has not been written. Neither form allocates, and the
+allocation gate under "Benchmarks" is what will hold the tuned one to that.
 
 Bouncy Castle's `org.bouncycastle.crypto.macs.SipHash` is a third oracle for `HASH-003`, at test
 scope, under `adr/0040`. The reference table of the paper and
@@ -1225,8 +1232,8 @@ sized. The router registers the poll of `CFG-010` and the reconcile of `CFG-011`
 construction and cancels both in `close()`. Scheduling on a supplied executor is what `CORE-060`
 permits; creating one is what it forbids.
 
-Where `executor` is unset, the library polls nothing and advances no timer of its own, under
-`CORE-062`. Three calls are then the only path by which anything happens.
+Where `executor` is unset, the library polls nothing and advances no timer of its own under
+`CORE-062`, and three calls are then the only path by which anything happens.
 
 | Call | Drives |
 |---|---|
@@ -1302,7 +1309,13 @@ recognise produces one failing test that names the unrecognised value. It is nev
 a silently skipped vector family is a port that claims conformance it does not have.
 
 A vector for a level the binding declares out of scope is recorded as a declared exclusion in the
-conformance report, with the level and the declaration, and is not reported as a pass.
+conformance report, with the level and the declaration, and is not reported as a pass. A vector file
+or a case naming a placement strategy surface the binding does not expose is recorded the same way,
+against the surface rather than the level.
+
+The conformance report names the suite revision, from the `revision` member of the manifest it ran,
+and the conformance surfaces the binding exposes. `CORE-110` requires the second and
+[`30-conformance.md`](30-conformance.md#declaring-conformance) requires both.
 
 ### Suite kinds
 
@@ -1320,8 +1333,8 @@ of strings and the two serialisations are compared byte for byte.
 
 ### Property and simulation suites
 
-The bounds of `PROP-015`, `PROP-020`, `PROP-021`, `PROP-022`, and `PROP-023` are integer
-inequalities with stated sample sizes. The harness evaluates each one exactly as the specification
+The bounds of `PROP-015`, `PROP-020`, and `PROP-021` are integer inequalities with stated sample
+sizes. The harness evaluates each one exactly as the specification
 writes it, in `BigInteger` so that no product overflows, and applies no tolerance of its own.
 
 Sample keys come from a deterministic generator the vector names and seeds, not from
@@ -1354,8 +1367,12 @@ report with a line coverage floor, and the JUnit 5 platform.
 
 `check` runs the unit tests, the conformance suite at level core, `verifyDocLinks`,
 `verifyDocStyle`, `verifyUnsignedComparisons`, and the dependency check that fails a published POM
-carrying a compile or runtime dependency. All of it runs offline, needs no container runtime, and
-completes in seconds.
+carrying a compile or runtime dependency. Every one of them is chosen to run offline and without a
+container runtime, so `check` needs no network and no Docker daemon.
+
+`verifyDocStyle` is the one task in that list whose finding does not fail `check`. It prints its
+findings and exits zero, under [`adr/0062`](adr/0062-documentation-style-check-as-a-warning.md).
+Every other task in `check` fails the build on a finding.
 
 ### Documentation checks
 
@@ -1369,25 +1386,39 @@ Both documentation checks live in `buildSrc` and attach to the root project.
 - a requirement identifier of the form `PREFIX-NNN` names a requirement that
   [`10-specification.md`](10-specification.md) defines, and the prefix is one the prefix table
   declares;
-- an ADR reference names a file that exists under `docs/design/adr/`.
+- an ADR reference names a file that exists under `docs/design/adr/`;
+- no identifier appears both as a requirement definition and as a row of the withdrawal register,
+  which is what reusing a withdrawn number looks like;
+- a live document names no withdrawn identifier. The register rows themselves and the decision
+  records are the two places a withdrawn identifier resolves, under the Withdrawn identifiers
+  section of [`10-specification.md`](10-specification.md#withdrawn-identifiers), and the same rules
+  apply to the `OQ-*` register of [`90-open-questions.md`](90-open-questions.md#withdrawn-questions).
 
 Failures are reported with file, line, and the unresolved reference, and every failure is reported
-rather than the first.
+rather than the first. `conformance/generator/verify_withdrawals.py` carries the last two checks
+until the Gradle task exists, and `run.sh` runs it.
 
-`verifyDocStyle` refuses four things and no more.
+`verifyDocStyle` reports four things and no more.
 
-| Refusal | Rule |
+| Finding | Rule |
 |---|---|
 | dash convention | no em dash, no en dash used as a dash, no spaced double hyphen |
-| capitalised stress | a word of two or more capitals is refused unless it is in the acronym list in `buildSrc`, or is an RFC 2119 keyword inside `10-specification.md`, or is inside a code span or a code block |
+| capitalised stress | a word of two or more capitals is reported unless it is in the acronym list in `buildSrc`, or is an RFC 2119 keyword inside `10-specification.md`, or is inside a code span or a code block |
 | bold ceiling | the count of bold spans in a file is at or below a stated ceiling, and no bold span exceeds a stated word count |
 | argumentative headings | a heading carries no comma, no clause-joining conjunction, no question mark, no verb of judgement from the list in `buildSrc`, and no more than eight words |
+
+Each finding is printed with its file, its line, and the rule it names, and the task exits zero.
+Three of the four rules are judgements rather than facts about the tree, so a finding is a worklist
+entry for a reviewer rather than a verdict on a document.
+[`adr/0062`](adr/0062-documentation-style-check-as-a-warning.md) records why the two documentation
+checks carry different authority.
 
 Neither check has a per-line suppression. The acronym vocabulary and the judgement-verb vocabulary
 are lists in `buildSrc`, so teaching either one a new entry is a change somebody reviews.
 
-Register, justification, and terminology stay with the reviewer. Whether a sentence describes the
-design or argues for it is not a property a regular expression sees.
+Register, justification, and terminology stay with the reviewer, as does every rule of
+[`../maintain/style.md`](../maintain/style.md) that `verifyDocStyle` does not read. Whether a
+sentence describes the design or argues for it is not a property a regular expression sees.
 
 ### Unsigned comparison check
 
@@ -1429,7 +1460,9 @@ list, shows up as the gap between them, and a `Labels` turned into a `Map` shows
 
 The rendezvous shape is in the gate because it is where a per-evaluation allocation inside the hash
 is expensive: at 8000 evaluations per routing call, a `SipHash24` or a `Frame` that allocated once
-per evaluation would cost 256 kilobytes on one call. That cost surfaces as collector pressure rather
+per evaluation would cost 256 kilobytes on one call, which is the figure
+[`adr/0040`](adr/0040-cryptographic-primitive-sourcing-policy.md) measured for a Bouncy Castle
+instance constructed per evaluation. That cost surfaces as collector pressure rather
 than as latency, so the `route` benchmark above measures it at close to zero and only an allocation
 gate sees it.
 
@@ -1448,3 +1481,4 @@ gate sees it.
 | [`adr/0040-cryptographic-primitive-sourcing-policy.md`](adr/0040-cryptographic-primitive-sourcing-policy.md) | where a cryptographic primitive comes from, and the SipHash-2-4 exception |
 | [`adr/0041-exact-product-comparison-surface.md`](adr/0041-exact-product-comparison-surface.md) | the two exact wide comparisons, and the operand ranges that decide their width |
 | [`adr/0046-bounded-routing-decision-surface.md`](adr/0046-bounded-routing-decision-surface.md) | what a decision materialises, and the accessor that answers the rest |
+| [`adr/0062-documentation-style-check-as-a-warning.md`](adr/0062-documentation-style-check-as-a-warning.md) | which of the two documentation checks fails a build |

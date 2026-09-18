@@ -1,6 +1,13 @@
 # 0051. Recovery from an undetermined cutover
 
-Status: accepted. Date: 2026-09-17.
+Status: accepted, with the two carve-outs of `MOVE-233` withdrawn by
+[`0054`](0054-range-strategy-withdrawal.md) and
+[`0056`](0056-advisory-cutover-withdrawal.md). Date: 2026-09-17.
+
+Re-observation stands as this record decided it. Both exceptions it had to admit are gone with the
+surfaces that forced them: `SPLIT-171` excluded a handoff whose local split had succeeded, and
+`MOVE-235` refused a resumption at `cutover` under `advisory` hooks. Every handoff that reaches
+`failed` with the kind `undetermined` is now admissible, which is what this record wanted.
 
 ## Context
 

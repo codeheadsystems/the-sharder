@@ -1,13 +1,33 @@
 {
   "vectorSet": "keytransform-prefix-fields-2",
   "kind": "keyTransform",
-  "level": "core",
+  "level": "place",
   "description": "The `prefixFields` transform at a count of 2.",
   "requirements": [
     "KEY-041",
     "KEY-042",
     "KEY-044"
   ],
+  "topologyDocuments": {
+    "topologies/kt-prefix-2.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "kt-prefix-2",
+      "epoch": 1,
+      "keyTransform": {
+        "kind": "prefixFields",
+        "separator": "3a",
+        "count": 2
+      },
+      "strategy": {
+        "kind": "rendezvous"
+      },
+      "nodes": [
+        {
+          "id": "n1"
+        }
+      ]
+    }
+  },
   "cases": [
     {
       "name": "two-fields",

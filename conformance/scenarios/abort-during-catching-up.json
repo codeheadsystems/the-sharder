@@ -12,13 +12,13 @@
   "steps": [
     {
       "action": "handoffStep",
-      "handoff": "h-r1",
+      "handoff": "h-1",
       "trigger": "admittedByRatePolicy",
       "at": 1000,
       "expect": {
         "outcome": {
           "outcome": "advanced",
-          "id": "h-r1",
+          "id": "h-1",
           "fromState": "planned",
           "toState": "preparing"
         },
@@ -27,13 +27,13 @@
     },
     {
       "action": "handoffStep",
-      "handoff": "h-r1",
+      "handoff": "h-1",
       "trigger": "prepareSuccess",
       "at": 2000,
       "expect": {
         "outcome": {
           "outcome": "advanced",
-          "id": "h-r1",
+          "id": "h-1",
           "fromState": "preparing",
           "toState": "transferring"
         },
@@ -42,13 +42,13 @@
     },
     {
       "action": "handoffStep",
-      "handoff": "h-r1",
+      "handoff": "h-1",
       "trigger": "noBulkRemaining",
       "at": 3000,
       "expect": {
         "outcome": {
           "outcome": "advanced",
-          "id": "h-r1",
+          "id": "h-1",
           "fromState": "transferring",
           "toState": "catchingUp"
         },
@@ -57,7 +57,7 @@
     },
     {
       "action": "handoffAbort",
-      "handoff": "h-r1",
+      "handoff": "h-1",
       "reason": "operator requested",
       "at": 9000,
       "expect": {
@@ -70,7 +70,7 @@
     },
     {
       "action": "handoffAbort",
-      "handoff": "h-r1",
+      "handoff": "h-1",
       "reason": "again",
       "at": 9500,
       "note": "`MOVE-491`: an abort is idempotent",
@@ -84,13 +84,13 @@
     },
     {
       "action": "handoffStep",
-      "handoff": "h-r1",
+      "handoff": "h-1",
       "trigger": "rollbackSuccess",
       "at": 10000,
       "expect": {
         "outcome": {
           "outcome": "settled",
-          "id": "h-r1",
+          "id": "h-1",
           "terminalState": "aborted",
           "failureKind": null
         },

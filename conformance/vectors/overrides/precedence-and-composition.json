@@ -1,7 +1,7 @@
 {
   "vectorSet": "overrides-precedence-and-composition",
   "kind": "routing",
-  "level": "core",
+  "level": "place",
   "description": "Override matching, pinning, constraints, their composition, and the override replication factor.",
   "requirements": [
     "CORE-046",
@@ -37,6 +37,194 @@
   ],
   "topology": "topologies/overrides-precedence.topology.json",
   "topologyDigest": "f2609780f639e23c817877c929f2d1c28fc3605ef1a22d1ce09b8dbeb83f71fb",
+  "topologyDocuments": {
+    "topologies/overrides-precedence.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "overrides-precedence",
+      "epoch": 1,
+      "domainLevels": [
+        "region"
+      ],
+      "replication": {
+        "factor": 2
+      },
+      "strategy": {
+        "kind": "rendezvous"
+      },
+      "nodes": [
+        {
+          "id": "n-eu-1",
+          "domains": {
+            "region": "eu"
+          },
+          "tags": {
+            "tier": "gold"
+          }
+        },
+        {
+          "id": "n-eu-2",
+          "domains": {
+            "region": "eu"
+          },
+          "tags": {
+            "tier": "silver"
+          }
+        },
+        {
+          "id": "n-us-1",
+          "domains": {
+            "region": "us"
+          },
+          "tags": {
+            "tier": "gold"
+          }
+        },
+        {
+          "id": "n-us-2",
+          "domains": {
+            "region": "us"
+          },
+          "tags": {
+            "tier": "silver"
+          }
+        },
+        {
+          "id": "n-pin-1",
+          "domains": {
+            "region": "us"
+          }
+        },
+        {
+          "id": "n-pin-2",
+          "domains": {
+            "region": "eu"
+          }
+        },
+        {
+          "id": "n-gone",
+          "domains": {
+            "region": "eu"
+          },
+          "state": "leaving"
+        }
+      ],
+      "overrides": [
+        {
+          "match": {
+            "kind": "prefix",
+            "value": ""
+          },
+          "pin": [
+            "n-pin-1",
+            "n-pin-2"
+          ],
+          "note": "empty prefix, PLACE-063, loses to every longer prefix"
+        },
+        {
+          "match": {
+            "kind": "prefix",
+            "value": "ab",
+            "encoding": "base16"
+          },
+          "pin": [
+            "n-pin-2",
+            "n-pin-1"
+          ],
+          "note": "decodes to the single octet 0xab"
+        },
+        {
+          "match": {
+            "kind": "prefix",
+            "value": "abc"
+          },
+          "pin": [
+            "n-pin-2"
+          ],
+          "note": "three octets, beats the empty prefix"
+        },
+        {
+          "match": {
+            "kind": "exact",
+            "value": "abcd"
+          },
+          "constrain": {
+            "domains": {
+              "region": [
+                "eu"
+              ]
+            }
+          },
+          "factor": 1,
+          "note": "exact beats every prefix"
+        },
+        {
+          "match": {
+            "kind": "prefix",
+            "value": "tag-"
+          },
+          "constrain": {
+            "tags": {
+              "tier": [
+                "gold"
+              ]
+            }
+          }
+        },
+        {
+          "match": {
+            "kind": "prefix",
+            "value": "nodes-"
+          },
+          "constrain": {
+            "nodes": [
+              "n-us-1"
+            ]
+          }
+        },
+        {
+          "match": {
+            "kind": "prefix",
+            "value": "none-"
+          },
+          "constrain": {
+            "domains": {
+              "region": [
+                "antarctica"
+              ]
+            }
+          }
+        },
+        {
+          "match": {
+            "kind": "prefix",
+            "value": "gone-"
+          },
+          "pin": [
+            "n-gone"
+          ]
+        },
+        {
+          "match": {
+            "kind": "prefix",
+            "value": "both-"
+          },
+          "pin": [
+            "n-us-1",
+            "n-eu-1",
+            "n-us-2"
+          ],
+          "constrain": {
+            "domains": {
+              "region": [
+                "us"
+              ]
+            }
+          },
+          "note": "pin filtered by constraint"
+        }
+      ]
+    }
+  },
   "cases": [
     {
       "name": "exact-beats-prefix",

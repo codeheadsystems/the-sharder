@@ -1,13 +1,10 @@
 #!/usr/bin/env python3
-"""Generate vectors for the integer formulas and for range split lineage.
+"""Generate vectors for the integer formulas the specification states in closed form.
 
 The specification states a number of its rules as closed-form integer arithmetic: a truncating
 division, a strict comparison, a shift with a clamp.  A routing vector does not reach any of
 them, and a port that rounds where the specification truncates passes every placement vector and
 still ejects the wrong node.  Each case here is one evaluation of one formula.
-
-Range split lineage is derived from range bounds under `SPLIT-061` to `SPLIT-161`, which is a
-pure function of two documents, so it is a golden vector rather than a scenario.
 
     python3 generate_formulas.py [--out <conformance root>]
 """
@@ -20,7 +17,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
 from generate import write_json                                   # noqa: E402
-from sharder_ref import formulas, split                           # noqa: E402
+from sharder_ref import formulas                                 # noqa: E402
 from sharder_ref.topology import Snapshot                         # noqa: E402
 
 ENTRIES = []
@@ -135,7 +132,7 @@ def build_failover_formulas(root):
     for factor, length in [(1, 10), (3, 10), (3, 4), (1, 2), (5, 5), (1, 1)]:
         cases.append({
             "name": "defaultAttemptLimit/%d-%d" % (factor, length),
-            "requirements": ["FAIL-021", "FAIL-022"],
+            "requirements": ["CORE-048", "FAIL-021", "FAIL-022"],
             "formula": "defaultAttemptLimit",
             "inputs": {"factor": factor, "attemptSequenceLength": length},
             "note": "`n + 2`, clamped to the length of the attempt sequence",
@@ -149,7 +146,7 @@ def build_failover_formulas(root):
             "name": "resolvedAttemptLimit/%s-%s-%d-%d"
                     % ("none" if supplied is None else supplied,
                        "none" if configured is None else configured, factor, length),
-            "requirements": ["CORE-045", "FAIL-021", "FAIL-022", "CFG-020"],
+            "requirements": ["CORE-045", "CORE-048", "FAIL-021", "FAIL-022", "CFG-020"],
             "formula": "resolvedAttemptLimit",
             "inputs": {"routeOptionsAttemptLimit": supplied,
                        "configuredAttemptLimit": configured,
@@ -162,8 +159,8 @@ def build_failover_formulas(root):
     emit(root, "vectors/formulas/failover.json", "formulas-failover", "failover",
          "The retry budget, the default attempt limit, and the order in which a routing call "
          "resolves the limit it carries.",
-         ["CORE-005", "CORE-045", "FAIL-021", "FAIL-022", "FAIL-030", "FAIL-031", "FAIL-032",
-          "FAIL-033", "FAIL-034", "FAIL-035", "CFG-020", "CFG-021"], cases)
+         ["CORE-005", "CORE-045", "CORE-048", "FAIL-021", "FAIL-022", "FAIL-030", "FAIL-031",
+          "FAIL-032", "FAIL-033", "FAIL-034", "FAIL-035", "CFG-020", "CFG-021"], cases)
 
 
 def build_virtual_node_count_formulas(root):
@@ -180,31 +177,13 @@ def build_virtual_node_count_formulas(root):
             "expect": formulas.virtual_node_count(weight, per_unit, cap),
         })
     emit(root, "vectors/placement/virtual-node-count.json",
-         "placement-virtual-node-count", "core",
+         "placement-virtual-node-count", "place",
          "The virtual node count a weight yields under a per-unit multiplier and a cap.",
          ["PLACE-050", "PLACE-051", "PLACE-052"], cases)
 
 
 def build_rate_formulas(root):
     cases = []
-    for budget, increment, maximum in [(1, 1, 64), (63, 1, 64), (64, 1, 64), (60, 8, 64)]:
-        cases.append({
-            "name": "budgetAfterSuccess/%d-%d-%d" % (budget, increment, maximum),
-            "requirements": ["RATE-041"],
-            "formula": "budgetAfterSuccess",
-            "inputs": {"budget": budget, "budgetIncrement": increment,
-                       "maxStepBudget": maximum},
-            "expect": formulas.budget_after_success(budget, increment, maximum),
-        })
-    for budget, minimum in [(64, 1), (3, 1), (2, 1), (1, 1), (9, 4)]:
-        cases.append({
-            "name": "budgetAfterDeferral/%d-%d" % (budget, minimum),
-            "requirements": ["RATE-041", "RATE-101"],
-            "formula": "budgetAfterDeferral",
-            "inputs": {"budget": budget, "minStepBudget": minimum},
-            "note": "unsigned integer division, so 3 halves to 1 rather than to 2",
-            "expect": formulas.budget_after_deferral(budget, minimum),
-        })
     for attempt in [1, 2, 3, 6, 7, 8, 20]:
         cases.append({
             "name": "retryBackoffMillis/%d" % attempt,
@@ -214,20 +193,20 @@ def build_rate_formulas(root):
                        "retryBackoffCapMillis": 60000},
             "expect": formulas.retry_backoff_millis(attempt, 1000, 60000),
         })
-    for policy in [(1, 64, 0, 18446744073709551615), (0, 64, 0, 10), (8, 4, 0, 10),
-                   (1, 64, 10, 10), (1, 64, 10, 5)]:
+    for policy in [(1, 0, 18446744073709551615), (0, 0, 10), (1, 10, 10), (1, 10, 5),
+                   (0, 10, 5)]:
         cases.append({
-            "name": "policyRefused/%s" % "-".join(str(v) for v in policy[:3]),
+            "name": "policyRefused/%s" % "-".join(str(v) for v in policy),
             "requirements": ["RATE-021", "ERR-050", "CFG-050", "CFG-052"],
             "formula": "policyRefused",
-            "inputs": {"minStepBudget": policy[0], "maxStepBudget": policy[1],
-                       "catchUpResidualThreshold": policy[2],
-                       "reTransferResidualThreshold": policy[3]},
+            "inputs": {"initialStepBudget": policy[0],
+                       "catchUpResidualThreshold": policy[1],
+                       "reTransferResidualThreshold": policy[2]},
             "expect": formulas.policy_refused(*policy),
         })
     emit(root, "vectors/formulas/migration-rate.json", "formulas-migration-rate", "migration",
-         "Step budget adjustment, retry backoff, and migration policy validation.",
-         ["RATE-021", "RATE-041", "RATE-051", "RATE-101", "MOVE-171"], cases)
+         "Retry backoff and migration policy validation.",
+         ["RATE-021", "RATE-051", "MOVE-171"], cases)
 
 
 def build_skew_formulas(root):
@@ -235,7 +214,7 @@ def build_skew_formulas(root):
     for shard_requests, shard_count, total, percent in [
         (100, 10, 1000, 400), (400, 10, 1000, 400), (399, 10, 1000, 400),
         (1, 1, 1, 400), (0, 16384, 1000000, 400),
-        # `CORE-005`: both products exceed 64 bits at the declared u64 range of `SPLIT-021`.
+        # `CORE-005`: both products exceed 64 bits at the declared u64 range of `OBS-036`.
         (2 ** 50, 1048576, 2 ** 63, 400), (2 ** 40, 1048576, 2 ** 63, 400),
         (2 ** 63 - 1, 1048576, 2 ** 64 - 1, 400),
     ]:
@@ -253,16 +232,16 @@ def build_skew_formulas(root):
                                        (2 ** 62, 2 ** 64 - 1, 50)]:
         cases.append({
             "name": "keySkew/%d-%d" % (hottest, requests),
-            "requirements": ["CORE-005", "SPLIT-041", "OBS-032"],
+            "requirements": ["CORE-005", "OBS-032"],
             "formula": "keySkew",
             "inputs": {"hottestKeyRequests": hottest, "requests": requests,
                        "keySkewPercent": percent},
-            "note": "a shard showing key skew is marked as not addressable by a split",
+            "note": "the left-hand side reaches 71 bits, so a 64-bit product is not conforming",
             "expect": formulas.key_skew(hottest, requests, percent),
         })
     emit(root, "vectors/formulas/skew-detection.json", "formulas-skew-detection", "core",
          "Hot shard detection and key skew detection.",
-         ["CORE-005", "OBS-031", "OBS-032", "OBS-033", "SPLIT-041"], cases)
+         ["CORE-005", "OBS-031", "OBS-032", "OBS-033"], cases)
 
 
 def build_fencing_token_formulas(root):
@@ -284,104 +263,6 @@ def build_fencing_token_formulas(root):
          ["FENCE-001", "FENCE-021", "FENCE-031"], cases)
 
 
-# ------------------------------------------------------------------ split lineage
-
-def range_document(topology_id, epoch, ranges):
-    return {
-        "formatVersion": "1.0",
-        "topologyId": topology_id,
-        "epoch": epoch,
-        "replication": {"factor": 2},
-        "strategy": {"kind": "range", "assignment": "explicit", "ranges": ranges},
-        "nodes": [{"id": "n1"}, {"id": "n2"}, {"id": "n3"}],
-    }
-
-
-PARENT = range_document("lineage", 1, [
-    {"shardId": "a", "start": None, "end": "80", "nodes": ["n1", "n2"]},
-    {"shardId": "b", "start": "80", "end": None, "nodes": ["n2", "n3"]},
-])
-
-SPLIT_TARGET = range_document("lineage", 2, [
-    {"shardId": "a0", "start": None, "end": "40", "nodes": ["n1", "n2"]},
-    {"shardId": "a1", "start": "40", "end": "80", "nodes": ["n3", "n2"]},
-    {"shardId": "b", "start": "80", "end": None, "nodes": ["n2", "n3"]},
-])
-
-MERGE_TARGET = range_document("lineage", 3, [
-    {"shardId": "whole", "start": None, "end": None, "nodes": ["n1", "n2"]},
-])
-
-UNALIGNED_TARGET = range_document("lineage", 4, [
-    {"shardId": "a", "start": None, "end": "90", "nodes": ["n1", "n2"]},
-    {"shardId": "b", "start": "90", "end": None, "nodes": ["n2", "n3"]},
-])
-
-LOCAL_ONLY_TARGET = range_document("lineage", 5, [
-    {"shardId": "a0", "start": None, "end": "40", "nodes": ["n1", "n2"]},
-    {"shardId": "a1", "start": "40", "end": "80", "nodes": ["n1", "n2"]},
-    {"shardId": "b", "start": "80", "end": None, "nodes": ["n2", "n3"]},
-])
-
-
-def replica_sets(document):
-    return {entry["shardId"]: entry["nodes"][:document["replication"]["factor"]]
-            for entry in document["strategy"]["ranges"]}
-
-
-def build_split_lineage(root):
-    cases = []
-    write_json(root / "topologies/lineage-parent.topology.json", PARENT)
-    before = Snapshot(PARENT)
-    for label, target, path, note in [
-        ("split", SPLIT_TARGET, "lineage-split",
-         "shard `a` is replaced by two children covering it exactly; `a1` gains n3"),
-        ("merged", MERGE_TARGET, "lineage-merged",
-         "both shards are contained in one target shard"),
-        ("unaligned", UNALIGNED_TARGET, "lineage-unaligned",
-         "the boundary moved from 0x80 to 0x90, which is neither a split nor a merge"),
-        ("split-local-only", LOCAL_ONLY_TARGET, "lineage-split-local-only",
-         "`SPLIT-161`: the children keep the parent's replica set, so the split is a local step "
-         "with no handoff"),
-    ]:
-        write_json(root / ("topologies/%s.topology.json" % path), target)
-        after = Snapshot(target)
-        rows = split.classify(before, after)
-        verdict = split.plannable(rows)
-        steps = split.decompose(rows, replica_sets(PARENT), replica_sets(target))
-        cases.append({
-            "name": label,
-            "requirements": ["SPLIT-061", "SPLIT-071", "SPLIT-081", "SPLIT-091", "SPLIT-101",
-                             "SPLIT-111", "SPLIT-121", "SPLIT-131", "SPLIT-161"],
-            "before": "topologies/lineage-parent.topology.json",
-            "after": "topologies/%s.topology.json" % path,
-            "note": note,
-            "expect": {"classifications": rows, "planVerdict": verdict, "decomposition": steps},
-        })
-
-    cases.append({
-        "name": "unsupported-strategies",
-        "requirements": ["SPLIT-001", "MOVE-241", "MOVE-251", "ERR-050"],
-        "note": "`SPLIT-001`: split and merge are available under `range` alone, and a strategy "
-                "that enumerates no shard supports no orchestrated migration at all.",
-        "expect": {
-            "splitSupported": {"range": True, "ring": False, "rendezvous": False,
-                               "slot": False, "directory": False},
-            "orchestratedMigrationSupported": {"ring": True, "slot": True, "range": True,
-                                               "directory": True, "rendezvous": False},
-            "planRefusalCause": "strategyUnsupported",
-            "condition": {"code": 401, "name": "planRefused", "cause": "strategyUnsupported"},
-        },
-    })
-
-    emit(root, "vectors/split/lineage.json", "split-lineage", "migration",
-         "Range split and merge lineage derived from bounds, the classification of each source "
-         "shard, the plan verdict, and the step decomposition each classification implies.",
-         ["SPLIT-001", "SPLIT-011", "SPLIT-061", "SPLIT-071", "SPLIT-081", "SPLIT-091",
-          "SPLIT-101", "SPLIT-111", "SPLIT-121", "SPLIT-131", "SPLIT-161", "SPLIT-171",
-          "MOVE-241", "MOVE-251", "ERR-050"], cases)
-
-
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--out", default=str(HERE.parent))
@@ -394,9 +275,8 @@ def main():
     build_rate_formulas(root)
     build_skew_formulas(root)
     build_fencing_token_formulas(root)
-    build_split_lineage(root)
 
-    print("wrote %d formula and lineage vector files, %d cases"
+    print("wrote %d formula vector files, %d cases"
           % (len(ENTRIES), sum(e["caseCount"] for e in ENTRIES)))
     return 0
 

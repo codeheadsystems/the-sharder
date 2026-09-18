@@ -8,6 +8,12 @@ payload a topology provider delivers. The machine-readable schema is
 The serialisation is JSON. A provider may accept another surface syntax, such as YAML, and converts
 it to JSON before the sharder library validates or digests it.
 
+Status: no implementation of the sharder library exists. The format, the schema, and the rules below
+are stated for an implementation to satisfy, and the only code that reads them today is the
+conformance generator under [`../../conformance/generator/`](../../conformance/generator/). The
+tenant routing and cache cluster examples below are reproduced as suite topologies, which
+`verify_schema.py` validates against the published schema; the storage cluster example is not.
+
 ## Document structure
 
 A document is a JSON object with eleven possible members, five of which are required.
@@ -62,8 +68,8 @@ present so that cleanup can be sequenced after it has stopped owning anything. N
 candidate ordering.
 
 `weight` is the node's share of capacity in weight units. A node of weight 0 is in the placement set
-but receives no keys from the hash strategies. Weight is advisory under `slot` and `range` with
-explicit assignment, where the assignment itself is authoritative.
+but receives no keys from the hash strategies. Weight is advisory under `slot`, where the assignment
+itself is authoritative.
 
 `domains` holds one entry for each name in `domainLevels`, giving the node's failure domain path.
 
@@ -132,26 +138,20 @@ which is `:`, and `count` of 1, the key `acme:orders:99` gives the routing key `
 
 ## Strategy configuration
 
-The `strategy` member selects one of five kinds and configures it. Placement arithmetic for each
+The `strategy` member selects one of four kinds and configures it. Placement arithmetic for each
 kind is specified in [`10-specification.md`](10-specification.md); the fields are given here.
 
-Three kinds carry a member that selects between a derived assignment and an authored one, and each
-has its own default.
+Two kinds carry a member naming their assignment, and each has its own default.
 
-| Kind | Member | Mode where the member is absent |
-|---|---|---|
-| `ring` | `tokenAssignment` | `derived` |
-| `slot` | `assignment` | `derived` |
-| `range` | `assignment` | `explicit` |
+| Kind | Member | Modes | Mode where the member is absent |
+|---|---|---|---|
+| `ring` | `tokenAssignment` | `derived`, `explicit` | `derived` |
+| `slot` | `assignment` | `explicit` | `explicit` |
 
-The defaults follow the shape of a document that carries nothing beyond the members its kind
-requires. A `ring` or `slot` document requires no authored assignment at all, so an absent member
-names no owners and the owners are derived. A `range` document requires `ranges`, and a range is
-authored with the `nodes` member that names its owners, so an absent member leaves that authored
-list in force. The validation rules refuse the mismatched document in both directions: a `slot`
-document carrying `assignments` under `derived` is invalid, and a `range` document omitting `nodes`
-under `explicit` is invalid, so a document whose author meant the other mode is rejected rather than
-routed against the wrong one.
+A `ring` document requires `kind` alone, so an absent `tokenAssignment` names no owners and the
+owners are derived. A `slot` document names its owners in `assignments`, which is the only
+assignment the kind carries, so the member is present for symmetry with `ring` and takes one
+value.
 
 ### Ring strategy
 
@@ -198,30 +198,9 @@ scoring slots, and its score for a routing key is the largest score among them.
 ```
 
 A slot identifier is the key hash reduced modulo `slotCount`. A slot range string is either a single
-slot index or an inclusive `low-high` pair. Under `explicit` assignment, each slot appears in
-exactly one entry, and that entry's `nodes` array is the candidate ordering for the slot. Under
-`derived` assignment, `assignments` is absent and the candidate ordering for a slot is the
-rendezvous ordering of the placement set over the slot identifier.
-
-### Range strategy
-
-```json
-"strategy": {
-  "kind": "range",
-  "assignment": "explicit",
-  "ranges": [
-    { "shardId": "r0", "start": null, "end": "6d", "nodes": ["n1", "n2"] },
-    { "shardId": "r1", "start": "6d", "end": null, "nodes": ["n2", "n3"] }
-  ]
-}
-```
-
-Ranges are half-open intervals over raw key bytes under unsigned bytewise ordering, given as
-lowercase hexadecimal. A `null` start is the beginning of the keyspace and a `null` end is its end.
-Ranges are listed in ascending order, are contiguous, and cover the whole keyspace. A range split is
-a document edit that replaces one range with two whose bounds meet at the split point; a merge is
-the reverse. Under `derived` assignment the `nodes` member is absent and the candidate ordering for
-a range is the rendezvous ordering of the placement set over the `shardId`.
+slot index or an inclusive `low-high` pair. Each slot appears in exactly one entry, and that entry's
+`nodes` array is the candidate ordering for the slot. An authority outside the library owns the map
+and republishes it as a new epoch.
 
 ### Directory strategy
 
@@ -317,7 +296,7 @@ file extension is `.topology.json`.
 
 ### Strategy extension
 
-The published schema covers the five core strategy kinds. An implementation that registers a
+The published schema covers the four core strategy kinds. An implementation that registers a
 strategy of its own validates the `strategy` member against a schema extended locally with that
 kind's branch, and a topology naming a kind the implementation has not registered is invalid.
 Conformance vectors use core kinds only, so a custom kind is compatible across two ports only as far
@@ -356,21 +335,17 @@ Failure domain rules.
 
 Strategy rules.
 
+- `strategy.kind` names a strategy the reader exposes. A reader that does not expose a kind refuses
+  the document under `CORE-112` rather than placing a key under another kind, and the refusal names
+  the rule `unsupportedStrategy` at `strategy.kind`.
 - `ring` with `tokenAssignment` of `explicit` carries no `tokensPerWeightUnit` and no
   `maxTokensPerNode`, and every placement-set node of non-zero weight carries at least one token.
   Token values are unique across the whole document.
 - `ring` with `tokenAssignment` of `derived` carries no `tokens` member on any node.
-- `slot` with `assignment` of `explicit` covers every slot index from 0 to `slotCount - 1` exactly
-  once, and every slot range has `low` no greater than `high` and `high` below `slotCount`.
-- `slot` with `assignment` of `derived` carries no `assignments` member.
-- `range` ranges are listed in ascending order of `start`, the first `start` is `null`, the last
-  `end` is `null`, each `end` equals the following `start`, and each non-null `start` is strictly
-  less than its non-null `end` under unsigned bytewise comparison.
-- `range` shard identifiers are unique.
-- `range` with `assignment` of `derived` carries no `nodes` member on any range.
-- `range` with `assignment` of `explicit` carries a `nodes` member on every range.
-- Every node identity referenced by an assignment, a range, a directory entry, or an override exists
-  in `nodes`.
+- `slot` covers every slot index from 0 to `slotCount - 1` exactly once, and every slot range has
+  `low` no greater than `high` and `high` below `slotCount`.
+- Every node identity referenced by an assignment, a directory entry, or an override exists in
+  `nodes`.
 
 Matcher rules.
 

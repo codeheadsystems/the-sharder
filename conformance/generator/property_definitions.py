@@ -118,8 +118,8 @@ PROPERTIES = [
         "statement": "On the addition of node x, the first candidate of every key is either its "
                      "first candidate before the addition or x.  On removal, every key whose "
                      "first candidate was not x keeps it.",
-        "quantifier": "for the derived configurations of ring, rendezvous, slot, and range, and "
-                      "every key of the sample",
+        "quantifier": "for the derived configurations of ring and rendezvous, and every key of "
+                      "the sample",
         "sample": dict(SAMPLE, count=10000),
         "check": {"form": "membership",
                   "statement": "firstCandidateAfter in { firstCandidateBefore, x }"},
@@ -130,8 +130,7 @@ PROPERTIES = [
         "name": "Movement fraction under scoring strategies",
         "requirements": ["PROP-006", "PROP-013", "PROP-015"],
         "level": "core",
-        "statement": "Under rendezvous, slot with derived assignment, and range with derived "
-                     "assignment, the fraction of keys that change first candidate is "
+        "statement": "Under rendezvous, the fraction of keys that change first candidate is "
                      "v_x / (V + v_x) on addition and v_x / V on removal.",
         "quantifier": "over the sample, per topology pair",
         "sample": dict(SAMPLE, count="10000 * p_den / p_num, rounded up"),
@@ -172,8 +171,8 @@ PROPERTIES = [
         "statement": "The candidate ordering after adding x, with x deleted from it, equals the "
                      "candidate ordering before adding x.  The whole ordering is preserved, not "
                      "only its first entry.",
-        "quantifier": "for the derived configurations of ring, rendezvous, slot, and range, and "
-                      "every key of the sample",
+        "quantifier": "for the derived configurations of ring and rendezvous, and every key of "
+                      "the sample",
         "sample": dict(SAMPLE, count=10000),
         "check": {"form": "equality",
                   "left": "the ordering after, with x removed",
@@ -188,8 +187,8 @@ PROPERTIES = [
         "statement": "Raising node x's weight moves keys only to x, and a key whose first "
                      "candidate was x keeps x.  Lowering a weight is the same statement with the "
                      "two documents exchanged.",
-        "quantifier": "for the derived configurations of ring, rendezvous, slot, and range, and "
-                      "every key of the sample",
+        "quantifier": "for the derived configurations of ring and rendezvous, and every key of "
+                      "the sample",
         "sample": dict(SAMPLE, count=10000),
         "check": {"form": "membership",
                   "statement": "firstCandidateAfter in { firstCandidateBefore, x }, and "
@@ -201,9 +200,9 @@ PROPERTIES = [
         "name": "Shard stability under membership change",
         "requirements": ["PROP-016", "PROP-017", "PROP-018", "SLOT-004"],
         "level": "core",
-        "statement": "Under slot, range, rendezvous, and directory, adding or removing a node "
-                     "changes no key's shard.  Under ring it may, and where it does the new "
-                     "value is one of the added node's tokens.",
+        "statement": "Under slot, rendezvous, and directory, adding or removing a node changes "
+                     "no key's shard.  Under ring it may, and where it does the new value is "
+                     "one of the added node's tokens.",
         "quantifier": "for every topology pair and every key of the sample",
         "sample": dict(SAMPLE, count=10000),
         "check": {"form": "equality",
@@ -256,59 +255,14 @@ PROPERTIES = [
         "witness": "vectors/properties/witnesses.json#balance-ring-256-tokens",
     },
     {
-        "id": "P-BALANCE-003",
-        "name": "Slot derived balance band",
-        "requirements": ["PROP-022", "PROP-024", "PROP-033"],
-        "level": "core",
-        "statement": "The bound of P-BALANCE-001 holds with the sample replaced by the set of "
-                     "all slots and c_i replaced by the count of slots whose candidate ordering "
-                     "begins with node i.",
-        "quantifier": "for every eligible node, over every slot of the topology",
-        "sample": {"generator": "allSlots",
-                   "count": "slotCount, which satisfies slotCount * v_min >= 10000 * V"},
-        "check": {"form": "integerBound",
-                  "inequality": "20 * |c_i * V - slotCount * v_i| <= slotCount * v_i",
-                  "terms": {"c_i": "count of slots whose ordering begins with node i",
-                            "v_i": "node i's virtual node count", "V": "sum of v_j"},
-                  "precondition": "slotCount * v_min >= 10000 * V",
-                  "band": "five per cent"},
-        "witness": "vectors/properties/witnesses.json#balance-slot-derived",
-    },
-    {
-        "id": "P-BALANCE-004",
-        "name": "Range derived balance band",
-        "requirements": ["PROP-023", "PROP-026"],
-        "level": "core",
-        "statement": "The bound of P-BALANCE-001 holds with the sample replaced by the set of "
-                     "all ranges and c_i replaced by the count of ranges whose candidate "
-                     "ordering begins with node i.",
-        "quantifier": "for every eligible node, over every range of the topology",
-        "sample": {"generator": "allRanges",
-                   "count": "the range count, which must satisfy rangeCount * v_min >= "
-                            "10000 * V"},
-        "check": {"form": "integerBound",
-                  "inequality": "20 * |c_i * V - rangeCount * v_i| <= rangeCount * v_i",
-                  "terms": {"c_i": "count of ranges whose ordering begins with node i",
-                            "v_i": "node i's virtual node count", "V": "sum of v_j"},
-                  "precondition": "rangeCount * v_min >= 10000 * V",
-                  "band": "five per cent"},
-        "witness": None,
-        "gap": "The suite ships no witness, and `PROP-026` states that the bound carries no "
-               "executable test.  The precondition needs at least 10000 * V / v_min ranges, "
-               "which is 20000 ranges for the smallest topology on which the bound says "
-               "anything, and a range is an authored document entry rather than a derived one. "
-               "A port that wants the bound authors that document itself.",
-    },
-    {
         "id": "P-BALANCE-005",
         "name": "Authored assignment carries no bound",
         "requirements": ["PROP-017", "PROP-025", "PLACE-044"],
         "level": "core",
-        "statement": "Under slot with explicit assignment, range with explicit assignment, and "
-                     "directory, no balance bound and no movement bound applies.  Movement "
-                     "between two epochs is exactly the difference between the authored tables, "
-                     "and observed balance is reported against weight without changing any "
-                     "ordering.",
+        "statement": "Under slot and directory, no balance bound and no movement bound "
+                     "applies.  Movement between two epochs is exactly the difference between "
+                     "the authored tables, and observed balance is reported against weight "
+                     "without changing any ordering.",
         "quantifier": "for every topology under an authored assignment",
         "sample": {"generator": "none",
                    "count": "the property asserts the absence of a bound rather than a bound"},

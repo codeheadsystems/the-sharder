@@ -1,7 +1,7 @@
 {
   "vectorSet": "placement-shard-enumeration",
   "kind": "shards",
-  "level": "core",
+  "level": "place",
   "description": "Shard naming, shard enumeration order, and the agreement between `candidates` and `candidatesForShard` that `PLACE-033` requires.",
   "requirements": [
     "DIR-020",
@@ -11,9 +11,6 @@
     "PLACE-031",
     "PLACE-032",
     "PLACE-033",
-    "RANGE-040",
-    "RANGE-041",
-    "RANGE-042",
     "RING-030",
     "RING-031",
     "RING-032",
@@ -24,6 +21,256 @@
     "SLOT-031",
     "SLOT-032"
   ],
+  "topologyDocuments": {
+    "topologies/directory-tenants.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "directory-tenants",
+      "epoch": 11,
+      "replication": {
+        "factor": 2
+      },
+      "strategy": {
+        "kind": "directory",
+        "entries": [
+          {
+            "match": {
+              "kind": "prefix",
+              "value": ""
+            },
+            "nodes": [
+              "cluster-default"
+            ],
+            "note": "catch-all, PLACE-063"
+          },
+          {
+            "match": {
+              "kind": "prefix",
+              "value": "gov-"
+            },
+            "nodes": [
+              "cluster-gov-1"
+            ]
+          },
+          {
+            "match": {
+              "kind": "prefix",
+              "value": "gov-hi"
+            },
+            "nodes": [
+              "cluster-gov-2"
+            ]
+          },
+          {
+            "match": {
+              "kind": "exact",
+              "value": "gov-high"
+            },
+            "nodes": [
+              "cluster-gov-3"
+            ]
+          },
+          {
+            "match": {
+              "kind": "exact",
+              "value": "acme"
+            },
+            "nodes": [
+              "cluster-eu-1"
+            ]
+          },
+          {
+            "match": {
+              "kind": "prefix",
+              "value": "ff00",
+              "encoding": "base16"
+            },
+            "nodes": [
+              "cluster-binary"
+            ]
+          }
+        ]
+      },
+      "nodes": [
+        {
+          "id": "cluster-default"
+        },
+        {
+          "id": "cluster-gov-1"
+        },
+        {
+          "id": "cluster-gov-2"
+        },
+        {
+          "id": "cluster-gov-3"
+        },
+        {
+          "id": "cluster-eu-1"
+        },
+        {
+          "id": "cluster-binary"
+        }
+      ]
+    },
+    "topologies/rendezvous-plain.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "rv-plain",
+      "epoch": 1,
+      "replication": {
+        "factor": 3
+      },
+      "strategy": {
+        "kind": "rendezvous"
+      },
+      "nodes": [
+        {
+          "id": "n1"
+        },
+        {
+          "id": "n2"
+        },
+        {
+          "id": "n3"
+        },
+        {
+          "id": "n4"
+        },
+        {
+          "id": "n5"
+        }
+      ]
+    },
+    "topologies/ring-plain.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "ring-plain",
+      "epoch": 1,
+      "strategy": {
+        "kind": "ring",
+        "tokenAssignment": "derived",
+        "tokensPerWeightUnit": 1,
+        "maxTokensPerNode": 4096
+      },
+      "nodes": [
+        {
+          "id": "n1"
+        },
+        {
+          "id": "n2"
+        },
+        {
+          "id": "n3"
+        },
+        {
+          "id": "n4"
+        }
+      ]
+    },
+    "topologies/slot-explicit.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "slot-explicit",
+      "epoch": 4,
+      "replication": {
+        "factor": 2
+      },
+      "strategy": {
+        "kind": "slot",
+        "slotCount": 16384,
+        "assignment": "explicit",
+        "assignments": [
+          {
+            "slots": [
+              "0-5460"
+            ],
+            "nodes": [
+              "shard-a",
+              "shard-b"
+            ]
+          },
+          {
+            "slots": [
+              "5461-10922"
+            ],
+            "nodes": [
+              "shard-b",
+              "shard-c"
+            ]
+          },
+          {
+            "slots": [
+              "10923-16383"
+            ],
+            "nodes": [
+              "shard-c",
+              "shard-a"
+            ]
+          }
+        ]
+      },
+      "nodes": [
+        {
+          "id": "shard-a"
+        },
+        {
+          "id": "shard-b"
+        },
+        {
+          "id": "shard-c"
+        }
+      ]
+    },
+    "topologies/slot-small.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "slot-small",
+      "epoch": 1,
+      "replication": {
+        "factor": 1
+      },
+      "strategy": {
+        "kind": "slot",
+        "slotCount": 7,
+        "assignment": "explicit",
+        "assignments": [
+          {
+            "slots": [
+              "0-2"
+            ],
+            "nodes": [
+              "a",
+              "b"
+            ]
+          },
+          {
+            "slots": [
+              "3-4"
+            ],
+            "nodes": [
+              "b",
+              "c"
+            ]
+          },
+          {
+            "slots": [
+              "5-6"
+            ],
+            "nodes": [
+              "c",
+              "a"
+            ]
+          }
+        ]
+      },
+      "nodes": [
+        {
+          "id": "a"
+        },
+        {
+          "id": "b"
+        },
+        {
+          "id": "c"
+        }
+      ]
+    }
+  },
   "cases": [
     {
       "name": "ring-plain",
@@ -218,14 +465,14 @@
       }
     },
     {
-      "name": "slot-derived",
+      "name": "slot-small",
       "requirements": [
         "PLACE-031",
         "PLACE-033"
       ],
-      "topology": "topologies/slot-derived.topology.json",
+      "topology": "topologies/slot-small.topology.json",
       "expect": {
-        "shardCount": 64,
+        "shardCount": 7,
         "shards": [
           "0",
           "1",
@@ -233,189 +480,39 @@
           "3",
           "4",
           "5",
-          "6",
-          "7",
-          "8",
-          "9",
-          "10",
-          "11",
-          "12",
-          "13",
-          "14",
-          "15",
-          "16",
-          "17",
-          "18",
-          "19",
-          "20",
-          "21",
-          "22",
-          "23",
-          "24",
-          "25",
-          "26",
-          "27",
-          "28",
-          "29",
-          "30",
-          "31",
-          "32",
-          "33",
-          "34",
-          "35",
-          "36",
-          "37",
-          "38",
-          "39",
-          "40",
-          "41",
-          "42",
-          "43",
-          "44",
-          "45",
-          "46",
-          "47",
-          "48",
-          "49",
-          "50",
-          "51",
-          "52",
-          "53",
-          "54",
-          "55",
-          "56",
-          "57",
-          "58",
-          "59",
-          "60",
-          "61",
-          "62",
-          "63"
+          "6"
         ],
         "shardsTruncated": false,
         "perKey": [
           {
             "key": {
               "encoding": "utf8",
-              "value": "d1"
+              "value": "m1"
             },
-            "shard": "53",
+            "shard": "0",
             "candidates": [
-              "s3",
-              "s1",
-              "s2"
+              "a",
+              "b"
             ],
             "candidatesForShard": [
-              "s3",
-              "s1",
-              "s2"
+              "a",
+              "b"
             ],
             "agrees": true
           },
           {
             "key": {
               "encoding": "utf8",
-              "value": "d5"
+              "value": "m5"
             },
-            "shard": "53",
+            "shard": "0",
             "candidates": [
-              "s3",
-              "s1",
-              "s2"
+              "a",
+              "b"
             ],
             "candidatesForShard": [
-              "s3",
-              "s1",
-              "s2"
-            ],
-            "agrees": true
-          }
-        ]
-      }
-    },
-    {
-      "name": "range-explicit",
-      "requirements": [
-        "PLACE-031",
-        "PLACE-033"
-      ],
-      "topology": "topologies/range-explicit.topology.json",
-      "expect": {
-        "shardCount": 3,
-        "shards": [
-          "r0",
-          "r1",
-          "r2"
-        ],
-        "shardsTruncated": false,
-        "perKey": [
-          {
-            "key": {
-              "encoding": "utf8",
-              "value": "a"
-            },
-            "shard": "r0",
-            "candidates": [
-              "n1",
-              "n2"
-            ],
-            "candidatesForShard": [
-              "n1",
-              "n2"
-            ],
-            "agrees": true
-          },
-          {
-            "key": {
-              "encoding": "utf8",
-              "value": "zzz"
-            },
-            "shard": "r2",
-            "candidates": [
-              "n3",
-              "n1"
-            ],
-            "candidatesForShard": [
-              "n3",
-              "n1"
-            ],
-            "agrees": true
-          }
-        ]
-      }
-    },
-    {
-      "name": "range-derived",
-      "requirements": [
-        "PLACE-031",
-        "PLACE-033"
-      ],
-      "topology": "topologies/range-derived.topology.json",
-      "expect": {
-        "shardCount": 4,
-        "shards": [
-          "r0",
-          "r1",
-          "r2",
-          "r3"
-        ],
-        "shardsTruncated": false,
-        "perKey": [
-          {
-            "key": {
-              "encoding": "utf8",
-              "value": "P"
-            },
-            "shard": "r1",
-            "candidates": [
-              "n2",
-              "n3",
-              "n1"
-            ],
-            "candidatesForShard": [
-              "n2",
-              "n3",
-              "n1"
+              "a",
+              "b"
             ],
             "agrees": true
           }

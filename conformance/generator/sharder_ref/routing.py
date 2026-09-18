@@ -159,8 +159,9 @@ def materialised_entries(entries, r, n, attempt_limit=None):
     """`CORE-046`: the length of the prefix a routing decision carries.
 
     The bound is the lesser of the preference list length and the greater of the achieved replica
-    count and the attempt limit `FAIL-022` resolves before its clamp.  No health view is modelled
-    here, and `CORE-046` makes the bound independent of one.
+    count and the resolved attempt limit of `CORE-048`, which is the value before the clamp
+    `FAIL-022` applies to the attempt walk.  No health view is modelled here, and `CORE-046` makes
+    the bound independent of one.
     """
     limit = n + 2 if attempt_limit is None else attempt_limit
     return min(len(entries), max(r, limit))

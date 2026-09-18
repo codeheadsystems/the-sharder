@@ -20,13 +20,13 @@
   "steps": [
     {
       "action": "handoffStep",
-      "handoff": "h-r0",
+      "handoff": "h-0",
       "trigger": "admittedByRatePolicy",
       "at": 1000,
       "expect": {
         "outcome": {
           "outcome": "advanced",
-          "id": "h-r0",
+          "id": "h-0",
           "fromState": "planned",
           "toState": "preparing"
         },
@@ -35,13 +35,13 @@
     },
     {
       "action": "handoffStep",
-      "handoff": "h-r0",
+      "handoff": "h-0",
       "trigger": "prepareSuccess",
       "at": 1100,
       "expect": {
         "outcome": {
           "outcome": "advanced",
-          "id": "h-r0",
+          "id": "h-0",
           "fromState": "preparing",
           "toState": "transferring"
         },
@@ -50,13 +50,13 @@
     },
     {
       "action": "handoffStep",
-      "handoff": "h-r1",
+      "handoff": "h-1",
       "trigger": "admittedByRatePolicy",
       "at": 2000,
       "expect": {
         "outcome": {
           "outcome": "advanced",
-          "id": "h-r1",
+          "id": "h-1",
           "fromState": "planned",
           "toState": "preparing"
         },
@@ -65,13 +65,13 @@
     },
     {
       "action": "handoffStep",
-      "handoff": "h-r1",
+      "handoff": "h-1",
       "trigger": "prepareSuccess",
       "at": 2100,
       "expect": {
         "outcome": {
           "outcome": "advanced",
-          "id": "h-r1",
+          "id": "h-1",
           "fromState": "preparing",
           "toState": "transferring"
         },
@@ -80,13 +80,13 @@
     },
     {
       "action": "handoffStep",
-      "handoff": "h-r1",
+      "handoff": "h-1",
       "trigger": "noBulkRemaining",
       "at": 2200,
       "expect": {
         "outcome": {
           "outcome": "advanced",
-          "id": "h-r1",
+          "id": "h-1",
           "fromState": "transferring",
           "toState": "catchingUp"
         },
@@ -111,8 +111,8 @@
           }
         },
         "states": {
-          "h-r0": "transferring",
-          "h-r1": "catchingUp"
+          "h-0": "transferring",
+          "h-1": "catchingUp"
         }
       }
     },
@@ -134,8 +134,8 @@
           }
         },
         "states": {
-          "h-r0": "transferring",
-          "h-r1": "catchingUp"
+          "h-0": "transferring",
+          "h-1": "catchingUp"
         }
       }
     },
@@ -157,8 +157,8 @@
           }
         },
         "states": {
-          "h-r0": "transferring",
-          "h-r1": "catchingUp"
+          "h-0": "transferring",
+          "h-1": "catchingUp"
         }
       }
     },
@@ -176,8 +176,8 @@
           "rebasePending": 13
         },
         "states": {
-          "h-r0": "transferring",
-          "h-r1": "catchingUp"
+          "h-0": "transferring",
+          "h-1": "catchingUp"
         }
       }
     },
@@ -186,24 +186,24 @@
       "to": "topologies/rebalance-epoch-13.topology.json",
       "at": 7000,
       "replicaSets": {
-        "r0": [
+        "0": [
           "n5",
           "n2"
         ],
-        "r1": [
+        "1": [
           "n2",
           "n3"
         ],
-        "r2": [
+        "2": [
           "n3",
           "n4"
         ],
-        "r3": [
+        "3": [
           "n4",
           "n1"
         ]
       },
-      "note": "`MOVE-096`: epoch 13 returns `r1` to its source, so that handoff's triple no longer holds and `MOVE-098` compensates it while `r0` rebases",
+      "note": "`MOVE-096`: epoch 13 returns shard `1` to its source, so that handoff's triple no longer holds and `MOVE-098` compensates it while shard `0` rebases",
       "expect": {
         "result": {
           "outcome": "rebased",
@@ -211,10 +211,10 @@
             "fromEpoch": 11,
             "toEpoch": 13,
             "rebased": [
-              "h-r0"
+              "h-0"
             ],
             "aborted": [
-              "h-r1"
+              "h-1"
             ],
             "unchanged": []
           },
@@ -224,24 +224,24 @@
           }
         },
         "states": {
-          "h-r0": "transferring",
-          "h-r1": "aborting"
+          "h-0": "transferring",
+          "h-1": "aborting"
         },
         "targetEpochs": {
-          "h-r0": 13,
-          "h-r1": 11
+          "h-0": 13,
+          "h-1": 11
         }
       }
     },
     {
       "action": "handoffStep",
-      "handoff": "h-r1",
+      "handoff": "h-1",
       "trigger": "rollbackSuccess",
       "at": 8000,
       "expect": {
         "outcome": {
           "outcome": "settled",
-          "id": "h-r1",
+          "id": "h-1",
           "terminalState": "aborted",
           "failureKind": null
         },
@@ -258,27 +258,27 @@
       },
       "note": "`MOVE-098` and `MOVE-421`: the source of the aborted handoff is untouched, and epoch 13 routes the key to it",
       "expect": {
-        "shard": "r1",
+        "shard": "0",
         "token": {
           "topologyId": "rebalance",
           "epoch": 13
         },
         "preferenceList": [
-          "n2",
-          "n3"
+          "n5",
+          "n2"
         ],
         "replicaCount": 2
       }
     },
     {
       "action": "handoffStep",
-      "handoff": "h-r0",
+      "handoff": "h-0",
       "trigger": "noBulkRemaining",
       "at": 9000,
       "expect": {
         "outcome": {
           "outcome": "advanced",
-          "id": "h-r0",
+          "id": "h-0",
           "fromState": "transferring",
           "toState": "catchingUp"
         },
@@ -287,13 +287,13 @@
     },
     {
       "action": "handoffStep",
-      "handoff": "h-r0",
+      "handoff": "h-0",
       "trigger": "residueAtOrBelowThreshold",
       "at": 9100,
       "expect": {
         "outcome": {
           "outcome": "advanced",
-          "id": "h-r0",
+          "id": "h-0",
           "fromState": "catchingUp",
           "toState": "cutover"
         },
@@ -302,13 +302,13 @@
     },
     {
       "action": "handoffStep",
-      "handoff": "h-r0",
+      "handoff": "h-0",
       "trigger": "cutoverCommitted",
       "at": 9200,
       "expect": {
         "outcome": {
           "outcome": "advanced",
-          "id": "h-r0",
+          "id": "h-0",
           "fromState": "cutover",
           "toState": "verifying"
         },
@@ -317,13 +317,13 @@
     },
     {
       "action": "handoffStep",
-      "handoff": "h-r0",
+      "handoff": "h-0",
       "trigger": "verifySuccess",
       "at": 9300,
       "expect": {
         "outcome": {
           "outcome": "advanced",
-          "id": "h-r0",
+          "id": "h-0",
           "fromState": "verifying",
           "toState": "cleanup"
         },
@@ -332,13 +332,13 @@
     },
     {
       "action": "handoffStep",
-      "handoff": "h-r0",
+      "handoff": "h-0",
       "trigger": "cleanupSuccess",
       "at": 9400,
       "expect": {
         "outcome": {
           "outcome": "settled",
-          "id": "h-r0",
+          "id": "h-0",
           "terminalState": "complete",
           "failureKind": null
         },

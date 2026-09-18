@@ -1,7 +1,7 @@
 {
   "vectorSet": "spread-one-domain-relaxed",
   "kind": "routing",
-  "level": "core",
+  "level": "place",
   "description": "Every node in one failure domain under `relaxed`: the builder degrades to distinctness alone and reports the relaxed level.",
   "requirements": [
     "CORE-046",
@@ -16,6 +16,52 @@
   ],
   "topology": "topologies/one-domain-relaxed.topology.json",
   "topologyDigest": "fe0b64a56f15c265f005b9ae83b4d253c520b8276e1afd31bc758bf297c2db7e",
+  "topologyDocuments": {
+    "topologies/one-domain-relaxed.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "one-domain-relaxed",
+      "epoch": 1,
+      "domainLevels": [
+        "zone"
+      ],
+      "replication": {
+        "factor": 3,
+        "spread": [
+          "zone"
+        ],
+        "spreadPolicy": "relaxed"
+      },
+      "strategy": {
+        "kind": "rendezvous"
+      },
+      "nodes": [
+        {
+          "id": "n1",
+          "domains": {
+            "zone": "za"
+          }
+        },
+        {
+          "id": "n2",
+          "domains": {
+            "zone": "za"
+          }
+        },
+        {
+          "id": "n3",
+          "domains": {
+            "zone": "za"
+          }
+        },
+        {
+          "id": "n4",
+          "domains": {
+            "zone": "za"
+          }
+        }
+      ]
+    }
+  },
   "cases": [
     {
       "name": "relaxed/0",

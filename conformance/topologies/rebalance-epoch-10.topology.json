@@ -9,40 +9,41 @@
     "factor": 2
   },
   "strategy": {
-    "kind": "range",
+    "kind": "slot",
+    "slotCount": 4,
     "assignment": "explicit",
-    "ranges": [
+    "assignments": [
       {
-        "shardId": "r0",
-        "start": null,
-        "end": "40",
+        "slots": [
+          "0"
+        ],
         "nodes": [
           "n1",
           "n2"
         ]
       },
       {
-        "shardId": "r1",
-        "start": "40",
-        "end": "80",
+        "slots": [
+          "1"
+        ],
         "nodes": [
           "n2",
           "n3"
         ]
       },
       {
-        "shardId": "r2",
-        "start": "80",
-        "end": "c0",
+        "slots": [
+          "2"
+        ],
         "nodes": [
           "n3",
           "n4"
         ]
       },
       {
-        "shardId": "r3",
-        "start": "c0",
-        "end": null,
+        "slots": [
+          "3"
+        ],
         "nodes": [
           "n4",
           "n1"

@@ -1,7 +1,7 @@
 {
   "vectorSet": "replication-single-node",
   "kind": "routing",
-  "level": "core",
+  "level": "place",
   "description": "A topology of one node at factor 3.",
   "requirements": [
     "CORE-046",
@@ -13,6 +13,33 @@
   ],
   "topology": "topologies/single-node.topology.json",
   "topologyDigest": "c95f340f1c68aeeff2dd0afe3320884ac006832ddea99b63ef08057ab44a12fc",
+  "topologyDocuments": {
+    "topologies/single-node.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "single-node",
+      "epoch": 1,
+      "domainLevels": [
+        "zone"
+      ],
+      "replication": {
+        "factor": 3,
+        "spread": [
+          "zone"
+        ]
+      },
+      "strategy": {
+        "kind": "rendezvous"
+      },
+      "nodes": [
+        {
+          "id": "only",
+          "domains": {
+            "zone": "za"
+          }
+        }
+      ]
+    }
+  },
   "cases": [
     {
       "name": "single-node/0",

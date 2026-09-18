@@ -4,6 +4,11 @@ The task this brief describes is the design and normative specification of `shar
 implementation. The specification is precise enough that two independent teams, working in two
 different languages, implement it and produce byte-identical routing decisions for the same inputs.
 
+Status: the task this brief describes is done. The brief is kept as the record of what was asked
+for, and it is not a specification. Where it and
+[`docs/design/10-specification.md`](docs/design/10-specification.md) disagree, the specification is
+what an implementation satisfies.
+
 Read the whole brief before starting, then read [`docs/maintain/style.md`](docs/maintain/style.md),
 which governs every document produced. Where this brief asks for a decision, make it, and record the
 rejected alternatives in a decision record. Where a decision cannot be reached without the project
@@ -24,7 +29,7 @@ The rules that a design document strains hardest against, and how they resolve h
   towards bolding the important clause is constant. Position carries emphasis; typography does not.
 - No capitalised stress. The one exception is the RFC 2119 vocabulary (`MUST`, `MUST NOT`,
   `SHOULD`, `SHOULD NOT`, `MAY`) inside `docs/design/10-specification.md`, where those words carry
-  their RFC 2119 meaning. Every other document says "refuses" rather than "MUST refuse".
+  their RFC 2119 meaning. Every other document says "refuses" rather than `MUST refuse`.
 - No justification in the reference documents. This brief repeatedly asks for a justified decision,
   a stated trade-off, and named prior art. All of that lands in the decision records under
   `docs/design/adr/`, which the style guide carves out for the purpose. The overview and the

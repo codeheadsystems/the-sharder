@@ -32,10 +32,10 @@
       "topology": "topologies/migration-epoch-1.topology.json",
       "key": {
         "encoding": "base16",
-        "value": "50"
+        "value": "05"
       },
       "expect": {
-        "shard": "r1",
+        "shard": "1",
         "token": {
           "topologyId": "migration",
           "epoch": 1
@@ -51,7 +51,7 @@
       "action": "attemptSequence",
       "key": {
         "encoding": "base16",
-        "value": "50"
+        "value": "05"
       },
       "note": "`HEALTH-004`: no signal has been ingested, so nothing is filtered",
       "expect": {
@@ -111,7 +111,7 @@
       "action": "attemptSequence",
       "key": {
         "encoding": "base16",
-        "value": "50"
+        "value": "05"
       },
       "note": "`FAIL-002`: the filter removes entries and never reorders them, so the primary of the decision is unchanged",
       "expect": {
@@ -127,7 +127,7 @@
       "action": "attemptSequence",
       "key": {
         "encoding": "base16",
-        "value": "50"
+        "value": "05"
       },
       "at": 2300,
       "note": "`HEALTH-034`: the placement set holds three nodes, so a second ejection would take the ejected share above `maxEjectionPercent` and is refused.  The refused node holds `suspect`, which is attemptable.",

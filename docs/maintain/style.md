@@ -11,18 +11,22 @@ is the defect.
 
 Every Markdown document in the repository is written to this guide. There are no exemptions.
 
-- `docs/overview/`, `docs/integrate/`, `docs/operate/`, `docs/maintain/`
-- `docs/design/`, including the normative specification and the decision records
-- `docs/README.md` and the repository's `README.md`
-- `conformance/`, including the suite and generator entry points
+- `docs/design/`, including the normative specification, the glossary, and the decision records
+- `docs/maintain/`, including this guide
+- `docs/README.md`, the repository's `README.md`, and `CONTRIBUTING.md`
+- `conformance/` and `bench/`, including the suite and generator entry points
 - `DESIGN_PROMPT.md`
+
+A new directory under `docs/` joins this list in the commit that creates it.
 
 A document addressed to a tool rather than to a reader is under the guide unchanged. Its
 instructions are procedure steps, so they take the imperative that the Register section already
 allows, and everything around them stays in the third person.
 
-The rules here are shared with `rule-executor`. The two copies differ only in the terminology table
-and in the parts naming this repository, so a change to a shared rule belongs in both.
+This guide is maintained jointly with `rule-executor`, a separate repository outside this one that
+holds its own copy. The two copies differ only in the terminology table and in the parts naming this
+repository, so a change to a shared rule belongs in both. Nothing a reader needs is in that
+repository, and nothing in this one depends on it.
 
 ## Register
 
@@ -88,6 +92,21 @@ was rejected, because recording that is the document's purpose. Every other rule
 applies to it unchanged: third person, no bold for stress, noun-phrase headings. The carve-out
 covers what an ADR is allowed to discuss, not how it is allowed to sound.
 
+## Computed figures
+
+A figure that something in this repository computes is stated where it is computed, and is not
+transcribed into prose. A document that needs one names the artefact and the field that holds it.
+
+- Requirement, coverage, vector, case, topology, property, and scenario counts are computed into
+  [`../../conformance/coverage.json`](../../conformance/coverage.json) and
+  [`../../conformance/manifest.json`](../../conformance/manifest.json) by the generator.
+- The number of decision records is the number of files under `docs/design/adr/`.
+- A count of anything a reader can enumerate from the tree is read from the tree.
+
+Where a document needs to say what a set contains, it names the identifiers, which are permanent,
+rather than counting them. A figure quoted as history inside a decision record is exempt, because it
+records what was true on the date the record carries and does not move afterwards.
+
 ## Punctuation and mechanics
 
 - No em dashes and no spaced double hyphens. Use a comma, a semicolon, a colon, parentheses, or two
@@ -118,19 +137,29 @@ A caller is the application that embeds the library. A client is the thing that 
 belongs to the caller's world rather than the library's; the two are not synonyms, and a document
 that means the embedder says caller.
 
-A term defined in the glossary in [`../design/00-overview.md`](../design/00-overview.md) is used as
-that document defines it, everywhere, and is not redefined in passing. A term that appears in the
-normative specification carries the specification's meaning in every other document.
+A term defined in [`../design/05-glossary.md`](../design/05-glossary.md) is used as that document
+defines it, everywhere, and is not redefined in passing. A term that appears in the normative
+specification carries the specification's meaning in every other document.
 
 ## Enforcement
 
-Two checks run inside `check`. Both need no network and no container runtime, and both complete in
-milliseconds.
+Two checks run inside `check`, and they carry different authority.
 
-| Check | What it proves |
-|---|---|
-| `verifyDocLinks` | every cross-reference resolves, anchors included |
-| `verifyDocStyle` | the mechanical rules above: one dash convention, no capitalised stress outside the RFC 2119 vocabulary, a ceiling on bold, and headings that label rather than argue |
+| Check | What it proves | On a finding |
+|---|---|---|
+| `verifyDocLinks` | every cross-reference resolves, anchors included | fails `check` |
+| `verifyDocStyle` | the mechanical rules above: one dash convention, no capitalised stress outside the RFC 2119 vocabulary, a ceiling on bold, and headings that label rather than argue | reports a warning and leaves `check` green |
+
+A broken cross-reference is unambiguous: the target is absent, or the anchor does not exist, and no
+reading of the guide makes it correct. `verifyDocLinks` therefore fails the build that introduces
+one.
+
+A style finding is a judgement about a sentence expressed as a regular expression, and a false
+positive there costs a contributor a rewrite the guide does not ask for. `verifyDocStyle` therefore
+prints every finding with its file, its line, and the rule it names, and does not fail `check`. The
+rules it covers bind a document whether or not the check runs, and the reviewer is what enforces
+them. The decision and its cost are recorded in
+[`adr/0062`](../design/adr/0062-documentation-style-check-as-a-warning.md).
 
 `verifyDocStyle` refuses four things and no more. It does not judge register, justification or
 terminology, because whether a sentence describes the design or argues for it is not a property a
@@ -141,4 +170,5 @@ them rather than to counting asterisks.
 Neither check has a per-line suppression. The acronym vocabulary `verifyDocStyle` reads is a list in
 `buildSrc`, so teaching it a new one is a change somebody reviews.
 
-Both checks land with the first Java implementation. Until then the rules are enforced at review.
+Neither check exists. Both land with the first Java implementation, and until then every rule in
+this guide is enforced at review alone.

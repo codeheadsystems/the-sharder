@@ -1,7 +1,7 @@
 {
   "vectorSet": "spread-relaxation-stages",
   "kind": "stages",
-  "level": "core",
+  "level": "place",
   "description": "Every relaxation stage of `SPREAD-010`, with the entries it admits and whether it reaches the effective replication factor.  `distinctStageOutcomes` counts how many of the m+1 stages differ, and `SPREAD-018` makes it m+1 where the topology has a distinct domain at each level.",
   "requirements": [
     "SPREAD-005",
@@ -15,6 +15,124 @@
     "SPREAD-019",
     "SPREAD-020"
   ],
+  "topologyDocuments": {
+    "topologies/one-domain-relaxed.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "one-domain-relaxed",
+      "epoch": 1,
+      "domainLevels": [
+        "zone"
+      ],
+      "replication": {
+        "factor": 3,
+        "spread": [
+          "zone"
+        ],
+        "spreadPolicy": "relaxed"
+      },
+      "strategy": {
+        "kind": "rendezvous"
+      },
+      "nodes": [
+        {
+          "id": "n1",
+          "domains": {
+            "zone": "za"
+          }
+        },
+        {
+          "id": "n2",
+          "domains": {
+            "zone": "za"
+          }
+        },
+        {
+          "id": "n3",
+          "domains": {
+            "zone": "za"
+          }
+        },
+        {
+          "id": "n4",
+          "domains": {
+            "zone": "za"
+          }
+        }
+      ]
+    },
+    "topologies/spread-ladder.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "spread-ladder",
+      "epoch": 1,
+      "domainLevels": [
+        "region",
+        "zone",
+        "rack"
+      ],
+      "replication": {
+        "factor": 4,
+        "spread": [
+          "region",
+          "zone",
+          "rack"
+        ],
+        "spreadPolicy": "relaxed"
+      },
+      "strategy": {
+        "kind": "rendezvous"
+      },
+      "nodes": [
+        {
+          "id": "eu-a-1",
+          "domains": {
+            "region": "eu",
+            "zone": "a",
+            "rack": "r1"
+          }
+        },
+        {
+          "id": "eu-a-2",
+          "domains": {
+            "region": "eu",
+            "zone": "a",
+            "rack": "r2"
+          }
+        },
+        {
+          "id": "eu-b-1",
+          "domains": {
+            "region": "eu",
+            "zone": "b",
+            "rack": "r1"
+          }
+        },
+        {
+          "id": "eu-b-2",
+          "domains": {
+            "region": "eu",
+            "zone": "b",
+            "rack": "r1"
+          }
+        },
+        {
+          "id": "us-a-1",
+          "domains": {
+            "region": "us",
+            "zone": "a",
+            "rack": "r1"
+          }
+        },
+        {
+          "id": "us-a-2",
+          "domains": {
+            "region": "us",
+            "zone": "a",
+            "rack": "r1"
+          }
+        }
+      ]
+    }
+  },
   "cases": [
     {
       "name": "spread-ladder/stage-0",

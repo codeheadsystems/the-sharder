@@ -1,7 +1,7 @@
 {
   "vectorSet": "keytransform-brace-tag",
   "kind": "keyTransform",
-  "level": "core",
+  "level": "place",
   "description": "The `braceTag` transform at the default delimiters.",
   "requirements": [
     "KEY-030",
@@ -12,6 +12,24 @@
     "KEY-035",
     "KEY-036"
   ],
+  "topologyDocuments": {
+    "topologies/kt-brace.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "kt-brace",
+      "epoch": 1,
+      "keyTransform": {
+        "kind": "braceTag"
+      },
+      "strategy": {
+        "kind": "rendezvous"
+      },
+      "nodes": [
+        {
+          "id": "n1"
+        }
+      ]
+    }
+  },
   "cases": [
     {
       "name": "tagged",

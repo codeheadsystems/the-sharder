@@ -1,4 +1,4 @@
-"""The five core placement strategies, per `RING-*`, `RV-*`, `SLOT-*`, `RANGE-*`, and `DIR-*`.
+"""The four core placement strategies, per `RING-*`, `RV-*`, `SLOT-*`, and `DIR-*`.
 
 Every ordering here is computed with integer arithmetic only, and every comparator ends in
 ascending node identity comparison over unsigned UTF-8 octets, per `PLACE-020` and `PLACE-023`.
@@ -30,15 +30,6 @@ def dedupe_and_filter(names, eligible_ids):
     return out
 
 
-def compare_bytes(a: bytes, b: bytes) -> int:
-    """`RANGE-001`: unsigned bytewise comparison, a shorter prefix comparing less."""
-    if a < b:
-        return -1
-    if a > b:
-        return 1
-    return 0
-
-
 # --------------------------------------------------------------------------- ring
 
 _RING_CACHE = {}
@@ -51,8 +42,16 @@ def ring_entries(snapshot, nodes):
     function of the snapshot, so a cache cannot change any answer; it only keeps the property
     runs, which evaluate one topology over a hundred thousand keys, from rebuilding the ring each
     time.
+
+    The key is the snapshot's serial number rather than the object's identity.  A Python object
+    identity is reused once the object it named is collected, so an identity key hands one snapshot
+    the ring of a different document that happened to occupy the same address, which is a wrong
+    answer rather than a slow one.  A serial is issued once per snapshot and never reissued.  The
+    digest would name the document too, and would be the sharper key, but reading it costs the
+    canonical form and SHA-256, which a caller at the `place` level of `30-conformance.md` has
+    neither.
     """
-    cache_key = (id(snapshot), tuple(n.id for n in nodes))
+    cache_key = (snapshot.cache_key, tuple(n.id for n in nodes))
     cached = _RING_CACHE.get(cache_key)
     if cached is not None:
         return cached
@@ -175,66 +174,12 @@ def slot_covering_entry(snapshot, index):
     return None
 
 
-def slot_derived_candidates(snapshot, index, eligible):
-    scored = []
-    for node in eligible:
-        count = min(node.weight, 1024)
-        if count == 0:
-            continue
-        best = max(hashing.slot_score(snapshot.seed, index, node.id_bytes, i)
-                   for i in range(count))
-        scored.append((best, node.id_bytes, node.id))
-    scored.sort(key=lambda s: (-s[0], s[1]))
-    return [s[2] for s in scored]
-
-
 def slot_candidates_for_index(snapshot, index, eligible):
-    eligible_ids = {n.id for n in eligible}
-    if snapshot.strategy.get("assignment", "derived") == "explicit":
-        entry = slot_covering_entry(snapshot, index)
-        if entry is None:
-            return []
-        return dedupe_and_filter(entry["nodes"], eligible_ids)
-    return slot_derived_candidates(snapshot, index, eligible)
-
-
-# -------------------------------------------------------------------------- range
-
-def range_bound(value):
-    return None if value is None else bytes.fromhex(value)
-
-
-def range_covering(snapshot, routing_key):
-    for entry in snapshot.strategy["ranges"]:
-        start = range_bound(entry["start"])
-        end = range_bound(entry["end"])
-        if start is not None and compare_bytes(routing_key, start) < 0:
-            continue
-        if end is not None and compare_bytes(routing_key, end) >= 0:
-            continue
-        return entry
-    return None
-
-
-def range_derived_candidates(snapshot, shard_id, eligible):
-    scored = []
-    shard_bytes = shard_id.encode("utf-8")
-    for node in eligible:
-        count = min(node.weight, 1024)
-        if count == 0:
-            continue
-        best = max(hashing.range_score(snapshot.seed, shard_bytes, node.id_bytes, i)
-                   for i in range(count))
-        scored.append((best, node.id_bytes, node.id))
-    scored.sort(key=lambda s: (-s[0], s[1]))
-    return [s[2] for s in scored]
-
-
-def range_candidates_for_entry(snapshot, entry, eligible):
-    eligible_ids = {n.id for n in eligible}
-    if snapshot.strategy.get("assignment", "explicit") == "explicit":
-        return dedupe_and_filter(entry.get("nodes", []), eligible_ids)
-    return range_derived_candidates(snapshot, entry["shardId"], eligible)
+    """`SLOT-012`: the covering entry's authored list, filtered to the eligible set."""
+    entry = slot_covering_entry(snapshot, index)
+    if entry is None:
+        return []
+    return dedupe_and_filter(entry["nodes"], {n.id for n in eligible})
 
 
 # ---------------------------------------------------------------------- directory
@@ -278,9 +223,6 @@ def shard_of(snapshot, routing_key):
         return routing_key.hex()
     if kind == "slot":
         return str(slot_index(snapshot, routing_key))
-    if kind == "range":
-        entry = range_covering(snapshot, routing_key)
-        return NO_SHARD if entry is None else entry["shardId"]
     if kind == "directory":
         _, entry = select_matched_entry(snapshot.strategy["entries"], routing_key)
         return NO_SHARD if entry is None else directory_shard_id(entry["match"])
@@ -295,8 +237,6 @@ def shards(snapshot):
         return []
     if kind == "slot":
         return [str(i) for i in range(snapshot.strategy["slotCount"])]
-    if kind == "range":
-        return [entry["shardId"] for entry in snapshot.strategy["ranges"]]
     if kind == "directory":
         return [directory_shard_id(e["match"]) for e in snapshot.strategy["entries"]]
     raise ValueError("unknown strategy kind: %r" % (kind,))
@@ -311,11 +251,6 @@ def candidates(snapshot, routing_key, eligible):
         return rendezvous_candidates(snapshot, routing_key, eligible)
     if kind == "slot":
         return slot_candidates_for_index(snapshot, slot_index(snapshot, routing_key), eligible)
-    if kind == "range":
-        entry = range_covering(snapshot, routing_key)
-        if entry is None:
-            return []
-        return range_candidates_for_entry(snapshot, entry, eligible)
     if kind == "directory":
         _, entry = select_matched_entry(snapshot.strategy["entries"], routing_key)
         if entry is None:
@@ -332,11 +267,6 @@ def candidates_for_shard(snapshot, shard, eligible):
         return rendezvous_candidates(snapshot, bytes.fromhex(shard), eligible)
     if kind == "slot":
         return slot_candidates_for_index(snapshot, int(shard), eligible)
-    if kind == "range":
-        for entry in snapshot.strategy["ranges"]:
-            if entry["shardId"] == shard:
-                return range_candidates_for_entry(snapshot, entry, eligible)
-        return []
     if kind == "directory":
         for entry in snapshot.strategy["entries"]:
             if directory_shard_id(entry["match"]) == shard:
@@ -367,22 +297,10 @@ def no_candidate_cause(snapshot, routing_key, eligible, matched_override):
         if not dedupe_and_filter(entry["nodes"], eligible_ids):
             return "authoredListExcludedAll"
     if kind == "slot":
-        if snapshot.strategy.get("assignment", "derived") == "explicit":
-            entry = slot_covering_entry(snapshot, slot_index(snapshot, routing_key))
-            if entry is None:
-                return "noSlotEntry"
-            if not dedupe_and_filter(entry["nodes"], eligible_ids):
-                return "authoredListExcludedAll"
-        elif all(min(n.weight, 1024) == 0 for n in eligible):
-            return "zeroVirtualNodes"
-    if kind == "range":
-        covering = range_covering(snapshot, routing_key)
-        if covering is None:
-            return "noRangeEntry"
-        if snapshot.strategy.get("assignment", "explicit") == "derived":
-            if all(min(n.weight, 1024) == 0 for n in eligible):
-                return "zeroVirtualNodes"
-        elif not dedupe_and_filter(covering["nodes"], eligible_ids):
+        entry = slot_covering_entry(snapshot, slot_index(snapshot, routing_key))
+        if entry is None:
+            return "noSlotEntry"
+        if not dedupe_and_filter(entry["nodes"], eligible_ids):
             return "authoredListExcludedAll"
     if kind == "rendezvous" and all(rendezvous_count(snapshot, n) == 0 for n in eligible):
         return "zeroVirtualNodes"

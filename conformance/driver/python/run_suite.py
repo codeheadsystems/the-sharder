@@ -15,11 +15,18 @@ that the contract is implementable as written, and it catches a vector file whos
 from the contract.  It does not prove the suite correct, because it drives the same reference
 that computed the expectations.  Independent verification is a second port.
 
-    python3 run_suite.py [--root <conformance root>] [--level core] [--verbose]
+A port also names the placement strategy surfaces it exposes.  A vector file, and a case naming a
+document of its own, is run by a port exposing every strategy the documents it names carry, so a
+port that exposes `rendezvous` and `directory` runs neither the ring vectors nor the ring rows of
+a file that mixes documents.  Naming no strategy runs every one the manifest lists.
+
+    python3 run_suite.py [--root <conformance root>] [--level core]
+                         [--strategy rendezvous,directory] [--verbose]
 """
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -27,7 +34,7 @@ HERE = Path(__file__).resolve().parent
 GENERATOR = HERE.parent.parent / "generator"
 sys.path.insert(0, str(GENERATOR))
 
-from sharder_ref import fencing, formulas, hashing, placement, routing, split  # noqa: E402
+from sharder_ref import fencing, formulas, hashing, placement, routing         # noqa: E402
 from sharder_ref.jcs import canonicalise, digest as jcs_digest                 # noqa: E402
 from sharder_ref.sample import SplitMix64, sample_keys                         # noqa: E402
 from sharder_ref.siphash import siphash24                                      # noqa: E402
@@ -57,7 +64,62 @@ def compare_subset(prefix, actual, expected):
         compare("%s.%s" % (prefix, name), actual[name], value)
 
 
-def load_topology(root, relative):
+TOPOLOGY_REFERENCE = re.compile(r"^topologies/[A-Za-z0-9./-]+\.topology\.json$")
+
+
+def topology_references(value, found):
+    """Every topology document path a payload or a case names, at any depth."""
+    if isinstance(value, str):
+        if TOPOLOGY_REFERENCE.match(value):
+            found.add(value)
+    elif isinstance(value, dict):
+        for member in value.values():
+            topology_references(member, found)
+    elif isinstance(value, list):
+        for member in value:
+            topology_references(member, found)
+    return found
+
+
+def strategies_named(manifest, payload, value):
+    """The strategy surfaces the documents a value names carry."""
+    kinds = set()
+    surfaces = set(manifest["strategySurfaces"])
+    inline = payload.get("topologyDocuments", {})
+    for name in topology_references(value, set()):
+        kind = manifest["topologies"].get(name, {}).get("strategy")
+        if kind is None and name in inline:
+            kind = inline[name].get("strategy", {}).get("kind")
+        if kind in surfaces:
+            kinds.add(kind)
+    return kinds
+
+
+def carries_documents(payload):
+    """Whether the vector file carries the documents it names, which a `place` file does."""
+    return bool(payload.get("topologyDocuments"))
+
+
+def prepare(document):
+    """Stage 6 of `TOPO-001` over a document the vector file carries already valid.
+
+    This is the whole of what a port at `place` does with a topology document.  It performs no
+    structural check, no semantic check, and no digest, so a run confined to that level touches
+    neither the canonical form of `TOPO-020` nor SHA-256.
+    """
+    return Snapshot.prepared(document)
+
+
+def load_topology(root, payload, relative):
+    """The document a case names, from the file that carries it or from the suite tree.
+
+    A vector file at the `place` level carries every document it names in `topologyDocuments`,
+    because a port at that level has no document pipeline to read one with.  Every other file
+    names a path, and the port that runs it reads, validates, and digests that document.
+    """
+    inline = payload.get("topologyDocuments")
+    if inline and relative in inline:
+        return prepare(inline[relative])
     return Snapshot(json.loads((root / relative).read_text()))
 
 
@@ -76,10 +138,6 @@ def run_hash(root, payload):
             seed, f[1], int.from_bytes(f[2], "big")),
         "rvScore": lambda seed, f: hashing.rv_score(
             seed, f[1], f[2], int.from_bytes(f[3], "big")),
-        "slotScore": lambda seed, f: hashing.slot_score(
-            seed, int.from_bytes(f[1], "big"), f[2], int.from_bytes(f[3], "big")),
-        "rangeScore": lambda seed, f: hashing.range_score(
-            seed, f[1], f[2], int.from_bytes(f[3], "big")),
     }
     for case in payload["cases"]:
         fields = [bytes.fromhex(f) for f in case["fields"]]
@@ -91,7 +149,7 @@ def run_hash(root, payload):
 
 
 def run_key_transform(root, payload):
-    snapshot = load_topology(root, payload["topology"])
+    snapshot = load_topology(root, payload, payload["topology"])
     for case in payload["cases"]:
         actual = routing.routing_key_of(snapshot, decode_key(case["key"]))
         compare(case["name"], actual.hex(), case["expect"]["routingKey"])
@@ -121,8 +179,12 @@ def run_validation(root, payload):
 
 
 def run_routing(root, payload):
-    snapshot = load_topology(root, payload["topology"])
-    compare(payload["vectorSet"] + ".topologyDigest", snapshot.digest, payload["topologyDigest"])
+    snapshot = load_topology(root, payload, payload["topology"])
+    if not carries_documents(payload):
+        # Step 5 of the driver contract: the digest is asserted by the port that loaded the
+        # document, and a file carrying its documents carries `topologyDigest` as provenance.
+        compare(payload["vectorSet"] + ".topologyDigest", snapshot.digest,
+                payload["topologyDigest"])
     for case in payload["cases"]:
         key = decode_key(case["key"])
         try:
@@ -141,7 +203,7 @@ def run_routing(root, payload):
 
 def run_shards(root, payload):
     for case in payload["cases"]:
-        snapshot = load_topology(root, case["topology"])
+        snapshot = load_topology(root, payload, case["topology"])
         expected = case["expect"]
         enumerated = placement.shards(snapshot)
         compare(case["name"] + ".shardCount", len(enumerated), expected["shardCount"])
@@ -164,8 +226,9 @@ def run_shards(root, payload):
 
 def run_permutation(root, payload):
     for case in payload["cases"]:
-        base = load_topology(root, case["topology"])
-        permuted = Snapshot(case["permutedDocument"])
+        base = load_topology(root, payload, case["topology"])
+        permuted = (prepare(case["permutedDocument"]) if carries_documents(payload)
+                    else Snapshot(case["permutedDocument"]))
         for row in case["expect"]["identicalCandidates"]:
             key = decode_key(row["key"])
             left = routing.route(base, key)["candidates"]
@@ -176,7 +239,7 @@ def run_permutation(root, payload):
 
 def run_colliding_keys(root, payload):
     for case in payload["cases"]:
-        snapshot = load_topology(root, case["topology"])
+        snapshot = load_topology(root, payload, case["topology"])
         keys = [decode_key(k) for k in case["keys"]]
         orderings = [routing.route(snapshot, k)["candidates"] for k in keys]
         compare(case["name"] + ".candidates", orderings, case["expect"]["candidates"])
@@ -189,7 +252,7 @@ def run_colliding_keys(root, payload):
 
 def run_tie_break(root, payload):
     for case in payload["cases"]:
-        snapshot = load_topology(root, case["topology"])
+        snapshot = load_topology(root, payload, case["topology"])
         expected = case["expect"]
         for row in expected["candidates"]:
             key = decode_key(row["key"])
@@ -204,8 +267,8 @@ def run_tie_break(root, payload):
 
 def run_movement(root, payload):
     for case in payload["cases"]:
-        before = load_topology(root, case["before"])
-        after = load_topology(root, case["after"])
+        before = load_topology(root, payload, case["before"])
+        after = load_topology(root, payload, case["after"])
         expected = case["expect"]
         for row in expected["firstCandidates"]:
             key = decode_key(row["key"])
@@ -237,14 +300,10 @@ def run_formula(root, payload):
         "resolvedAttemptLimit": lambda i: formulas.resolved_attempt_limit(
             i["routeOptionsAttemptLimit"], i["configuredAttemptLimit"],
             i["factor"], i["attemptSequenceLength"]),
-        "budgetAfterSuccess": lambda i: formulas.budget_after_success(
-            i["budget"], i["budgetIncrement"], i["maxStepBudget"]),
-        "budgetAfterDeferral": lambda i: formulas.budget_after_deferral(
-            i["budget"], i["minStepBudget"]),
         "retryBackoffMillis": lambda i: formulas.retry_backoff_millis(
             i["attempt"], i["retryBackoffBaseMillis"], i["retryBackoffCapMillis"]),
         "policyRefused": lambda i: formulas.policy_refused(
-            i["minStepBudget"], i["maxStepBudget"], i["catchUpResidualThreshold"],
+            i["initialStepBudget"], i["catchUpResidualThreshold"],
             i["reTransferResidualThreshold"]),
         "virtualNodeCount": lambda i: formulas.virtual_node_count(
             i["weight"], i["perWeightUnit"], i["cap"]),
@@ -263,26 +322,13 @@ def run_formula(root, payload):
             "textFields": formulas.token_fields(i["topologyId"], i["epoch"])},
     }
     for case in payload["cases"]:
-        if "formula" not in case:
-            run_split_lineage_case(root, case)
-            continue
         actual = table[case["formula"]](case["inputs"])
         compare(case["name"], actual, case["expect"])
 
 
-def run_split_lineage_case(root, case):
-    if "before" not in case:
-        return                                  # the unsupported-strategies case carries no pair
-    before = load_topology(root, case["before"])
-    after = load_topology(root, case["after"])
-    rows = split.classify(before, after)
-    compare(case["name"] + ".classifications", rows, case["expect"]["classifications"])
-    compare(case["name"] + ".planVerdict", split.plannable(rows), case["expect"]["planVerdict"])
-
-
 def run_stages(root, payload):
     for case in payload["cases"]:
-        snapshot = load_topology(root, case["topology"])
+        snapshot = load_topology(root, payload, case["topology"])
         key = decode_key(case["key"])
         routing_key = routing.routing_key_of(snapshot, key)
         ordering = placement.candidates(snapshot, routing_key, snapshot.placement_set)
@@ -317,8 +363,8 @@ def run_error_taxonomy(root, payload):
 
 def run_defaults(root, payload):
     for case in payload["cases"]:
-        left = load_topology(root, case["omittedDocument"])
-        right = load_topology(root, case["explicitDocument"])
+        left = load_topology(root, payload, case["omittedDocument"])
+        right = load_topology(root, payload, case["explicitDocument"])
         for row in case["expect"]["rows"]:
             key = decode_key(row["key"])
             a = routing.route(left, key)["candidates"]
@@ -332,15 +378,15 @@ def run_ownership_delta(root, payload):
     for case in payload["cases"]:
         if "delta" not in case["expect"] or not case["expect"].get("delta"):
             continue                       # the incomparable and empty cases carry no rows
-        before = load_topology(root, case["before"])
-        after = load_topology(root, case["after"])
+        before = load_topology(root, payload, case["before"])
+        after = load_topology(root, payload, case["after"])
         rows = ownership_delta(before, after, lambda s: s.factor)
         compare(case["name"] + ".delta", rows, case["expect"]["delta"])
 
 
 def run_pin_shard(root, payload):
     for case in payload["cases"]:
-        snapshot = load_topology(root, "topologies/ring-pinned.topology.json")
+        snapshot = load_topology(root, payload, payload["topology"])
         key = decode_key(case["key"])
         decision = routing.route(snapshot, key)
         routing_key = routing.routing_key_of(snapshot, key)
@@ -354,7 +400,7 @@ def run_pin_shard(root, payload):
 
 
 def run_read_affinity(root, payload):
-    snapshot = load_topology(root, payload["topology"])
+    snapshot = load_topology(root, payload, payload["topology"])
     for case in payload["cases"]:
         decision = routing.route(snapshot, decode_key(case["key"]),
                                  affinity=case["affinity"])
@@ -417,6 +463,21 @@ def declared_levels(manifest, level):
         closure.add(name)
         pending.extend(requires[name])
     return closure
+
+
+def exposed_strategies(manifest, named):
+    """The strategy surfaces a port exposes, which is every one where it names none."""
+    surfaces = list(manifest["strategySurfaces"])
+    if named is None:
+        return set(surfaces)
+    chosen = {name.strip() for name in named.split(",") if name.strip()}
+    unknown = sorted(chosen - set(surfaces))
+    if unknown:
+        raise SystemExit("unknown strategy surface %s; the manifest lists %s"
+                         % (", ".join(unknown), ", ".join(surfaces)))
+    if not chosen:
+        raise SystemExit("a port exposes at least one strategy surface, under `CORE-110`")
+    return chosen
 
 
 def run_scenarios(root, levels, known, verbose):
@@ -490,6 +551,10 @@ def main():
                         help="run the vector files and scenarios a port declaring this "
                              "conformance level runs, which is the level together with the "
                              "levels it requires")
+    parser.add_argument("--strategy", default=None,
+                        help="run the files and cases a port exposing these placement strategy "
+                             "surfaces runs, as a comma-separated list; naming none runs every "
+                             "surface the manifest lists")
     parser.add_argument("--verbose", action="store_true")
     args = parser.parse_args()
 
@@ -497,6 +562,11 @@ def main():
     manifest = json.loads((root / "manifest.json").read_text())
     known = {row["level"] for row in manifest["levels"]}
     levels = declared_levels(manifest, args.level)
+    exposed = exposed_strategies(manifest, args.strategy)
+
+    print("suite revision %s" % manifest["revision"]["id"])
+    if exposed != set(manifest["strategySurfaces"]):
+        print("strategy surfaces exposed: %s" % ", ".join(sorted(exposed)))
 
     failures = []
     files = cases = 0
@@ -512,16 +582,23 @@ def main():
             continue
         if level not in levels:
             continue
+        if not set(entry["strategies"]) <= exposed:
+            continue
         payload = json.loads((root / entry["file"]).read_text())
+        admitted = [case for case in payload.get("cases", [])
+                    if strategies_named(manifest, payload, case) <= exposed]
+        payload["cases"] = admitted
+        if not admitted and entry["caseCount"]:
+            continue
         try:
             HANDLERS[kind](root, payload)
             files += 1
-            cases += entry["caseCount"]
+            cases += len(admitted)
             per_level[level][0] += 1
-            per_level[level][1] += entry["caseCount"]
+            per_level[level][1] += len(admitted)
             if args.verbose:
                 print("  ok  %-56s %-13s %3d cases"
-                      % (entry["file"], level, entry["caseCount"]))
+                      % (entry["file"], level, len(admitted)))
         except Failure as failure:
             failures.append("%s: %s" % (entry["file"], failure))
 

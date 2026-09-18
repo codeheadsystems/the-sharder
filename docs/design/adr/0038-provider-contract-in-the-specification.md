@@ -92,8 +92,8 @@ together. Rejected because the numbers would then descend and ascend within one 
 reader who navigates the specification by identifier pays for that on every visit, not only on the
 one that reads the provider contract.
 
-Leaving the contract in [`0004`](0004-topology-provider-contract.md) and citing the record from
-`CFG-010`. Rejected for the reason the same alternative was rejected for the hash construction in
-[`0037`](0037-specification-defect-repairs.md): a port that reads only the specification is the
+Leaving the contract in [`0004`](0004-topology-provider-contract.md) and citing the record
+from `CFG-010`. Rejected for the reason the same alternative was rejected for the hash construction
+in [`0037`](0037-specification-defect-repairs.md): a port that reads only the specification is the
 reader the conformance suite exists to serve, and a citation of a record that a port is not required
 to read leaves the shape optional.

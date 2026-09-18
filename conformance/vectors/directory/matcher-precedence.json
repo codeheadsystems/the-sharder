@@ -1,7 +1,7 @@
 {
   "vectorSet": "directory-matcher-precedence",
   "kind": "routing",
-  "level": "core",
+  "level": "place",
   "description": "Directory evaluation and the reachable clauses of the matcher precedence rule.",
   "requirements": [
     "CORE-046",
@@ -21,6 +21,97 @@
   ],
   "topology": "topologies/directory-tenants.topology.json",
   "topologyDigest": "6cb7c945ddadfdb94086be26fa3641281a0b50369bf71ed888b8d58216366240",
+  "topologyDocuments": {
+    "topologies/directory-tenants.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "directory-tenants",
+      "epoch": 11,
+      "replication": {
+        "factor": 2
+      },
+      "strategy": {
+        "kind": "directory",
+        "entries": [
+          {
+            "match": {
+              "kind": "prefix",
+              "value": ""
+            },
+            "nodes": [
+              "cluster-default"
+            ],
+            "note": "catch-all, PLACE-063"
+          },
+          {
+            "match": {
+              "kind": "prefix",
+              "value": "gov-"
+            },
+            "nodes": [
+              "cluster-gov-1"
+            ]
+          },
+          {
+            "match": {
+              "kind": "prefix",
+              "value": "gov-hi"
+            },
+            "nodes": [
+              "cluster-gov-2"
+            ]
+          },
+          {
+            "match": {
+              "kind": "exact",
+              "value": "gov-high"
+            },
+            "nodes": [
+              "cluster-gov-3"
+            ]
+          },
+          {
+            "match": {
+              "kind": "exact",
+              "value": "acme"
+            },
+            "nodes": [
+              "cluster-eu-1"
+            ]
+          },
+          {
+            "match": {
+              "kind": "prefix",
+              "value": "ff00",
+              "encoding": "base16"
+            },
+            "nodes": [
+              "cluster-binary"
+            ]
+          }
+        ]
+      },
+      "nodes": [
+        {
+          "id": "cluster-default"
+        },
+        {
+          "id": "cluster-gov-1"
+        },
+        {
+          "id": "cluster-gov-2"
+        },
+        {
+          "id": "cluster-gov-3"
+        },
+        {
+          "id": "cluster-eu-1"
+        },
+        {
+          "id": "cluster-binary"
+        }
+      ]
+    }
+  },
   "cases": [
     {
       "name": "exact-beats-prefix",

@@ -1,7 +1,7 @@
 {
   "vectorSet": "spread-one-domain-strict",
   "kind": "routing",
-  "level": "core",
+  "level": "place",
   "description": "The same node set under `strict`: a shorter replica prefix rather than a degraded spread.",
   "requirements": [
     "CORE-046",
@@ -13,6 +13,52 @@
   ],
   "topology": "topologies/one-domain-strict.topology.json",
   "topologyDigest": "93fe191069d9c5dce39535f53a70705c0850be74285c8d41b1b5bb7d652c178f",
+  "topologyDocuments": {
+    "topologies/one-domain-strict.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "one-domain-strict",
+      "epoch": 1,
+      "domainLevels": [
+        "zone"
+      ],
+      "replication": {
+        "factor": 3,
+        "spread": [
+          "zone"
+        ],
+        "spreadPolicy": "strict"
+      },
+      "strategy": {
+        "kind": "rendezvous"
+      },
+      "nodes": [
+        {
+          "id": "n1",
+          "domains": {
+            "zone": "za"
+          }
+        },
+        {
+          "id": "n2",
+          "domains": {
+            "zone": "za"
+          }
+        },
+        {
+          "id": "n3",
+          "domains": {
+            "zone": "za"
+          }
+        },
+        {
+          "id": "n4",
+          "domains": {
+            "zone": "za"
+          }
+        }
+      ]
+    }
+  },
   "cases": [
     {
       "name": "strict/0",

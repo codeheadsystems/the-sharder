@@ -1,6 +1,14 @@
 # 0043. Assignment mode defaults
 
-Status: accepted. Date: 2026-09-17.
+Status: accepted, with the `range` default withdrawn by
+[`0054`](0054-range-strategy-withdrawal.md) and the `slot` default changed by
+[`0055`](0055-slot-derived-assignment-withdrawal.md). Date: 2026-09-17.
+
+The defect this record repaired was real and the repair holds for `ring`. The asymmetry it chose to
+state loudly rather than remove is gone instead: `range` is withdrawn, and `slot` accepts `explicit`
+alone, so `SLOT-024` says an absent member selects `explicit`. That change was unavailable to format
+version 1 at the time this record was written and is available now only because the format has not
+published. `RANGE-022` and the `range-explicit-missing-nodes` document are withdrawn with the kind.
 
 ## Context
 

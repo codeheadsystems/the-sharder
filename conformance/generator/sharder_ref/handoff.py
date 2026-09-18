@@ -114,8 +114,6 @@ class Handoff:
         self.target_epoch = target_epoch
         # `MOVE-231`: consecutive `unavailable` answers from `observe` during `recover`.
         self.observe_attempts = 0
-        # `SPLIT-171`: a handoff failed after a local split, which `MOVE-233` does not admit.
-        self.failed_under_split = False
 
     def apply(self, trigger, at=None):
         key = (self.state, trigger)
@@ -132,12 +130,10 @@ class Handoff:
 class Plan:
     """A migration plan over one ownership delta."""
 
-    def __init__(self, source_epoch, target_epoch, topology_id, handoffs, policy=None,
-                 guarantee="linearisable"):
+    def __init__(self, source_epoch, target_epoch, topology_id, handoffs, policy=None):
         self.source_epoch = source_epoch
         self.target_epoch = target_epoch
         self.topology_id = topology_id
-        self.guarantee = guarantee
         # `MOVE-092`: the snapshot a later install recorded, and nothing else.
         self.rebase_pending = None
         self.handoffs = {h.id: h for h in handoffs}
@@ -147,7 +143,7 @@ class Plan:
         self.policy = dict({"maxConcurrentHandoffs": 4,
                             "maxConcurrentPerSourceNode": 1,
                             "maxConcurrentPerDestinationNode": 1,
-                            "requireLinearisableCutover": True}, **(policy or {}))
+                            "initialStepBudget": 1}, **(policy or {}))
         self.events = []
 
     def state(self, handoff_id):
@@ -311,19 +307,11 @@ class Plan:
             # `MOVE-237`: the other three kinds name a duty outside the library.
             return {"outcome": "refused", "reason": "failureKindNotRecoverable",
                     "state": handoff.state, "failureKind": handoff.failure_kind}
-        if handoff.failed_under_split:
-            # `SPLIT-171`: the shard identity no longer names the data.
-            return {"outcome": "refused", "reason": "shardIdentityGone", "state": handoff.state}
         if observation in ("unavailable", "undetermined"):
             # `MOVE-234`: the handoff stays where it is and no state changes.
             return {"outcome": "unresolved", "state": handoff.state,
                     "failureKind": handoff.failure_kind}
         trigger, resumed_state = self.resolve_observation(handoff, observation)
-        if resumed_state == "cutover" and self.guarantee == "advisory":
-            # `MOVE-235`: an advisory store cannot establish that no record was written, so a
-            # resumption that would call `commitCutover` again is refused.
-            return {"outcome": "refused", "reason": "advisoryCutoverGuarantee",
-                    "state": handoff.state, "failureKind": handoff.failure_kind}
         handoff.failure_kind = None
         handoff.apply(REOBSERVE_TRIGGER[resumed_state], at)
         if resumed_state == "verifying" and not isinstance(observation, str):

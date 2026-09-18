@@ -1,7 +1,7 @@
 {
   "vectorSet": "overrides-pin-keeps-shard",
   "kind": "pinShard",
-  "level": "core",
+  "level": "place",
   "description": "A pinned routing key keeps its shard identifier, and its candidate ordering differs from the ordering the shard itself produces.",
   "requirements": [
     "OVR-010",
@@ -9,6 +9,44 @@
     "PLACE-030",
     "PLACE-033"
   ],
+  "topologyDocuments": {
+    "topologies/ring-pinned.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "ring-pinned",
+      "epoch": 1,
+      "replication": {
+        "factor": 2
+      },
+      "strategy": {
+        "kind": "ring",
+        "tokenAssignment": "derived",
+        "tokensPerWeightUnit": 2
+      },
+      "nodes": [
+        {
+          "id": "rp1"
+        },
+        {
+          "id": "rp2"
+        },
+        {
+          "id": "rp3"
+        }
+      ],
+      "overrides": [
+        {
+          "match": {
+            "kind": "exact",
+            "value": "pinned-key"
+          },
+          "pin": [
+            "rp3",
+            "rp1"
+          ]
+        }
+      ]
+    }
+  },
   "cases": [
     {
       "name": "pinned",
@@ -68,5 +106,7 @@
         "matchedOverride": null
       }
     }
-  ]
+  ],
+  "topology": "topologies/ring-pinned.topology.json",
+  "topologyDigest": "2ab054497a7e65f4052e67096005d1db50dfb4b25f2265aa4732907a16928dac"
 }

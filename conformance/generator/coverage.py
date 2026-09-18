@@ -4,9 +4,10 @@
 Every requirement identifier in `10-specification.md` is extracted, every identifier named by a
 vector file, a property witness, or a scenario is collected, and the two sets are compared.  The
 identifiers are also collected per conformance level, so the report says what a declared level
-proves rather than only what the whole suite proves.  The
-coverage table in `docs/design/30-conformance.md` is transcribed from this file, so a requirement
-added to the specification shows up as uncovered rather than silently going untested.
+proves rather than only what the whole suite proves.  This file is the one place a coverage figure
+is stated: `docs/design/30-conformance.md` points a reader here rather than transcribing a count,
+so a requirement added to the specification shows up as uncovered rather than silently going
+untested.
 
     python3 coverage.py [--spec <path>] [--root <conformance root>] [--check]
 """
@@ -33,7 +34,6 @@ SECTION_OF_PREFIX = {
     "RING": "Routing keys and placement",
     "RV": "Routing keys and placement",
     "SLOT": "Routing keys and placement",
-    "RANGE": "Routing keys and placement",
     "DIR": "Routing keys and placement",
     "OVR": "Routing keys and placement",
     "PROP": "Routing keys and placement",
@@ -46,7 +46,6 @@ SECTION_OF_PREFIX = {
     "FENCE": "Topology change and rebalancing",
     "MOVE": "Topology change and rebalancing",
     "RATE": "Topology change and rebalancing",
-    "SPLIT": "Topology change and rebalancing",
     "ERR": "Error taxonomy",
     "OBS": "Observability",
     "CFG": "Configuration surface",

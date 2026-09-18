@@ -151,30 +151,6 @@
       }
     },
     {
-      "name": "movement-range-after",
-      "requirements": [
-        "TOPO-001",
-        "CORE-020"
-      ],
-      "topology": "topologies/movement-range-after.topology.json",
-      "expect": {
-        "canonicalLength": 962,
-        "digest": "99861af74a009929ac0f6251c664274c52afa547ded70aa3a9a8f87362e8e3e1"
-      }
-    },
-    {
-      "name": "movement-range-before",
-      "requirements": [
-        "TOPO-001",
-        "CORE-020"
-      ],
-      "topology": "topologies/movement-range-before.topology.json",
-      "expect": {
-        "canonicalLength": 939,
-        "digest": "e713b954548a9ac030b88007da9d25863114d8b73c02755f58e778dc5aab3439"
-      }
-    },
-    {
       "name": "movement-ring-after",
       "requirements": [
         "TOPO-001",
@@ -227,32 +203,6 @@
       }
     },
     {
-      "name": "movement-slot-after",
-      "requirements": [
-        "TOPO-001",
-        "CORE-020"
-      ],
-      "topology": "topologies/movement-slot-after.topology.json",
-      "expect": {
-        "canonicalLength": 303,
-        "digest": "df74e407322dc7ed801c7d71cb9d29e081b07e18fb6aa14dc8c9fd0355a124da",
-        "canonicalForm": "{\"epoch\":2,\"formatVersion\":\"1.0\",\"nodes\":[{\"id\":\"m1\",\"weight\":1},{\"id\":\"m2\",\"weight\":1},{\"id\":\"m3\",\"weight\":1},{\"id\":\"m4\",\"weight\":1},{\"id\":\"m5\",\"weight\":1},{\"id\":\"m6\",\"weight\":1}],\"replication\":{\"factor\":3},\"strategy\":{\"assignment\":\"derived\",\"kind\":\"slot\",\"slotCount\":512},\"topologyId\":\"movement-slot\"}"
-      }
-    },
-    {
-      "name": "movement-slot-before",
-      "requirements": [
-        "TOPO-001",
-        "CORE-020"
-      ],
-      "topology": "topologies/movement-slot-before.topology.json",
-      "expect": {
-        "canonicalLength": 280,
-        "digest": "d2102fcc0f068097f2581cbc347a9ca9d191610ec7e226e1513e121c883abd3d",
-        "canonicalForm": "{\"epoch\":1,\"formatVersion\":\"1.0\",\"nodes\":[{\"id\":\"m1\",\"weight\":1},{\"id\":\"m2\",\"weight\":1},{\"id\":\"m3\",\"weight\":1},{\"id\":\"m4\",\"weight\":1},{\"id\":\"m5\",\"weight\":1}],\"replication\":{\"factor\":3},\"strategy\":{\"assignment\":\"derived\",\"kind\":\"slot\",\"slotCount\":512},\"topologyId\":\"movement-slot\"}"
-      }
-    },
-    {
       "name": "one-domain-relaxed",
       "requirements": [
         "TOPO-001",
@@ -288,32 +238,6 @@
       "expect": {
         "canonicalLength": 1557,
         "digest": "f2609780f639e23c817877c929f2d1c28fc3605ef1a22d1ce09b8dbeb83f71fb"
-      }
-    },
-    {
-      "name": "range-derived",
-      "requirements": [
-        "TOPO-001",
-        "CORE-020"
-      ],
-      "topology": "topologies/range-derived.topology.json",
-      "expect": {
-        "canonicalLength": 394,
-        "digest": "02f22aab65238e69d0ef17107662d8838cdb94530381b08b27cffa9936483c8a",
-        "canonicalForm": "{\"epoch\":3,\"formatVersion\":\"1.0\",\"nodes\":[{\"id\":\"n1\",\"weight\":1},{\"id\":\"n2\",\"weight\":1},{\"id\":\"n3\",\"weight\":2}],\"replication\":{\"factor\":2},\"strategy\":{\"assignment\":\"derived\",\"kind\":\"range\",\"ranges\":[{\"end\":\"40\",\"shardId\":\"r0\",\"start\":null},{\"end\":\"80\",\"shardId\":\"r1\",\"start\":\"40\"},{\"end\":\"c0\",\"shardId\":\"r2\",\"start\":\"80\"},{\"end\":null,\"shardId\":\"r3\",\"start\":\"c0\"}]},\"topologyId\":\"range-derived\"}"
-      }
-    },
-    {
-      "name": "range-explicit",
-      "requirements": [
-        "TOPO-001",
-        "CORE-020"
-      ],
-      "topology": "topologies/range-explicit.topology.json",
-      "expect": {
-        "canonicalLength": 386,
-        "digest": "e7a452c81b11bf03ae1954818c51e74217a5e133450597c0ed982c490827d862",
-        "canonicalForm": "{\"epoch\":9,\"formatVersion\":\"1.0\",\"nodes\":[{\"id\":\"n1\"},{\"id\":\"n2\"},{\"id\":\"n3\"}],\"replication\":{\"factor\":2},\"strategy\":{\"assignment\":\"explicit\",\"kind\":\"range\",\"ranges\":[{\"end\":\"6d\",\"nodes\":[\"n1\",\"n2\"],\"shardId\":\"r0\",\"start\":null},{\"end\":\"7a00\",\"nodes\":[\"n2\",\"n3\"],\"shardId\":\"r1\",\"start\":\"6d\"},{\"end\":null,\"nodes\":[\"n3\",\"n1\"],\"shardId\":\"r2\",\"start\":\"7a00\"}]},\"topologyId\":\"range-explicit\"}"
       }
     },
     {
@@ -457,19 +381,6 @@
       }
     },
     {
-      "name": "slot-derived",
-      "requirements": [
-        "TOPO-001",
-        "CORE-020"
-      ],
-      "topology": "topologies/slot-derived.topology.json",
-      "expect": {
-        "canonicalLength": 255,
-        "digest": "42d82811e8d6fc2f54d8ee2f86e15f4deefe59b7b246ae39972434dc66220529",
-        "canonicalForm": "{\"epoch\":2,\"formatVersion\":\"1.0\",\"nodes\":[{\"id\":\"s1\",\"weight\":1},{\"id\":\"s2\",\"weight\":1},{\"id\":\"s3\",\"weight\":2},{\"id\":\"s4\",\"weight\":0}],\"replication\":{\"factor\":2},\"strategy\":{\"assignment\":\"derived\",\"kind\":\"slot\",\"slotCount\":64},\"topologyId\":\"slot-derived\"}"
-      }
-    },
-    {
       "name": "slot-explicit",
       "requirements": [
         "TOPO-001",
@@ -490,9 +401,9 @@
       ],
       "topology": "topologies/slot-small.topology.json",
       "expect": {
-        "canonicalLength": 193,
-        "digest": "fa02f2afdc8e8f2edb1b660264cbbcef0e508fbb4b8546e009d8116505912b6f",
-        "canonicalForm": "{\"epoch\":1,\"formatVersion\":\"1.0\",\"nodes\":[{\"id\":\"a\"},{\"id\":\"b\"},{\"id\":\"c\"}],\"replication\":{\"factor\":1},\"strategy\":{\"assignment\":\"derived\",\"kind\":\"slot\",\"slotCount\":7},\"topologyId\":\"slot-small\"}"
+        "canonicalLength": 318,
+        "digest": "c6968798e55f3743abf417cf2c99ebfdb8b21cdf26eef4dcad13d4fab5eeafb6",
+        "canonicalForm": "{\"epoch\":1,\"formatVersion\":\"1.0\",\"nodes\":[{\"id\":\"a\"},{\"id\":\"b\"},{\"id\":\"c\"}],\"replication\":{\"factor\":1},\"strategy\":{\"assignment\":\"explicit\",\"assignments\":[{\"nodes\":[\"a\",\"b\"],\"slots\":[\"0-2\"]},{\"nodes\":[\"b\",\"c\"],\"slots\":[\"3-4\"]},{\"nodes\":[\"c\",\"a\"],\"slots\":[\"5-6\"]}],\"kind\":\"slot\",\"slotCount\":7},\"topologyId\":\"slot-small\"}"
       }
     },
     {

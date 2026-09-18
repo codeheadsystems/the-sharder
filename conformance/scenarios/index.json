@@ -1,7 +1,7 @@
 {
   "suite": "sharder simulation scenarios",
   "scenarioCount": 17,
-  "stepCount": 242,
+  "stepCount": 229,
   "requirementsCovered": [
     "CFG-040",
     "CORE-053",
@@ -93,7 +93,6 @@
     "MOVE-232",
     "MOVE-233",
     "MOVE-234",
-    "MOVE-235",
     "MOVE-236",
     "MOVE-237",
     "MOVE-238",
@@ -116,7 +115,6 @@
     "RATE-091",
     "RATE-111",
     "SEC-031",
-    "SPLIT-171",
     "TOPO-051",
     "TOPO-061",
     "TOPO-081",
@@ -363,8 +361,8 @@
       "file": "scenarios/undetermined-resolves-both-ways.json",
       "scenario": "undetermined-resolves-both-ways",
       "level": "migration",
-      "description": "A cutover whose outcome the library never established is looked at again.  The same failure resolves to `verifying` where the record landed, to `cutover` where it did not, and to `aborting` where another destination won.  The three failure kinds that need an operator are refused, as is an advisory resumption at `cutover`.",
-      "stepCount": 49,
+      "description": "A cutover whose outcome the library never established is looked at again.  The same failure resolves to `verifying` where the record landed, to `cutover` where it did not, and to `aborting` where another destination won.  The three failure kinds that need an operator are refused.",
+      "stepCount": 36,
       "requirements": [
         "ERR-052",
         "MOVE-011",
@@ -377,12 +375,10 @@
         "MOVE-212",
         "MOVE-233",
         "MOVE-234",
-        "MOVE-235",
         "MOVE-236",
         "MOVE-237",
         "MOVE-238",
-        "MOVE-331",
-        "SPLIT-171"
+        "MOVE-331"
       ]
     },
     {

@@ -1,7 +1,7 @@
 {
   "vectorSet": "adversarial-empty-topology",
   "kind": "routing",
-  "level": "core",
+  "level": "place",
   "description": "An empty `nodes` array is valid at load time and yields no candidate at route time.",
   "requirements": [
     "CORE-046",
@@ -12,6 +12,20 @@
   ],
   "topology": "topologies/empty-nodes.topology.json",
   "topologyDigest": "2a1e3db9ca2adee4f6cb58c6ea7ef73167c33ac450b0be34af44532bebef4194",
+  "topologyDocuments": {
+    "topologies/empty-nodes.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "empty-topology",
+      "epoch": 1,
+      "replication": {
+        "factor": 3
+      },
+      "strategy": {
+        "kind": "rendezvous"
+      },
+      "nodes": []
+    }
+  },
   "cases": [
     {
       "name": "empty/rendezvous",

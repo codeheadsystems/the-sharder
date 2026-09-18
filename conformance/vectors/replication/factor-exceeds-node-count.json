@@ -1,7 +1,7 @@
 {
   "vectorSet": "replication-factor-exceeds-node-count",
   "kind": "routing",
-  "level": "core",
+  "level": "place",
   "description": "A replication factor above the eligible node count produces a shorter replica prefix, never a repeated node, and never a failed call.",
   "requirements": [
     "CORE-046",
@@ -14,6 +14,46 @@
   ],
   "topology": "topologies/factor-exceeds-nodes.topology.json",
   "topologyDigest": "ce5879007c0bf0f8c29b9052d58dca4764581a17699fc26e80ce052a3508d826",
+  "topologyDocuments": {
+    "topologies/factor-exceeds-nodes.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "factor-exceeds-nodes",
+      "epoch": 1,
+      "domainLevels": [
+        "zone"
+      ],
+      "replication": {
+        "factor": 5,
+        "spread": [
+          "zone"
+        ],
+        "spreadPolicy": "relaxed"
+      },
+      "strategy": {
+        "kind": "rendezvous"
+      },
+      "nodes": [
+        {
+          "id": "n1",
+          "domains": {
+            "zone": "za"
+          }
+        },
+        {
+          "id": "n2",
+          "domains": {
+            "zone": "zb"
+          }
+        },
+        {
+          "id": "n3",
+          "domains": {
+            "zone": "zc"
+          }
+        }
+      ]
+    }
+  },
   "cases": [
     {
       "name": "factor-above-node-count/0",

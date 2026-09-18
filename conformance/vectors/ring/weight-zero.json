@@ -1,7 +1,7 @@
 {
   "vectorSet": "ring-weight-zero",
   "kind": "routing",
-  "level": "core",
+  "level": "place",
   "description": "A node of weight 0 under derived token assignment owns no token and never appears.",
   "requirements": [
     "CORE-046",
@@ -11,6 +11,35 @@
     "RING-001",
     "RING-002"
   ],
+  "topologyDocuments": {
+    "topologies/ring-weight-zero.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "ring-weight-zero",
+      "epoch": 1,
+      "replication": {
+        "factor": 2
+      },
+      "strategy": {
+        "kind": "ring",
+        "tokenAssignment": "derived",
+        "tokensPerWeightUnit": 4
+      },
+      "nodes": [
+        {
+          "id": "rz-live-1",
+          "weight": 1
+        },
+        {
+          "id": "rz-live-2",
+          "weight": 1
+        },
+        {
+          "id": "rz-zero",
+          "weight": 0
+        }
+      ]
+    }
+  },
   "cases": [
     {
       "name": "weight-zero/0",

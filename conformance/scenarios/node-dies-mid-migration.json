@@ -18,13 +18,13 @@
   "steps": [
     {
       "action": "handoffStep",
-      "handoff": "h-r1",
+      "handoff": "h-1",
       "trigger": "admittedByRatePolicy",
       "at": 1000,
       "expect": {
         "outcome": {
           "outcome": "advanced",
-          "id": "h-r1",
+          "id": "h-1",
           "fromState": "planned",
           "toState": "preparing"
         },
@@ -33,13 +33,13 @@
     },
     {
       "action": "handoffStep",
-      "handoff": "h-r1",
+      "handoff": "h-1",
       "trigger": "prepareSuccess",
       "at": 2000,
       "expect": {
         "outcome": {
           "outcome": "advanced",
-          "id": "h-r1",
+          "id": "h-1",
           "fromState": "preparing",
           "toState": "transferring"
         },
@@ -110,13 +110,13 @@
     },
     {
       "action": "handoffStep",
-      "handoff": "h-r1",
+      "handoff": "h-1",
       "trigger": "attemptsExhausted",
       "at": 13500,
       "expect": {
         "outcome": {
           "outcome": "advanced",
-          "id": "h-r1",
+          "id": "h-1",
           "fromState": "transferring",
           "toState": "aborting"
         },
@@ -125,13 +125,13 @@
     },
     {
       "action": "handoffStep",
-      "handoff": "h-r1",
+      "handoff": "h-1",
       "trigger": "rollbackSuccess",
       "at": 15500,
       "expect": {
         "outcome": {
           "outcome": "settled",
-          "id": "h-r1",
+          "id": "h-1",
           "terminalState": "aborted",
           "failureKind": null
         },
@@ -144,11 +144,11 @@
       "topology": "topologies/migration-epoch-1.topology.json",
       "key": {
         "encoding": "base16",
-        "value": "50"
+        "value": "05"
       },
       "note": "`MOVE-421`: the source is untouched by the abort, so the shard is still served",
       "expect": {
-        "shard": "r1",
+        "shard": "1",
         "token": {
           "topologyId": "migration",
           "epoch": 1

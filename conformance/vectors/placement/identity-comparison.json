@@ -1,7 +1,7 @@
 {
   "vectorSet": "placement-identity-comparison",
   "kind": "formula",
-  "level": "core",
+  "level": "place",
   "description": "The node identity comparator: unsigned octets of the UTF-8 encoding, lexicographic, with a proper prefix comparing less.  It is the final tie-break of every ordering the specification defines, so a port that compares by code point, by collation, or case insensitively passes every ordering vector and fails on the first tie.",
   "requirements": [
     "CORE-003",

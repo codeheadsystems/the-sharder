@@ -8,6 +8,10 @@ A question blocks v0.1 where the answer changes something v0.1 publishes: a requ
 member, an error code, or an interface a second port reads. Everything else rides along and is
 answered from a running deployment.
 
+Status: no implementation of the sharder library exists. Several questions below name a running
+deployment, a benchmark, or a second port as the evidence that settles them, and none of those has
+been produced.
+
 | Identifier | Question | Release |
 |---|---|---|
 | `OQ-02` | Owning surfaces for three requirements | blocks v0.1 |
@@ -16,11 +20,9 @@ answered from a running deployment.
 | `OQ-05` | Suffix and glob matchers | rides along |
 | `OQ-06` | Directory table size ceiling | rides along |
 | `OQ-07` | Zero hash seed as the default | rides along |
-| `OQ-08` | Slot tie-break vector absent | rides along |
 | `OQ-09` | Monotonicity floor across a restart | rides along |
 | `OQ-10` | Weight clamping as an event | rides along |
 | `OQ-11` | Reference implementation as its own oracle | settled by v0.1 |
-| `OQ-12` | Balance bound without an executable test | rides along |
 | `OQ-13` | Requirement coverage below full | rides along |
 | `OQ-14` | Contended writes on the routing path | rides along |
 
@@ -119,21 +121,6 @@ Evidence that settles it: a count of deployments that separate tenants without a
 without a `directory` strategy. A population above a handful widens the condition; a population of
 none leaves it alone.
 
-### OQ-08. Slot tie-break vector absent
-
-`vectors/determinism/tie-breaks.json` holds a ring token collision, an equal maximum score under
-`rendezvous`, and an equal maximum score under `range`, and holds no `slot` case, because the
-collision search over the `sharder/slot-rendezvous/v1` domain has not returned a pair. The three
-scoring strategies share one comparator, so the two cases present exercise the path a `slot` case
-would.
-
-Recommended default: ship without it.
-[`../../conformance/generator/README.md`](../../conformance/generator/README.md) gives the search
-and how to add the case.
-
-Evidence that settles it: a completed search. The search in `conformance/generator/rho_search.c`
-recovers a 64-bit collision by Brent's cycle detection at roughly 2^33 hash evaluations.
-
 ## Operational defaults
 
 ### OQ-09. Monotonicity floor across a restart
@@ -181,25 +168,14 @@ Evidence that settles it: the Java implementation, written from
 forcing a vector to move. Every vector it does force to move names a place where the reference and
 the specification disagreed.
 
-### OQ-12. Balance bound without an executable test
-
-`PROP-023` states a balance bound for `range` under derived assignment whose precondition needs the
-range count times the smallest virtual node count to reach `10000 * V`, which is at least 20000
-authored ranges on the smallest topology where the bound means anything. `PROP-026` states that no
-conformance suite tests it and that a suite reports it as uncovered rather than as covered.
-
-Recommended default: keep both requirements as they stand. The multiplier and the precondition are a
-coupled pair, and choosing a weaker pair is a statistical argument nobody has made.
-
-Evidence that settles it: a derivation of a weaker multiplier at a stated confidence level, or a
-`range` deployment with enough authored ranges to reach the precondition as written.
-
 ### OQ-13. Requirement coverage below full
 
-The suite names 432 of the 658 requirements the specification states.
+The suite names some of the requirements the specification states and not all of them.
+[`../../conformance/coverage.json`](../../conformance/coverage.json) gives the two totals and names
+every uncovered identifier, and
 [`30-conformance.md`](30-conformance.md#requirements-without-an-executable-test) accounts for the
-other 226 by group: concurrency and visibility, provider timing, observability values, the negative
-requirements of rate control, movement hook opacity, configuration acceptance, and split execution.
+uncovered ones by group: concurrency and visibility, provider timing, observability values, the
+negative requirements of rate control, movement hook opacity, and configuration acceptance.
 
 Recommended default: accept the figure and the accounting. A requirement in those groups constrains
 how a value is produced rather than what the value is, and a language-neutral data file carries
@@ -224,6 +200,19 @@ Evidence that settles it: a benchmark in which routing latency at high concurren
 one of the two counters. The same benchmark shows whether a requirement forbidding a lock on them
 would change anything.
 
+## Withdrawn questions
+
+A question is withdrawn where the surface it asked about leaves the design. Its identifier is listed
+here and is never reused, under the convention the Conventions section of
+[`10-specification.md`](10-specification.md#withdrawn-identifiers) states for a requirement
+identifier. A reader who meets a withdrawn identifier in an older document reads the record named
+here.
+
+| Identifier | Question | Record |
+|---|---|---|
+| `OQ-08` | Slot tie-break vector absent | [`adr/0055`](adr/0055-slot-derived-assignment-withdrawal.md) |
+| `OQ-12` | Balance bound without an executable test | [`adr/0054`](adr/0054-range-strategy-withdrawal.md) |
+
 ## Questions settled in the design
 
 These questions were open during the design and are answered. Each answer is normative in the
@@ -235,7 +224,6 @@ requirement named.
 | routing key size limit | `maxKeyBytes`, 65536 by default, refusing rather than truncating | `CFG-013`, `KEY-005` |
 | Unicode normalisation of text keys | none, ever; a key is opaque octets | `KEY-001`, `KEY-002` |
 | a power-of-two constraint on `slotCount` | none; the remainder is exact for any count | `SLOT-003` |
-| `range` under derived assignment | retained, scored by `rangeScore` over the `shardId` | `RANGE-030` to `RANGE-033` |
 | the hash construction's normative home | the `HASH-*` prefix, transcribed from ADR 0001 | `HASH-001` to `HASH-044` |
 | the provider contract's normative home | the Core model section, transcribed from ADR 0004 | `CORE-080` to `CORE-101` |
 | asking for an explain record | `explain` on `RouteOptions`, false by default | `CORE-030`, `OBS-046` |

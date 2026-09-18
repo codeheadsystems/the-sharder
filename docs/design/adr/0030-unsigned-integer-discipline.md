@@ -1,6 +1,13 @@
 # 0030. Unsigned integer discipline
 
-Status: accepted. Date: 2026-09-16.
+Status: accepted, with `SPLIT-041` withdrawn by
+[`0054`](0054-range-strategy-withdrawal.md). Date: 2026-09-16.
+
+The discipline stands. One of the four wide comparisons below is `SPLIT-041`, a withdrawn identifier
+that the register of [`../10-specification.md`](../10-specification.md#withdrawn-identifiers)
+resolves; the skew comparison it stated is now `OBS-032` over the same operand widths, so the count
+of four is unchanged. The strategy set is four kinds rather than five under
+[`0002`](0002-placement-strategy-set.md).
 
 ## Context
 

@@ -13,7 +13,7 @@ written by hand.
 
 | Path | Contents |
 |---|---|
-| `manifest.json` | the conformance levels, every vector file with its level, coverage, and digest, and every topology digest |
+| `manifest.json` | the suite revision, the conformance levels, the strategy surfaces, every vector file with its level, coverage, and digest, and every topology digest |
 | `coverage.json` | requirement coverage, computed from `10-specification.md` |
 | `topologies/` | the topology documents the vectors route against |
 | `topologies/invalid/` | documents that fail a load-time rule |
@@ -34,9 +34,20 @@ Each vector file and each scenario carries the conformance level it belongs to, 
 `levels` table states what each level requires. `run_suite.py --level core` runs `core` together
 with the levels it requires, which is what a port declaring `core` runs.
 
+Each vector file also carries the placement strategy surfaces the documents it names carry.
+`run_suite.py --strategy rendezvous,directory` runs the files and cases a port exposing those two
+surfaces runs, and naming none runs every surface the manifest lists.
+
+`manifest.json` carries the suite revision in `revision`, computed from the suite's own content. A
+port declares its levels against that revision, and the driver prints the revision it ran.
+
 Start with `vectors/hash/siphash-primitive.json` and `vectors/hash/construction.json`. Every other
 vector rests on them, and a port whose SipHash or whose framing is wrong fails everything downstream
 in a way that is hard to read.
+
+Then run `--level place`, which is the placement engine over topologies the vector files carry
+already valid. It needs no JSON reader for the topology format, no canonical form, no digest, and no
+provider, so a port reaches it before it writes a document pipeline.
 
 Then take `vectors/properties/witnesses.json`, case `sample-generator`, which fixes the key sample
 `PROP-006` requires every sampled bound to be drawn from. A port that disagrees there is drawing
@@ -57,3 +68,6 @@ anything, and for how to rerun the collision search that the tie-break vectors r
 Files under `topologies/`, `vectors/`, `properties/`, and `scenarios/` are generated. A hand edit to
 one is lost at the next regeneration. A change to what the suite covers is a change to
 `generator/topologies.py` or to one of the generator scripts.
+
+[`../CONTRIBUTING.md`](../CONTRIBUTING.md) gives the whole procedure, including what a change to the
+specification obliges a change to the suite to do.

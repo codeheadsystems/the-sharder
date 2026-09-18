@@ -1,6 +1,15 @@
 # 0026. Configuration defaults and locality
 
-Status: accepted. Date: 2026-09-16.
+Status: accepted, with the step budget adjustment withdrawn by
+[`0057`](0057-step-budget-adjustment-withdrawal.md) and the split advice withdrawn by
+[`0054`](0054-range-strategy-withdrawal.md). Date: 2026-09-16.
+
+The locality rule, the units convention, the refusal of an out-of-range setting, and the rest of the
+defaults stand. Three settings named below no longer exist. `budgetIncrement` and `maxStepBudget`
+are withdrawn with `RATE-041` by `0057`, and `initialStepBudget` is now passed unchanged to every
+step, so the additive increase the Consequences section weighs is not performed. The split advice
+thresholds are withdrawn with `SPLIT-051` by `0054` along with the rest of the split surface. The
+paragraphs below are kept as the record of what was decided on the date above.
 
 ## Context
 

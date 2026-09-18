@@ -176,64 +176,22 @@ SLOT_EXPLICIT = {
     "nodes": [_node("shard-a"), _node("shard-b"), _node("shard-c")],
 }
 
-SLOT_DERIVED = {
-    "formatVersion": "1.0",
-    "topologyId": "slot-derived",
-    "epoch": 2,
-    "replication": {"factor": 2},
-    "strategy": {"kind": "slot", "slotCount": 64, "assignment": "derived"},
-    "nodes": [
-        _node("s1", weight=1),
-        _node("s2", weight=1),
-        _node("s3", weight=2),
-        _node("s4", weight=0),
-    ],
-}
-
 SLOT_SMALL = {
     "formatVersion": "1.0",
     "topologyId": "slot-small",
     "epoch": 1,
     "replication": {"factor": 1},
-    "strategy": {"kind": "slot", "slotCount": 7, "assignment": "derived"},
-    "nodes": [_node("a"), _node("b"), _node("c")],
-}
-
-# -------------------------------------------------------------------------- range
-
-RANGE_EXPLICIT = {
-    "formatVersion": "1.0",
-    "topologyId": "range-explicit",
-    "epoch": 9,
-    "replication": {"factor": 2},
     "strategy": {
-        "kind": "range",
+        "kind": "slot",
+        "slotCount": 7,
         "assignment": "explicit",
-        "ranges": [
-            {"shardId": "r0", "start": None, "end": "6d", "nodes": ["n1", "n2"]},
-            {"shardId": "r1", "start": "6d", "end": "7a00", "nodes": ["n2", "n3"]},
-            {"shardId": "r2", "start": "7a00", "end": None, "nodes": ["n3", "n1"]},
+        "assignments": [
+            {"slots": ["0-2"], "nodes": ["a", "b"]},
+            {"slots": ["3-4"], "nodes": ["b", "c"]},
+            {"slots": ["5-6"], "nodes": ["c", "a"]},
         ],
     },
-    "nodes": [_node("n1"), _node("n2"), _node("n3")],
-}
-
-RANGE_DERIVED = {
-    "formatVersion": "1.0",
-    "topologyId": "range-derived",
-    "epoch": 3,
-    "replication": {"factor": 2},
-    "strategy": {
-        "kind": "range",
-        "assignment": "derived",
-        "ranges": [
-            {"shardId": "r0", "start": None, "end": "40"},
-            {"shardId": "r1", "start": "40", "end": "80"},
-            {"shardId": "r2", "start": "80", "end": "c0"},
-            {"shardId": "r3", "start": "c0", "end": None},
-        ],
-    },
-    "nodes": [_node("n1", weight=1), _node("n2", weight=1), _node("n3", weight=2)],
+    "nodes": [_node("a"), _node("b"), _node("c")],
 }
 
 # ---------------------------------------------------------------------- directory
@@ -528,18 +486,6 @@ MOVEMENT_RV_BEFORE, MOVEMENT_RV_AFTER = _movement_pair(
     "movement-rv", {"kind": "rendezvous", "virtualNodesPerWeightUnit": 1},
     ["m1", "m2", "m3", "m4", "m5"], "m6")
 
-MOVEMENT_SLOT_BEFORE, MOVEMENT_SLOT_AFTER = _movement_pair(
-    "movement-slot", {"kind": "slot", "slotCount": 512, "assignment": "derived"},
-    ["m1", "m2", "m3", "m4", "m5"], "m6")
-
-MOVEMENT_RANGE_BEFORE, MOVEMENT_RANGE_AFTER = _movement_pair(
-    "movement-range",
-    {"kind": "range", "assignment": "derived",
-     "ranges": [{"shardId": "q%d" % i,
-                 "start": None if i == 0 else "%02x" % (i * 16),
-                 "end": None if i == 15 else "%02x" % ((i + 1) * 16)} for i in range(16)]},
-    ["m1", "m2", "m3", "m4", "m5"], "m6")
-
 # --------------------------------------------------------------------- invalid documents
 
 INVALID_DOCUMENTS = {
@@ -626,39 +572,6 @@ INVALID_DOCUMENTS = {
         "strategy": {"kind": "slot", "slotCount": 8, "assignment": "explicit",
                      "assignments": [{"slots": ["0-5"], "nodes": ["n1"]},
                                      {"slots": ["4-7"], "nodes": ["n1"]}]},
-        "nodes": [_node("n1")],
-    },
-    "range-gap": {
-        "formatVersion": "1.0", "topologyId": "invalid-range-gap", "epoch": 1,
-        "strategy": {"kind": "range", "assignment": "explicit",
-                     "ranges": [{"shardId": "r0", "start": None, "end": "40",
-                                 "nodes": ["n1"]},
-                                {"shardId": "r1", "start": "50", "end": None,
-                                 "nodes": ["n1"]}]},
-        "nodes": [_node("n1")],
-    },
-    "range-first-start-not-null": {
-        "formatVersion": "1.0", "topologyId": "invalid-range-start", "epoch": 1,
-        "strategy": {"kind": "range", "assignment": "explicit",
-                     "ranges": [{"shardId": "r0", "start": "00", "end": None,
-                                 "nodes": ["n1"]}]},
-        "nodes": [_node("n1")],
-    },
-    "range-duplicate-shard-id": {
-        "formatVersion": "1.0", "topologyId": "invalid-range-shard-id", "epoch": 1,
-        "strategy": {"kind": "range", "assignment": "explicit",
-                     "ranges": [{"shardId": "r0", "start": None, "end": "40",
-                                 "nodes": ["n1"]},
-                                {"shardId": "r0", "start": "40", "end": None,
-                                 "nodes": ["n1"]}]},
-        "nodes": [_node("n1")],
-    },
-    "range-explicit-missing-nodes": {
-        "formatVersion": "1.0", "topologyId": "invalid-range-missing-nodes", "epoch": 1,
-        "strategy": {"kind": "range", "assignment": "explicit",
-                     "ranges": [{"shardId": "r0", "start": None, "end": "40",
-                                 "nodes": ["n1"]},
-                                {"shardId": "r1", "start": "40", "end": None}]},
         "nodes": [_node("n1")],
     },
     "directory-unknown-node": {

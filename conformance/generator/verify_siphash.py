@@ -100,14 +100,20 @@ def check_openssl():
 def main():
     paper = check_paper()
     openssl = check_openssl()
+    unavailable = bool(openssl) and openssl[0][0] == "openssl"
 
     print("SipHash-2-4 reference verification")
     print("  paper vectors   : %d cases, %d failures" % (64, len(paper)))
     for row in paper:
         print("    length %-3s expected %s got %s" % row)
-    print("  openssl 3 mac   : %d cases, %d failures" % (64, len(openssl)))
-    for row in openssl:
-        print("    length %-3s expected %s got %s" % row)
+    if unavailable:
+        print("  openssl 3 mac   : not run, %s" % openssl[0][2])
+        print("    install openssl; the regeneration stops here rather than generating vectors")
+        print("    from a hash no independent implementation has checked")
+    else:
+        print("  openssl 3 mac   : %d cases, %d failures" % (64, len(openssl)))
+        for row in openssl:
+            print("    length %-3s expected %s got %s" % row)
 
     if paper or openssl:
         print("VERIFICATION FAILED")
