@@ -9,52 +9,45 @@ requirement that constrains it.
 The reader is an implementer writing the Java port, an integrator reading the types before adopting
 them, and a reviewer checking that the port has not quietly changed the contract.
 
-Status: the Java binding does not exist. No source of the library, no Gradle build, no build check,
-and no published artifact has been written, and every type, task, module, gate, and benchmark below
-states what the port will carry rather than what one did. Where a figure below comes from a
-measurement, it comes from a prototype written to settle a decision record, and it names the record
-that states the conditions the measurement was taken under.
+Status: the Java binding is under way and is not complete. The Gradle build, the opaque identifier
+types, the error code enumeration, the hash construction, the JSON reader, and the conformance
+harness are written, and the port reaches the `hash` conformance level and no other. No build check
+and no published artifact exists, and every type, task, module, gate, and benchmark below that the
+port has not reached states what it will carry rather than what one did.
+[`../../ports/java/README.md`](../../ports/java/README.md) says what is written today. Where a
+figure below comes from a measurement, it comes from a prototype written to settle a decision
+record, and it names the record that states the conditions the measurement was taken under.
 
 ## Artifacts and modules
 
 ### Artifact set
 
-The Maven and Gradle group is `com.codeheadsystems`. Every artifact name begins with `sharder`. The
-repository is `codeheadsystems/the-sharder`, and the `the-` prefix belongs to the repository name
-alone; it appears in no artifact, package, or module name. The build is rooted at `ports/java/`,
-which names the port and appears in no coordinate either, under
+The Maven and Gradle group is `com.codeheadsystems`. The artifact is `sharder`. The repository is
+`codeheadsystems/the-sharder`, and the `the-` prefix belongs to the repository name alone; it
+appears in no artifact, package, or module name. The build is rooted at `ports/java/`, which names
+the port and appears in no coordinate either, under
 [`adr/0079`](adr/0079-repository-layout-for-multiple-ports.md).
 
 | Artifact | Module | Contents |
 |---|---|---|
-| `sharder-bom` | | a `java-platform` aligning the versions of the artifacts below |
-| `sharder-api` | `com.codeheadsystems.sharder` | the core model types, the extension point interfaces, the error taxonomy, the configuration records |
-| `sharder-core` | `com.codeheadsystems.sharder.core` | the hash, the document pipeline, the four strategies, routing, health, fencing, observability, the in-memory provider |
-| `sharder-migrate` | `com.codeheadsystems.sharder.migrate` | the handoff coordinator, the movement hooks, the migration policy |
-| `sharder-provider-file` | `com.codeheadsystems.sharder.provider.file` | the static file reference provider |
-| `sharder-conformance` | `com.codeheadsystems.sharder.conformance` | the JUnit harness that drives the vectors |
-| `sharder-conformance-vectors` | | the `conformance/` tree packaged as classpath resources |
-| `sharder-bench` | | JMH benchmarks, not published |
+| `sharder` | `com.codeheadsystems.sharder` | the whole library: the core model types, the extension point interfaces, the error taxonomy, the configuration records, the hash, the document pipeline, the four strategies, routing, health, fencing, observability, the providers, and the handoff coordinator |
 
-What each split lets a consumer avoid is the reason the split exists.
+One artifact carries the library, under
+[`adr/0081`](adr/0081-single-java-module.md). The boundaries an artifact split would have drawn are
+drawn by the package layout below: everything under `com.codeheadsystems.sharder.core.internal` is
+unexported, and an integrator reaches what `module-info.java` exports and nothing else.
 
-| Split | The consumer avoids |
-|---|---|
-| `sharder-api` from `sharder-core` | A third-party topology provider, health view, or placement strategy compiles against the types alone. It gains no dependency on the routing engine, the JSON reader, or any core internal, and it does not recompile when a core internal changes. |
-| `sharder-migrate` from `sharder-core` | The handoff state machine, the movement hook types, and the pressure gauge. An integrator routing a tenant identifier to one of five clusters depends on `sharder-core` and never sees a handoff type on the classpath or in an IDE completion list. |
-| `sharder-provider-file` from `sharder-core` | Filesystem access and a poll schedule. A deployment whose control plane pushes documents supplies its own provider or uses the in-memory provider in `sharder-core`, and reads no file. |
-| `sharder-conformance` from everything | The JUnit dependency. The harness is the only artifact that carries a test framework, and it is consumed at test scope by the port and by a third-party strategy author who runs the suite against their own build. |
-| `sharder-conformance-vectors` from `sharder-conformance` | A repository checkout. The harness resolves vectors from the classpath, so a downstream consumer runs the suite from published artifacts alone. |
+What the split bought, and what this costs, is in that record. The shape is revisited before the
+first publication, because the artifact a consumer names is a one-way door once one has named it.
 
-`sharder-core` carries the in-memory reference provider because that provider reads nothing, opens
-nothing, and schedules nothing; it is a sink an authority pushes into, and it is what a test and a
-control-plane integration both use.
+The in-memory reference provider sits beside the routing engine rather than beside the file
+provider, because it reads nothing, opens nothing, and schedules nothing; it is a sink an authority
+pushes into, and it is what a test and a control-plane integration both use.
 
-The ownership delta of `TOPO-211` lives in `sharder-core` rather than in `sharder-migrate`, because
-a delta is computed and published at snapshot installation under `MOVE-101` by an integrator who may
-never build a plan. Hot-shard and key-skew detection under `OBS-030` to `OBS-036` live in
-`sharder-core` for the same reason: each consumes a `ShardReport` and emits an event, and neither
-plans anything.
+The ownership delta of `TOPO-211` sits with the routing engine rather than with the coordinator,
+because a delta is computed and published at snapshot installation under `MOVE-101` by an integrator
+who may never build a plan. Hot-shard and key-skew detection under `OBS-030` to `OBS-036` sit there
+for the same reason: each consumes a `ShardReport` and emits an event, and neither plans anything.
 
 ### Gradle project structure
 
@@ -62,68 +55,43 @@ The build is Gradle with the Kotlin DSL and a version catalogue at `gradle/libs.
 
 ```
 the-sharder/
-├── conformance/                                   the vector tree the resources project packages
+├── conformance/                                   the vector tree the harness reads
 ├── docs/
-└── ports/java/                                    the Gradle root
+└── ports/java/                                    the Gradle root, one project
     ├── settings.gradle.kts
     ├── build.gradle.kts
     ├── gradle/libs.versions.toml
-    ├── buildSrc/
-    │   └── src/main/kotlin/
-    │       ├── sharder.java-library.gradle.kts    convention: --release, -Werror, JPMS, tests
-    │       ├── sharder.published.gradle.kts       convention: POM, signing, reproducible jars
-    │       └── com/codeheadsystems/sharder/build/
-    │           ├── VerifyDocLinksTask.kt
-    │           ├── VerifyDocStyleTask.kt
-    │           ├── VerifyUnsignedTask.kt
-    │           └── Acronyms.kt
-    ├── sharder-bom/
-    ├── sharder-api/
-    ├── sharder-core/
-    ├── sharder-migrate/
-    ├── sharder-provider-file/
-    ├── sharder-conformance/
-    ├── sharder-conformance-vectors/
-    └── sharder-bench/
+    ├── gradlew, gradle/wrapper/                   the pinned Gradle distribution
+    └── src/
+        ├── main/java/                             module-info.java and the library
+        └── test/java/                             the unit tests and the conformance harness
 ```
 
 `conformance/` and `docs/` sit two directories above the Gradle root and belong to no port, so a
-project that reads either one names a path outside the build.
+task that reads either one names a path outside the build.
 
-Project dependencies run in one direction only.
-
-| Project | Depends on |
-|---|---|
-| `sharder-api` | nothing |
-| `sharder-core` | `sharder-api` as `api` |
-| `sharder-migrate` | `sharder-core` as `api` |
-| `sharder-provider-file` | `sharder-api` as `api`, `sharder-core` at test scope |
-| `sharder-conformance` | `sharder-core` and `sharder-migrate` as `api`, JUnit as `api` |
-| `sharder-bench` | `sharder-core`, `sharder-migrate` |
-
-`sharder-migrate` depends on `sharder-core` rather than on `sharder-api` alone, because `plan`
-evaluates preference lists over two snapshots under `TOPO-211` and `MOVE-081`, which is core work.
+The build compiles against the Java 21 API with `--release`, whatever JDK runs it, and treats a
+warning as an error under `-Xlint:all -Werror`. The main source set carries `module-info.java` and
+requires nothing beyond `java.base`, so the module path buys the build nothing and the tests run on
+the classpath.
 
 ### Module descriptors
 
-Every published artifact carries a `module-info.java`. No package is split between two modules, so
-each artifact owns its package roots outright and the modular and classpath builds agree.
-
-`sharder-core` exports its public package and opens two internal packages to named modules only.
+The artifact carries a `module-info.java` for `com.codeheadsystems.sharder`. It exports the public
+packages, exports no internal package, and requires `java.base` and nothing else, so the modular
+and classpath builds agree and a consumer on either reaches the same types.
 
 ```java
-module com.codeheadsystems.sharder.core {
-    requires transitive com.codeheadsystems.sharder;
-    exports com.codeheadsystems.sharder.core;
-    exports com.codeheadsystems.sharder.core.internal.json
-        to com.codeheadsystems.sharder.conformance;
-    exports com.codeheadsystems.sharder.core.internal.hash
-        to com.codeheadsystems.sharder.conformance;
+module com.codeheadsystems.sharder {
+    exports com.codeheadsystems.sharder;
+    exports com.codeheadsystems.sharder.error;
+    // one export per public package of the section below, as each is written
 }
 ```
 
-The qualified exports are what let the conformance harness read a vector file and verify a framed
-hash without a JSON dependency of its own and without the internals reaching a consumer.
+The conformance harness is test source of this module rather than a separate one, so it reads an
+internal package without an export and a consumer does not. What a qualified export would have
+granted a harness in another artifact, a source set grants this one.
 
 ## Package layout
 
@@ -132,20 +100,20 @@ hash without a JSON dependency of its own and without the internals reaching a c
 A package maps to a section of the specification. The types that carry data are records; the types
 that carry behaviour or that an integrator implements are interfaces.
 
-| Package | Artifact | Specification section | Principal types |
-|---|---|---|---|
-| `com.codeheadsystems.sharder` | api | Core model, Replication and failover | `Router`, `RouteOptions`, `RoutingDecision`, `PreferenceEntry`, `AttemptSequence`, `AffinityRequest`, `NodeId`, `ShardId`, `RoutingKey`, `NodeSet`, `Digest`, `MonotonicClock`, `Role`, `Shortfall` |
-| `com.codeheadsystems.sharder.topology` | api | Topology change and rebalancing | `TopologySnapshot`, `Node`, `AdministrativeState`, `FencingToken`, `ValidationError`, `OwnershipDelta`, `ShardChange`, `TopologyProvider`, `TopologySink`, `Subscription`, `SourceVersion`, `Loaded` |
-| `com.codeheadsystems.sharder.placement` | api | Routing keys and placement | `PlacementStrategy`, `PreparedPlacement`, `CandidateCursor`, `StrategyKind` |
-| `com.codeheadsystems.sharder.health` | api | Node health state machine | `HealthView`, `HealthState`, `HealthSignal`, `Outcome`, `HintObserver` |
-| `com.codeheadsystems.sharder.fence` | api | Fencing | `Recipient`, `Verdict`, `Relation`, `Ownership`, `RecipientPolicy` |
-| `com.codeheadsystems.sharder.error` | api | Error taxonomy | `ErrorCode`, `SharderException` and its sealed descendants, the cause enumerations |
-| `com.codeheadsystems.sharder.observe` | api | Observability | `MetricsRegistry`, `Labels`, `MetricsView`, `EventSink`, `Event`, `Severity`, `ExplainRecord`, `Exclusion`, `ShardMetricsSource`, `ShardReport` |
-| `com.codeheadsystems.sharder.config` | api | Configuration surface | `RouterConfig`, `ProviderSettings`, `RoutingSettings`, `HealthSettings`, `FencingSettings`, `ObservabilitySettings`, `ConfigurationView` |
-| `com.codeheadsystems.sharder.core` | core | the whole of it | `Sharder`, `TopologyLoader`, `InMemoryTopologyProvider` |
-| `com.codeheadsystems.sharder.migrate` | migrate | Shard ownership handoff, Migration rate control | `HandoffCoordinator`, `MigrationPlan`, `MigrationPolicy`, `MovementHooks`, `HandoffContext`, `HandoffState`, `HandoffId`, `HookResult`, `CutoverResult`, `ObserveResult`, `StepOutcome`, `RebaseReport`, `RecoveryReport`, `ReobserveOutcome`, `PressureGauge` |
-| `com.codeheadsystems.sharder.provider.file` | provider-file | Topology provider contract | `FileTopologyProvider` |
-| `com.codeheadsystems.sharder.conformance` | conformance | the conformance suite | `ConformanceSuite`, `VectorSource`, `VectorManifest`, `ConformanceLevel`, `ConformanceReport` |
+| Package | Specification section | Principal types |
+|---|---|---|
+| `com.codeheadsystems.sharder` | Core model, Replication and failover | `Router`, `RouteOptions`, `RoutingDecision`, `PreferenceEntry`, `AttemptSequence`, `AffinityRequest`, `NodeId`, `ShardId`, `RoutingKey`, `NodeSet`, `Digest`, `MonotonicClock`, `Role`, `Shortfall` |
+| `com.codeheadsystems.sharder.topology` | Topology change and rebalancing | `TopologySnapshot`, `Node`, `AdministrativeState`, `FencingToken`, `ValidationError`, `OwnershipDelta`, `ShardChange`, `TopologyProvider`, `TopologySink`, `Subscription`, `SourceVersion`, `Loaded` |
+| `com.codeheadsystems.sharder.placement` | Routing keys and placement | `PlacementStrategy`, `PreparedPlacement`, `CandidateCursor`, `StrategyKind` |
+| `com.codeheadsystems.sharder.health` | Node health state machine | `HealthView`, `HealthState`, `HealthSignal`, `Outcome`, `HintObserver` |
+| `com.codeheadsystems.sharder.fence` | Fencing | `Recipient`, `Verdict`, `Relation`, `Ownership`, `RecipientPolicy` |
+| `com.codeheadsystems.sharder.error` | Error taxonomy | `ErrorCode`, `SharderException` and its sealed descendants, the cause enumerations |
+| `com.codeheadsystems.sharder.observe` | Observability | `MetricsRegistry`, `Labels`, `MetricsView`, `EventSink`, `Event`, `Severity`, `ExplainRecord`, `Exclusion`, `ShardMetricsSource`, `ShardReport` |
+| `com.codeheadsystems.sharder.config` | Configuration surface | `RouterConfig`, `ProviderSettings`, `RoutingSettings`, `HealthSettings`, `FencingSettings`, `ObservabilitySettings`, `ConfigurationView` |
+| `com.codeheadsystems.sharder.core` | the whole of it | `Sharder`, `TopologyLoader`, `InMemoryTopologyProvider` |
+| `com.codeheadsystems.sharder.migrate` | Shard ownership handoff, Migration rate control | `HandoffCoordinator`, `MigrationPlan`, `MigrationPolicy`, `MovementHooks`, `HandoffContext`, `HandoffState`, `HandoffId`, `HookResult`, `CutoverResult`, `ObserveResult`, `StepOutcome`, `RebaseReport`, `RecoveryReport`, `ReobserveOutcome`, `PressureGauge` |
+| `com.codeheadsystems.sharder.provider.file` | Topology provider contract | `FileTopologyProvider` |
+| `com.codeheadsystems.sharder.conformance` | the conformance suite, in test source | `ConformanceSuite`, `VectorSource`, `VectorManifest`, `ConformanceLevel`, `ConformanceReport` |
 
 ### Internal packages
 
@@ -343,8 +311,8 @@ accumulated in `long`.
 No value that reaches a placement, validation, ordering, fencing, admission, budget, or threshold
 decision is a `double` or a `float`. The permitted uses are the metric values of `OBS-002`, which
 enter `MetricsRegistry.gauge` and `MetricsRegistry.histogram` and are read by nothing the library
-computes with. No arithmetic in `sharder-api`, `sharder-core`, or `sharder-migrate` outside
-`core.internal.observe` uses a floating-point type.
+computes with. No arithmetic in the library outside `core.internal.observe` uses a floating-point
+type.
 
 ## Value types and absence
 
@@ -848,7 +816,8 @@ RouterConfig config = RouterConfig.builder()
 
 The settings are grouped as nested records reachable from `RouterConfig`: `ProviderSettings`,
 `RoutingSettings`, `HealthSettings`, `FencingSettings`, and `ObservabilitySettings`.
-`MigrationPolicy` is separate and lives in `sharder-migrate`, because it is supplied to `plan`
+`MigrationPolicy` is separate and lives in `com.codeheadsystems.sharder.migrate`, because it is
+supplied to `plan`
 rather than to the router.
 
 Every duration is an `int` or `long` count of milliseconds carrying the `Millis` suffix of
@@ -888,8 +857,8 @@ public record RebaseReport(long fromEpoch, long toEpoch, List<HandoffId> rebased
                            List<HandoffId> aborted, List<HandoffId> unchanged) { }
 ```
 
-`MovementHooks` is declared in `sharder-migrate` rather than in `sharder-api`, because only a
-consumer of `sharder-migrate` implements it.
+`MovementHooks` is declared in `com.codeheadsystems.sharder.migrate` rather than beside the core
+model types, because only a consumer of the migration surface implements it.
 
 `step` takes the clock per call, as `MOVE-061` writes it, although the router already holds a
 monotonic source from `CORE-004`. `MOVE-062` makes the supplied clock the source the plan reads for
@@ -1050,16 +1019,15 @@ threads therefore pins no carrier inside the library.
 
 ### Runtime dependencies
 
-`sharder-api`, `sharder-core`, and `sharder-migrate` require `java.base` and nothing else. Their
-module descriptors name no other module, their POMs declare no compile or runtime dependency, and a
-build check fails on a POM that gains one.
-
-`sharder-provider-file` requires `java.base` and nothing else.
+`sharder` requires `java.base` and nothing else. Its module descriptor names no other module, its
+POM declares no compile or runtime dependency, and a build check fails on a POM that gains one. The
+file provider, which is the only first-party code that touches a filesystem or needs a poll
+schedule, reaches for nothing beyond `java.base` either.
 
 The library logs nothing and depends on no logging facade. What a logging framework would carry
 travels through `EventSink` under `OBS-023` and through `MetricsRegistry` under `OBS-004`, both of
 which are interfaces the integrator implements against whatever they already run. An adapter to a
-metrics library is a third-party artifact written against `sharder-api`.
+metrics library is a third-party artifact written against the public packages.
 
 ### JSON reading
 
@@ -1142,11 +1110,11 @@ Test and build dependencies reach no consumer, and the policy above does not bin
 
 | Dependency | Scope | Use |
 |---|---|---|
-| JUnit 5 | `sharder-conformance` api, every project's test | the harness and the unit tests |
+| JUnit 5 | test | the harness and the unit tests |
 | AssertJ | test | assertions |
 | ASM | `buildSrc` | the bytecode scan of the unsigned comparison check |
-| Bouncy Castle `bcprov-jdk18on` | `sharder-core` test | the third SipHash-2-4 oracle of `adr/0040` |
-| JMH | `sharder-bench` | benchmarks |
+| Bouncy Castle `bcprov-jdk18on` | test | the third SipHash-2-4 oracle of `adr/0040` |
+| JMH | benchmarks, which this module does not carry | benchmarks |
 | JaCoCo | build | coverage report and gate |
 
 Bouncy Castle is pinned to one version in `gradle/libs.versions.toml`, because an oracle whose
@@ -1279,19 +1247,20 @@ file, and a vector added to the tree and listed in the manifest runs without a c
 harness.
 
 ```java
-public interface VectorSource {
-    static VectorSource ofClasspath();                  // sharder-conformance-vectors
-    static VectorSource ofDirectory(Path root);         // a working tree
-    VectorManifest manifest();
-    byte[] read(String path);                           // a path the manifest named
+final class VectorSource {
+    static VectorSource fromProperty();                 // sharder.conformance.dir
+    byte[] readBytes(String path);                      // a path the manifest named
+    JsonObject readObject(String path);
+    String digestOf(String path);                       // against the manifest's sha256
 }
 ```
 
-`VectorSource.ofClasspath()` is the default. The system property `sharder.conformance.dir`
-substitutes a directory, so a maintainer runs the suite against an edited vector tree without
-rebuilding the resources artifact. `sharder-conformance-vectors` is a resources-only project whose
-`processResources` copies `../../conformance/` verbatim, so the packaged tree and the repository
-tree are the same bytes.
+The harness is test source, under [`adr/0081`](adr/0081-single-java-module.md), and reads the tree
+rather than a packaged copy of it. The system property `sharder.conformance.dir` names the root, and
+the build defaults it to `../../conformance`, so a maintainer runs the suite against an edited tree
+by naming another directory. Each file is checked against the `sha256` the manifest holds for it
+before its cases run, which separates a suite a checkout half-updated from a port that computes the
+wrong answer.
 
 ### Test generation
 
@@ -1301,7 +1270,7 @@ display name is the vector identifier followed by the requirement identifiers th
 a failure report names `PLACE-065` rather than a file and a line.
 
 ```java
-public final class ConformanceSuite {
+class ConformanceSuite {
     @TestFactory
     Stream<DynamicNode> conformance();
 }
@@ -1375,14 +1344,17 @@ against evidence rather than against a claim.
 
 ### Gradle configuration
 
-Convention plugins in `buildSrc` carry the settings every project shares: `--release 21`, `-Werror`
-with `-Xlint:all`, a `module-info.java` on every published project, reproducible archives, a JaCoCo
-report with a line coverage floor, and the JUnit 5 platform.
+One build file carries the settings, because there is one project: `--release 21`, `-Werror` with
+`-Xlint:all`, `module-info.java`, reproducible archives, a JaCoCo report with a line coverage floor,
+and the JUnit 5 platform. A convention plugin in `buildSrc` arrives with the second project that
+needs one.
 
-`check` runs the unit tests, the conformance suite at level core, `verifyDocLinks`,
-`verifyDocStyle`, `verifyUnsignedComparisons`, and the dependency check that fails a published POM
+`check` runs the unit tests, the conformance suite at the levels the port declares,
+`verifyDocLinks`, `verifyDocStyle`, `verifyUnsignedComparisons`, and the dependency check that
+fails a published POM
 carrying a compile or runtime dependency. Every one of them is chosen to run offline and without a
-container runtime, so `check` needs no network and no Docker daemon.
+container runtime, so `check` needs no network and no Docker daemon. Of those, the unit tests and
+the suite are written; the four checks are not.
 
 `verifyDocStyle` is the one task in that list whose finding does not fail `check`. It prints its
 findings and exits zero, under [`adr/0062`](adr/0062-documentation-style-check-as-a-warning.md).
@@ -1456,7 +1428,9 @@ tokens straddle 2^63.
 
 ### Benchmarks
 
-`sharder-bench` uses JMH through the `me.champeau.jmh` plugin and is not part of `check`. JMH is too
+The benchmarks use JMH and are not part of `check`. They are not in this module, under
+[`adr/0081`](adr/0081-single-java-module.md), and the record that brings them back states where they
+sit. JMH is too
 slow and too variable on shared continuous integration hardware to gate a merge. The benchmarks run
 on demand and on a nightly job on fixed hardware, and a regression is read from the trend.
 
@@ -1502,7 +1476,8 @@ gate sees it.
 
 | Record | Subject |
 |---|---|
-| [`adr/0028-java-module-and-artifact-layout.md`](adr/0028-java-module-and-artifact-layout.md) | the artifact split and the module boundaries |
+| [`adr/0028-java-module-and-artifact-layout.md`](adr/0028-java-module-and-artifact-layout.md) | the module boundaries, whose artifact split `0081` supersedes |
+| [`adr/0081-single-java-module.md`](adr/0081-single-java-module.md) | one artifact carrying the library, and what that defers |
 | [`adr/0029-exception-idiom-for-the-taxonomy.md`](adr/0029-exception-idiom-for-the-taxonomy.md) | exceptions against a result type, the sealed hierarchy, unchecked |
 | [`adr/0030-unsigned-integer-discipline.md`](adr/0030-unsigned-integer-discipline.md) | unsigned 64-bit arithmetic and its build check |
 | [`adr/0031-jdk-baseline.md`](adr/0031-jdk-baseline.md) | the Java 21 floor |

@@ -10,8 +10,9 @@ port.
 The reader is a contributor starting a port, and a reviewer checking that a port has not quietly
 changed a contract the suite does not reach.
 
-Status: no port exists. `ports/` holds the directory the first port takes and no implementation, so
-every rule below states what a port does rather than what one has done.
+Status: one port exists. `ports/java/` reaches the `hash` conformance level and declares no
+conformance yet, and no other port has been started, so most of what follows states what a port does
+rather than what one has done.
 
 ## Port identifier
 
@@ -156,7 +157,9 @@ document format carries its own version under
 
 A port fixes its coordinates in a decision record before it publishes anything, because a registry
 name, a module path, and a package root appear in every consumer's build file and are expensive to
-move afterwards. [`adr/0028`](adr/0028-java-module-and-artifact-layout.md) is that record for Java.
+move afterwards. [`adr/0028`](adr/0028-java-module-and-artifact-layout.md) and
+[`adr/0081`](adr/0081-single-java-module.md) are those records for Java, the second fixing how many
+artifacts carry the library.
 
 Two rules bind every ecosystem. An artifact, a crate, a gem, a module, or a package carries the name
 `sharder` rather than the name of the repository, and the `the-` prefix belongs to the GitHub
@@ -217,3 +220,4 @@ binds every other Markdown file in the repository.
 | [`adr/0080-conformance-declaration-format.md`](adr/0080-conformance-declaration-format.md) | the declaration file, its checks, and what they do not establish |
 | [`adr/0061-suite-revision-identifier.md`](adr/0061-suite-revision-identifier.md) | the revision a declaration names |
 | [`adr/0028-java-module-and-artifact-layout.md`](adr/0028-java-module-and-artifact-layout.md) | the coordinates of the first port |
+| [`adr/0081-single-java-module.md`](adr/0081-single-java-module.md) | one artifact for the first port, and what that defers |

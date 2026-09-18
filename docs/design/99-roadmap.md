@@ -39,7 +39,7 @@ requires and the suite bounds by nothing.
 | scale | the placement function over a thousand nodes, reported rather than bounded |
 
 An integrator who routes a tenant identifier to one of several clusters is served in full by v0.1
-and depends on `sharder-api` and `sharder-core` alone.
+and depends on `sharder` alone.
 
 One question in [`90-open-questions.md`](90-open-questions.md) is answered before v0.1 publishes,
 because v0.1 publishes the document that leaves it open: `OQ-02`, the three requirements with no
@@ -60,8 +60,9 @@ and the coordinator supports no weaker mode. An integrator whose store offers no
 shard outside the library.
 
 The specification, the conformance scenarios, and the Java binding for that surface are complete at
-v0.1 and unimplemented. `sharder-migrate` is a separate artifact, so an integrator who never
-migrates carries none of it either way.
+v0.1 and unimplemented. The migration surface sits in packages of its own, which an integrator who
+never migrates never imports, and [`adr/0081`](adr/0081-single-java-module.md) states when it
+becomes an artifact of its own.
 
 ## Later releases
 
@@ -185,9 +186,11 @@ silently retargets a test rather than breaking it. The Conventions section of
 
 ### Java binding
 
-Artifact, module, and package names. `com.codeheadsystems` as the group, the `sharder` prefix on
-every artifact, and `com.codeheadsystems.sharder` as the top package appear in every consumer's
-build file and in every `module-info`. Renaming one after publication splits the dependency graph.
+Artifact, module, and package names. `com.codeheadsystems` as the group, `sharder` as the artifact,
+and `com.codeheadsystems.sharder` as the top package and the module appear in every consumer's build
+file and in every `module-info`. Renaming one after publication splits the dependency graph. How
+many artifacts carry the library is not through this door until one is published, and
+[`adr/0081`](adr/0081-single-java-module.md) is what revisits it before that.
 [`adr/0028`](adr/0028-java-module-and-artifact-layout.md).
 
 The JDK floor. Java 21 is one-way downward: raising it later drops consumers, and lowering it later

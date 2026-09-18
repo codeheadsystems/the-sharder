@@ -13,8 +13,8 @@ conventions and the Java binding design, and a conformance suite of language-neu
 computed by a Python reference implementation.
 
 Three kinds of change are possible today: a change to a Markdown document, a change to the
-conformance suite through its generator, and starting a port under `ports/`. No port has been
-written, so there is no Gradle build, no `check` task, and no library source of any language;
+conformance suite through its generator, and a change to the Java port under `ports/java/`, which is
+under way and reaches the `hash` conformance level.
 [`docs/design/99-roadmap.md`](docs/design/99-roadmap.md) gives the staging.
 
 ## Commands
@@ -60,6 +60,18 @@ take tens of seconds each, and the collision search takes tens of minutes per mo
 results under `conformance/generator/collisions/` are committed inputs and change only if the hash
 construction changes.
 
+The Java port is one Gradle module. It needs a JDK of 21 or above, and the dependencies it
+resolves are test scope:
+
+```sh
+cd ports/java && ./gradlew build     # compile, unit tests, and the conformance suite
+cd ports/java && ./gradlew test --tests '*ConformanceSuite'
+```
+
+The harness reads `conformance/` directly, which the build points it at with
+`sharder.conformance.dir`. A vector kind the driver does not implement fails rather than skipping,
+so a level passes whole or not at all.
+
 A benchmark source builds standalone and depends on nothing in the repository:
 
 ```sh
@@ -83,6 +95,7 @@ cd bench && cc -O2 -o hash-short-input hash-short-input.c && ./hash-short-input
 | `conformance/declarations/` | one declaration per port, hand-written, checked against the manifest |
 | `conformance/driver/python/run_suite.py` | the worked example driver a port copies |
 | `ports/<port>/` | one implementation, rooted in the build its ecosystem expects |
+| `ports/java/src/main/java/` | the Java port: the public packages, and `core.internal` below them |
 
 [`docs/README.md`](docs/README.md) routes by reader and names sections rather than whole documents;
 use it to find where a fact lives before searching.
@@ -114,12 +127,11 @@ testing one surface: `hash`, `place`, `core`, `scale`, `failover`, `readAffinity
 `migration`, with the requires relation the `levels` table of the manifest carries. A port declares
 levels, not a percentage, against the suite revision in `manifest.json`.
 
-The planned Java build is Gradle with the Kotlin DSL rooted at `ports/java/`, group
-`com.codeheadsystems`, artifacts `sharder-api`, `sharder-core`, `sharder-migrate`,
-`sharder-provider-file`, `sharder-conformance`, `sharder-conformance-vectors`, `sharder-bom`, and
-`sharder-bench`, with `buildSrc` carrying `verifyDocLinks`, `verifyDocStyle`, and
-`verifyUnsignedComparisons`. None of it exists yet, so every rule those tasks would enforce is
-enforced at review.
+The Java build is Gradle with the Kotlin DSL rooted at `ports/java/`, group `com.codeheadsystems`,
+one artifact `sharder`, and one module `com.codeheadsystems.sharder`, under
+[`docs/design/adr/0081-single-java-module.md`](docs/design/adr/0081-single-java-module.md). The
+build checks `verifyDocLinks`, `verifyDocStyle`, and `verifyUnsignedComparisons` do not exist yet,
+so every rule they would enforce is enforced at review.
 
 ## Rules a change obeys
 

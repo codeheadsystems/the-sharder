@@ -1,9 +1,12 @@
 # 0028. Java module and artifact layout
 
 Status: accepted, with the split advice and the split lineage withdrawn by
-[`0054`](0054-range-strategy-withdrawal.md). Date: 2026-09-16.
+[`0054`](0054-range-strategy-withdrawal.md), and the artifact set superseded by
+[`0081`](0081-single-java-module.md). Date: 2026-09-16.
 
-The module boundaries stand. Two of the premises below do not: `SPLIT-021` to `SPLIT-051`, the split
+The module boundaries stand as package boundaries, and the eight projects below are one project
+under [`0081`](0081-single-java-module.md), which states why the split waits for a publication to
+enforce. Two of the premises below do not stand either: `SPLIT-021` to `SPLIT-051`, the split
 advice, and `SPLIT-061`, the lineage, are withdrawn identifiers that the register of
 [`../10-specification.md`](../10-specification.md#withdrawn-identifiers) resolves, and the strategy
 set is four kinds rather than five under [`0002`](0002-placement-strategy-set.md). The boundaries

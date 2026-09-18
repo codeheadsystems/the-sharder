@@ -14,7 +14,9 @@ Design complete. No implementation exists.
 
 The specification, the topology document format and its schema, the conformance suite with its
 reference generator, the Java binding design, and the decision records are written. Java is the
-first implementation and is not yet started. Every implementation sits under [`ports/`](ports/), and
+first implementation and is under way: the hash construction, the opaque identifier types, the error
+codes, the JSON reader, and the conformance harness are written, and the port reaches the `hash`
+conformance level. Every implementation sits under [`ports/`](ports/), and
 [`docs/design/35-port-conventions.md`](docs/design/35-port-conventions.md) states what each one
 carries whatever its language.
 [`docs/design/99-roadmap.md`](docs/design/99-roadmap.md) gives the staging, and
@@ -96,7 +98,7 @@ port.
 |---|---|
 | repository | `codeheadsystems/the-sharder` |
 | group | `com.codeheadsystems` |
-| published artifacts | `sharder-bom`, `sharder-api`, `sharder-core`, `sharder-migrate`, `sharder-provider-file`, `sharder-conformance`, `sharder-conformance-vectors` |
+| published artifact | `sharder`, one module carrying the library, under [`adr/0081`](docs/design/adr/0081-single-java-module.md) |
 | top package | `com.codeheadsystems.sharder` |
 | JDK floor | 21 |
 | runtime dependencies | none beyond `java.base`, outside the conformance harness |
