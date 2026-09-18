@@ -112,6 +112,10 @@ The property witnesses take a few minutes, because a balance witness evaluates a
 keys against every node of a topology. `python3 generate_properties.py --quick` uses sample sizes
 below the specification's preconditions and is for checking a script rather than for publishing.
 
+`generate_scale.py` takes tens of seconds, because it builds a ring of over a million tokens in
+Python, and the driver takes the same again running the file it wrote. Both print what the step
+cost, and neither figure is asserted by anything.
+
 The collision search behind the tie-break vectors is not part of an ordinary run. It takes tens of
 minutes per mode, its results live under `conformance/generator/collisions/`, and they change only
 if the hash construction changes.

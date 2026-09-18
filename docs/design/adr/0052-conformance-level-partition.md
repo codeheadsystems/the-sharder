@@ -2,8 +2,9 @@
 
 Status: accepted, with the split lineage vectors withdrawn by
 [`0054`](0054-range-strategy-withdrawal.md), a `place` level added by
-[`0059`](0059-place-conformance-level.md), and a strategy axis added by
-[`0058`](0058-conformance-surfaces.md). Date: 2026-09-17.
+[`0059`](0059-place-conformance-level.md), a strategy axis added by
+[`0058`](0058-conformance-surfaces.md), and the `scale` level this record anticipated added by
+[`0077`](0077-scale-conformance-level.md). Date: 2026-09-17.
 
 The partition holds. `migration` loses `vectors/split/lineage.json` and keeps the rate control
 formulas and the handoff scenarios, which is a set of artefacts shrinking rather than a level

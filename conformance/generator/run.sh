@@ -37,6 +37,12 @@ python3 generate_formulas.py
 echo "== generating the remaining vector sets"
 python3 generate_extra.py
 
+echo "== generating the scale topologies; the ring build takes tens of seconds"
+python3 generate_scale.py
+
+echo "== generating the observability inventories and publication events"
+python3 generate_observability.py
+
 echo "== generating property definitions"
 python3 property_definitions.py
 

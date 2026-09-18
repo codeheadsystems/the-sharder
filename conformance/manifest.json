@@ -1,9 +1,9 @@
 {
   "suite": "sharder conformance suite",
   "revision": {
-    "id": "0c0e1aa719596e8f338741c445be203a0c2e1ae9e9bb76d09931be929cb8077c",
+    "id": "40ac96a0e8239f43d7c541dca3476c7c1894ce6a19d1d7fc29248720efe499fe",
     "basis": "sha256 of the RFC 8785 canonical form of the file digests, the level table, and the strategy surfaces",
-    "fileCount": 181,
+    "fileCount": 190,
     "trees": [
       "vectors",
       "topologies",
@@ -15,15 +15,16 @@
   "design": "docs/design/30-conformance.md",
   "generator": "conformance/generator",
   "counts": {
-    "vectorFiles": 60,
-    "vectorCases": 577,
-    "topologyDocuments": 98,
+    "vectorFiles": 67,
+    "vectorCases": 594,
+    "topologyDocuments": 100,
     "scenarios": 21,
     "scenarioSteps": 285,
     "properties": 28,
-    "requirementsNamed": 439
+    "requirementsNamed": 454
   },
   "requirementsNamed": [
+    "CFG-014",
     "CFG-020",
     "CFG-021",
     "CFG-030",
@@ -239,7 +240,15 @@
     "MOVE-461",
     "MOVE-481",
     "MOVE-491",
+    "OBS-001",
+    "OBS-003",
     "OBS-010",
+    "OBS-011",
+    "OBS-020",
+    "OBS-021",
+    "OBS-022",
+    "OBS-024",
+    "OBS-025",
     "OBS-031",
     "OBS-032",
     "OBS-033",
@@ -308,6 +317,11 @@
     "PLACE-065",
     "PLACE-066",
     "PLACE-067",
+    "PLACE-070",
+    "PLACE-071",
+    "PLACE-073",
+    "PLACE-074",
+    "PLACE-077",
     "PROP-001",
     "PROP-002",
     "PROP-003",
@@ -444,6 +458,7 @@
     "SPREAD-021",
     "SPREAD-022",
     "SPREAD-023",
+    "SPREAD-024",
     "TOPO-001",
     "TOPO-011",
     "TOPO-051",
@@ -493,11 +508,23 @@
         "place"
       ],
       "surface": "the document pipeline, the snapshot lifecycle, and what is reported",
-      "vectorFiles": 6,
-      "vectorCases": 122,
+      "vectorFiles": 8,
+      "vectorCases": 131,
       "scenarios": 1,
       "properties": 22,
-      "requirementsNamed": 106
+      "requirementsNamed": 125
+    },
+    {
+      "level": "scale",
+      "requires": [
+        "core"
+      ],
+      "surface": "the placement function over a topology of a thousand nodes",
+      "vectorFiles": 2,
+      "vectorCases": 2,
+      "scenarios": 0,
+      "properties": 0,
+      "requirementsNamed": 17
     },
     {
       "level": "failover",
@@ -505,11 +532,11 @@
         "core"
       ],
       "surface": "the health view, the attempt sequence, and the retry budget",
-      "vectorFiles": 2,
-      "vectorCases": 65,
+      "vectorFiles": 3,
+      "vectorCases": 67,
       "scenarios": 6,
       "properties": 2,
-      "requirementsNamed": 57
+      "requirementsNamed": 61
     },
     {
       "level": "readAffinity",
@@ -529,11 +556,11 @@
         "failover"
       ],
       "surface": "the fencing token, the recipient verdict, and the redirect walk",
-      "vectorFiles": 2,
-      "vectorCases": 6,
+      "vectorFiles": 3,
+      "vectorCases": 8,
       "scenarios": 3,
       "properties": 1,
-      "requirementsNamed": 38
+      "requirementsNamed": 44
     },
     {
       "level": "migration",
@@ -541,11 +568,11 @@
         "failover"
       ],
       "surface": "the handoff coordinator and rate control",
-      "vectorFiles": 2,
-      "vectorCases": 13,
+      "vectorFiles": 3,
+      "vectorCases": 15,
       "scenarios": 11,
       "properties": 3,
-      "requirementsNamed": 75
+      "requirementsNamed": 80
     }
   ],
   "strategySurfaces": [
@@ -1244,6 +1271,22 @@
       "digest": "d947c4aa45a782f32c422ce8bfdd6bef4f79186378ece4f0ed02e89686615ca2",
       "valid": true
     },
+    "topologies/scale-rendezvous-1000.topology.json": {
+      "topologyId": "scale-rendezvous-1000",
+      "epoch": 1,
+      "strategy": "rendezvous",
+      "nodeCount": 1000,
+      "digest": "2be09a131f126055e0e3f28f05d961e54af3bc72e3c954f0626dbb0a6b9b6614",
+      "valid": true
+    },
+    "topologies/scale-ring-1000.topology.json": {
+      "topologyId": "scale-ring-1000",
+      "epoch": 1,
+      "strategy": "ring",
+      "nodeCount": 1000,
+      "digest": "e3975f887932698d344504b03e8d6ea5a9c1a8404335828b7f4143b7f95f9a4f",
+      "valid": true
+    },
     "topologies/single-node.topology.json": {
       "topologyId": "single-node",
       "epoch": 1,
@@ -1940,6 +1983,116 @@
       "sha256": "a88ecd70fe2724352e32a854f44a06136cf41ed353714c202bae4720e7041d34"
     },
     {
+      "file": "vectors/observability/inventory-failover.json",
+      "vectorSet": "observability-inventory-failover",
+      "kind": "observabilityInventory",
+      "level": "failover",
+      "strategies": [],
+      "caseStrategies": [],
+      "description": "The metric and event names, label sets, severities, and payload members of the `failover` surface, as `OBS-010` and `OBS-020` state them.",
+      "topology": null,
+      "caseCount": 2,
+      "requirements": [
+        "OBS-001",
+        "OBS-003",
+        "OBS-010",
+        "OBS-020",
+        "OBS-021"
+      ],
+      "sha256": "627456d23ba5923380abee69a35749d46d00ce349ad00bf5f7c3a229b55404b7"
+    },
+    {
+      "file": "vectors/observability/inventory-fencing.json",
+      "vectorSet": "observability-inventory-fencing",
+      "kind": "observabilityInventory",
+      "level": "fencing",
+      "strategies": [],
+      "caseStrategies": [],
+      "description": "The metric and event names, label sets, severities, and payload members of the `fencing` surface, as `OBS-010` and `OBS-020` state them.",
+      "topology": null,
+      "caseCount": 2,
+      "requirements": [
+        "OBS-001",
+        "OBS-003",
+        "OBS-010",
+        "OBS-020",
+        "OBS-021",
+        "OBS-024"
+      ],
+      "sha256": "df64a37c57d8734f83aa29471fa00929280ef3e6e7daa506c14997a68d2e6bad"
+    },
+    {
+      "file": "vectors/observability/inventory-migration.json",
+      "vectorSet": "observability-inventory-migration",
+      "kind": "observabilityInventory",
+      "level": "migration",
+      "strategies": [],
+      "caseStrategies": [],
+      "description": "The metric and event names, label sets, severities, and payload members of the `migration` surface, as `OBS-010` and `OBS-020` state them.",
+      "topology": null,
+      "caseCount": 2,
+      "requirements": [
+        "OBS-001",
+        "OBS-003",
+        "OBS-010",
+        "OBS-020",
+        "OBS-021"
+      ],
+      "sha256": "548ce6104a96251eea8bdd586c79069f5d0bdbb9968b16426a5f170187cce189"
+    },
+    {
+      "file": "vectors/observability/inventory-routing.json",
+      "vectorSet": "observability-inventory-routing",
+      "kind": "observabilityInventory",
+      "level": "core",
+      "strategies": [],
+      "caseStrategies": [],
+      "description": "The metric and event names, label sets, severities, and payload members of the `routing` surface, as `OBS-010` and `OBS-020` state them.",
+      "topology": null,
+      "caseCount": 3,
+      "requirements": [
+        "OBS-001",
+        "OBS-003",
+        "OBS-010",
+        "OBS-011",
+        "OBS-020",
+        "OBS-021",
+        "OBS-022",
+        "OBS-024",
+        "OBS-025"
+      ],
+      "sha256": "9fb7e4dbccaaead0bbd0f04b5040f723bb7bdc4587df135e85ff7185841c0f91"
+    },
+    {
+      "file": "vectors/observability/publication-events.json",
+      "vectorSet": "observability-publication-events",
+      "kind": "publicationEvents",
+      "level": "core",
+      "strategies": [],
+      "caseStrategies": [
+        "directory",
+        "rendezvous",
+        "ring"
+      ],
+      "description": "The events one publication of a document emits, from the totals `PLACE-077` computes before preparation and from the scans of `SPREAD-024` and `SEC-011`.",
+      "topology": null,
+      "caseCount": 6,
+      "requirements": [
+        "CFG-014",
+        "OBS-020",
+        "PLACE-050",
+        "PLACE-052",
+        "PLACE-073",
+        "PLACE-074",
+        "PLACE-077",
+        "SEC-011",
+        "SPREAD-022",
+        "SPREAD-023",
+        "SPREAD-024"
+      ],
+      "sha256": "fed17ad224c8247548ddafb5fca75e41c67373607c2a5bd61a6edf4f95fa4331"
+    },
+    {
       "file": "vectors/overrides/pin-admits-weight-zero.json",
       "vectorSet": "overrides-pin-admits-weight-zero",
       "kind": "routing",
@@ -2512,6 +2665,65 @@
         "RING-002"
       ],
       "sha256": "b476198030e0d3dd0b77af27a0bf88715cc45bd72d6ed69f4b3b93331ab63f22"
+    },
+    {
+      "file": "vectors/scale/rendezvous-1000.json",
+      "vectorSet": "scale-rendezvous-1000",
+      "kind": "scale",
+      "level": "scale",
+      "strategies": [
+        "rendezvous"
+      ],
+      "caseStrategies": [
+        "rendezvous"
+      ],
+      "description": "A thousand nodes scored at four virtual nodes per weight unit: the virtual node total, the empty shard set of `PLACE-032`, and six routing decisions over it.",
+      "topology": "topologies/scale-rendezvous-1000.topology.json",
+      "caseCount": 1,
+      "requirements": [
+        "CORE-046",
+        "CORE-047",
+        "PLACE-032",
+        "PLACE-050",
+        "PLACE-070",
+        "PLACE-071",
+        "PLACE-074",
+        "RV-003",
+        "RV-010",
+        "RV-013"
+      ],
+      "sha256": "4f1fe6d90c873bc854f359d8d80fec786ca1e6723daa49f0ec60fe788b56adf1"
+    },
+    {
+      "file": "vectors/scale/ring-1000.json",
+      "vectorSet": "scale-ring-1000",
+      "kind": "scale",
+      "level": "scale",
+      "strategies": [
+        "ring"
+      ],
+      "caseStrategies": [
+        "ring"
+      ],
+      "description": "A thousand nodes on a ring of over a million derived tokens: the token total, the shard cardinality, and six routing decisions over it.",
+      "topology": "topologies/scale-ring-1000.topology.json",
+      "caseCount": 1,
+      "requirements": [
+        "CORE-046",
+        "CORE-047",
+        "PLACE-015",
+        "PLACE-050",
+        "PLACE-052",
+        "PLACE-070",
+        "PLACE-071",
+        "PLACE-074",
+        "RING-010",
+        "RING-020",
+        "RING-021",
+        "RING-026",
+        "RING-031"
+      ],
+      "sha256": "185600baa5bb3f64b6bfcfd7805db52dd206b93482164f6423264ee110431234"
     },
     {
       "file": "vectors/slot/explicit-assignment.json",

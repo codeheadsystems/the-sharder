@@ -1316,7 +1316,13 @@ against the surface rather than the level.
 
 The conformance report names the suite revision, from the `revision` member of the manifest it ran,
 and the conformance surfaces the binding exposes. `CORE-110` requires the second and
-[`30-conformance.md`](30-conformance.md#declaring-conformance) requires both.
+[`30-conformance.md`](30-conformance.md#declaring-conformance) requires both. It also names the wall
+time and the peak resident size the `scale` level took, which the same section requires a
+declaration to publish and which no test asserts.
+
+`check` runs the suite at level `core`, which does not carry `scale`. The Gradle task
+`conformanceScale` runs `scale` and writes those two figures, and the release process runs it, so a
+thousand-node document is loaded for a declaration rather than on every build.
 
 ### Suite kinds
 
@@ -1328,6 +1334,8 @@ and the conformance surfaces the binding exposes. `CORE-110` requires the second
 | routing | installs the document, routes each key, and compares the routing key, the shard, the candidate ordering, the preference list, the roles, the materialised prefix length, and the fencing token |
 | property | evaluates the bounds of `PROP-*` over a sample the vector specifies |
 | simulation | interprets a scenario as a sequence of steps against a router and a settable clock |
+| scale | installs a thousand-node document, routes the keys the vector names, and compares the placement total, the shard cardinality, and a prefix of each ordering |
+| observability | compares the metric names, label sets, severities, and event payload members against the registry and the sink, and the publication events against the ones a snapshot emitted |
 
 A routing vector is compared by the rule of `PROP-002`: the ordering is serialised as a JSON array
 of strings and the two serialisations are compared byte for byte.
@@ -1453,6 +1461,12 @@ on demand and on a nightly job on fixed hardware, and a regression is read from 
 | `explain` | 1000 nodes, to confirm the cost `OBS-046` keeps off the routing path |
 | `prepare` | stage 6 of `TOPO-001`, 1000 nodes at 4096 tokens each |
 | `canonicalise` | RFC 8785 plus SHA-256 over a 1000-node document |
+
+The `prepare`, `canonicalise`, and thousand-node `route` rows work at the size the `scale`
+conformance level works at, and answer a different question. The level asserts what a thousand-node
+topology routes to and reports what the run took; the benchmarks measure the cost against a trend
+on fixed hardware. Neither replaces the other, and a regression the benchmarks catch is one the
+level reports as a larger number without failing.
 
 The two shapes the `route` row adds are the ones whose cost the node count does not show. A
 `rendezvous` topology at `virtualNodesPerWeightUnit` of 64 costs `V` hash evaluations per call under

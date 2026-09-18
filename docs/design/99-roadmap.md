@@ -13,10 +13,12 @@ no date is attached to any of them.
 ## Release v0.1
 
 The first release publishes the specification, the topology document format, the conformance suite,
-and a Java implementation that reaches the `hash`, `place`, `core`, `failover`, `fencing`, and
-`readAffinity` conformance levels of
+and a Java implementation that reaches the `hash`, `place`, `core`, `scale`, `failover`, `fencing`,
+and `readAffinity` conformance levels of
 [`30-conformance.md`](30-conformance.md#conformance-levels), exposing all four placement strategy
-surfaces.
+surfaces. Its declaration carries the wall time and the peak resident size it observed at `scale`,
+which the declaration rule of [`30-conformance.md`](30-conformance.md#declaring-conformance)
+requires and the suite bounds by nothing.
 
 | Surface | Contents |
 |---|---|
@@ -34,6 +36,7 @@ surfaces.
 | format | `formatVersion` 1.0, the JSON Schema, the canonical form, and the digest |
 | providers | the in-memory reference provider and the static file provider |
 | conformance | the vector files, topology documents, properties, and scenarios, with the manifest that counts and indexes them |
+| scale | the placement function over a thousand nodes, reported rather than bounded |
 
 An integrator who routes a tenant identifier to one of several clusters is served in full by v0.1
 and depends on `sharder-api` and `sharder-core` alone.

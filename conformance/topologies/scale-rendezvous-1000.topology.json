@@ -1,0 +1,9024 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "scale-rendezvous-1000",
+  "epoch": 1,
+  "domainLevels": [
+    "region",
+    "zone",
+    "rack"
+  ],
+  "replication": {
+    "factor": 3,
+    "spread": [
+      "zone"
+    ],
+    "spreadPolicy": "relaxed"
+  },
+  "strategy": {
+    "kind": "rendezvous",
+    "virtualNodesPerWeightUnit": 4,
+    "maxVirtualNodesPerNode": 16
+  },
+  "nodes": [
+    {
+      "id": "node-0000",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-000"
+      }
+    },
+    {
+      "id": "node-0001",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-001"
+      }
+    },
+    {
+      "id": "node-0002",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-002"
+      }
+    },
+    {
+      "id": "node-0003",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-003"
+      }
+    },
+    {
+      "id": "node-0004",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-004"
+      }
+    },
+    {
+      "id": "node-0005",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-005"
+      }
+    },
+    {
+      "id": "node-0006",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-006"
+      }
+    },
+    {
+      "id": "node-0007",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-007"
+      }
+    },
+    {
+      "id": "node-0008",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-008"
+      }
+    },
+    {
+      "id": "node-0009",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-009"
+      }
+    },
+    {
+      "id": "node-0010",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-010"
+      }
+    },
+    {
+      "id": "node-0011",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-011"
+      }
+    },
+    {
+      "id": "node-0012",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-012"
+      }
+    },
+    {
+      "id": "node-0013",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-013"
+      }
+    },
+    {
+      "id": "node-0014",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-014"
+      }
+    },
+    {
+      "id": "node-0015",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-015"
+      }
+    },
+    {
+      "id": "node-0016",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-016"
+      }
+    },
+    {
+      "id": "node-0017",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-017"
+      }
+    },
+    {
+      "id": "node-0018",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-018"
+      }
+    },
+    {
+      "id": "node-0019",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-019"
+      }
+    },
+    {
+      "id": "node-0020",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-020"
+      }
+    },
+    {
+      "id": "node-0021",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-021"
+      }
+    },
+    {
+      "id": "node-0022",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-022"
+      }
+    },
+    {
+      "id": "node-0023",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-023"
+      }
+    },
+    {
+      "id": "node-0024",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-024"
+      }
+    },
+    {
+      "id": "node-0025",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-025"
+      }
+    },
+    {
+      "id": "node-0026",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-026"
+      }
+    },
+    {
+      "id": "node-0027",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-027"
+      }
+    },
+    {
+      "id": "node-0028",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-028"
+      }
+    },
+    {
+      "id": "node-0029",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-029"
+      }
+    },
+    {
+      "id": "node-0030",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-030"
+      }
+    },
+    {
+      "id": "node-0031",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-031"
+      }
+    },
+    {
+      "id": "node-0032",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-032"
+      }
+    },
+    {
+      "id": "node-0033",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-033"
+      }
+    },
+    {
+      "id": "node-0034",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-034"
+      }
+    },
+    {
+      "id": "node-0035",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-035"
+      }
+    },
+    {
+      "id": "node-0036",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-036"
+      }
+    },
+    {
+      "id": "node-0037",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-037"
+      }
+    },
+    {
+      "id": "node-0038",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-038"
+      }
+    },
+    {
+      "id": "node-0039",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-039"
+      }
+    },
+    {
+      "id": "node-0040",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-040"
+      }
+    },
+    {
+      "id": "node-0041",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-041"
+      }
+    },
+    {
+      "id": "node-0042",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-042"
+      }
+    },
+    {
+      "id": "node-0043",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-043"
+      }
+    },
+    {
+      "id": "node-0044",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-044"
+      }
+    },
+    {
+      "id": "node-0045",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-045"
+      }
+    },
+    {
+      "id": "node-0046",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-046"
+      }
+    },
+    {
+      "id": "node-0047",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-047"
+      }
+    },
+    {
+      "id": "node-0048",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-048"
+      }
+    },
+    {
+      "id": "node-0049",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-049"
+      }
+    },
+    {
+      "id": "node-0050",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-050"
+      }
+    },
+    {
+      "id": "node-0051",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-051"
+      }
+    },
+    {
+      "id": "node-0052",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-052"
+      }
+    },
+    {
+      "id": "node-0053",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-053"
+      }
+    },
+    {
+      "id": "node-0054",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-054"
+      }
+    },
+    {
+      "id": "node-0055",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-055"
+      }
+    },
+    {
+      "id": "node-0056",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-056"
+      }
+    },
+    {
+      "id": "node-0057",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-057"
+      }
+    },
+    {
+      "id": "node-0058",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-058"
+      }
+    },
+    {
+      "id": "node-0059",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-059"
+      }
+    },
+    {
+      "id": "node-0060",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-060"
+      }
+    },
+    {
+      "id": "node-0061",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-061"
+      }
+    },
+    {
+      "id": "node-0062",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-062"
+      }
+    },
+    {
+      "id": "node-0063",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-063"
+      }
+    },
+    {
+      "id": "node-0064",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-064"
+      }
+    },
+    {
+      "id": "node-0065",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-065"
+      }
+    },
+    {
+      "id": "node-0066",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-066"
+      }
+    },
+    {
+      "id": "node-0067",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-067"
+      }
+    },
+    {
+      "id": "node-0068",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-068"
+      }
+    },
+    {
+      "id": "node-0069",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-069"
+      }
+    },
+    {
+      "id": "node-0070",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-070"
+      }
+    },
+    {
+      "id": "node-0071",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-071"
+      }
+    },
+    {
+      "id": "node-0072",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-072"
+      }
+    },
+    {
+      "id": "node-0073",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-073"
+      }
+    },
+    {
+      "id": "node-0074",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-074"
+      }
+    },
+    {
+      "id": "node-0075",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-075"
+      }
+    },
+    {
+      "id": "node-0076",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-076"
+      }
+    },
+    {
+      "id": "node-0077",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-077"
+      }
+    },
+    {
+      "id": "node-0078",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-078"
+      }
+    },
+    {
+      "id": "node-0079",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-079"
+      }
+    },
+    {
+      "id": "node-0080",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-080"
+      }
+    },
+    {
+      "id": "node-0081",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-081"
+      }
+    },
+    {
+      "id": "node-0082",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-082"
+      }
+    },
+    {
+      "id": "node-0083",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-083"
+      }
+    },
+    {
+      "id": "node-0084",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-084"
+      }
+    },
+    {
+      "id": "node-0085",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-085"
+      }
+    },
+    {
+      "id": "node-0086",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-086"
+      }
+    },
+    {
+      "id": "node-0087",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-087"
+      }
+    },
+    {
+      "id": "node-0088",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-088"
+      }
+    },
+    {
+      "id": "node-0089",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-089"
+      }
+    },
+    {
+      "id": "node-0090",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-090"
+      }
+    },
+    {
+      "id": "node-0091",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-091"
+      }
+    },
+    {
+      "id": "node-0092",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-092"
+      }
+    },
+    {
+      "id": "node-0093",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-093"
+      }
+    },
+    {
+      "id": "node-0094",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-094"
+      }
+    },
+    {
+      "id": "node-0095",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-095"
+      }
+    },
+    {
+      "id": "node-0096",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-096"
+      }
+    },
+    {
+      "id": "node-0097",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-000"
+      }
+    },
+    {
+      "id": "node-0098",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-001"
+      }
+    },
+    {
+      "id": "node-0099",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-002"
+      }
+    },
+    {
+      "id": "node-0100",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-003"
+      }
+    },
+    {
+      "id": "node-0101",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-004"
+      }
+    },
+    {
+      "id": "node-0102",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-005"
+      }
+    },
+    {
+      "id": "node-0103",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-006"
+      }
+    },
+    {
+      "id": "node-0104",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-007"
+      }
+    },
+    {
+      "id": "node-0105",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-008"
+      }
+    },
+    {
+      "id": "node-0106",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-009"
+      }
+    },
+    {
+      "id": "node-0107",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-010"
+      }
+    },
+    {
+      "id": "node-0108",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-011"
+      }
+    },
+    {
+      "id": "node-0109",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-012"
+      }
+    },
+    {
+      "id": "node-0110",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-013"
+      }
+    },
+    {
+      "id": "node-0111",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-014"
+      }
+    },
+    {
+      "id": "node-0112",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-015"
+      }
+    },
+    {
+      "id": "node-0113",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-016"
+      }
+    },
+    {
+      "id": "node-0114",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-017"
+      }
+    },
+    {
+      "id": "node-0115",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-018"
+      }
+    },
+    {
+      "id": "node-0116",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-019"
+      }
+    },
+    {
+      "id": "node-0117",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-020"
+      }
+    },
+    {
+      "id": "node-0118",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-021"
+      }
+    },
+    {
+      "id": "node-0119",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-022"
+      }
+    },
+    {
+      "id": "node-0120",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-023"
+      }
+    },
+    {
+      "id": "node-0121",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-024"
+      }
+    },
+    {
+      "id": "node-0122",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-025"
+      }
+    },
+    {
+      "id": "node-0123",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-026"
+      }
+    },
+    {
+      "id": "node-0124",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-027"
+      }
+    },
+    {
+      "id": "node-0125",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-028"
+      }
+    },
+    {
+      "id": "node-0126",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-029"
+      }
+    },
+    {
+      "id": "node-0127",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-030"
+      }
+    },
+    {
+      "id": "node-0128",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-031"
+      }
+    },
+    {
+      "id": "node-0129",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-032"
+      }
+    },
+    {
+      "id": "node-0130",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-033"
+      }
+    },
+    {
+      "id": "node-0131",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-034"
+      }
+    },
+    {
+      "id": "node-0132",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-035"
+      }
+    },
+    {
+      "id": "node-0133",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-036"
+      }
+    },
+    {
+      "id": "node-0134",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-037"
+      }
+    },
+    {
+      "id": "node-0135",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-038"
+      }
+    },
+    {
+      "id": "node-0136",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-039"
+      }
+    },
+    {
+      "id": "node-0137",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-040"
+      }
+    },
+    {
+      "id": "node-0138",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-041"
+      }
+    },
+    {
+      "id": "node-0139",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-042"
+      }
+    },
+    {
+      "id": "node-0140",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-043"
+      }
+    },
+    {
+      "id": "node-0141",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-044"
+      }
+    },
+    {
+      "id": "node-0142",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-045"
+      }
+    },
+    {
+      "id": "node-0143",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-046"
+      }
+    },
+    {
+      "id": "node-0144",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-047"
+      }
+    },
+    {
+      "id": "node-0145",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-048"
+      }
+    },
+    {
+      "id": "node-0146",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-049"
+      }
+    },
+    {
+      "id": "node-0147",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-050"
+      }
+    },
+    {
+      "id": "node-0148",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-051"
+      }
+    },
+    {
+      "id": "node-0149",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-052"
+      }
+    },
+    {
+      "id": "node-0150",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-053"
+      }
+    },
+    {
+      "id": "node-0151",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-054"
+      }
+    },
+    {
+      "id": "node-0152",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-055"
+      }
+    },
+    {
+      "id": "node-0153",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-056"
+      }
+    },
+    {
+      "id": "node-0154",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-057"
+      }
+    },
+    {
+      "id": "node-0155",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-058"
+      }
+    },
+    {
+      "id": "node-0156",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-059"
+      }
+    },
+    {
+      "id": "node-0157",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-060"
+      }
+    },
+    {
+      "id": "node-0158",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-061"
+      }
+    },
+    {
+      "id": "node-0159",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-062"
+      }
+    },
+    {
+      "id": "node-0160",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-063"
+      }
+    },
+    {
+      "id": "node-0161",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-064"
+      }
+    },
+    {
+      "id": "node-0162",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-065"
+      }
+    },
+    {
+      "id": "node-0163",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-066"
+      }
+    },
+    {
+      "id": "node-0164",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-067"
+      }
+    },
+    {
+      "id": "node-0165",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-068"
+      }
+    },
+    {
+      "id": "node-0166",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-069"
+      }
+    },
+    {
+      "id": "node-0167",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-070"
+      }
+    },
+    {
+      "id": "node-0168",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-071"
+      }
+    },
+    {
+      "id": "node-0169",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-072"
+      }
+    },
+    {
+      "id": "node-0170",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-073"
+      }
+    },
+    {
+      "id": "node-0171",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-074"
+      }
+    },
+    {
+      "id": "node-0172",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-075"
+      }
+    },
+    {
+      "id": "node-0173",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-076"
+      }
+    },
+    {
+      "id": "node-0174",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-077"
+      }
+    },
+    {
+      "id": "node-0175",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-078"
+      }
+    },
+    {
+      "id": "node-0176",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-079"
+      }
+    },
+    {
+      "id": "node-0177",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-080"
+      }
+    },
+    {
+      "id": "node-0178",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-081"
+      }
+    },
+    {
+      "id": "node-0179",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-082"
+      }
+    },
+    {
+      "id": "node-0180",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-083"
+      }
+    },
+    {
+      "id": "node-0181",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-084"
+      }
+    },
+    {
+      "id": "node-0182",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-085"
+      }
+    },
+    {
+      "id": "node-0183",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-086"
+      }
+    },
+    {
+      "id": "node-0184",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-087"
+      }
+    },
+    {
+      "id": "node-0185",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-088"
+      }
+    },
+    {
+      "id": "node-0186",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-089"
+      }
+    },
+    {
+      "id": "node-0187",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-090"
+      }
+    },
+    {
+      "id": "node-0188",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-091"
+      }
+    },
+    {
+      "id": "node-0189",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-092"
+      }
+    },
+    {
+      "id": "node-0190",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-093"
+      }
+    },
+    {
+      "id": "node-0191",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-094"
+      }
+    },
+    {
+      "id": "node-0192",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-095"
+      }
+    },
+    {
+      "id": "node-0193",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-096"
+      }
+    },
+    {
+      "id": "node-0194",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-000"
+      }
+    },
+    {
+      "id": "node-0195",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-001"
+      }
+    },
+    {
+      "id": "node-0196",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-002"
+      }
+    },
+    {
+      "id": "node-0197",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-003"
+      }
+    },
+    {
+      "id": "node-0198",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-004"
+      }
+    },
+    {
+      "id": "node-0199",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-005"
+      }
+    },
+    {
+      "id": "node-0200",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-006"
+      }
+    },
+    {
+      "id": "node-0201",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-007"
+      }
+    },
+    {
+      "id": "node-0202",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-008"
+      }
+    },
+    {
+      "id": "node-0203",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-009"
+      }
+    },
+    {
+      "id": "node-0204",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-010"
+      }
+    },
+    {
+      "id": "node-0205",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-011"
+      }
+    },
+    {
+      "id": "node-0206",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-012"
+      }
+    },
+    {
+      "id": "node-0207",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-013"
+      }
+    },
+    {
+      "id": "node-0208",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-014"
+      }
+    },
+    {
+      "id": "node-0209",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-015"
+      }
+    },
+    {
+      "id": "node-0210",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-016"
+      }
+    },
+    {
+      "id": "node-0211",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-017"
+      }
+    },
+    {
+      "id": "node-0212",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-018"
+      }
+    },
+    {
+      "id": "node-0213",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-019"
+      }
+    },
+    {
+      "id": "node-0214",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-020"
+      }
+    },
+    {
+      "id": "node-0215",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-021"
+      }
+    },
+    {
+      "id": "node-0216",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-022"
+      }
+    },
+    {
+      "id": "node-0217",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-023"
+      }
+    },
+    {
+      "id": "node-0218",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-024"
+      }
+    },
+    {
+      "id": "node-0219",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-025"
+      }
+    },
+    {
+      "id": "node-0220",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-026"
+      }
+    },
+    {
+      "id": "node-0221",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-027"
+      }
+    },
+    {
+      "id": "node-0222",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-028"
+      }
+    },
+    {
+      "id": "node-0223",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-029"
+      }
+    },
+    {
+      "id": "node-0224",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-030"
+      }
+    },
+    {
+      "id": "node-0225",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-031"
+      }
+    },
+    {
+      "id": "node-0226",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-032"
+      }
+    },
+    {
+      "id": "node-0227",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-033"
+      }
+    },
+    {
+      "id": "node-0228",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-034"
+      }
+    },
+    {
+      "id": "node-0229",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-035"
+      }
+    },
+    {
+      "id": "node-0230",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-036"
+      }
+    },
+    {
+      "id": "node-0231",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-037"
+      }
+    },
+    {
+      "id": "node-0232",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-038"
+      }
+    },
+    {
+      "id": "node-0233",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-039"
+      }
+    },
+    {
+      "id": "node-0234",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-040"
+      }
+    },
+    {
+      "id": "node-0235",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-041"
+      }
+    },
+    {
+      "id": "node-0236",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-042"
+      }
+    },
+    {
+      "id": "node-0237",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-043"
+      }
+    },
+    {
+      "id": "node-0238",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-044"
+      }
+    },
+    {
+      "id": "node-0239",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-045"
+      }
+    },
+    {
+      "id": "node-0240",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-046"
+      }
+    },
+    {
+      "id": "node-0241",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-047"
+      }
+    },
+    {
+      "id": "node-0242",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-048"
+      }
+    },
+    {
+      "id": "node-0243",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-049"
+      }
+    },
+    {
+      "id": "node-0244",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-050"
+      }
+    },
+    {
+      "id": "node-0245",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-051"
+      }
+    },
+    {
+      "id": "node-0246",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-052"
+      }
+    },
+    {
+      "id": "node-0247",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-053"
+      }
+    },
+    {
+      "id": "node-0248",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-054"
+      }
+    },
+    {
+      "id": "node-0249",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-055"
+      }
+    },
+    {
+      "id": "node-0250",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-056"
+      }
+    },
+    {
+      "id": "node-0251",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-057"
+      }
+    },
+    {
+      "id": "node-0252",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-058"
+      }
+    },
+    {
+      "id": "node-0253",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-059"
+      }
+    },
+    {
+      "id": "node-0254",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-060"
+      }
+    },
+    {
+      "id": "node-0255",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-061"
+      }
+    },
+    {
+      "id": "node-0256",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-062"
+      }
+    },
+    {
+      "id": "node-0257",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-063"
+      }
+    },
+    {
+      "id": "node-0258",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-064"
+      }
+    },
+    {
+      "id": "node-0259",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-065"
+      }
+    },
+    {
+      "id": "node-0260",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-066"
+      }
+    },
+    {
+      "id": "node-0261",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-067"
+      }
+    },
+    {
+      "id": "node-0262",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-068"
+      }
+    },
+    {
+      "id": "node-0263",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-069"
+      }
+    },
+    {
+      "id": "node-0264",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-070"
+      }
+    },
+    {
+      "id": "node-0265",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-071"
+      }
+    },
+    {
+      "id": "node-0266",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-072"
+      }
+    },
+    {
+      "id": "node-0267",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-073"
+      }
+    },
+    {
+      "id": "node-0268",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-074"
+      }
+    },
+    {
+      "id": "node-0269",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-075"
+      }
+    },
+    {
+      "id": "node-0270",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-076"
+      }
+    },
+    {
+      "id": "node-0271",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-077"
+      }
+    },
+    {
+      "id": "node-0272",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-078"
+      }
+    },
+    {
+      "id": "node-0273",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-079"
+      }
+    },
+    {
+      "id": "node-0274",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-080"
+      }
+    },
+    {
+      "id": "node-0275",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-081"
+      }
+    },
+    {
+      "id": "node-0276",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-082"
+      }
+    },
+    {
+      "id": "node-0277",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-083"
+      }
+    },
+    {
+      "id": "node-0278",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-084"
+      }
+    },
+    {
+      "id": "node-0279",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-085"
+      }
+    },
+    {
+      "id": "node-0280",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-086"
+      }
+    },
+    {
+      "id": "node-0281",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-087"
+      }
+    },
+    {
+      "id": "node-0282",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-088"
+      }
+    },
+    {
+      "id": "node-0283",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-089"
+      }
+    },
+    {
+      "id": "node-0284",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-090"
+      }
+    },
+    {
+      "id": "node-0285",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-091"
+      }
+    },
+    {
+      "id": "node-0286",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-092"
+      }
+    },
+    {
+      "id": "node-0287",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-093"
+      }
+    },
+    {
+      "id": "node-0288",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-094"
+      }
+    },
+    {
+      "id": "node-0289",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-095"
+      }
+    },
+    {
+      "id": "node-0290",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-096"
+      }
+    },
+    {
+      "id": "node-0291",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-000"
+      }
+    },
+    {
+      "id": "node-0292",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-001"
+      }
+    },
+    {
+      "id": "node-0293",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-002"
+      }
+    },
+    {
+      "id": "node-0294",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-003"
+      }
+    },
+    {
+      "id": "node-0295",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-004"
+      }
+    },
+    {
+      "id": "node-0296",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-005"
+      }
+    },
+    {
+      "id": "node-0297",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-006"
+      }
+    },
+    {
+      "id": "node-0298",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-007"
+      }
+    },
+    {
+      "id": "node-0299",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-008"
+      }
+    },
+    {
+      "id": "node-0300",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-009"
+      }
+    },
+    {
+      "id": "node-0301",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-010"
+      }
+    },
+    {
+      "id": "node-0302",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-011"
+      }
+    },
+    {
+      "id": "node-0303",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-012"
+      }
+    },
+    {
+      "id": "node-0304",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-013"
+      }
+    },
+    {
+      "id": "node-0305",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-014"
+      }
+    },
+    {
+      "id": "node-0306",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-015"
+      }
+    },
+    {
+      "id": "node-0307",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-016"
+      }
+    },
+    {
+      "id": "node-0308",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-017"
+      }
+    },
+    {
+      "id": "node-0309",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-018"
+      }
+    },
+    {
+      "id": "node-0310",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-019"
+      }
+    },
+    {
+      "id": "node-0311",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-020"
+      }
+    },
+    {
+      "id": "node-0312",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-021"
+      }
+    },
+    {
+      "id": "node-0313",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-022"
+      }
+    },
+    {
+      "id": "node-0314",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-023"
+      }
+    },
+    {
+      "id": "node-0315",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-024"
+      }
+    },
+    {
+      "id": "node-0316",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-025"
+      }
+    },
+    {
+      "id": "node-0317",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-026"
+      }
+    },
+    {
+      "id": "node-0318",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-027"
+      }
+    },
+    {
+      "id": "node-0319",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-028"
+      }
+    },
+    {
+      "id": "node-0320",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-029"
+      }
+    },
+    {
+      "id": "node-0321",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-030"
+      }
+    },
+    {
+      "id": "node-0322",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-031"
+      }
+    },
+    {
+      "id": "node-0323",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-032"
+      }
+    },
+    {
+      "id": "node-0324",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-033"
+      }
+    },
+    {
+      "id": "node-0325",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-034"
+      }
+    },
+    {
+      "id": "node-0326",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-035"
+      }
+    },
+    {
+      "id": "node-0327",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-036"
+      }
+    },
+    {
+      "id": "node-0328",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-037"
+      }
+    },
+    {
+      "id": "node-0329",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-038"
+      }
+    },
+    {
+      "id": "node-0330",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-039"
+      }
+    },
+    {
+      "id": "node-0331",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-040"
+      }
+    },
+    {
+      "id": "node-0332",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-041"
+      }
+    },
+    {
+      "id": "node-0333",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-042"
+      }
+    },
+    {
+      "id": "node-0334",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-043"
+      }
+    },
+    {
+      "id": "node-0335",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-044"
+      }
+    },
+    {
+      "id": "node-0336",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-045"
+      }
+    },
+    {
+      "id": "node-0337",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-046"
+      }
+    },
+    {
+      "id": "node-0338",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-047"
+      }
+    },
+    {
+      "id": "node-0339",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-048"
+      }
+    },
+    {
+      "id": "node-0340",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-049"
+      }
+    },
+    {
+      "id": "node-0341",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-050"
+      }
+    },
+    {
+      "id": "node-0342",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-051"
+      }
+    },
+    {
+      "id": "node-0343",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-052"
+      }
+    },
+    {
+      "id": "node-0344",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-053"
+      }
+    },
+    {
+      "id": "node-0345",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-054"
+      }
+    },
+    {
+      "id": "node-0346",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-055"
+      }
+    },
+    {
+      "id": "node-0347",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-056"
+      }
+    },
+    {
+      "id": "node-0348",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-057"
+      }
+    },
+    {
+      "id": "node-0349",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-058"
+      }
+    },
+    {
+      "id": "node-0350",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-059"
+      }
+    },
+    {
+      "id": "node-0351",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-060"
+      }
+    },
+    {
+      "id": "node-0352",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-061"
+      }
+    },
+    {
+      "id": "node-0353",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-062"
+      }
+    },
+    {
+      "id": "node-0354",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-063"
+      }
+    },
+    {
+      "id": "node-0355",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-064"
+      }
+    },
+    {
+      "id": "node-0356",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-065"
+      }
+    },
+    {
+      "id": "node-0357",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-066"
+      }
+    },
+    {
+      "id": "node-0358",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-067"
+      }
+    },
+    {
+      "id": "node-0359",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-068"
+      }
+    },
+    {
+      "id": "node-0360",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-069"
+      }
+    },
+    {
+      "id": "node-0361",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-070"
+      }
+    },
+    {
+      "id": "node-0362",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-071"
+      }
+    },
+    {
+      "id": "node-0363",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-072"
+      }
+    },
+    {
+      "id": "node-0364",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-073"
+      }
+    },
+    {
+      "id": "node-0365",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-074"
+      }
+    },
+    {
+      "id": "node-0366",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-075"
+      }
+    },
+    {
+      "id": "node-0367",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-076"
+      }
+    },
+    {
+      "id": "node-0368",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-077"
+      }
+    },
+    {
+      "id": "node-0369",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-078"
+      }
+    },
+    {
+      "id": "node-0370",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-079"
+      }
+    },
+    {
+      "id": "node-0371",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-080"
+      }
+    },
+    {
+      "id": "node-0372",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-081"
+      }
+    },
+    {
+      "id": "node-0373",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-082"
+      }
+    },
+    {
+      "id": "node-0374",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-083"
+      }
+    },
+    {
+      "id": "node-0375",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-084"
+      }
+    },
+    {
+      "id": "node-0376",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-085"
+      }
+    },
+    {
+      "id": "node-0377",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-086"
+      }
+    },
+    {
+      "id": "node-0378",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-087"
+      }
+    },
+    {
+      "id": "node-0379",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-088"
+      }
+    },
+    {
+      "id": "node-0380",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-089"
+      }
+    },
+    {
+      "id": "node-0381",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-090"
+      }
+    },
+    {
+      "id": "node-0382",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-091"
+      }
+    },
+    {
+      "id": "node-0383",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-092"
+      }
+    },
+    {
+      "id": "node-0384",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-093"
+      }
+    },
+    {
+      "id": "node-0385",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-094"
+      }
+    },
+    {
+      "id": "node-0386",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-095"
+      }
+    },
+    {
+      "id": "node-0387",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-096"
+      }
+    },
+    {
+      "id": "node-0388",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-000"
+      }
+    },
+    {
+      "id": "node-0389",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-001"
+      }
+    },
+    {
+      "id": "node-0390",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-002"
+      }
+    },
+    {
+      "id": "node-0391",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-003"
+      }
+    },
+    {
+      "id": "node-0392",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-004"
+      }
+    },
+    {
+      "id": "node-0393",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-005"
+      }
+    },
+    {
+      "id": "node-0394",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-006"
+      }
+    },
+    {
+      "id": "node-0395",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-007"
+      }
+    },
+    {
+      "id": "node-0396",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-008"
+      }
+    },
+    {
+      "id": "node-0397",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-009"
+      }
+    },
+    {
+      "id": "node-0398",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-010"
+      }
+    },
+    {
+      "id": "node-0399",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-011"
+      }
+    },
+    {
+      "id": "node-0400",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-012"
+      }
+    },
+    {
+      "id": "node-0401",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-013"
+      }
+    },
+    {
+      "id": "node-0402",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-014"
+      }
+    },
+    {
+      "id": "node-0403",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-015"
+      }
+    },
+    {
+      "id": "node-0404",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-016"
+      }
+    },
+    {
+      "id": "node-0405",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-017"
+      }
+    },
+    {
+      "id": "node-0406",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-018"
+      }
+    },
+    {
+      "id": "node-0407",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-019"
+      }
+    },
+    {
+      "id": "node-0408",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-020"
+      }
+    },
+    {
+      "id": "node-0409",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-021"
+      }
+    },
+    {
+      "id": "node-0410",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-022"
+      }
+    },
+    {
+      "id": "node-0411",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-023"
+      }
+    },
+    {
+      "id": "node-0412",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-024"
+      }
+    },
+    {
+      "id": "node-0413",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-025"
+      }
+    },
+    {
+      "id": "node-0414",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-026"
+      }
+    },
+    {
+      "id": "node-0415",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-027"
+      }
+    },
+    {
+      "id": "node-0416",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-028"
+      }
+    },
+    {
+      "id": "node-0417",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-029"
+      }
+    },
+    {
+      "id": "node-0418",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-030"
+      }
+    },
+    {
+      "id": "node-0419",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-031"
+      }
+    },
+    {
+      "id": "node-0420",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-032"
+      }
+    },
+    {
+      "id": "node-0421",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-033"
+      }
+    },
+    {
+      "id": "node-0422",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-034"
+      }
+    },
+    {
+      "id": "node-0423",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-035"
+      }
+    },
+    {
+      "id": "node-0424",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-036"
+      }
+    },
+    {
+      "id": "node-0425",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-037"
+      }
+    },
+    {
+      "id": "node-0426",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-038"
+      }
+    },
+    {
+      "id": "node-0427",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-039"
+      }
+    },
+    {
+      "id": "node-0428",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-040"
+      }
+    },
+    {
+      "id": "node-0429",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-041"
+      }
+    },
+    {
+      "id": "node-0430",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-042"
+      }
+    },
+    {
+      "id": "node-0431",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-043"
+      }
+    },
+    {
+      "id": "node-0432",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-044"
+      }
+    },
+    {
+      "id": "node-0433",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-045"
+      }
+    },
+    {
+      "id": "node-0434",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-046"
+      }
+    },
+    {
+      "id": "node-0435",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-047"
+      }
+    },
+    {
+      "id": "node-0436",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-048"
+      }
+    },
+    {
+      "id": "node-0437",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-049"
+      }
+    },
+    {
+      "id": "node-0438",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-050"
+      }
+    },
+    {
+      "id": "node-0439",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-051"
+      }
+    },
+    {
+      "id": "node-0440",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-052"
+      }
+    },
+    {
+      "id": "node-0441",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-053"
+      }
+    },
+    {
+      "id": "node-0442",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-054"
+      }
+    },
+    {
+      "id": "node-0443",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-055"
+      }
+    },
+    {
+      "id": "node-0444",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-056"
+      }
+    },
+    {
+      "id": "node-0445",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-057"
+      }
+    },
+    {
+      "id": "node-0446",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-058"
+      }
+    },
+    {
+      "id": "node-0447",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-059"
+      }
+    },
+    {
+      "id": "node-0448",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-060"
+      }
+    },
+    {
+      "id": "node-0449",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-061"
+      }
+    },
+    {
+      "id": "node-0450",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-062"
+      }
+    },
+    {
+      "id": "node-0451",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-063"
+      }
+    },
+    {
+      "id": "node-0452",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-064"
+      }
+    },
+    {
+      "id": "node-0453",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-065"
+      }
+    },
+    {
+      "id": "node-0454",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-066"
+      }
+    },
+    {
+      "id": "node-0455",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-067"
+      }
+    },
+    {
+      "id": "node-0456",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-068"
+      }
+    },
+    {
+      "id": "node-0457",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-069"
+      }
+    },
+    {
+      "id": "node-0458",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-070"
+      }
+    },
+    {
+      "id": "node-0459",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-071"
+      }
+    },
+    {
+      "id": "node-0460",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-072"
+      }
+    },
+    {
+      "id": "node-0461",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-073"
+      }
+    },
+    {
+      "id": "node-0462",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-074"
+      }
+    },
+    {
+      "id": "node-0463",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-075"
+      }
+    },
+    {
+      "id": "node-0464",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-076"
+      }
+    },
+    {
+      "id": "node-0465",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-077"
+      }
+    },
+    {
+      "id": "node-0466",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-078"
+      }
+    },
+    {
+      "id": "node-0467",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-079"
+      }
+    },
+    {
+      "id": "node-0468",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-080"
+      }
+    },
+    {
+      "id": "node-0469",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-081"
+      }
+    },
+    {
+      "id": "node-0470",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-082"
+      }
+    },
+    {
+      "id": "node-0471",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-083"
+      }
+    },
+    {
+      "id": "node-0472",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-084"
+      }
+    },
+    {
+      "id": "node-0473",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-085"
+      }
+    },
+    {
+      "id": "node-0474",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-086"
+      }
+    },
+    {
+      "id": "node-0475",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-087"
+      }
+    },
+    {
+      "id": "node-0476",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-088"
+      }
+    },
+    {
+      "id": "node-0477",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-089"
+      }
+    },
+    {
+      "id": "node-0478",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-090"
+      }
+    },
+    {
+      "id": "node-0479",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-091"
+      }
+    },
+    {
+      "id": "node-0480",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-092"
+      }
+    },
+    {
+      "id": "node-0481",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-093"
+      }
+    },
+    {
+      "id": "node-0482",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-094"
+      }
+    },
+    {
+      "id": "node-0483",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-095"
+      }
+    },
+    {
+      "id": "node-0484",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-096"
+      }
+    },
+    {
+      "id": "node-0485",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-000"
+      }
+    },
+    {
+      "id": "node-0486",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-001"
+      }
+    },
+    {
+      "id": "node-0487",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-002"
+      }
+    },
+    {
+      "id": "node-0488",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-003"
+      }
+    },
+    {
+      "id": "node-0489",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-004"
+      }
+    },
+    {
+      "id": "node-0490",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-005"
+      }
+    },
+    {
+      "id": "node-0491",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-006"
+      }
+    },
+    {
+      "id": "node-0492",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-007"
+      }
+    },
+    {
+      "id": "node-0493",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-008"
+      }
+    },
+    {
+      "id": "node-0494",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-009"
+      }
+    },
+    {
+      "id": "node-0495",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-010"
+      }
+    },
+    {
+      "id": "node-0496",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-011"
+      }
+    },
+    {
+      "id": "node-0497",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-012"
+      }
+    },
+    {
+      "id": "node-0498",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-013"
+      }
+    },
+    {
+      "id": "node-0499",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-014"
+      }
+    },
+    {
+      "id": "node-0500",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-015"
+      }
+    },
+    {
+      "id": "node-0501",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-016"
+      }
+    },
+    {
+      "id": "node-0502",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-017"
+      }
+    },
+    {
+      "id": "node-0503",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-018"
+      }
+    },
+    {
+      "id": "node-0504",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-019"
+      }
+    },
+    {
+      "id": "node-0505",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-020"
+      }
+    },
+    {
+      "id": "node-0506",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-021"
+      }
+    },
+    {
+      "id": "node-0507",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-022"
+      }
+    },
+    {
+      "id": "node-0508",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-023"
+      }
+    },
+    {
+      "id": "node-0509",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-024"
+      }
+    },
+    {
+      "id": "node-0510",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-025"
+      }
+    },
+    {
+      "id": "node-0511",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-026"
+      }
+    },
+    {
+      "id": "node-0512",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-027"
+      }
+    },
+    {
+      "id": "node-0513",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-028"
+      }
+    },
+    {
+      "id": "node-0514",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-029"
+      }
+    },
+    {
+      "id": "node-0515",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-030"
+      }
+    },
+    {
+      "id": "node-0516",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-031"
+      }
+    },
+    {
+      "id": "node-0517",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-032"
+      }
+    },
+    {
+      "id": "node-0518",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-033"
+      }
+    },
+    {
+      "id": "node-0519",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-034"
+      }
+    },
+    {
+      "id": "node-0520",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-035"
+      }
+    },
+    {
+      "id": "node-0521",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-036"
+      }
+    },
+    {
+      "id": "node-0522",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-037"
+      }
+    },
+    {
+      "id": "node-0523",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-038"
+      }
+    },
+    {
+      "id": "node-0524",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-039"
+      }
+    },
+    {
+      "id": "node-0525",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-040"
+      }
+    },
+    {
+      "id": "node-0526",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-041"
+      }
+    },
+    {
+      "id": "node-0527",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-042"
+      }
+    },
+    {
+      "id": "node-0528",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-043"
+      }
+    },
+    {
+      "id": "node-0529",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-044"
+      }
+    },
+    {
+      "id": "node-0530",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-045"
+      }
+    },
+    {
+      "id": "node-0531",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-046"
+      }
+    },
+    {
+      "id": "node-0532",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-047"
+      }
+    },
+    {
+      "id": "node-0533",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-048"
+      }
+    },
+    {
+      "id": "node-0534",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-049"
+      }
+    },
+    {
+      "id": "node-0535",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-050"
+      }
+    },
+    {
+      "id": "node-0536",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-051"
+      }
+    },
+    {
+      "id": "node-0537",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-052"
+      }
+    },
+    {
+      "id": "node-0538",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-053"
+      }
+    },
+    {
+      "id": "node-0539",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-054"
+      }
+    },
+    {
+      "id": "node-0540",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-055"
+      }
+    },
+    {
+      "id": "node-0541",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-056"
+      }
+    },
+    {
+      "id": "node-0542",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-057"
+      }
+    },
+    {
+      "id": "node-0543",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-058"
+      }
+    },
+    {
+      "id": "node-0544",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-059"
+      }
+    },
+    {
+      "id": "node-0545",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-060"
+      }
+    },
+    {
+      "id": "node-0546",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-061"
+      }
+    },
+    {
+      "id": "node-0547",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-062"
+      }
+    },
+    {
+      "id": "node-0548",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-063"
+      }
+    },
+    {
+      "id": "node-0549",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-064"
+      }
+    },
+    {
+      "id": "node-0550",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-065"
+      }
+    },
+    {
+      "id": "node-0551",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-066"
+      }
+    },
+    {
+      "id": "node-0552",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-067"
+      }
+    },
+    {
+      "id": "node-0553",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-068"
+      }
+    },
+    {
+      "id": "node-0554",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-069"
+      }
+    },
+    {
+      "id": "node-0555",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-070"
+      }
+    },
+    {
+      "id": "node-0556",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-071"
+      }
+    },
+    {
+      "id": "node-0557",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-072"
+      }
+    },
+    {
+      "id": "node-0558",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-073"
+      }
+    },
+    {
+      "id": "node-0559",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-074"
+      }
+    },
+    {
+      "id": "node-0560",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-075"
+      }
+    },
+    {
+      "id": "node-0561",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-076"
+      }
+    },
+    {
+      "id": "node-0562",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-077"
+      }
+    },
+    {
+      "id": "node-0563",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-078"
+      }
+    },
+    {
+      "id": "node-0564",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-079"
+      }
+    },
+    {
+      "id": "node-0565",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-080"
+      }
+    },
+    {
+      "id": "node-0566",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-081"
+      }
+    },
+    {
+      "id": "node-0567",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-082"
+      }
+    },
+    {
+      "id": "node-0568",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-083"
+      }
+    },
+    {
+      "id": "node-0569",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-084"
+      }
+    },
+    {
+      "id": "node-0570",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-085"
+      }
+    },
+    {
+      "id": "node-0571",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-086"
+      }
+    },
+    {
+      "id": "node-0572",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-087"
+      }
+    },
+    {
+      "id": "node-0573",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-088"
+      }
+    },
+    {
+      "id": "node-0574",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-089"
+      }
+    },
+    {
+      "id": "node-0575",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-090"
+      }
+    },
+    {
+      "id": "node-0576",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-091"
+      }
+    },
+    {
+      "id": "node-0577",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-092"
+      }
+    },
+    {
+      "id": "node-0578",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-093"
+      }
+    },
+    {
+      "id": "node-0579",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-094"
+      }
+    },
+    {
+      "id": "node-0580",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-095"
+      }
+    },
+    {
+      "id": "node-0581",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-096"
+      }
+    },
+    {
+      "id": "node-0582",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-000"
+      }
+    },
+    {
+      "id": "node-0583",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-001"
+      }
+    },
+    {
+      "id": "node-0584",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-002"
+      }
+    },
+    {
+      "id": "node-0585",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-003"
+      }
+    },
+    {
+      "id": "node-0586",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-004"
+      }
+    },
+    {
+      "id": "node-0587",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-005"
+      }
+    },
+    {
+      "id": "node-0588",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-006"
+      }
+    },
+    {
+      "id": "node-0589",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-007"
+      }
+    },
+    {
+      "id": "node-0590",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-008"
+      }
+    },
+    {
+      "id": "node-0591",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-009"
+      }
+    },
+    {
+      "id": "node-0592",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-010"
+      }
+    },
+    {
+      "id": "node-0593",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-011"
+      }
+    },
+    {
+      "id": "node-0594",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-012"
+      }
+    },
+    {
+      "id": "node-0595",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-013"
+      }
+    },
+    {
+      "id": "node-0596",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-014"
+      }
+    },
+    {
+      "id": "node-0597",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-015"
+      }
+    },
+    {
+      "id": "node-0598",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-016"
+      }
+    },
+    {
+      "id": "node-0599",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-017"
+      }
+    },
+    {
+      "id": "node-0600",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-018"
+      }
+    },
+    {
+      "id": "node-0601",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-019"
+      }
+    },
+    {
+      "id": "node-0602",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-020"
+      }
+    },
+    {
+      "id": "node-0603",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-021"
+      }
+    },
+    {
+      "id": "node-0604",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-022"
+      }
+    },
+    {
+      "id": "node-0605",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-023"
+      }
+    },
+    {
+      "id": "node-0606",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-024"
+      }
+    },
+    {
+      "id": "node-0607",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-025"
+      }
+    },
+    {
+      "id": "node-0608",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-026"
+      }
+    },
+    {
+      "id": "node-0609",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-027"
+      }
+    },
+    {
+      "id": "node-0610",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-028"
+      }
+    },
+    {
+      "id": "node-0611",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-029"
+      }
+    },
+    {
+      "id": "node-0612",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-030"
+      }
+    },
+    {
+      "id": "node-0613",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-031"
+      }
+    },
+    {
+      "id": "node-0614",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-032"
+      }
+    },
+    {
+      "id": "node-0615",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-033"
+      }
+    },
+    {
+      "id": "node-0616",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-034"
+      }
+    },
+    {
+      "id": "node-0617",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-035"
+      }
+    },
+    {
+      "id": "node-0618",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-036"
+      }
+    },
+    {
+      "id": "node-0619",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-037"
+      }
+    },
+    {
+      "id": "node-0620",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-038"
+      }
+    },
+    {
+      "id": "node-0621",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-039"
+      }
+    },
+    {
+      "id": "node-0622",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-040"
+      }
+    },
+    {
+      "id": "node-0623",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-041"
+      }
+    },
+    {
+      "id": "node-0624",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-042"
+      }
+    },
+    {
+      "id": "node-0625",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-043"
+      }
+    },
+    {
+      "id": "node-0626",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-044"
+      }
+    },
+    {
+      "id": "node-0627",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-045"
+      }
+    },
+    {
+      "id": "node-0628",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-046"
+      }
+    },
+    {
+      "id": "node-0629",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-047"
+      }
+    },
+    {
+      "id": "node-0630",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-048"
+      }
+    },
+    {
+      "id": "node-0631",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-049"
+      }
+    },
+    {
+      "id": "node-0632",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-050"
+      }
+    },
+    {
+      "id": "node-0633",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-051"
+      }
+    },
+    {
+      "id": "node-0634",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-052"
+      }
+    },
+    {
+      "id": "node-0635",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-053"
+      }
+    },
+    {
+      "id": "node-0636",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-054"
+      }
+    },
+    {
+      "id": "node-0637",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-055"
+      }
+    },
+    {
+      "id": "node-0638",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-056"
+      }
+    },
+    {
+      "id": "node-0639",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-057"
+      }
+    },
+    {
+      "id": "node-0640",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-058"
+      }
+    },
+    {
+      "id": "node-0641",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-059"
+      }
+    },
+    {
+      "id": "node-0642",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-060"
+      }
+    },
+    {
+      "id": "node-0643",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-061"
+      }
+    },
+    {
+      "id": "node-0644",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-062"
+      }
+    },
+    {
+      "id": "node-0645",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-063"
+      }
+    },
+    {
+      "id": "node-0646",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-064"
+      }
+    },
+    {
+      "id": "node-0647",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-065"
+      }
+    },
+    {
+      "id": "node-0648",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-066"
+      }
+    },
+    {
+      "id": "node-0649",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-067"
+      }
+    },
+    {
+      "id": "node-0650",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-068"
+      }
+    },
+    {
+      "id": "node-0651",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-069"
+      }
+    },
+    {
+      "id": "node-0652",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-070"
+      }
+    },
+    {
+      "id": "node-0653",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-071"
+      }
+    },
+    {
+      "id": "node-0654",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-072"
+      }
+    },
+    {
+      "id": "node-0655",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-073"
+      }
+    },
+    {
+      "id": "node-0656",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-074"
+      }
+    },
+    {
+      "id": "node-0657",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-075"
+      }
+    },
+    {
+      "id": "node-0658",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-076"
+      }
+    },
+    {
+      "id": "node-0659",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-077"
+      }
+    },
+    {
+      "id": "node-0660",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-078"
+      }
+    },
+    {
+      "id": "node-0661",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-079"
+      }
+    },
+    {
+      "id": "node-0662",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-080"
+      }
+    },
+    {
+      "id": "node-0663",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-081"
+      }
+    },
+    {
+      "id": "node-0664",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-082"
+      }
+    },
+    {
+      "id": "node-0665",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-083"
+      }
+    },
+    {
+      "id": "node-0666",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-084"
+      }
+    },
+    {
+      "id": "node-0667",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-085"
+      }
+    },
+    {
+      "id": "node-0668",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-086"
+      }
+    },
+    {
+      "id": "node-0669",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-087"
+      }
+    },
+    {
+      "id": "node-0670",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-088"
+      }
+    },
+    {
+      "id": "node-0671",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-089"
+      }
+    },
+    {
+      "id": "node-0672",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-090"
+      }
+    },
+    {
+      "id": "node-0673",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-091"
+      }
+    },
+    {
+      "id": "node-0674",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-092"
+      }
+    },
+    {
+      "id": "node-0675",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-093"
+      }
+    },
+    {
+      "id": "node-0676",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-094"
+      }
+    },
+    {
+      "id": "node-0677",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-095"
+      }
+    },
+    {
+      "id": "node-0678",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-096"
+      }
+    },
+    {
+      "id": "node-0679",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-000"
+      }
+    },
+    {
+      "id": "node-0680",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-001"
+      }
+    },
+    {
+      "id": "node-0681",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-002"
+      }
+    },
+    {
+      "id": "node-0682",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-003"
+      }
+    },
+    {
+      "id": "node-0683",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-004"
+      }
+    },
+    {
+      "id": "node-0684",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-005"
+      }
+    },
+    {
+      "id": "node-0685",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-006"
+      }
+    },
+    {
+      "id": "node-0686",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-007"
+      }
+    },
+    {
+      "id": "node-0687",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-008"
+      }
+    },
+    {
+      "id": "node-0688",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-009"
+      }
+    },
+    {
+      "id": "node-0689",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-010"
+      }
+    },
+    {
+      "id": "node-0690",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-011"
+      }
+    },
+    {
+      "id": "node-0691",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-012"
+      }
+    },
+    {
+      "id": "node-0692",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-013"
+      }
+    },
+    {
+      "id": "node-0693",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-014"
+      }
+    },
+    {
+      "id": "node-0694",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-015"
+      }
+    },
+    {
+      "id": "node-0695",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-016"
+      }
+    },
+    {
+      "id": "node-0696",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-017"
+      }
+    },
+    {
+      "id": "node-0697",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-018"
+      }
+    },
+    {
+      "id": "node-0698",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-019"
+      }
+    },
+    {
+      "id": "node-0699",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-020"
+      }
+    },
+    {
+      "id": "node-0700",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-021"
+      }
+    },
+    {
+      "id": "node-0701",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-022"
+      }
+    },
+    {
+      "id": "node-0702",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-023"
+      }
+    },
+    {
+      "id": "node-0703",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-024"
+      }
+    },
+    {
+      "id": "node-0704",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-025"
+      }
+    },
+    {
+      "id": "node-0705",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-026"
+      }
+    },
+    {
+      "id": "node-0706",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-027"
+      }
+    },
+    {
+      "id": "node-0707",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-028"
+      }
+    },
+    {
+      "id": "node-0708",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-029"
+      }
+    },
+    {
+      "id": "node-0709",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-030"
+      }
+    },
+    {
+      "id": "node-0710",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-031"
+      }
+    },
+    {
+      "id": "node-0711",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-032"
+      }
+    },
+    {
+      "id": "node-0712",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-033"
+      }
+    },
+    {
+      "id": "node-0713",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-034"
+      }
+    },
+    {
+      "id": "node-0714",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-035"
+      }
+    },
+    {
+      "id": "node-0715",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-036"
+      }
+    },
+    {
+      "id": "node-0716",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-037"
+      }
+    },
+    {
+      "id": "node-0717",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-038"
+      }
+    },
+    {
+      "id": "node-0718",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-039"
+      }
+    },
+    {
+      "id": "node-0719",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-040"
+      }
+    },
+    {
+      "id": "node-0720",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-041"
+      }
+    },
+    {
+      "id": "node-0721",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-042"
+      }
+    },
+    {
+      "id": "node-0722",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-043"
+      }
+    },
+    {
+      "id": "node-0723",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-044"
+      }
+    },
+    {
+      "id": "node-0724",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-045"
+      }
+    },
+    {
+      "id": "node-0725",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-046"
+      }
+    },
+    {
+      "id": "node-0726",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-047"
+      }
+    },
+    {
+      "id": "node-0727",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-048"
+      }
+    },
+    {
+      "id": "node-0728",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-049"
+      }
+    },
+    {
+      "id": "node-0729",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-050"
+      }
+    },
+    {
+      "id": "node-0730",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-051"
+      }
+    },
+    {
+      "id": "node-0731",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-052"
+      }
+    },
+    {
+      "id": "node-0732",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-053"
+      }
+    },
+    {
+      "id": "node-0733",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-054"
+      }
+    },
+    {
+      "id": "node-0734",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-055"
+      }
+    },
+    {
+      "id": "node-0735",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-056"
+      }
+    },
+    {
+      "id": "node-0736",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-057"
+      }
+    },
+    {
+      "id": "node-0737",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-058"
+      }
+    },
+    {
+      "id": "node-0738",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-059"
+      }
+    },
+    {
+      "id": "node-0739",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-060"
+      }
+    },
+    {
+      "id": "node-0740",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-061"
+      }
+    },
+    {
+      "id": "node-0741",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-062"
+      }
+    },
+    {
+      "id": "node-0742",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-063"
+      }
+    },
+    {
+      "id": "node-0743",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-064"
+      }
+    },
+    {
+      "id": "node-0744",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-065"
+      }
+    },
+    {
+      "id": "node-0745",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-066"
+      }
+    },
+    {
+      "id": "node-0746",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-067"
+      }
+    },
+    {
+      "id": "node-0747",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-068"
+      }
+    },
+    {
+      "id": "node-0748",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-069"
+      }
+    },
+    {
+      "id": "node-0749",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-070"
+      }
+    },
+    {
+      "id": "node-0750",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-071"
+      }
+    },
+    {
+      "id": "node-0751",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-072"
+      }
+    },
+    {
+      "id": "node-0752",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-073"
+      }
+    },
+    {
+      "id": "node-0753",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-074"
+      }
+    },
+    {
+      "id": "node-0754",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-075"
+      }
+    },
+    {
+      "id": "node-0755",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-076"
+      }
+    },
+    {
+      "id": "node-0756",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-077"
+      }
+    },
+    {
+      "id": "node-0757",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-078"
+      }
+    },
+    {
+      "id": "node-0758",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-079"
+      }
+    },
+    {
+      "id": "node-0759",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-080"
+      }
+    },
+    {
+      "id": "node-0760",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-081"
+      }
+    },
+    {
+      "id": "node-0761",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-082"
+      }
+    },
+    {
+      "id": "node-0762",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-083"
+      }
+    },
+    {
+      "id": "node-0763",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-084"
+      }
+    },
+    {
+      "id": "node-0764",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-085"
+      }
+    },
+    {
+      "id": "node-0765",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-086"
+      }
+    },
+    {
+      "id": "node-0766",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-087"
+      }
+    },
+    {
+      "id": "node-0767",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-088"
+      }
+    },
+    {
+      "id": "node-0768",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-089"
+      }
+    },
+    {
+      "id": "node-0769",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-090"
+      }
+    },
+    {
+      "id": "node-0770",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-091"
+      }
+    },
+    {
+      "id": "node-0771",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-092"
+      }
+    },
+    {
+      "id": "node-0772",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-093"
+      }
+    },
+    {
+      "id": "node-0773",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-094"
+      }
+    },
+    {
+      "id": "node-0774",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-095"
+      }
+    },
+    {
+      "id": "node-0775",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-096"
+      }
+    },
+    {
+      "id": "node-0776",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-000"
+      }
+    },
+    {
+      "id": "node-0777",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-001"
+      }
+    },
+    {
+      "id": "node-0778",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-002"
+      }
+    },
+    {
+      "id": "node-0779",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-003"
+      }
+    },
+    {
+      "id": "node-0780",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-004"
+      }
+    },
+    {
+      "id": "node-0781",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-005"
+      }
+    },
+    {
+      "id": "node-0782",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-006"
+      }
+    },
+    {
+      "id": "node-0783",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-007"
+      }
+    },
+    {
+      "id": "node-0784",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-008"
+      }
+    },
+    {
+      "id": "node-0785",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-009"
+      }
+    },
+    {
+      "id": "node-0786",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-010"
+      }
+    },
+    {
+      "id": "node-0787",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-011"
+      }
+    },
+    {
+      "id": "node-0788",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-012"
+      }
+    },
+    {
+      "id": "node-0789",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-013"
+      }
+    },
+    {
+      "id": "node-0790",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-014"
+      }
+    },
+    {
+      "id": "node-0791",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-015"
+      }
+    },
+    {
+      "id": "node-0792",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-016"
+      }
+    },
+    {
+      "id": "node-0793",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-017"
+      }
+    },
+    {
+      "id": "node-0794",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-018"
+      }
+    },
+    {
+      "id": "node-0795",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-019"
+      }
+    },
+    {
+      "id": "node-0796",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-020"
+      }
+    },
+    {
+      "id": "node-0797",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-021"
+      }
+    },
+    {
+      "id": "node-0798",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-022"
+      }
+    },
+    {
+      "id": "node-0799",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-023"
+      }
+    },
+    {
+      "id": "node-0800",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-024"
+      }
+    },
+    {
+      "id": "node-0801",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-025"
+      }
+    },
+    {
+      "id": "node-0802",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-026"
+      }
+    },
+    {
+      "id": "node-0803",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-027"
+      }
+    },
+    {
+      "id": "node-0804",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-028"
+      }
+    },
+    {
+      "id": "node-0805",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-029"
+      }
+    },
+    {
+      "id": "node-0806",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-030"
+      }
+    },
+    {
+      "id": "node-0807",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-031"
+      }
+    },
+    {
+      "id": "node-0808",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-032"
+      }
+    },
+    {
+      "id": "node-0809",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-033"
+      }
+    },
+    {
+      "id": "node-0810",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-034"
+      }
+    },
+    {
+      "id": "node-0811",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-035"
+      }
+    },
+    {
+      "id": "node-0812",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-036"
+      }
+    },
+    {
+      "id": "node-0813",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-037"
+      }
+    },
+    {
+      "id": "node-0814",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-038"
+      }
+    },
+    {
+      "id": "node-0815",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-039"
+      }
+    },
+    {
+      "id": "node-0816",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-040"
+      }
+    },
+    {
+      "id": "node-0817",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-041"
+      }
+    },
+    {
+      "id": "node-0818",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-042"
+      }
+    },
+    {
+      "id": "node-0819",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-043"
+      }
+    },
+    {
+      "id": "node-0820",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-044"
+      }
+    },
+    {
+      "id": "node-0821",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-045"
+      }
+    },
+    {
+      "id": "node-0822",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-046"
+      }
+    },
+    {
+      "id": "node-0823",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-047"
+      }
+    },
+    {
+      "id": "node-0824",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-048"
+      }
+    },
+    {
+      "id": "node-0825",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-049"
+      }
+    },
+    {
+      "id": "node-0826",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-050"
+      }
+    },
+    {
+      "id": "node-0827",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-051"
+      }
+    },
+    {
+      "id": "node-0828",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-052"
+      }
+    },
+    {
+      "id": "node-0829",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-053"
+      }
+    },
+    {
+      "id": "node-0830",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-054"
+      }
+    },
+    {
+      "id": "node-0831",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-055"
+      }
+    },
+    {
+      "id": "node-0832",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-056"
+      }
+    },
+    {
+      "id": "node-0833",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-057"
+      }
+    },
+    {
+      "id": "node-0834",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-058"
+      }
+    },
+    {
+      "id": "node-0835",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-059"
+      }
+    },
+    {
+      "id": "node-0836",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-060"
+      }
+    },
+    {
+      "id": "node-0837",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-061"
+      }
+    },
+    {
+      "id": "node-0838",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-062"
+      }
+    },
+    {
+      "id": "node-0839",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-063"
+      }
+    },
+    {
+      "id": "node-0840",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-064"
+      }
+    },
+    {
+      "id": "node-0841",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-065"
+      }
+    },
+    {
+      "id": "node-0842",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-066"
+      }
+    },
+    {
+      "id": "node-0843",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-067"
+      }
+    },
+    {
+      "id": "node-0844",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-068"
+      }
+    },
+    {
+      "id": "node-0845",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-069"
+      }
+    },
+    {
+      "id": "node-0846",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-070"
+      }
+    },
+    {
+      "id": "node-0847",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-071"
+      }
+    },
+    {
+      "id": "node-0848",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-072"
+      }
+    },
+    {
+      "id": "node-0849",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-073"
+      }
+    },
+    {
+      "id": "node-0850",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-074"
+      }
+    },
+    {
+      "id": "node-0851",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-075"
+      }
+    },
+    {
+      "id": "node-0852",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-076"
+      }
+    },
+    {
+      "id": "node-0853",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-077"
+      }
+    },
+    {
+      "id": "node-0854",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-078"
+      }
+    },
+    {
+      "id": "node-0855",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-079"
+      }
+    },
+    {
+      "id": "node-0856",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-080"
+      }
+    },
+    {
+      "id": "node-0857",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-081"
+      }
+    },
+    {
+      "id": "node-0858",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-082"
+      }
+    },
+    {
+      "id": "node-0859",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-083"
+      }
+    },
+    {
+      "id": "node-0860",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-084"
+      }
+    },
+    {
+      "id": "node-0861",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-085"
+      }
+    },
+    {
+      "id": "node-0862",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-086"
+      }
+    },
+    {
+      "id": "node-0863",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-087"
+      }
+    },
+    {
+      "id": "node-0864",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-088"
+      }
+    },
+    {
+      "id": "node-0865",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-089"
+      }
+    },
+    {
+      "id": "node-0866",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-090"
+      }
+    },
+    {
+      "id": "node-0867",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-091"
+      }
+    },
+    {
+      "id": "node-0868",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-092"
+      }
+    },
+    {
+      "id": "node-0869",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-093"
+      }
+    },
+    {
+      "id": "node-0870",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-094"
+      }
+    },
+    {
+      "id": "node-0871",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-095"
+      }
+    },
+    {
+      "id": "node-0872",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-096"
+      }
+    },
+    {
+      "id": "node-0873",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-000"
+      }
+    },
+    {
+      "id": "node-0874",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-001"
+      }
+    },
+    {
+      "id": "node-0875",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-002"
+      }
+    },
+    {
+      "id": "node-0876",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-003"
+      }
+    },
+    {
+      "id": "node-0877",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-004"
+      }
+    },
+    {
+      "id": "node-0878",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-005"
+      }
+    },
+    {
+      "id": "node-0879",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-006"
+      }
+    },
+    {
+      "id": "node-0880",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-007"
+      }
+    },
+    {
+      "id": "node-0881",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-008"
+      }
+    },
+    {
+      "id": "node-0882",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-009"
+      }
+    },
+    {
+      "id": "node-0883",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-010"
+      }
+    },
+    {
+      "id": "node-0884",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-011"
+      }
+    },
+    {
+      "id": "node-0885",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-012"
+      }
+    },
+    {
+      "id": "node-0886",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-013"
+      }
+    },
+    {
+      "id": "node-0887",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-014"
+      }
+    },
+    {
+      "id": "node-0888",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-015"
+      }
+    },
+    {
+      "id": "node-0889",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-016"
+      }
+    },
+    {
+      "id": "node-0890",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-017"
+      }
+    },
+    {
+      "id": "node-0891",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-018"
+      }
+    },
+    {
+      "id": "node-0892",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-019"
+      }
+    },
+    {
+      "id": "node-0893",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-020"
+      }
+    },
+    {
+      "id": "node-0894",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-021"
+      }
+    },
+    {
+      "id": "node-0895",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-022"
+      }
+    },
+    {
+      "id": "node-0896",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-023"
+      }
+    },
+    {
+      "id": "node-0897",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-024"
+      }
+    },
+    {
+      "id": "node-0898",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-025"
+      }
+    },
+    {
+      "id": "node-0899",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-026"
+      }
+    },
+    {
+      "id": "node-0900",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-027"
+      }
+    },
+    {
+      "id": "node-0901",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-028"
+      }
+    },
+    {
+      "id": "node-0902",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-029"
+      }
+    },
+    {
+      "id": "node-0903",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-030"
+      }
+    },
+    {
+      "id": "node-0904",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-031"
+      }
+    },
+    {
+      "id": "node-0905",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-032"
+      }
+    },
+    {
+      "id": "node-0906",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-033"
+      }
+    },
+    {
+      "id": "node-0907",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-034"
+      }
+    },
+    {
+      "id": "node-0908",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-035"
+      }
+    },
+    {
+      "id": "node-0909",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-036"
+      }
+    },
+    {
+      "id": "node-0910",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-037"
+      }
+    },
+    {
+      "id": "node-0911",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-038"
+      }
+    },
+    {
+      "id": "node-0912",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-039"
+      }
+    },
+    {
+      "id": "node-0913",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-040"
+      }
+    },
+    {
+      "id": "node-0914",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-041"
+      }
+    },
+    {
+      "id": "node-0915",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-042"
+      }
+    },
+    {
+      "id": "node-0916",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-043"
+      }
+    },
+    {
+      "id": "node-0917",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-044"
+      }
+    },
+    {
+      "id": "node-0918",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-045"
+      }
+    },
+    {
+      "id": "node-0919",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-046"
+      }
+    },
+    {
+      "id": "node-0920",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-047"
+      }
+    },
+    {
+      "id": "node-0921",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-048"
+      }
+    },
+    {
+      "id": "node-0922",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-049"
+      }
+    },
+    {
+      "id": "node-0923",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-050"
+      }
+    },
+    {
+      "id": "node-0924",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-051"
+      }
+    },
+    {
+      "id": "node-0925",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-052"
+      }
+    },
+    {
+      "id": "node-0926",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-053"
+      }
+    },
+    {
+      "id": "node-0927",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-054"
+      }
+    },
+    {
+      "id": "node-0928",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-055"
+      }
+    },
+    {
+      "id": "node-0929",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-056"
+      }
+    },
+    {
+      "id": "node-0930",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-057"
+      }
+    },
+    {
+      "id": "node-0931",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-058"
+      }
+    },
+    {
+      "id": "node-0932",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-059"
+      }
+    },
+    {
+      "id": "node-0933",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-060"
+      }
+    },
+    {
+      "id": "node-0934",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-061"
+      }
+    },
+    {
+      "id": "node-0935",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-062"
+      }
+    },
+    {
+      "id": "node-0936",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-063"
+      }
+    },
+    {
+      "id": "node-0937",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-064"
+      }
+    },
+    {
+      "id": "node-0938",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-065"
+      }
+    },
+    {
+      "id": "node-0939",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-066"
+      }
+    },
+    {
+      "id": "node-0940",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-067"
+      }
+    },
+    {
+      "id": "node-0941",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-068"
+      }
+    },
+    {
+      "id": "node-0942",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-069"
+      }
+    },
+    {
+      "id": "node-0943",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-070"
+      }
+    },
+    {
+      "id": "node-0944",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-071"
+      }
+    },
+    {
+      "id": "node-0945",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-072"
+      }
+    },
+    {
+      "id": "node-0946",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-073"
+      }
+    },
+    {
+      "id": "node-0947",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-074"
+      }
+    },
+    {
+      "id": "node-0948",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-075"
+      }
+    },
+    {
+      "id": "node-0949",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-076"
+      }
+    },
+    {
+      "id": "node-0950",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-077"
+      }
+    },
+    {
+      "id": "node-0951",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-078"
+      }
+    },
+    {
+      "id": "node-0952",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-079"
+      }
+    },
+    {
+      "id": "node-0953",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-080"
+      }
+    },
+    {
+      "id": "node-0954",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-081"
+      }
+    },
+    {
+      "id": "node-0955",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-082"
+      }
+    },
+    {
+      "id": "node-0956",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-083"
+      }
+    },
+    {
+      "id": "node-0957",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-084"
+      }
+    },
+    {
+      "id": "node-0958",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-085"
+      }
+    },
+    {
+      "id": "node-0959",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-086"
+      }
+    },
+    {
+      "id": "node-0960",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-087"
+      }
+    },
+    {
+      "id": "node-0961",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-088"
+      }
+    },
+    {
+      "id": "node-0962",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-089"
+      }
+    },
+    {
+      "id": "node-0963",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-090"
+      }
+    },
+    {
+      "id": "node-0964",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-091"
+      }
+    },
+    {
+      "id": "node-0965",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-092"
+      }
+    },
+    {
+      "id": "node-0966",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-093"
+      }
+    },
+    {
+      "id": "node-0967",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-094"
+      }
+    },
+    {
+      "id": "node-0968",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-095"
+      }
+    },
+    {
+      "id": "node-0969",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-096"
+      }
+    },
+    {
+      "id": "node-0970",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-000"
+      }
+    },
+    {
+      "id": "node-0971",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-001"
+      }
+    },
+    {
+      "id": "node-0972",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-002"
+      }
+    },
+    {
+      "id": "node-0973",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-003"
+      }
+    },
+    {
+      "id": "node-0974",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-004"
+      }
+    },
+    {
+      "id": "node-0975",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-005"
+      }
+    },
+    {
+      "id": "node-0976",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-006"
+      }
+    },
+    {
+      "id": "node-0977",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-007"
+      }
+    },
+    {
+      "id": "node-0978",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-008"
+      }
+    },
+    {
+      "id": "node-0979",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-009"
+      }
+    },
+    {
+      "id": "node-0980",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z0",
+        "rack": "rk-010"
+      }
+    },
+    {
+      "id": "node-0981",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z0",
+        "rack": "rk-011"
+      }
+    },
+    {
+      "id": "node-0982",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z0",
+        "rack": "rk-012"
+      }
+    },
+    {
+      "id": "node-0983",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z0",
+        "rack": "rk-013"
+      }
+    },
+    {
+      "id": "node-0984",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z1",
+        "rack": "rk-014"
+      }
+    },
+    {
+      "id": "node-0985",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z1",
+        "rack": "rk-015"
+      }
+    },
+    {
+      "id": "node-0986",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z1",
+        "rack": "rk-016"
+      }
+    },
+    {
+      "id": "node-0987",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z1",
+        "rack": "rk-017"
+      }
+    },
+    {
+      "id": "node-0988",
+      "weight": 2,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z2",
+        "rack": "rk-018"
+      }
+    },
+    {
+      "id": "node-0989",
+      "weight": 3,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z2",
+        "rack": "rk-019"
+      }
+    },
+    {
+      "id": "node-0990",
+      "weight": 1,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z2",
+        "rack": "rk-020"
+      }
+    },
+    {
+      "id": "node-0991",
+      "weight": 2,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z2",
+        "rack": "rk-021"
+      }
+    },
+    {
+      "id": "node-0992",
+      "weight": 3,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z3",
+        "rack": "rk-022"
+      }
+    },
+    {
+      "id": "node-0993",
+      "weight": 1,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z3",
+        "rack": "rk-023"
+      }
+    },
+    {
+      "id": "node-0994",
+      "weight": 2,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z3",
+        "rack": "rk-024"
+      }
+    },
+    {
+      "id": "node-0995",
+      "weight": 3,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z3",
+        "rack": "rk-025"
+      }
+    },
+    {
+      "id": "node-0996",
+      "weight": 1,
+      "domains": {
+        "region": "r-north",
+        "zone": "r-north-z4",
+        "rack": "rk-026"
+      }
+    },
+    {
+      "id": "node-0997",
+      "weight": 2,
+      "domains": {
+        "region": "r-south",
+        "zone": "r-south-z4",
+        "rack": "rk-027"
+      }
+    },
+    {
+      "id": "node-0998",
+      "weight": 3,
+      "domains": {
+        "region": "r-east",
+        "zone": "r-east-z4",
+        "rack": "rk-028"
+      }
+    },
+    {
+      "id": "node-0999",
+      "weight": 1,
+      "domains": {
+        "region": "r-west",
+        "zone": "r-west-z4",
+        "rack": "rk-029"
+      }
+    }
+  ]
+}

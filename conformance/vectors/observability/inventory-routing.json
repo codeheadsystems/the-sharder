@@ -1,0 +1,513 @@
+{
+  "vectorSet": "observability-inventory-routing",
+  "kind": "observabilityInventory",
+  "level": "core",
+  "description": "The metric and event names, label sets, severities, and payload members of the `routing` surface, as `OBS-010` and `OBS-020` state them.",
+  "requirements": [
+    "OBS-001",
+    "OBS-003",
+    "OBS-010",
+    "OBS-011",
+    "OBS-020",
+    "OBS-021",
+    "OBS-022",
+    "OBS-024",
+    "OBS-025"
+  ],
+  "cases": [
+    {
+      "name": "metric-inventory",
+      "requirements": [
+        "OBS-001",
+        "OBS-003",
+        "OBS-010",
+        "OBS-011"
+      ],
+      "note": "`OBS-010` names each metric and its label set.  A port compares the names it registers and the labels it attaches against these, and a name it does not register is a metric it does not expose.",
+      "expect": {
+        "surface": "routing",
+        "metricCount": 23,
+        "names": [
+          "sharder.attempts.exhausted",
+          "sharder.attempts.retries_refused",
+          "sharder.attempts.total",
+          "sharder.balance.observed_share",
+          "sharder.placement.prepared_entries",
+          "sharder.routing.decisions",
+          "sharder.routing.duration_millis",
+          "sharder.routing.errors",
+          "sharder.routing.filter_failed_open",
+          "sharder.routing.override_matched",
+          "sharder.routing.preference_list_length",
+          "sharder.routing.replica_count",
+          "sharder.routing.shortfall",
+          "sharder.routing.spread_relaxation",
+          "sharder.shard.requests",
+          "sharder.topology.documents",
+          "sharder.topology.epoch",
+          "sharder.topology.nodes",
+          "sharder.topology.prepare_duration_millis",
+          "sharder.topology.retained_snapshots",
+          "sharder.topology.snapshot_age_millis",
+          "sharder.topology.stale",
+          "sharder.topology.weight_clamped"
+        ],
+        "metrics": [
+          {
+            "name": "sharder.routing.decisions",
+            "instrument": "counter",
+            "labels": [
+              "outcome",
+              "strategy",
+              "topology_id"
+            ]
+          },
+          {
+            "name": "sharder.routing.shortfall",
+            "instrument": "counter",
+            "labels": [
+              "cause",
+              "topology_id"
+            ]
+          },
+          {
+            "name": "sharder.routing.spread_relaxation",
+            "instrument": "counter",
+            "labels": [
+              "stage",
+              "topology_id"
+            ]
+          },
+          {
+            "name": "sharder.routing.filter_failed_open",
+            "instrument": "counter",
+            "labels": [
+              "topology_id"
+            ]
+          },
+          {
+            "name": "sharder.routing.override_matched",
+            "instrument": "counter",
+            "labels": [
+              "mode",
+              "topology_id"
+            ]
+          },
+          {
+            "name": "sharder.routing.errors",
+            "instrument": "counter",
+            "labels": [
+              "code",
+              "topology_id"
+            ]
+          },
+          {
+            "name": "sharder.attempts.total",
+            "instrument": "counter",
+            "labels": [
+              "outcome",
+              "role",
+              "topology_id"
+            ]
+          },
+          {
+            "name": "sharder.attempts.exhausted",
+            "instrument": "counter",
+            "labels": [
+              "cause",
+              "topology_id"
+            ]
+          },
+          {
+            "name": "sharder.attempts.retries_refused",
+            "instrument": "counter",
+            "labels": [
+              "topology_id"
+            ]
+          },
+          {
+            "name": "sharder.topology.documents",
+            "instrument": "counter",
+            "labels": [
+              "outcome",
+              "topology_id"
+            ]
+          },
+          {
+            "name": "sharder.topology.weight_clamped",
+            "instrument": "counter",
+            "labels": [
+              "topology_id"
+            ]
+          },
+          {
+            "name": "sharder.shard.requests",
+            "instrument": "counter",
+            "labels": [
+              "shard",
+              "topology_id"
+            ]
+          },
+          {
+            "name": "sharder.topology.epoch",
+            "instrument": "gauge",
+            "labels": [
+              "topology_id"
+            ]
+          },
+          {
+            "name": "sharder.topology.snapshot_age_millis",
+            "instrument": "gauge",
+            "labels": [
+              "topology_id"
+            ]
+          },
+          {
+            "name": "sharder.topology.stale",
+            "instrument": "gauge",
+            "labels": [
+              "topology_id"
+            ]
+          },
+          {
+            "name": "sharder.topology.nodes",
+            "instrument": "gauge",
+            "labels": [
+              "state",
+              "topology_id"
+            ]
+          },
+          {
+            "name": "sharder.topology.retained_snapshots",
+            "instrument": "gauge",
+            "labels": [
+              "topology_id"
+            ]
+          },
+          {
+            "name": "sharder.placement.prepared_entries",
+            "instrument": "gauge",
+            "labels": [
+              "topology_id"
+            ]
+          },
+          {
+            "name": "sharder.balance.observed_share",
+            "instrument": "gauge",
+            "labels": [
+              "node",
+              "topology_id"
+            ]
+          },
+          {
+            "name": "sharder.routing.duration_millis",
+            "instrument": "histogram",
+            "labels": [
+              "topology_id"
+            ]
+          },
+          {
+            "name": "sharder.routing.preference_list_length",
+            "instrument": "histogram",
+            "labels": [
+              "topology_id"
+            ]
+          },
+          {
+            "name": "sharder.routing.replica_count",
+            "instrument": "histogram",
+            "labels": [
+              "topology_id"
+            ]
+          },
+          {
+            "name": "sharder.topology.prepare_duration_millis",
+            "instrument": "histogram",
+            "labels": [
+              "topology_id"
+            ]
+          }
+        ],
+        "labelValues": {
+          "sharder.attempts.exhausted": {
+            "cause": [
+              "preferenceList",
+              "attemptLimit",
+              "retryBudget"
+            ]
+          },
+          "sharder.routing.decisions": {
+            "outcome": [
+              "decided",
+              "failed"
+            ]
+          },
+          "sharder.routing.override_matched": {
+            "mode": [
+              "pin",
+              "constrain",
+              "both"
+            ]
+          },
+          "sharder.routing.shortfall": {
+            "cause": [
+              "nodes",
+              "domains"
+            ]
+          },
+          "sharder.topology.documents": {
+            "outcome": [
+              "installed",
+              "noop",
+              "unchanged",
+              "rejected"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "event-inventory",
+      "requirements": [
+        "OBS-020",
+        "OBS-021",
+        "OBS-024"
+      ],
+      "note": "`OBS-020` names each event, the severity it carries, and the payload members it carries beyond the common members of `OBS-021`.  A port may carry further members and may not rename one of these.  A `deduplication` member appears on the four events `OBS-024` names and on no other.",
+      "expect": {
+        "surface": "routing",
+        "eventCount": 20,
+        "names": [
+          "sharder.observability.bound_reached",
+          "sharder.routing.exhausted",
+          "sharder.routing.filter_failed_open",
+          "sharder.routing.shortfall",
+          "sharder.routing.spread_relaxed",
+          "sharder.shard.hot",
+          "sharder.shard.key_skew",
+          "sharder.topology.default_seed",
+          "sharder.topology.delta",
+          "sharder.topology.directory_large",
+          "sharder.topology.fresh",
+          "sharder.topology.installed",
+          "sharder.topology.provider_error",
+          "sharder.topology.rejected",
+          "sharder.topology.rendezvous_large",
+          "sharder.topology.ring_large",
+          "sharder.topology.spread_infeasible",
+          "sharder.topology.stale",
+          "sharder.topology.unchanged",
+          "sharder.topology.weight_clamped"
+        ],
+        "events": [
+          {
+            "name": "sharder.topology.installed",
+            "severity": "info",
+            "payload": [
+              "digest",
+              "nodeCount",
+              "placementSetCount",
+              "prepareDurationMillis"
+            ]
+          },
+          {
+            "name": "sharder.topology.rejected",
+            "severity": "error",
+            "payload": [
+              "condition",
+              "rejectedEpoch",
+              "digest"
+            ]
+          },
+          {
+            "name": "sharder.topology.unchanged",
+            "severity": "info",
+            "payload": [
+              "digest"
+            ]
+          },
+          {
+            "name": "sharder.topology.stale",
+            "severity": "warning",
+            "payload": [
+              "ageMillis",
+              "stalePolicy"
+            ]
+          },
+          {
+            "name": "sharder.topology.fresh",
+            "severity": "info",
+            "payload": [
+              "ageMillis"
+            ]
+          },
+          {
+            "name": "sharder.topology.provider_error",
+            "severity": "error",
+            "payload": [
+              "condition",
+              "backoffMillis"
+            ]
+          },
+          {
+            "name": "sharder.topology.weight_clamped",
+            "severity": "warning",
+            "payload": [
+              "node",
+              "requestedCount",
+              "grantedCount"
+            ]
+          },
+          {
+            "name": "sharder.topology.directory_large",
+            "severity": "warning",
+            "payload": [
+              "entryCount",
+              "threshold"
+            ]
+          },
+          {
+            "name": "sharder.topology.rendezvous_large",
+            "severity": "warning",
+            "payload": [
+              "nodeCount",
+              "total",
+              "threshold"
+            ]
+          },
+          {
+            "name": "sharder.topology.ring_large",
+            "severity": "warning",
+            "payload": [
+              "nodeCount",
+              "total",
+              "threshold"
+            ]
+          },
+          {
+            "name": "sharder.topology.spread_infeasible",
+            "severity": "warning",
+            "payload": [
+              "level",
+              "domainCount",
+              "factor",
+              "stage"
+            ]
+          },
+          {
+            "name": "sharder.topology.default_seed",
+            "severity": "warning",
+            "payload": [
+              "evidence"
+            ]
+          },
+          {
+            "name": "sharder.topology.delta",
+            "severity": "info",
+            "payload": [
+              "shardsChanged",
+              "nodesGained",
+              "nodesLost"
+            ]
+          },
+          {
+            "name": "sharder.routing.shortfall",
+            "severity": "warning",
+            "payload": [
+              "factor",
+              "achieved",
+              "cause",
+              "shard",
+              "token"
+            ],
+            "deduplication": "epochShardCause"
+          },
+          {
+            "name": "sharder.routing.spread_relaxed",
+            "severity": "info",
+            "payload": [
+              "relaxedLevels",
+              "stage",
+              "shard",
+              "token"
+            ],
+            "deduplication": "epochShardCause"
+          },
+          {
+            "name": "sharder.routing.filter_failed_open",
+            "severity": "warning",
+            "payload": [
+              "preferenceListLength"
+            ]
+          },
+          {
+            "name": "sharder.routing.exhausted",
+            "severity": "error",
+            "payload": [
+              "attempted",
+              "preferenceListLength",
+              "cause",
+              "shard",
+              "token"
+            ],
+            "deduplication": "perOccurrence"
+          },
+          {
+            "name": "sharder.shard.hot",
+            "severity": "warning",
+            "payload": [
+              "shard",
+              "observedShare",
+              "expectedShare"
+            ]
+          },
+          {
+            "name": "sharder.shard.key_skew",
+            "severity": "warning",
+            "payload": [
+              "shard",
+              "hottestKeyRequests",
+              "requests"
+            ]
+          },
+          {
+            "name": "sharder.observability.bound_reached",
+            "severity": "warning",
+            "payload": [
+              "bounded",
+              "setting",
+              "bound",
+              "count"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "common-members",
+      "requirements": [
+        "OBS-021",
+        "OBS-022",
+        "OBS-025"
+      ],
+      "note": "`OBS-021` states the members every event carries whatever its surface, and `OBS-022` states the one thing none of them carries.",
+      "expect": {
+        "commonMembers": [
+          "name",
+          "instant",
+          "topologyId",
+          "epoch",
+          "severity"
+        ],
+        "severities": [
+          "info",
+          "warning",
+          "error"
+        ],
+        "carriesKey": false,
+        "carriesRoutingKey": false,
+        "countsByNameWithoutASink": true
+      }
+    }
+  ]
+}

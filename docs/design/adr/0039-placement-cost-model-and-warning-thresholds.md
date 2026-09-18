@@ -4,8 +4,10 @@ Status: accepted, with `PLACE-071` extended by
 [`0046`](0046-bounded-routing-decision-surface.md), the derived threshold withdrawn by
 [`0055`](0055-slot-derived-assignment-withdrawal.md), the routing figures extended by
 [`0070`](0070-spread-stage-feasibility-from-a-domain-count.md), the emission point and the ring
-threshold amended by [`0072`](0072-preparation-cost-reported-before-preparation.md), and the
-retention multiple stated by [`0073`](0073-prepared-placement-retention-multiple.md).
+threshold amended by [`0072`](0072-preparation-cost-reported-before-preparation.md), the
+retention multiple stated by [`0073`](0073-prepared-placement-retention-multiple.md), and the claim
+below that no vector enforces the model superseded by
+[`0077`](0077-scale-conformance-level.md) and [`0078`](0078-observability-contract-as-data.md).
 Date: 2026-09-16.
 
 The third threshold this record added, `derivedWarnEvaluations` with the

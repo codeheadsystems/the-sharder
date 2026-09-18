@@ -1,16 +1,16 @@
 {
   "specification": "docs/design/10-specification.md",
   "statedRequirements": 656,
-  "coveredRequirements": 439,
-  "uncoveredRequirements": 217,
-  "coveragePercent": 66,
+  "coveredRequirements": 454,
+  "uncoveredRequirements": 202,
+  "coveragePercent": 69,
   "identifiersNamedButNotStated": [],
   "byPrefix": [
     {
       "prefix": "CFG",
       "section": "Configuration surface",
       "stated": 30,
-      "covered": 7,
+      "covered": 8,
       "uncovered": [
         "CFG-001",
         "CFG-002",
@@ -23,7 +23,6 @@
         "CFG-011",
         "CFG-012",
         "CFG-013",
-        "CFG-014",
         "CFG-022",
         "CFG-031",
         "CFG-032",
@@ -36,7 +35,7 @@
         "CFG-062",
         "CFG-064"
       ],
-      "percent": 23
+      "percent": 26
     },
     {
       "prefix": "CORE",
@@ -133,25 +132,17 @@
       "prefix": "OBS",
       "section": "Observability",
       "stated": 35,
-      "covered": 4,
+      "covered": 12,
       "uncovered": [
-        "OBS-001",
         "OBS-002",
-        "OBS-003",
         "OBS-004",
         "OBS-005",
         "OBS-006",
         "OBS-007",
         "OBS-008",
-        "OBS-011",
         "OBS-012",
         "OBS-013",
-        "OBS-020",
-        "OBS-021",
-        "OBS-022",
         "OBS-023",
-        "OBS-024",
-        "OBS-025",
         "OBS-026",
         "OBS-030",
         "OBS-034",
@@ -167,7 +158,7 @@
         "OBS-047",
         "OBS-048"
       ],
-      "percent": 11
+      "percent": 34
     },
     {
       "prefix": "FAIL",
@@ -242,11 +233,9 @@
       "prefix": "SPREAD",
       "section": "Replication and failover",
       "stated": 22,
-      "covered": 21,
-      "uncovered": [
-        "SPREAD-024"
-      ],
-      "percent": 95
+      "covered": 22,
+      "uncovered": [],
+      "percent": 100
     },
     {
       "prefix": "DIR",
@@ -281,19 +270,14 @@
       "prefix": "PLACE",
       "section": "Routing keys and placement",
       "stated": 47,
-      "covered": 38,
+      "covered": 43,
       "uncovered": [
         "PLACE-004",
         "PLACE-034",
-        "PLACE-070",
-        "PLACE-071",
-        "PLACE-073",
-        "PLACE-074",
         "PLACE-075",
-        "PLACE-076",
-        "PLACE-077"
+        "PLACE-076"
       ],
-      "percent": 80
+      "percent": 91
     },
     {
       "prefix": "PROP",
@@ -659,6 +643,7 @@
         "place"
       ],
       "requirements": [
+        "CFG-014",
         "CORE-002",
         "CORE-004",
         "CORE-005",
@@ -679,6 +664,15 @@
         "ERR-031",
         "ERR-032",
         "ERR-034",
+        "OBS-001",
+        "OBS-003",
+        "OBS-010",
+        "OBS-011",
+        "OBS-020",
+        "OBS-021",
+        "OBS-022",
+        "OBS-024",
+        "OBS-025",
         "OBS-031",
         "OBS-032",
         "OBS-033",
@@ -696,7 +690,12 @@
         "PLACE-031",
         "PLACE-041",
         "PLACE-044",
+        "PLACE-050",
+        "PLACE-052",
         "PLACE-067",
+        "PLACE-073",
+        "PLACE-074",
+        "PLACE-077",
         "PROP-001",
         "PROP-002",
         "PROP-003",
@@ -737,6 +736,7 @@
         "REPL-025",
         "RING-013",
         "RV-013",
+        "SEC-011",
         "SEC-013",
         "SLOT-004",
         "SLOT-031",
@@ -752,6 +752,9 @@
         "SPREAD-018",
         "SPREAD-020",
         "SPREAD-021",
+        "SPREAD-022",
+        "SPREAD-023",
+        "SPREAD-024",
         "TOPO-001",
         "TOPO-011",
         "TOPO-051",
@@ -766,8 +769,35 @@
         "TOPO-231",
         "TOPO-241"
       ],
-      "requirementsAtLevel": 106,
-      "requirementsWhenDeclared": 270
+      "requirementsAtLevel": 125,
+      "requirementsWhenDeclared": 284
+    },
+    {
+      "level": "scale",
+      "requires": [
+        "core"
+      ],
+      "requirements": [
+        "CORE-046",
+        "CORE-047",
+        "PLACE-015",
+        "PLACE-032",
+        "PLACE-050",
+        "PLACE-052",
+        "PLACE-070",
+        "PLACE-071",
+        "PLACE-074",
+        "RING-010",
+        "RING-020",
+        "RING-021",
+        "RING-026",
+        "RING-031",
+        "RV-003",
+        "RV-010",
+        "RV-013"
+      ],
+      "requirementsAtLevel": 17,
+      "requirementsWhenDeclared": 286
     },
     {
       "level": "failover",
@@ -826,15 +856,19 @@
         "HEALTH-052",
         "HEALTH-053",
         "HEALTH-055",
+        "OBS-001",
+        "OBS-003",
         "OBS-010",
+        "OBS-020",
+        "OBS-021",
         "PROP-040",
         "PROP-041",
         "PROP-045",
         "REPL-016",
         "SEC-031"
       ],
-      "requirementsAtLevel": 57,
-      "requirementsWhenDeclared": 323
+      "requirementsAtLevel": 61,
+      "requirementsWhenDeclared": 336
     },
     {
       "level": "readAffinity",
@@ -858,7 +892,7 @@
         "SPREAD-006"
       ],
       "requirementsAtLevel": 14,
-      "requirementsWhenDeclared": 282
+      "requirementsWhenDeclared": 296
     },
     {
       "level": "fencing",
@@ -901,12 +935,18 @@
         "FENCE-211",
         "FENCE-221",
         "FENCE-231",
+        "OBS-001",
+        "OBS-003",
+        "OBS-010",
+        "OBS-020",
+        "OBS-021",
+        "OBS-024",
         "TOPO-121",
         "TOPO-161",
         "TOPO-171"
       ],
-      "requirementsAtLevel": 38,
-      "requirementsWhenDeclared": 359
+      "requirementsAtLevel": 44,
+      "requirementsWhenDeclared": 372
     },
     {
       "level": "migration",
@@ -975,6 +1015,11 @@
         "MOVE-461",
         "MOVE-481",
         "MOVE-491",
+        "OBS-001",
+        "OBS-003",
+        "OBS-010",
+        "OBS-020",
+        "OBS-021",
         "RATE-001",
         "RATE-011",
         "RATE-021",
@@ -990,8 +1035,8 @@
         "TOPO-221",
         "TOPO-231"
       ],
-      "requirementsAtLevel": 75,
-      "requirementsWhenDeclared": 391
+      "requirementsAtLevel": 80,
+      "requirementsWhenDeclared": 404
     }
   ],
   "coveredBy": {
@@ -1013,7 +1058,8 @@
       "vectors/adversarial/colliding-keys.json",
       "vectors/ring/derived-walk.json",
       "vectors/ring/derived-zoned.json",
-      "vectors/ring/explicit-tokens.json"
+      "vectors/ring/explicit-tokens.json",
+      "vectors/scale/ring-1000.json"
     ],
     "RING-030": [
       "vectors/adversarial/colliding-keys.json",
@@ -1056,6 +1102,8 @@
       "vectors/ring/explicit-tokens.json",
       "vectors/ring/non-default-seed.json",
       "vectors/ring/weight-zero.json",
+      "vectors/scale/rendezvous-1000.json",
+      "vectors/scale/ring-1000.json",
       "vectors/slot/explicit-assignment.json",
       "vectors/slot/non-power-of-two-modulus.json",
       "vectors/spread/all-nodes-one-domain-relaxed.json",
@@ -1086,6 +1134,8 @@
       "vectors/ring/explicit-tokens.json",
       "vectors/ring/non-default-seed.json",
       "vectors/ring/weight-zero.json",
+      "vectors/scale/rendezvous-1000.json",
+      "vectors/scale/ring-1000.json",
       "vectors/slot/explicit-assignment.json",
       "vectors/slot/non-power-of-two-modulus.json",
       "vectors/spread/all-nodes-one-domain-relaxed.json",
@@ -1166,7 +1216,8 @@
     "RV-013": [
       "properties/properties.json",
       "vectors/determinism/node-array-permutation.json",
-      "vectors/rendezvous/ordering.json"
+      "vectors/rendezvous/ordering.json",
+      "vectors/scale/rendezvous-1000.json"
     ],
     "PLACE-016": [
       "vectors/determinism/tie-breaks.json"
@@ -1187,24 +1238,28 @@
     ],
     "RING-010": [
       "vectors/determinism/tie-breaks.json",
-      "vectors/ring/derived-walk.json"
+      "vectors/ring/derived-walk.json",
+      "vectors/scale/ring-1000.json"
     ],
     "RING-011": [
       "vectors/determinism/tie-breaks.json"
     ],
     "RING-031": [
       "vectors/determinism/tie-breaks.json",
-      "vectors/placement/shard-enumeration.json"
+      "vectors/placement/shard-enumeration.json",
+      "vectors/scale/ring-1000.json"
     ],
     "RV-003": [
       "vectors/determinism/tie-breaks.json",
-      "vectors/rendezvous/ordering.json"
+      "vectors/rendezvous/ordering.json",
+      "vectors/scale/rendezvous-1000.json"
     ],
     "RV-010": [
       "vectors/determinism/tie-breaks.json",
       "vectors/rendezvous/cache-hash-tags.json",
       "vectors/rendezvous/ordering.json",
-      "vectors/rendezvous/tenant-router.json"
+      "vectors/rendezvous/tenant-router.json",
+      "vectors/scale/rendezvous-1000.json"
     ],
     "CORE-020": [
       "vectors/digest/canonical-form.json"
@@ -1596,6 +1651,97 @@
       "properties/properties.json",
       "vectors/movement/add-one-node.json"
     ],
+    "OBS-001": [
+      "vectors/observability/inventory-failover.json",
+      "vectors/observability/inventory-fencing.json",
+      "vectors/observability/inventory-migration.json",
+      "vectors/observability/inventory-routing.json"
+    ],
+    "OBS-003": [
+      "vectors/observability/inventory-failover.json",
+      "vectors/observability/inventory-fencing.json",
+      "vectors/observability/inventory-migration.json",
+      "vectors/observability/inventory-routing.json"
+    ],
+    "OBS-010": [
+      "scenarios/health-filter-fails-open.json",
+      "vectors/observability/inventory-failover.json",
+      "vectors/observability/inventory-fencing.json",
+      "vectors/observability/inventory-migration.json",
+      "vectors/observability/inventory-routing.json"
+    ],
+    "OBS-020": [
+      "vectors/observability/inventory-failover.json",
+      "vectors/observability/inventory-fencing.json",
+      "vectors/observability/inventory-migration.json",
+      "vectors/observability/inventory-routing.json",
+      "vectors/observability/publication-events.json"
+    ],
+    "OBS-021": [
+      "vectors/observability/inventory-failover.json",
+      "vectors/observability/inventory-fencing.json",
+      "vectors/observability/inventory-migration.json",
+      "vectors/observability/inventory-routing.json"
+    ],
+    "OBS-024": [
+      "vectors/observability/inventory-fencing.json",
+      "vectors/observability/inventory-routing.json"
+    ],
+    "OBS-011": [
+      "vectors/observability/inventory-routing.json"
+    ],
+    "OBS-022": [
+      "vectors/observability/inventory-routing.json"
+    ],
+    "OBS-025": [
+      "vectors/observability/inventory-routing.json"
+    ],
+    "CFG-014": [
+      "vectors/observability/publication-events.json"
+    ],
+    "PLACE-050": [
+      "vectors/observability/publication-events.json",
+      "vectors/placement/document-defaults.json",
+      "vectors/placement/virtual-node-count.json",
+      "vectors/rendezvous/virtual-node-cap.json",
+      "vectors/ring/derived-zoned.json",
+      "vectors/scale/rendezvous-1000.json",
+      "vectors/scale/ring-1000.json"
+    ],
+    "PLACE-052": [
+      "vectors/observability/publication-events.json",
+      "vectors/placement/virtual-node-count.json",
+      "vectors/rendezvous/virtual-node-cap.json",
+      "vectors/scale/ring-1000.json"
+    ],
+    "PLACE-073": [
+      "vectors/observability/publication-events.json"
+    ],
+    "PLACE-074": [
+      "vectors/observability/publication-events.json",
+      "vectors/scale/rendezvous-1000.json",
+      "vectors/scale/ring-1000.json"
+    ],
+    "PLACE-077": [
+      "vectors/observability/publication-events.json"
+    ],
+    "SEC-011": [
+      "vectors/observability/publication-events.json",
+      "vectors/ring/non-default-seed.json"
+    ],
+    "SPREAD-022": [
+      "vectors/observability/publication-events.json",
+      "vectors/spread/all-nodes-one-domain-relaxed.json",
+      "vectors/spread/relaxation-stages.json"
+    ],
+    "SPREAD-023": [
+      "vectors/observability/publication-events.json",
+      "vectors/spread/all-nodes-one-domain-relaxed.json",
+      "vectors/spread/relaxation-stages.json"
+    ],
+    "SPREAD-024": [
+      "vectors/observability/publication-events.json"
+    ],
     "OVR-010": [
       "properties/properties.json",
       "vectors/overrides/pin-admits-weight-zero.json",
@@ -1703,12 +1849,6 @@
       "vectors/placement/document-defaults.json",
       "vectors/ring/explicit-tokens.json"
     ],
-    "PLACE-050": [
-      "vectors/placement/document-defaults.json",
-      "vectors/placement/virtual-node-count.json",
-      "vectors/rendezvous/virtual-node-cap.json",
-      "vectors/ring/derived-zoned.json"
-    ],
     "REPL-001": [
       "vectors/placement/document-defaults.json"
     ],
@@ -1748,7 +1888,8 @@
       "vectors/topology/ownership-delta.json"
     ],
     "PLACE-032": [
-      "vectors/placement/shard-enumeration.json"
+      "vectors/placement/shard-enumeration.json",
+      "vectors/scale/rendezvous-1000.json"
     ],
     "RING-032": [
       "vectors/placement/shard-enumeration.json"
@@ -1773,10 +1914,6 @@
       "vectors/placement/shard-enumeration.json"
     ],
     "PLACE-051": [
-      "vectors/placement/virtual-node-count.json",
-      "vectors/rendezvous/virtual-node-cap.json"
-    ],
-    "PLACE-052": [
       "vectors/placement/virtual-node-count.json",
       "vectors/rendezvous/virtual-node-cap.json"
     ],
@@ -1925,7 +2062,8 @@
       "vectors/ring/explicit-tokens.json"
     ],
     "RING-026": [
-      "vectors/ring/administrative-states.json"
+      "vectors/ring/administrative-states.json",
+      "vectors/scale/ring-1000.json"
     ],
     "CORE-040": [
       "vectors/ring/derived-walk.json"
@@ -1940,7 +2078,8 @@
     ],
     "RING-021": [
       "vectors/ring/derived-walk.json",
-      "vectors/ring/explicit-tokens.json"
+      "vectors/ring/explicit-tokens.json",
+      "vectors/scale/ring-1000.json"
     ],
     "RING-022": [
       "vectors/ring/derived-walk.json"
@@ -2006,14 +2145,23 @@
     "SEC-010": [
       "vectors/ring/non-default-seed.json"
     ],
-    "SEC-011": [
-      "vectors/ring/non-default-seed.json"
-    ],
     "SEC-012": [
       "vectors/ring/non-default-seed.json"
     ],
     "RING-002": [
       "vectors/ring/weight-zero.json"
+    ],
+    "PLACE-070": [
+      "vectors/scale/rendezvous-1000.json",
+      "vectors/scale/ring-1000.json"
+    ],
+    "PLACE-071": [
+      "vectors/scale/rendezvous-1000.json",
+      "vectors/scale/ring-1000.json"
+    ],
+    "PLACE-015": [
+      "properties/properties.json",
+      "vectors/scale/ring-1000.json"
     ],
     "SLOT-002": [
       "vectors/slot/explicit-assignment.json",
@@ -2041,14 +2189,6 @@
       "vectors/spread/degradation-ladder.json",
       "vectors/spread/relaxation-stages.json",
       "vectors/spread/skipped-level.json"
-    ],
-    "SPREAD-022": [
-      "vectors/spread/all-nodes-one-domain-relaxed.json",
-      "vectors/spread/relaxation-stages.json"
-    ],
-    "SPREAD-023": [
-      "vectors/spread/all-nodes-one-domain-relaxed.json",
-      "vectors/spread/relaxation-stages.json"
     ],
     "SPREAD-014": [
       "properties/properties.json",
@@ -2154,9 +2294,6 @@
       "properties/properties.json"
     ],
     "PROP-004": [
-      "properties/properties.json"
-    ],
-    "PLACE-015": [
       "properties/properties.json"
     ],
     "PROP-040": [
@@ -2639,9 +2776,6 @@
     ],
     "HEALTH-045": [
       "scenarios/failover-and-recovery.json"
-    ],
-    "OBS-010": [
-      "scenarios/health-filter-fails-open.json"
     ],
     "HEALTH-025": [
       "scenarios/ejection-ceiling.json"

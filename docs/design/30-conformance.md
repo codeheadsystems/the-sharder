@@ -85,6 +85,9 @@ below states what a port does with it.
 | `ownershipDelta` | two documents | the shards changed, with nodes gained and lost |
 | `pinShard` | a key matched by a pin | the shard, the pinned ordering, and the shard's ordering |
 | `propertyWitness` | a topology and a sample | the observed counts and the evaluated inequality |
+| `scale` | a topology of a thousand nodes | the placement total, the shard cardinality, and a prefix of each ordering |
+| `observabilityInventory` | none | the metric and event names, labels, severities, and payload members |
+| `publicationEvents` | a document | the events one publication of it emits |
 
 `topologyDigest` carries the SHA-256 of the RFC 8785 canonical form of the referenced document. A
 driver that checks it before running the cases separates a canonicalisation defect from a placement
@@ -149,7 +152,7 @@ case of `ERR-020`.
 ## Driver contract
 
 A **driver** is the per-language harness that reads the suite and runs it. The suite is designed so
-that a driver needs no parser beyond a JSON reader: the reference driver is five hundred lines
+that a driver needs no parser beyond a JSON reader: the reference driver is under a thousand lines
 covering every kind, and a driver that starts at the `hash` and `routing` kinds alone is under a
 hundred.
 
@@ -169,8 +172,9 @@ hundred.
    names, and report the vector files and cases run at each level.
 
 A driver compares only the fields a case carries. A case that omits `relaxedLevels` makes no claim
-about it. Every case the generator writes carries every field of the decision, so the omission rule
-matters only for a suite a port extends locally.
+about it. Every `routing` case the generator writes carries every field of the decision. A case at
+the `scale` level carries a prefix of each ordering instead of the whole of it, and the Placement at
+a thousand nodes section below states why.
 
 Field comparison is exact. A list is compared element by element in order, an integer by value, and
 an octet string by its hexadecimal spelling in lower case. A driver that compares node identity
@@ -195,14 +199,20 @@ harness reads a level rather than inferring one from a file's path or its `kind`
 
 Each level tests one conformance surface of the specification, named in the Conformance surfaces
 section of [`10-specification.md`](10-specification.md#conformance-surfaces), and every requirement
-identifier the level's vector files, properties, and scenarios name belongs to that surface. Three
+identifier the level's vector files, properties, and scenarios name belongs to that surface. Four
 levels test `routing` between them, because that surface is large and a port reaches it in stages.
+
+The rows of `OBS-010` and `OBS-020` are the one exception the specification states: a metric and an
+event belong to the surface the first segment of its name gives, whatever surface the requirement
+that tables them belongs to. A file carrying the rows of one surface therefore names `OBS-010` and
+`OBS-020` at the level that tests that surface, which is where the observability inventories sit.
 
 | Level | Requires | Surface | Contents | A port needs it when |
 |---|---|---|---|---|
 | `hash` | | `routing` | SipHash-2-4 and the framed domain-tagged construction | always; every other level rests on it |
 | `place` | `hash` | `routing` | the key transforms, the four placement strategies, overrides, replication and spread, shard enumeration, movement, the tie-breaks, the identity comparator, the virtual node count, and the attempt limit a decision resolves under `CORE-048`, each over a topology the file carries already valid | always |
-| `core` | `place` | `routing` | the canonical form and the digest, document validation, the error taxonomy, the ownership delta, skew detection, the placement properties, and the rollback scenario | always |
+| `core` | `place` | `routing` | the canonical form and the digest, document validation, the error taxonomy, the ownership delta, skew detection, the observability inventories and publication events, the placement properties, and the rollback scenario | always |
+| `scale` | `core` | `routing` | the same placement function over two documents of a thousand nodes, each crossing the threshold `PLACE-073` compares its total against | always |
 | `failover` | `core` | `failover` | the health arithmetic, the retry budget, the attempt walk and the clamp `FAIL-022` applies to it, and the health scenarios | the port exposes `attempts` or a health view |
 | `readAffinity` | `core` | `readAffinity` | `routeForRead` and the bounded reordering of the replica prefix | the port exposes `routeForRead` |
 | `fencing` | `failover` | `fencing` | the fencing token encoding, the order in which a recipient reports a condition, the recipient scenarios, and the redirect walk | the port exposes the recipient check |
@@ -211,7 +221,9 @@ levels test `routing` between them, because that surface is large and a port rea
 A declared level carries the levels it requires, transitively, so a port at `fencing` runs `hash`,
 `place`, `core`, `failover`, and `fencing`. `fencing` requires `failover` because `FENCE-231` bounds
 the redirect walk by the retry budget of `FAIL-031`, and `migration` requires it because a
-coordinator observes the health state of a destination that stops answering.
+coordinator observes the health state of a destination that stops answering. `scale` requires
+`core` and nothing above it: a port reaches it with the document pipeline and the placement engine,
+and the health view, the recipient check, and the coordinator reach no document of that size.
 
 The size of each level is computed rather than stated here. The `levels` table of
 [`../../conformance/manifest.json`](../../conformance/manifest.json) carries one row per level, and
@@ -224,13 +236,13 @@ and the number of requirement identifiers the level's own artefacts name in `req
 levels it requires are added. `run_suite.py` prints both the file and the case count per level as it
 runs, against the totals the manifest holds.
 
-`hash`, `place`, and `core` are not optional. Each tests part of the `routing` surface, which
-`CORE-110` requires every implementation to expose, and that surface is exactly the set of decisions
-two callers in two languages have to agree on. A port that declines any of the three is not a port
-of the sharder library. The four levels above them are optional because each tests a surface
-`CORE-110` leaves to the implementation: an integrator who routes a tenant identifier to one of five
-clusters never constructs a handoff coordinator, and a port serving that integrator carries no
-coordinator to test.
+`hash`, `place`, `core`, and `scale` are not optional. Each tests part of the `routing` surface,
+which `CORE-110` requires every implementation to expose, and that surface is exactly the set of
+decisions two callers in two languages have to agree on. A port that declines any of the four is
+not a port of the sharder library. The four optional levels each test a surface `CORE-110` leaves
+to the implementation: an integrator who routes a tenant identifier to one of five clusters never
+constructs a handoff coordinator, and a port serving that integrator carries no coordinator to
+test.
 
 A level is reached when every case in it that the port's strategy surfaces admit passes. There is no
 partial credit, and the suite reports no score. A port at `core` and `failover` that fails one
@@ -257,6 +269,44 @@ level cost what this section says it costs.
 and reaches `core` once a document becomes a snapshot, which is the order the work is done in.
 [`adr/0059`](adr/0059-place-conformance-level.md) records the partition and what moved into it.
 
+### Placement at a thousand nodes
+
+`scale` runs the placement function of `place` and the document pipeline of `core` over two
+topologies a maintainer cannot check by hand. `scale-ring-1000` carries a thousand nodes under
+`ring` with derived tokens, and four of them ask for more tokens than `maxTokensPerNode` grants.
+`scale-rendezvous-1000` carries the same thousand nodes under `rendezvous`. Each is configured so
+that the total `PLACE-073` measures is above the threshold `CFG-010` sets for it, and each case
+states that total, the setting it was compared against, and the shard cardinality, in the `total`,
+`totalSetting`, and `shardCount` members of its expectation. The ring document measures what
+`PLACE-070` charges for preparation and the rendezvous document what it charges for one routing
+call, which are the two halves of the cost model that rise with the node count rather than with
+what a document spells.
+
+The level asserts no timing and no resident size. A wall time is a property of a machine, a
+language, and a runtime rather than of an answer, so a data file carries none. What the level
+carries is the ordinary exact expectations of every other level, over inputs large enough that a
+port which built the wrong structure arrives at them slowly. A port that materialises a candidate
+ordering on every routing call, stores the ring as a list it scans, or rebuilds the ring per call,
+finishes `scale` in a time its author notices.
+
+A `scale` case asserts a prefix of each ordering rather than the whole of it. It carries the first
+eight entries of the candidate ordering, the first eight of the preference list, the shard
+cardinality, and the decision's own fields, of which `materialisedEntries` is the one `CORE-046`
+bounds. The candidate ordering under either document is a thousand entries long, `CORE-047` answers
+the whole of it on demand, and `PLACE-015` makes the prefix a caller consumes the cost a routing
+call pays under `ring`, `slot`, and `directory`, so a case asserting the thousand would ask for the
+materialisation this level exists to discourage.
+
+The suite carries a scale document for `ring` and for `rendezvous` and not for `slot` or
+`directory`. Under those two the figures of `PLACE-070` are the `slotCount` and the `entryCount`
+the document spells, so a large one is a large file rather than a large computation, and
+`directoryWarnEntries` under `CFG-010` already reports the shape. A port exposing neither `ring`
+nor `rendezvous` therefore runs no file at `scale`, which is the strategy surface rule of the
+section below applied unchanged.
+
+[`adr/0077`](adr/0077-scale-conformance-level.md) records the level, what it carries, and what it
+declines to assert.
+
 ### Strategy surface selection
 
 `CORE-110` makes the four placement strategies selectable surfaces, and the suite selects on them
@@ -277,7 +327,7 @@ subset for that port against the totals the manifest holds.
 
 ## Declaring conformance
 
-A port declares conformance by publishing six things.
+A port declares conformance by publishing seven things.
 
 1. The suite revision it ran, named by the `id` of the `revision` object in the `manifest.json` it
    ran.
@@ -286,7 +336,17 @@ A port declares conformance by publishing six things.
 4. The placement strategy surfaces it exposes, of which `CORE-110` requires at least one.
 5. The output of its driver, showing the case count per vector set and zero failures at every
    reached level.
-6. Its deviations, as a list of case names with the reason for each.
+6. The wall time and the peak resident size its driver observed at the `scale` level, with the
+   machine and the runtime they were observed on.
+7. Its deviations, as a list of case names with the reason for each.
+
+The sixth is a reported figure rather than an asserted one. The suite states no bound for it, no
+level is reached or missed by it, and a port whose figure is large has passed `scale` exactly as one
+whose figure is small has. It is comparable against the same port on another machine and against
+nothing else, and a routing call that materialises a thousand entries appears in it and in nothing
+else the suite reports.
+[`../../conformance/driver/python/run_suite.py`](../../conformance/driver/python/run_suite.py)
+prints both figures after the level table.
 
 A declaration names every level of the suite revision, so a level a port passed over is a claim it
 made rather than an omission. A port that reaches a level whose required levels it does not reach
@@ -390,6 +450,46 @@ A third tie-break case, equal-length competing prefixes in an override table, ca
 valid document, because two entries surviving the first two clauses of `PLACE-065` carry identical
 matchers and `PLACE-067` refuses them. The case is covered instead by the validation vectors that
 refuse such a document at load.
+
+### Observability vectors
+
+`OBS-010` names every metric with its label set and `OBS-020` names every event with its severity
+and the payload members it carries beyond the common members of `OBS-021`. Both are cross-language
+string contracts, and the withdrawal register of [`10-specification.md`](10-specification.md) makes
+each name permanent, so a port that emits nothing, spells a name differently, or drops a payload
+member has broken a published contract. The suite carries them as data.
+
+`vectors/observability/inventory-*.json` holds one file per surface that owns rows of those two
+tables: `routing` at `core`, `failover` at `failover`, `fencing` at `fencing`, and `migration` at
+`migration`. A metric and an event belong to the surface the first segment of its name gives, which
+the Conformance surfaces section of the specification states, so a port runs the inventory of each
+surface it exposes and no other. Each file carries a `metric-inventory` case with
+the names, the instruments, the label sets, and the closed label vocabularies `OBS-011` states for
+that surface, and an `event-inventory` case with the names, the severities, and the payload members.
+An event row carries a `deduplication` member for the four events `OBS-024` names and for no other,
+because the requirement says nothing about the rest. The `routing` file carries a third case for the
+common members `OBS-021` states.
+
+The inventories are read out of the specification's own tables by `generate_observability.py` rather
+than transcribed beside it, and the script refuses a table it cannot parse rather than writing a
+shorter inventory. A metric added to `OBS-010` therefore reaches the suite at the next regeneration,
+and a renamed one fails a port rather than going unnoticed.
+
+`vectors/observability/publication-events.json` asserts the events one publication of a document
+emits. Every event it covers is decided before stage 6 of `TOPO-001` under `PLACE-077`, or from a
+scan of the accepted document, so a case asserts a large topology's events without preparing its
+placement: the two totals of `PLACE-073`, the clamp of `PLACE-052`, the infeasible level of
+`SPREAD-024`, and the seed evidence of `SEC-011`. One case carries an empty list, which is the
+assertion that a port warning about an ordinary topology fails.
+
+A port compares the inventory against its own registry and its own sink. A driver holds neither, so
+[`../../conformance/driver/python/run_suite.py`](../../conformance/driver/python/run_suite.py)
+checks the inventory's internal consistency and its surface assignment, as it does for the closed
+condition set of `errorTaxonomy`. The events a running library emits are asserted where the suite
+already drives one: the health scenarios carry `sharder.health.ejection_refused` in their
+expectations. [`adr/0078`](adr/0078-observability-contract-as-data.md) records what is asserted and
+what is not.
+
 
 ## Properties
 
@@ -574,14 +674,21 @@ JSON reader's own behaviour and carries no vector.
 `PLACE-070` through `PLACE-077` state the cost of each strategy, the totals above which a warning
 event is emitted, the integer width a total is computed in, the cost of one ownership delta, the
 multiple a relaxation ladder applies to a walk, and the point in the load pipeline at which a total
-is computed. `CFG-014` carries the two thresholds. `TOPO-212`, which keeps the delta off the
-installation path, is uncovered for the same reason: a driver that installs a snapshot and then asks
-for a delta reads the same answer whether the library computed it eagerly or on the call, and only a
-profiler tells the two apart. A vector carries an output, and a cost is not one: the figures
-`PLACE-070` gives are bounds to within a constant factor rather than values, and the suite's largest
-topology is eleven nodes, so no document it ships crosses a threshold. The events of `PLACE-073` and
-`SPREAD-024` are outputs, and they are uncovered for the reason every other event is, which the
-section below gives.
+is computed. `CFG-014` carries the two thresholds.
+
+A total is an output and is covered. The two scale documents cross the thresholds of `PLACE-073`,
+their totals are asserted at the `scale` level and the events they emit at `core`, and `PLACE-077`
+is what makes the second possible without preparing the first: the total is a sum over the node
+weights, available before a token is derived. `PLACE-074` is covered by the same totals, which are
+above what a signed 32-bit accumulator holds under the cap `PLACE-050` applies.
+
+A cost is not an output, and `PLACE-075` and `PLACE-076` stay uncovered. Each states a bound to
+within a constant factor rather than a value, and only a profiler separates a library that met one
+from a library that did not. `TOPO-212`, which keeps the ownership delta off the installation path,
+is uncovered for the same reason: a driver that installs a snapshot and then asks for a delta reads
+the same answer whether the library computed it eagerly or on the call. The `scale` level is what
+the suite offers in place of a bound, and the Placement at a thousand nodes section above states
+what it does and does not assert.
 
 `SPREAD-023` permits a stage the domain count of `SPREAD-022` rules out to go unevaluated, and it is
 covered rather than uncovered: the stage it removes is one `SPREAD-012` cannot choose, so a port
@@ -592,15 +699,33 @@ one failure domain, which is the case the permission exists for, and
 
 ### Observability
 
-`OBS-001` through `OBS-025` name metrics, labels, and events. A metric value is permitted to be a
-floating-point number under `OBS-002` and is explicitly forbidden from reaching any decision, so
-asserting one adds no cross-language guarantee. The suite covers the arithmetic that feeds the
-skew detectors, `OBS-031` through `OBS-033`, because those are integer comparisons that change what
-is reported. The explain record of `OBS-040` through `OBS-048` is covered only through `OBS-044`,
-which requires it to agree with `route`, and a port checks that against its own routing vectors.
-`OBS-036` is the shape of a measurement source the integrator supplies, so nothing the suite
-generates carries one. `OBS-008` bounds the node label by `nodeLabelLimit`, and the cardinality a
-metric carries is a property of a running process rather than of a routing decision.
+`OBS-001` through `OBS-025` name metrics, labels, and events. The names, the label sets, the
+severities, and the payload members are covered by the inventories the Observability vectors
+section above describes, because a name is a string a data file carries and a port that spells one
+differently has broken the contract. What stays uncovered is the value behind a name. A metric
+value is permitted to be a floating-point number under `OBS-002` and is explicitly forbidden from
+reaching any decision, so asserting one adds no cross-language guarantee, and `OBS-012` and
+`OBS-013` state what two of the gauges hold. `OBS-004`, `OBS-023`, and `OBS-026` govern delivery to
+a registry and a sink the integrator supplies, which no data file holds. `OBS-005` states that
+recording a metric changes nothing, which a vector cannot witness the absence of.
+
+The suite covers the arithmetic that feeds the skew detectors, `OBS-031` through `OBS-033`, because
+those are integer comparisons that change what is reported. The explain record of `OBS-040` through
+`OBS-048` is covered only through `OBS-044`, which requires it to agree with `route`, and a port
+checks that against its own routing vectors. `OBS-036` is the shape of a measurement source the
+integrator supplies, so nothing the suite generates carries one. `OBS-008` bounds the node label by
+`nodeLabelLimit`, and the cardinality a metric carries is a property of a running process rather
+than of a routing decision.
+
+The events a running library emits are covered where the suite drives one and uncovered elsewhere.
+The publication events of `PLACE-073`, `PLACE-052`, `SPREAD-024`, and `SEC-011` are asserted by
+`vectors/observability/publication-events.json`, and the health scenarios assert
+`sharder.health.ejection_refused` in their expectations. The rest are emitted at points the
+reference does not reach: it installs no snapshot over time, holds no provider, follows no redirect,
+and drives no coordinator through a sink, so no artefact carries `sharder.topology.installed`,
+`sharder.routing.shortfall`, `sharder.fencing.refused`, or the `migration.` events. A port witnesses
+those against its own sink, and the inventory is what fixes the names and the payloads it witnesses
+them by.
 
 ### Rate control and measurement
 

@@ -30,6 +30,7 @@ LEVELS = [
     ("hash", [], "the hash primitive and the framed construction every other level rests on"),
     ("place", ["hash"], "the placement function over a topology the file carries already valid"),
     ("core", ["place"], "the document pipeline, the snapshot lifecycle, and what is reported"),
+    ("scale", ["core"], "the placement function over a topology of a thousand nodes"),
     ("failover", ["core"], "the health view, the attempt sequence, and the retry budget"),
     ("readAffinity", ["core"], "`routeForRead` and the bounded reordering of the replica prefix"),
     ("fencing", ["failover"], "the fencing token, the recipient verdict, and the redirect walk"),

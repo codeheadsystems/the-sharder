@@ -28,6 +28,7 @@ import argparse
 import json
 import re
 import sys
+import time
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -35,6 +36,7 @@ GENERATOR = HERE.parent.parent / "generator"
 sys.path.insert(0, str(GENERATOR))
 
 from sharder_ref import fencing, formulas, hashing, placement, routing         # noqa: E402
+from sharder_ref.observability import placement_total, publication_events      # noqa: E402
 from sharder_ref.jcs import canonicalise, digest as jcs_digest                 # noqa: E402
 from sharder_ref.sample import SplitMix64, sample_keys                         # noqa: E402
 from sharder_ref.siphash import siphash24                                      # noqa: E402
@@ -433,6 +435,98 @@ def run_property_witness(root, payload):
         compare("sample-generator.firstKeys", keys, case["expect"]["firstKeys"])
 
 
+def run_scale(root, payload):
+    """The `scale` level: a thousand nodes, exact expectations, and no timing assertion.
+
+    A case states the node count, the total `PLACE-073` measures, the shard cardinality, and a
+    handful of routing decisions.  Each ordering is asserted as a prefix rather than whole,
+    because `CORE-047` answers the whole of it on demand and a case that demanded it would ask a
+    port for the materialisation this level exists to discourage.
+    """
+    snapshot = load_topology(root, payload, payload["topology"])
+    compare(payload["vectorSet"] + ".topologyDigest", snapshot.digest,
+            payload["topologyDigest"])
+    for case in payload["cases"]:
+        expected = case["expect"]
+        name = case["name"]
+        setting, _, total = placement_total(snapshot.document)
+        compare(name + ".totalSetting", setting, expected["totalSetting"])
+        compare(name + ".total", total, expected["total"])
+        compare(name + ".nodeCount", len(snapshot.nodes), expected["nodeCount"])
+        compare(name + ".placementSetCount", len(snapshot.placement_set),
+                expected["placementSetCount"])
+        enumerated = placement.shards(snapshot)
+        compare(name + ".shardCount", len(enumerated), expected["shardCount"])
+        prefix = len(expected["shardPrefix"])
+        compare(name + ".shardPrefix", enumerated[:prefix], expected["shardPrefix"])
+        if enumerated:
+            reach = len(expected["candidatesForFirstShard"])
+            compare(name + ".candidatesForFirstShard",
+                    placement.candidates_for_shard(snapshot, enumerated[0],
+                                                   snapshot.placement_set)[:reach],
+                    expected["candidatesForFirstShard"])
+        for row in expected["rows"]:
+            decision = routing.route(snapshot, decode_key(row["key"]))
+            label = "%s.%s" % (name, row["key"]["value"])
+            for field in ("routingKey", "shard", "factor", "replicaCount",
+                          "materialisedEntries", "relaxedLevels", "spreadStage", "shortfall"):
+                compare(label + "." + field, decision[field], row[field])
+            reach = len(row["candidatePrefix"])
+            compare(label + ".candidatePrefix", decision["candidates"][:reach],
+                    row["candidatePrefix"])
+            reach = len(row["preferenceListPrefix"])
+            compare(label + ".preferenceListPrefix", decision["preferenceList"][:reach],
+                    row["preferenceListPrefix"])
+
+
+def run_observability_inventory(root, payload):
+    """A port checks its registry and its sink against the inventory; this driver checks shape.
+
+    The names, the label sets, the severities, and the payload members are the contract, and a
+    driver that holds no registry cannot compare them against one.  What it proves here is that
+    the inventory is internally consistent and that every name belongs to the surface the file
+    claims, so a generator that filed a metric under the wrong surface fails here.
+    """
+    segments = {"health": "failover", "fencing": "fencing", "migration": "migration"}
+    for case in payload["cases"]:
+        expected = case["expect"]
+        if "metrics" in expected:
+            compare(case["name"] + ".metricCount", len(expected["metrics"]),
+                    expected["metricCount"])
+            compare(case["name"] + ".names", sorted(m["name"] for m in expected["metrics"]),
+                    expected["names"])
+            for metric in expected["metrics"]:
+                if metric["instrument"] not in ("counter", "gauge", "histogram"):
+                    raise Failure("%s: %s carries no instrument" % (case["name"],
+                                                                   metric["name"]))
+                segment = metric["name"].split(".")[1]
+                compare(metric["name"] + ".surface", segments.get(segment, "routing"),
+                        expected["surface"])
+        if "events" in expected:
+            compare(case["name"] + ".eventCount", len(expected["events"]),
+                    expected["eventCount"])
+            compare(case["name"] + ".names", sorted(e["name"] for e in expected["events"]),
+                    expected["names"])
+            for event in expected["events"]:
+                if event["severity"] not in ("info", "warning", "error"):
+                    raise Failure("%s: %s carries severity %r, which `OBS-021` does not state"
+                                  % (case["name"], event["name"], event["severity"]))
+                if not event["payload"]:
+                    raise Failure("%s: %s names no payload member" % (case["name"],
+                                                                      event["name"]))
+                segment = event["name"].split(".")[1]
+                compare(event["name"] + ".surface", segments.get(segment, "routing"),
+                        expected["surface"])
+
+
+def run_publication_events(root, payload):
+    """`PLACE-077`, `SPREAD-024`, and `SEC-011`: what one publication reports, before stage 6."""
+    for case in payload["cases"]:
+        document = json.loads((root / case["topology"]).read_text())
+        compare(case["name"] + ".events", publication_events(document),
+                case["expect"]["events"])
+
+
 HANDLERS = {
     "siphash": run_siphash,
     "hash": run_hash,
@@ -453,6 +547,9 @@ HANDLERS = {
     "pinShard": run_pin_shard,
     "readAffinity": run_read_affinity,
     "propertyWitness": run_property_witness,
+    "scale": run_scale,
+    "observabilityInventory": run_observability_inventory,
+    "publicationEvents": run_publication_events,
 }
 
 
@@ -565,6 +662,28 @@ def run_scenarios(root, levels, known, verbose):
     return failures
 
 
+def report_scale_cost(timings):
+    """Report what the `scale` level cost on this machine, which no vector asserts.
+
+    A port publishes these two figures alongside its declaration.  They are not comparable
+    between machines and they are not comparable between languages; what they are for is the
+    author of a port reading them once and noticing that a routing call materialised a thousand
+    entries.
+    """
+    scale = [(name, seconds) for name, level, seconds in timings if level == "scale"]
+    if not scale:
+        return
+    for name, seconds in scale:
+        print("  %-40s %7.2fs" % (name, seconds))
+    print("  scale total %27.2fs" % sum(seconds for _, seconds in scale))
+    try:
+        import resource
+    except ImportError:                         # not every platform offers it
+        return
+    print("  peak resident size %20d MiB"
+          % (resource.getrusage(resource.RUSAGE_SELF).ru_maxrss // 1024))
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--root", default=str(HERE.parent.parent))
@@ -592,6 +711,11 @@ def main():
     failures = []
     files = cases = 0
     per_level = {name: [0, 0] for name in sorted(known)}
+    # `30-conformance.md` has a port publish the wall time and the resident size it observed at
+    # the `scale` level, because the value of that level is the cost its author discovers rather
+    # than a figure the suite asserts.  A data file carries no timing bound, and this driver
+    # asserts none: it reports what this machine took.
+    timings = []
     for entry in manifest["vectorFiles"]:
         kind = entry["kind"]
         level = entry["level"]
@@ -612,7 +736,9 @@ def main():
         if not admitted and entry["caseCount"]:
             continue
         try:
+            started = time.time()
             HANDLERS[kind](root, payload)
+            timings.append((entry["file"], level, time.time() - started))
             files += 1
             cases += len(admitted)
             per_level[level][0] += 1
@@ -634,6 +760,7 @@ def main():
               % (name, per_level[name][0], row["vectorFiles"],
                  per_level[name][1], row["vectorCases"]))
     print("%d vector files, %d cases" % (files, cases))
+    report_scale_cost(timings)
     if failures:
         print("%d failures:" % len(failures))
         for failure in failures:

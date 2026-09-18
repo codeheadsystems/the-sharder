@@ -1,6 +1,8 @@
 # 0072. Preparation cost reported before preparation
 
-Status: accepted. Date: 2026-09-17.
+Status: accepted, with the claim below that no vector moves and that events carry no assertion
+superseded by [`0077`](0077-scale-conformance-level.md) and
+[`0078`](0078-observability-contract-as-data.md). Date: 2026-09-17.
 
 Extends the warning thresholds of
 [`0039`](0039-placement-cost-model-and-warning-thresholds.md), whose cost model and whose defaults

@@ -1,6 +1,7 @@
 # 0073. Prepared placement retention multiple
 
-Status: accepted. Date: 2026-09-17.
+Status: accepted, with the claim below that metrics carry no assertion narrowed to their values
+by [`0078`](0078-observability-contract-as-data.md). Date: 2026-09-17.
 
 ## Context
 

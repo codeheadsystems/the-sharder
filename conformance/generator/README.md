@@ -23,6 +23,7 @@ implementation to compute against, and so that a maintainer can regenerate the s
 | `sharder_ref/fencing.py` | recipient verdicts and the redirect walk |
 | `sharder_ref/handoff.py` | the handoff state machine and the ownership delta |
 | `sharder_ref/formulas.py` | the integer formulas the specification states in closed form |
+| `sharder_ref/observability.py` | the events a snapshot publication emits |
 | `sharder_ref/sample.py` | the deterministic key sample |
 | `rho_search.c` | the 64-bit collision search the tie-break vectors need |
 
@@ -35,6 +36,8 @@ implementation to compute against, and so that a maintainer can regenerate the s
 | `generate.py` | the strategy, transform, digest, validation, and determinism vectors |
 | `generate_formulas.py` | the integer formula vectors |
 | `generate_extra.py` | the error taxonomy, defaults, comparator, and delta vectors |
+| `generate_scale.py` | the two documents of a thousand nodes and the `scale` level vectors |
+| `generate_observability.py` | the metric and event inventories, read out of the specification |
 | `property_definitions.py` | the property definitions |
 | `generate_properties.py` | the property witnesses |
 | `generate_scenarios.py` | the simulation scenarios |
@@ -60,6 +63,10 @@ is the signal the script exists to produce.
 The property witnesses take a few minutes, because a balance witness evaluates a hundred thousand
 keys against every node of a topology. `python3 generate_properties.py --quick` uses sample sizes
 below the specification's preconditions and is for checking the script rather than for publishing.
+
+`generate_scale.py` takes tens of seconds and a few hundred mebibytes, because it builds a ring of
+over a million tokens in Python. It prints what each file cost, and so does the driver. Those two
+figures are what a port compares itself against, and neither is asserted anywhere.
 
 ## Verifying SipHash against the published vectors
 

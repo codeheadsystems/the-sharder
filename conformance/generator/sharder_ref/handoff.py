@@ -408,7 +408,7 @@ class Plan:
             else:
                 handoff.apply("abort", at)
                 aborted.append(handoff.id)
-        self.events.append({"event": "sharder.migration.superseded", "epoch": epoch,
+        self.events.append({"event": "sharder.migration.superseded", "installedEpoch": epoch,
                             "abortedCount": len(aborted), "finishingCount": len(finishing),
                             "at": at})
         return {"superseded": True, "aborted": sorted(aborted), "finishing": sorted(finishing)}
@@ -428,8 +428,8 @@ class Plan:
                     "rebasePending": self.rebase_pending}
         if self.rebase_pending is None or epoch > self.rebase_pending:
             self.rebase_pending = epoch
-        self.events.append({"event": "sharder.migration.rebase_pending", "epoch": epoch,
-                            "targetEpoch": self.target_epoch, "at": at})
+        self.events.append({"event": "sharder.migration.rebase_pending",
+                            "installedEpoch": epoch, "targetEpoch": self.target_epoch, "at": at})
         return {"superseded": False, "aborted": [], "finishing": [],
                 "rebasePending": self.rebase_pending}
 

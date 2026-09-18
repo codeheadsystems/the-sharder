@@ -3887,46 +3887,52 @@ and matchers under `directory`. The product of the two gauges is the structure a
 ### Required events
 
 `OBS-020`. An implementation MUST emit every event of this table that belongs to a surface it
-exposes, MUST name it exactly as given, and MUST carry at least the payload given. Every name
-carries the prefix `sharder.`, which the table omits.
+exposes, MUST name it exactly as given, MUST carry the severity given, and MUST carry at least the
+payload members given, named exactly as given. Every event name carries the prefix `sharder.`,
+which the table omits. A payload member name is the name a serialised event spells, and an
+implementation MAY carry further members beyond those named.
 
-| Name | When | Payload beyond `OBS-021` |
-|---|---|---|
-| `topology.installed` | a snapshot is installed | digest, node counts, prepare duration |
-| `topology.rejected` | a document is rejected | the condition, the epoch, the digest |
-| `topology.unchanged` | a no-op document or an `unchanged` answer | the digest in force |
-| `topology.stale` | the snapshot passes `staleAfterMillis` | the age, the policy in force |
-| `topology.fresh` | a stale snapshot is confirmed | the age it reached |
-| `topology.provider_error` | a provider reports a failure | the condition, the backoff |
-| `topology.weight_clamped` | a count is clamped | node, requested count, granted count |
-| `topology.directory_large` | a directory exceeds its threshold | entry count, threshold |
-| `topology.rendezvous_large` | a rendezvous set exceeds its threshold | nodes, total, threshold |
-| `topology.ring_large` | a ring exceeds its token threshold | nodes, total, threshold |
-| `topology.spread_infeasible` | a level cannot reach the factor | level, domains, factor, stage |
-| `topology.default_seed` | a zero seed meets multi-tenancy | the evidence, under `SEC-011` |
-| `topology.delta` | `TOPO-211` is called | shards changed, gained, lost |
-| `routing.shortfall` | a replica prefix is short | factor, achieved, cause, shard |
-| `routing.spread_relaxed` | a stage above 0 is chosen | relaxed levels, stage, shard |
-| `routing.filter_failed_open` | every entry is skipped | preference list length |
-| `routing.exhausted` | an attempt sequence is exhausted | attempted, length, cause, shard |
-| `health.transition` | a health state changes | node, prior state, new state, trigger |
-| `health.ejection_refused` | the ceiling refuses a transition | node, ejected, set size |
-| `fencing.refused` | a recipient refuses a request | relation, ownership, owner, token |
-| `migration.planned` | `plan` returns a plan | handoff count, policy |
-| `migration.state_changed` | a handoff changes state | handoff, shard, from, to, trigger |
-| `migration.cutover_committed` | a record is committed | shard, source, destination, window |
-| `migration.quiesce_expired` | `MOVE-333` refuses a commit | handoff, shard, lease, margin |
-| `migration.failed` | a handoff reaches `failed` | shard, kind, source, destination |
-| `migration.superseded` | a plan is superseded | epoch, aborted count, finishing count |
-| `migration.rebase_pending` | a plan is marked under `MOVE-091` | the installed epoch, the target |
-| `migration.rebased` | `rebase` returns a report | the report of `MOVE-094` |
-| `migration.reobserved` | `reobserve` returns | handoff, shard, answer, resumed state |
-| `shard.hot` | a shard is hot under `OBS-031` | shard, observed share, expected share |
-| `shard.key_skew` | key skew is detected | shard, hottest key requests, requests |
-| `observability.bound_reached` | a label or a structure reaches its bound | what was bounded, the setting, the bound, the count |
+| Name | When | Severity | Payload beyond `OBS-021` |
+|---|---|---|---|
+| `topology.installed` | a snapshot is installed | `info` | `digest`, `nodeCount`, `placementSetCount`, `prepareDurationMillis` |
+| `topology.rejected` | a document is rejected | `error` | `condition`, `rejectedEpoch`, `digest` |
+| `topology.unchanged` | a no-op document or an `unchanged` answer | `info` | `digest` |
+| `topology.stale` | the snapshot passes `staleAfterMillis` | `warning` | `ageMillis`, `stalePolicy` |
+| `topology.fresh` | a stale snapshot is confirmed | `info` | `ageMillis` |
+| `topology.provider_error` | a provider reports a failure | `error` | `condition`, `backoffMillis` |
+| `topology.weight_clamped` | a count is clamped | `warning` | `node`, `requestedCount`, `grantedCount` |
+| `topology.directory_large` | a directory exceeds its threshold | `warning` | `entryCount`, `threshold` |
+| `topology.rendezvous_large` | a rendezvous set exceeds its threshold | `warning` | `nodeCount`, `total`, `threshold` |
+| `topology.ring_large` | a ring exceeds its token threshold | `warning` | `nodeCount`, `total`, `threshold` |
+| `topology.spread_infeasible` | a level cannot reach the factor | `warning` | `level`, `domainCount`, `factor`, `stage` |
+| `topology.default_seed` | a zero seed meets multi-tenancy | `warning` | `evidence` |
+| `topology.delta` | `TOPO-211` is called | `info` | `shardsChanged`, `nodesGained`, `nodesLost` |
+| `routing.shortfall` | a replica prefix is short | `warning` | `factor`, `achieved`, `cause`, `shard`, `token` |
+| `routing.spread_relaxed` | a stage above 0 is chosen | `info` | `relaxedLevels`, `stage`, `shard`, `token` |
+| `routing.filter_failed_open` | every entry is skipped | `warning` | `preferenceListLength` |
+| `routing.exhausted` | an attempt sequence is exhausted | `error` | `attempted`, `preferenceListLength`, `cause`, `shard`, `token` |
+| `health.transition` | a health state changes | `info` | `node`, `from`, `to`, `trigger` |
+| `health.ejection_refused` | the ceiling refuses a transition | `warning` | `node`, `ejected`, `setSize` |
+| `fencing.refused` | a recipient refuses a request | `warning` | `relation`, `ownership`, `currentOwner`, `token` |
+| `migration.planned` | `plan` returns a plan | `info` | `handoffCount`, `policy` |
+| `migration.state_changed` | a handoff changes state | `info` | `handoff`, `shard`, `from`, `to`, `trigger` |
+| `migration.cutover_committed` | a record is committed | `info` | `shard`, `source`, `destination`, `windowMillis` |
+| `migration.quiesce_expired` | `MOVE-333` refuses a commit | `error` | `handoff`, `shard`, `leaseMillis`, `marginMillis` |
+| `migration.failed` | a handoff reaches `failed` | `error` | `shard`, `kind`, `source`, `destination` |
+| `migration.superseded` | a plan is superseded | `warning` | `installedEpoch`, `abortedCount`, `finishingCount` |
+| `migration.rebase_pending` | a plan is marked under `MOVE-091` | `warning` | `installedEpoch`, `targetEpoch` |
+| `migration.rebased` | `rebase` returns a report | `info` | `fromEpoch`, `toEpoch`, `rebased`, `aborted`, `unchanged` |
+| `migration.reobserved` | `reobserve` returns | `info` | `handoff`, `shard`, `answer`, `resumedState` |
+| `shard.hot` | a shard is hot under `OBS-031` | `warning` | `shard`, `observedShare`, `expectedShare` |
+| `shard.key_skew` | key skew is detected | `warning` | `shard`, `hottestKeyRequests`, `requests` |
+| `observability.bound_reached` | a label or a structure reaches its bound | `warning` | `bounded`, `setting`, `bound`, `count` |
 
 `OBS-021`. Every event MUST carry its name, the `Instant` at which it was emitted, the `topologyId`
-and `epoch` in force, and a severity from the closed set `info`, `warning`, and `error`.
+and `epoch` in force, and a severity from the closed set `info`, `warning`, and `error`. The
+`Severity` column of `OBS-020` gives the member of that set each event carries, and an
+implementation MUST NOT vary it with the payload. The `evidence` member of
+`sharder.topology.default_seed` is the reasons `SEC-011` states, as a list over the closed set
+`overrides` and `directory`, in that order.
 
 `OBS-022`. No event MUST carry the key, the routing key, or any prefix of either. `REPL-023` states
 this for the shortfall event; it holds for every event without exception, and

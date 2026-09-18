@@ -53,6 +53,11 @@ Then take `vectors/properties/witnesses.json`, case `sample-generator`, which fi
 `PROP-006` requires every sampled bound to be drawn from. A port that disagrees there is drawing
 different keys, and its balance results say nothing.
 
+Run `--level scale` last. It routes against two documents of a thousand nodes each, and the values
+it asserts are exact, as they are at every other level. What it reports is the cost: `run_suite.py`
+prints the wall time of each scale file and the driver's peak resident size after the level table,
+and a port publishes both alongside its declaration. The suite asserts no bound for either.
+
 ## Regenerating
 
 ```sh
