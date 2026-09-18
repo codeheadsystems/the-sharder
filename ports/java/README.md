@@ -20,8 +20,11 @@ makes mandatory.
 [`../../docs/design/40-java-binding.md`](../../docs/design/40-java-binding.md) is the design this
 directory renders. It fixes the package layout, the public type set, the JDK floor, the dependency
 policy, the thread-safety contracts, the harness, and the build gates.
-[`../../docs/design/99-roadmap.md`](../../docs/design/99-roadmap.md#release-v01) gives what the
-first release carries.
+[`../../docs/design/99-roadmap.md`](../../docs/design/99-roadmap.md#implementation-stages) gives
+the stages, of which this port has finished the first, and
+[`#release-v01`](../../docs/design/99-roadmap.md#release-v01) gives what the release after them
+publishes. Nothing is published before that release, under
+[`adr/0083`](../../docs/design/adr/0083-publication-as-the-last-stage.md).
 
 ## Building
 

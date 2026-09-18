@@ -202,4 +202,5 @@ other port carries too.
 | conformance | [0035](design/adr/0035-manifest-driven-conformance-harness.md), [0037](design/adr/0037-specification-defect-repairs.md), [0052](design/adr/0052-conformance-level-partition.md), [0058](design/adr/0058-conformance-surfaces.md), [0059](design/adr/0059-place-conformance-level.md), [0061](design/adr/0061-suite-revision-identifier.md), [0064](design/adr/0064-hash-verification-before-generation.md), [0065](design/adr/0065-level-coverage-inside-surface-boundaries.md), [0077](design/adr/0077-scale-conformance-level.md), [0078](design/adr/0078-observability-contract-as-data.md) |
 | requirement identifiers | [0053](design/adr/0053-requirement-withdrawal-convention.md) |
 | ports and declarations | [0079](design/adr/0079-repository-layout-for-multiple-ports.md), [0080](design/adr/0080-conformance-declaration-format.md), [0082](design/adr/0082-continuous-integration-and-dependency-updates.md) |
+| release staging | [0083](design/adr/0083-publication-as-the-last-stage.md) |
 | documentation | [0062](design/adr/0062-documentation-style-check-as-a-warning.md) |
