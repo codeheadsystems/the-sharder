@@ -1,7 +1,7 @@
 {
   "suite": "sharder conformance suite",
   "revision": {
-    "id": "17363a9151a5b60b39a4ac55ca2a35eb3fa491efe1a08d007a0d24cd6163e4c1",
+    "id": "a9a07125112f2714e6a6d61ead6bf7e3fdd9b2c656fdbe4d2022f4013de196a5",
     "basis": "sha256 of the RFC 8785 canonical form of the file digests, the level table, and the strategy surfaces",
     "fileCount": 180,
     "trees": [
@@ -21,7 +21,7 @@
     "scenarios": 20,
     "scenarioSteps": 266,
     "properties": 28,
-    "requirementsNamed": 427
+    "requirementsNamed": 431
   },
   "requirementsNamed": [
     "CFG-020",
@@ -381,6 +381,7 @@
     "RING-023",
     "RING-024",
     "RING-025",
+    "RING-026",
     "RING-030",
     "RING-031",
     "RING-032",
@@ -420,6 +421,7 @@
     "SPREAD-004",
     "SPREAD-005",
     "SPREAD-006",
+    "SPREAD-007",
     "SPREAD-010",
     "SPREAD-011",
     "SPREAD-012",
@@ -432,6 +434,8 @@
     "SPREAD-019",
     "SPREAD-020",
     "SPREAD-021",
+    "SPREAD-022",
+    "SPREAD-023",
     "TOPO-001",
     "TOPO-011",
     "TOPO-051",
@@ -473,7 +477,7 @@
       "vectorCases": 291,
       "scenarios": 0,
       "properties": 0,
-      "requirementsNamed": 185
+      "requirementsNamed": 189
     },
     {
       "level": "core",
@@ -2362,9 +2366,10 @@
         "CORE-047",
         "PLACE-001",
         "PLACE-002",
-        "RING-005"
+        "RING-005",
+        "RING-026"
       ],
-      "sha256": "22a17c600515b86688718a32616d551b9a5d7eaa7fd8331e78caca573083bac3"
+      "sha256": "745863506a561fc7dfe6cf24382cf6bdbe609d153e2402b15634be94f9a23b0e"
     },
     {
       "file": "vectors/ring/derived-walk.json",
@@ -2422,11 +2427,12 @@
         "RING-001",
         "RING-020",
         "SPREAD-001",
+        "SPREAD-007",
         "SPREAD-011",
         "SPREAD-012",
         "SPREAD-015"
       ],
-      "sha256": "c9dc4b088ec111f302cad8de64f14e26f6c6e69b29b68e68b379e0c80f199bb8"
+      "sha256": "3962769cdafd71662d72e2045e6d054ca53c05d9ffe84d0ca07e5cab11964f7c"
     },
     {
       "file": "vectors/ring/explicit-tokens.json",
@@ -2562,14 +2568,17 @@
         "CORE-046",
         "CORE-047",
         "SPREAD-001",
+        "SPREAD-007",
         "SPREAD-010",
         "SPREAD-011",
         "SPREAD-012",
         "SPREAD-013",
         "SPREAD-015",
-        "SPREAD-021"
+        "SPREAD-021",
+        "SPREAD-022",
+        "SPREAD-023"
       ],
-      "sha256": "1014b783047c71e5e1d9cfa8a65555ccc435708b7ac6fd42c6fd6d5dcf95bada"
+      "sha256": "871a444405e47850209f2bf788693cdadefc958388b2e6f86d3b992d2dc81fca"
     },
     {
       "file": "vectors/spread/all-nodes-one-domain-strict.json",
@@ -2588,10 +2597,11 @@
         "CORE-047",
         "REPL-020",
         "REPL-021",
+        "SPREAD-007",
         "SPREAD-014",
         "SPREAD-015"
       ],
-      "sha256": "7952eb29c578e27656a5ad605f5cabdf4d24758e0aced19b8e038c2b9a52233e"
+      "sha256": "c262707671f8ff33b341e64c7b6b7fe5e72cb680a844f4aaf70fc5181451628a"
     },
     {
       "file": "vectors/spread/applies-to-pinned-ordering.json",
@@ -2632,6 +2642,7 @@
         "CORE-047",
         "REPL-013",
         "SPREAD-005",
+        "SPREAD-007",
         "SPREAD-010",
         "SPREAD-011",
         "SPREAD-012",
@@ -2644,7 +2655,7 @@
         "SPREAD-020",
         "SPREAD-021"
       ],
-      "sha256": "00998d150ce5417b94b381ff94c82c124c6b855cbcea3e0d7c64ce2e189f28e5"
+      "sha256": "06fcc70fd2067441ca5e3536bfa1de26799eae7a3657f4f1a95b1709e923222c"
     },
     {
       "file": "vectors/spread/relaxation-stages.json",
@@ -2660,6 +2671,7 @@
       "caseCount": 8,
       "requirements": [
         "SPREAD-005",
+        "SPREAD-007",
         "SPREAD-010",
         "SPREAD-011",
         "SPREAD-012",
@@ -2668,9 +2680,11 @@
         "SPREAD-017",
         "SPREAD-018",
         "SPREAD-019",
-        "SPREAD-020"
+        "SPREAD-020",
+        "SPREAD-022",
+        "SPREAD-023"
       ],
-      "sha256": "05a96297ef336997d6d732a006019f69470f7447d502650e93fbc064b654ef3d"
+      "sha256": "aedaac0cf302afb3120e740de59a50aaafac730356b67dbc7719d6d3dd37a405"
     },
     {
       "file": "vectors/spread/skipped-level.json",
@@ -2691,13 +2705,14 @@
         "SPREAD-001",
         "SPREAD-005",
         "SPREAD-006",
+        "SPREAD-007",
         "SPREAD-010",
         "SPREAD-011",
         "SPREAD-012",
         "SPREAD-015",
         "SPREAD-021"
       ],
-      "sha256": "f686a4d96a1b307ba18de32dc6cc0a7360bf227783d80da2f788ece7f294b1a2"
+      "sha256": "121d6d327aea39edb66a71a7646ab424a08d46bdac4503cd09f38fe3614fe4b0"
     },
     {
       "file": "vectors/topology/ownership-delta-unsupported.json",

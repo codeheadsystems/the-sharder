@@ -84,6 +84,9 @@ states, not something that has run.
   meaning to them beyond their position in the declared level order.
 - **spread**. The requirement that the replicas of a shard occupy distinct failure domains at a
   named level.
+- **occupancy cap**. The greatest number of a shard's replicas permitted to share one failure domain
+  at a named level. Every cap is 1, so a spread requirement is the case in which the replicas occupy
+  distinct failure domains, and no member of a topology document sets another value.
 - **degradation order**. The sequence in which spread requirements are relaxed when no placement
   satisfies all of them.
 - **topology**. The complete view of the world that the library routes against: the node set, their

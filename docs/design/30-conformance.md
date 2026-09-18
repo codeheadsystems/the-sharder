@@ -568,15 +568,24 @@ JSON reader's own behaviour and carries no vector.
 
 ### Placement cost
 
-`PLACE-070` through `PLACE-075` state the cost of each strategy, the products above which a warning
-event is emitted, the integer width a product is computed in, and the cost of one ownership delta.
-`CFG-014` carries the three thresholds. `TOPO-212`, which keeps the delta off the installation path,
-is uncovered for the same reason: a driver that installs a snapshot and then asks for a delta reads
-the same answer whether the library computed it eagerly or on the call, and only a profiler tells
-the two apart. A vector carries an output, and a cost is not one: the figures `PLACE-070` gives are
-bounds to within a constant factor rather than values, and the suite's largest topology is eleven
-nodes, so no document it ships crosses a threshold. The events of `PLACE-073` are outputs, and they
-are uncovered for the reason every other event is, which the section below gives.
+`PLACE-070` through `PLACE-077` state the cost of each strategy, the totals above which a warning
+event is emitted, the integer width a total is computed in, the cost of one ownership delta, the
+multiple a relaxation ladder applies to a walk, and the point in the load pipeline at which a total
+is computed. `CFG-014` carries the two thresholds. `TOPO-212`, which keeps the delta off the
+installation path, is uncovered for the same reason: a driver that installs a snapshot and then asks
+for a delta reads the same answer whether the library computed it eagerly or on the call, and only a
+profiler tells the two apart. A vector carries an output, and a cost is not one: the figures
+`PLACE-070` gives are bounds to within a constant factor rather than values, and the suite's largest
+topology is eleven nodes, so no document it ships crosses a threshold. The events of `PLACE-073` and
+`SPREAD-024` are outputs, and they are uncovered for the reason every other event is, which the
+section below gives.
+
+`SPREAD-023` permits a stage the domain count of `SPREAD-022` rules out to go unevaluated, and it is
+covered rather than uncovered: the stage it removes is one `SPREAD-012` cannot choose, so a port
+that skips a stage it should have evaluated produces a preference list the spread vectors already
+pin. `vectors/spread/all-nodes-one-domain-relaxed.json` carries a topology whose every node sits in
+one failure domain, which is the case the permission exists for, and
+`vectors/spread/relaxation-stages.json` records each stage's `reachesFactor` separately.
 
 ### Observability
 

@@ -153,6 +153,15 @@ owners are derived. A `slot` document names its owners in `assignments`, which i
 assignment the kind carries, so the member is present for symmetry with `ring` and takes one
 value.
 
+The four kinds differ in what the first candidate costs and in whether the rest of the ordering is
+paid for with it. Under `ring`, `slot`, and `directory` a routing call reads the entries a caller
+consumes and stops, so a preference list of three over a thousand nodes costs three entries and the
+search that found the first. Under `rendezvous` the first candidate is the highest score over the
+whole eligible node set, so every eligible node is scored before any candidate is known and the
+whole ordering is paid for whatever the caller reads. `PLACE-071` states that distinction and
+`PLACE-070` tabulates what each kind costs, in
+[`10-specification.md`](10-specification.md#placement-cost-model).
+
 ### Ring strategy
 
 ```json

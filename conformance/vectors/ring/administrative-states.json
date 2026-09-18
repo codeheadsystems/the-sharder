@@ -8,7 +8,8 @@
     "CORE-047",
     "PLACE-001",
     "PLACE-002",
-    "RING-005"
+    "RING-005",
+    "RING-026"
   ],
   "topology": "topologies/ring-admin-states.topology.json",
   "topologyDigest": "389bfdcdacec4fbec1f6b8a9f3fe3c70f7e4f0e0a07df1a157e9eeefeb1c2bc5",

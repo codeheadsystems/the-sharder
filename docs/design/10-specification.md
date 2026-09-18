@@ -1224,13 +1224,22 @@ Resident size of one prepared placement.
 | `slot` | `slotCount` index entries and the authored table |
 | `directory` | `entryCount` matchers and the authored table |
 
+A caller holds one prepared placement per retained snapshot. `TOPO-161` retains the snapshot in
+force together with `retentionDepth` previous snapshots, each of which keeps its own
+`PreparedPlacement` because `FENCE-091` evaluates a recipient against the preference list at the
+token's epoch, so a resident figure above is multiplied by `retentionDepth` plus 1. At the default
+depth of 3 a caller holds four prepared placements at once, and the multiple turns over on every
+epoch change.
+
 Under `ring` the ring order of `RING-010` carries one entry per token, so it carries `T` entries and
 sorting it is `T log T` comparisons. Under `derived` each entry's token is one `ringToken`
 evaluation under `RING-001`; under `explicit` each is a decode under `RING-003`. A routing call
 computes one `keyHash` under `RING-020`, locates the owning entry, which `RING-025` permits by
 binary search, and walks under `RING-021`. The walk visits `T` entries to produce the whole
 ordering under `RING-022` and about `p * T / N` entries to produce a prefix of `p` where tokens are
-evenly spread.
+evenly spread. Where an implementation walks a placement-set ring under `RING-026`, the walk visits
+the entries of ineligible owners as well, so the walked term is `T` over the placement set while the
+ordering it produces is over the eligible node set.
 
 Under `rendezvous` a node's score is the largest `rvScore` over its virtual node indices under
 `RV-003`, and `RV-010` orders by that score, so every eligible node is scored at every index before
@@ -1260,23 +1269,29 @@ the first candidate from the scores of the whole eligible node set, so no prefix
 answers the call. Laziness under `rendezvous` removes the `N log N` ordering term and leaves the `V`
 scoring term, which is the dominant one.
 
-`PLACE-073`. At snapshot publication an implementation MUST compute the totals below over the
-placement set and MUST emit the named event where a total exceeds the threshold in force. Every name
+`PLACE-073`. An implementation MUST compute the totals below over the placement set and MUST emit
+the named event where a total exceeds the threshold in force. `PLACE-077` states when. Every name
 carries the prefix `sharder.`, which the table omits.
 
 | Configuration | Total | Threshold | Event |
 |---|---|---|---|
 | `rendezvous` | `V` | `rendezvousWarnVirtualNodes` | `topology.rendezvous_large` |
-| `ring` with `derived` | `T` | `ringWarnTokens` | `topology.ring_large` |
+| `ring` | `T` | `ringWarnTokens` | `topology.ring_large` |
+
+The ring threshold is compared under both token assignment modes. A token total costs the same sort
+at stage 6 of `TOPO-001` and the same resident size whether the tokens are derived under `RING-001`
+or decoded under `RING-003`, and the document format bounds a node's authored token array by nothing
+at all, so `explicit` reaches a total `derived` cannot.
 
 Crossing a threshold MUST NOT be a validation failure, MUST NOT clamp any count, and MUST NOT change
 any candidate ordering, any shard identifier, or any resident structure.
 
 `PLACE-074`. An implementation MUST compute a total of `PLACE-073` in an integer type of at least 64
 bits, or by a saturating addition. A node's virtual node count reaches the cap `PLACE-050` takes
-from the configuration and a node's token count reaches `maxTokensPerNode`, so a total rises with
-the node count and with the cap in force, and a signed 32-bit accumulator overflows on a placement
-set large enough to cross either threshold by a wide margin.
+from the configuration, a node's derived token count reaches `maxTokensPerNode`, and a node's
+authored token count is bounded by the document alone, so a total rises with the node count and with
+the cap in force, and a signed 32-bit accumulator overflows on a placement set large enough to cross
+either threshold by a wide margin.
 
 `PLACE-075`. An implementation MUST bound the cost of one ownership delta under `TOPO-211` by two
 candidate orderings per shard, one under each snapshot, over the shards the two snapshots enumerate
@@ -1284,6 +1299,31 @@ between them, each ordering costing what the routing table of `PLACE-070` states
 configuration at `p` of the effective replication factor. The figure is `2S` orderings, and it is a
 term of neither table above: `TOPO-212` keeps the delta off the installation path and a routing call
 computes none. Under `rendezvous` the delta walks nothing, because `PLACE-032` makes `shards` empty.
+
+`PLACE-076`. A routing call computes the candidate ordering once and walks it once for each
+relaxation stage the preference list builder evaluates. The walk term of the routing table above,
+which is the entries walked under `ring` and the node references filtered under `slot` and
+`directory`, MUST therefore be read as that figure multiplied by the count of stages evaluated. The
+terms that produce the ordering, the hash evaluations and the search, are paid once whatever that
+count is.
+
+The count of stages is 1 under `spreadPolicy` of `strict` and where `replication.spread` is empty,
+and `SPREAD-017` bounds it at `m + 1` for `m` levels of `replication.spread`, and at nine overall. A
+stage that fills the replica prefix walks the `p` entries of `PLACE-071` and stops, and a stage that
+cannot fill it walks the ordering to its end, so the multiplier and the walk reach their maxima
+together, on a topology whose coarsest named level cannot be satisfied. `SPREAD-023` lowers the
+count to one more than the count of stages the domain count does not rule out, and `SPREAD-024`
+reports at publication that a level cannot be satisfied.
+
+`PLACE-077`. An implementation MUST compute the totals of `PLACE-073` before stage 6 of `TOPO-001`
+begins, and MUST emit the event of a crossed threshold before the preparation that total measures.
+Each total is a sum over the node weights and the authored counts the document carries, so it is
+available before a token is derived, a score is framed, or an ordering is sorted. An operator
+therefore reads a preparation cost from the event rather than from a pipeline that has already
+stalled under the lock of `TOPO-041`, and `topology.prepare_duration_millis` under `OBS-010` reports
+the preparation once it has been paid. A document that reaches no stage 6 emits no such event: a
+document rejected at stages 1 through 5 is abandoned under `TOPO-001` and a document accepted as a
+no-op under `TOPO-061` prepares nothing.
 
 ### Ring strategy
 
@@ -1304,8 +1344,9 @@ integer, in the order the array spells them.
 weight 0 that carries tokens owns the token ranges those tokens terminate and appears in the
 candidate ordering accordingly.
 
-`RING-005`. An implementation MUST derive tokens from the eligible node set when building a
-candidate ordering, and from the placement set when computing `shardOf` or enumerating `shards`.
+`RING-005`. A candidate ordering MUST be the one the ring order of the eligible node set produces,
+and `shardOf` and `shards` MUST be the ones the ring order of the placement set produces. Which ring
+orders an implementation builds to produce them is stated by `RING-026`.
 
 `RING-006`. Where the `ring` strategy object omits `tokenAssignment`, the token assignment mode
 MUST be `derived`, and the document MUST behave exactly as one that names the mode. An
@@ -1382,6 +1423,15 @@ exactly once, and MUST contain no other identity.
 
 `RING-025`. The candidate ordering MUST NOT depend on whether an implementation searches the ring by
 linear scan, by binary search, or by a precomputed lookup table.
+
+`RING-026`. The candidate ordering MUST NOT depend on whether an implementation builds a ring order
+over the eligible node set or walks a ring order built over the placement set, skipping every entry
+whose owner is not eligible. Removing entries preserves the relative order of the entries that
+remain, and the first entry at or above a key hash whose owner is eligible is the same entry in both
+orders, so the two walks emit the same owners in the same order. This is why the preparation figure
+of `PLACE-070` is stated over the placement set: one ring order is built per snapshot, and an
+override `constrain` is a skip inside the walk rather than a ring order rebuilt inside the routing
+call.
 
 #### Ring shards
 
@@ -1923,6 +1973,12 @@ contribute an identifier to the tuple, whether or not `replication.spread` names
 the tuple is `domainLevels` and never `replication.spread`. Two domain paths MUST be compared
 element by element as octet sequences under `PLACE-020`.
 
+`SPREAD-007`. A spread requirement at level `L` carries an **occupancy cap** `c(L)`: the greatest
+number of replica prefix entries permitted to share one failure domain at `L`. No member of the
+topology document format sets a cap, so `c(L)` MUST be 1 at every level. `SPREAD-001` is that case,
+because a replica prefix in which no two entries share a failure domain at `L` is a replica prefix
+holding at most one entry per failure domain at `L`.
+
 ### Spread degradation
 
 Degradation is expressed as a ladder of relaxation stages over the spread level list. Let `spread`
@@ -1942,19 +1998,21 @@ select_with(candidates, n, levels):
     prefix = []
     for x in candidates:                       # candidate ordering, in order
         if identity(x) in prefix:              continue
-        if shares_domain(x, prefix, levels):   continue
+        if exceeds_cap(x, prefix, levels):     continue
         append x to prefix
         if length(prefix) == n: break
     return prefix
 
-shares_domain(x, prefix, levels):
+exceeds_cap(x, prefix, levels):
     for L in levels:
-        for y in prefix:
-            if domain_path(x, L) == domain_path(y, L): return true
+        occupied = count of y in prefix with domain_path(y, L) == domain_path(x, L)
+        if occupied >= cap(L): return true
     return false
 ```
 
-`domain_path(x, L)` is given by `SPREAD-006`. It spans every level of `domainLevels` from the
+`cap(L)` is the occupancy cap of `SPREAD-007` and is 1 at every level, so `exceeds_cap` refuses `x`
+exactly where the prefix already holds an entry sharing a failure domain with `x` at an enforced
+level. `domain_path(x, L)` is given by `SPREAD-006`. It spans every level of `domainLevels` from the
 coarsest declared level through `L`, including a declared level that `replication.spread` omits, so
 `spread` of `["rack"]` over `domainLevels` of `["region", "zone", "rack"]` compares the triple and
 not the rack identifier alone.
@@ -1979,11 +2037,16 @@ identifier where the strategy names shards, and the fencing token. `REPL-023` an
 to it unchanged.
 
 `SPREAD-017`. An implementation MUST evaluate at most `m + 1` stages for one routing key. Since
-`domainLevels` holds at most eight levels, at most nine stages exist.
+`domainLevels` holds at most eight levels, at most nine stages exist. Evaluating a stage walks the
+candidate ordering, so a routing call under `relaxed` costs up to `m + 1` walks of it, stated as a
+term of the routing figures by `PLACE-076`. The walk of a stage the domain count rules out is
+removed by `SPREAD-023`.
 
 `SPREAD-018`. `domain_path` at a level extends `domain_path` at every coarser level, so a stage's
 coarsest enforced level decides which entries it admits. Stage `k`, for `k` below `m`, MUST admit
-exactly the entries that enforcing `spread[k]` alone admits.
+exactly the entries that enforcing `spread[k]` alone admits. Every level carries the same occupancy
+cap under `SPREAD-007`, and the count of prefix entries sharing an entry's domain path does not rise
+as the level grows finer, so the coarsest enforced level is the level that reaches its cap first.
 
 `SPREAD-019`. The ladder MUST be ordered from the strongest constraint at stage `0` to node
 distinctness at stage `m`. An entry that stage `k` admits against a set of already admitted entries,
@@ -1998,6 +2061,33 @@ list, for the same routing key.
 
 `SPREAD-021`. The fallback tail MUST NOT be constrained by spread at any stage. The tail is the
 remainder of the candidate ordering and carries no spread property.
+
+`SPREAD-022`. The **domain count** `d(L)` of a level `L` is the count of distinct values of
+`domain_path(x, L)` over the placement set. An implementation that computes it computes it once per
+snapshot, at a cost linear in the placement set. The eligible node set of a routing key is a subset
+of the placement set under `PLACE-003`, so the count of distinct domain paths at `L` over the
+eligible node set is at most `d(L)`. A domain path at a level extends the path at every coarser
+level under `SPREAD-006`, so two nodes with distinct paths at a level have distinct paths at every
+finer level and `d(L)` does not fall as `L` grows finer.
+
+`SPREAD-023`. Stage `k`, for `k` below `m`, admits at most `c(spread[k]) * d(spread[k])` entries,
+because it admits at most `c(spread[k])` entries per distinct domain path at `spread[k]` and the
+eligible node set offers at most `d(spread[k])` of them. Under `spreadPolicy` of `relaxed` an
+implementation MAY therefore treat `length(select(k))` as less than `n` without evaluating stage
+`k`, wherever `c(spread[k]) * d(spread[k])` is less than `n`. `SPREAD-012` cannot choose such a
+stage, and the preference list MUST be the one an implementation evaluating every stage produces.
+Stage `m` enforces no level, so the permission never removes it, and under `spreadPolicy` of
+`strict` the builder uses `select(0)` whatever its length under `SPREAD-014`, so the permission
+reaches no stage at all.
+
+`SPREAD-024`. At snapshot publication an implementation MUST emit an event where the product
+`c(L) * d(L)` is less than the value of `replication.factor` for some level `L` that
+`replication.spread` names. The event MUST carry the coarsest such level, that level's domain count,
+the replication factor, and the lowest stage `SPREAD-023` does not rule out. It MUST NOT be a
+validation failure, MUST NOT change any candidate ordering, and MUST NOT change any preference list.
+An override `factor` under `REPL-003` is not evaluated, because an override `constrain` gives its
+keys an eligible node set the placement set does not describe. The event name is given by the
+observability contract.
 
 ### Node health state machine
 
@@ -2574,6 +2664,10 @@ snapshot contains.
 `TOPO-161`. An implementation MUST retain the snapshot in force and MAY retain a bounded number of
 previously installed snapshots for the same `topologyId`, in descending epoch order. The retention
 depth is a non-negative integer supplied by the integrator and defaults to 3 previous snapshots.
+Each retained snapshot holds its own `PreparedPlacement` under `CORE-010`, because `FENCE-091`
+evaluates a recipient against the preference list at the token an epoch carries, so the retention
+depth multiplies the resident figures of `PLACE-070` by itself plus one, and holds four prepared
+placements at the default depth. `OBS-013` names the two gauges that report the multiple.
 
 `TOPO-171`. A retained snapshot MUST be usable only for the recipient-side evaluation specified
 in `FENCE-081` and for plan basis checks. An implementation MUST NOT route a call against a
@@ -3666,6 +3760,8 @@ Gauges.
 | `topology.snapshot_age_millis` | `topology_id` | since the snapshot was last confirmed |
 | `topology.stale` | `topology_id` | 1 where the snapshot in force is stale |
 | `topology.nodes` | `topology_id`, `state` | nodes in each administrative state |
+| `topology.retained_snapshots` | `topology_id` | snapshots retained under `TOPO-161` |
+| `placement.prepared_entries` | `topology_id` | resident entries of one prepared placement |
 | `migration.handoffs` | `topology_id`, `state` | handoffs in each state |
 | `migration.pressure` | `scope`, `level` | the level the gauge last reported |
 | `balance.observed_share` | `topology_id`, `node` | observed share over expected share |
@@ -3691,6 +3787,13 @@ Histograms.
 its weighted expected share. It is the one metric whose value is a ratio, and `OBS-002` is what
 permits it.
 
+`OBS-013`. `topology.retained_snapshots` MUST count the snapshots an implementation holds under
+`TOPO-161`, including the one in force. `placement.prepared_entries` MUST be the count of entries
+that the resident size table of `PLACE-070` names for the configuration in force, reported for the
+snapshot in force: ring entries under `ring`, nodes under `rendezvous`, index entries under `slot`,
+and matchers under `directory`. The product of the two gauges is the structure a caller holds, and
+`TOPO-161` is what makes it larger than one prepared placement.
+
 ### Required events
 
 `OBS-020`. An implementation MUST emit every event of this table that belongs to a surface it
@@ -3709,6 +3812,7 @@ carries the prefix `sharder.`, which the table omits.
 | `topology.directory_large` | a directory exceeds its threshold | entry count, threshold |
 | `topology.rendezvous_large` | a rendezvous set exceeds its threshold | nodes, total, threshold |
 | `topology.ring_large` | a ring exceeds its token threshold | nodes, total, threshold |
+| `topology.spread_infeasible` | a level cannot reach the factor | level, domains, factor, stage |
 | `topology.default_seed` | a zero seed meets multi-tenancy | the evidence, under `SEC-011` |
 | `topology.delta` | `TOPO-211` is called | shards changed, gained, lost |
 | `routing.shortfall` | a replica prefix is short | factor, achieved, cause, shard |
@@ -3916,7 +4020,7 @@ deployment manifest.
 | `providerRetryJitter` | true | whether an integer jitter below the interval is subtracted |
 | `staleAfterMillis` | 0 | age past which the snapshot is marked stale; 0 disables it |
 | `stalePolicy` | `serve` | `serve` routes against a stale snapshot, `refuse` refuses |
-| `retentionDepth` | 3 | previous snapshots retained for `FENCE-091` and plan checks |
+| `retentionDepth` | 3 | previous snapshots retained, each with a prepared placement; `TOPO-161` |
 | `maxKeyBytes` | 65536 | ceiling on a key, above which a routing call answers `invalidArgument` |
 | `directoryWarnEntries` | 10000 | entry count above which the directory event is emitted |
 | `rendezvousWarnVirtualNodes` | 4096 | summed virtual node count above which the event is emitted |

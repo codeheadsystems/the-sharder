@@ -1,8 +1,8 @@
 {
   "specification": "docs/design/10-specification.md",
-  "statedRequirements": 640,
-  "coveredRequirements": 427,
-  "uncoveredRequirements": 213,
+  "statedRequirements": 648,
+  "coveredRequirements": 431,
+  "uncoveredRequirements": 217,
   "coveragePercent": 66,
   "identifiersNamedButNotStated": [],
   "byPrefix": [
@@ -133,7 +133,7 @@
     {
       "prefix": "OBS",
       "section": "Observability",
-      "stated": 34,
+      "stated": 35,
       "covered": 4,
       "uncovered": [
         "OBS-001",
@@ -146,6 +146,7 @@
         "OBS-008",
         "OBS-011",
         "OBS-012",
+        "OBS-013",
         "OBS-020",
         "OBS-021",
         "OBS-022",
@@ -242,10 +243,12 @@
     {
       "prefix": "SPREAD",
       "section": "Replication and failover",
-      "stated": 18,
-      "covered": 18,
-      "uncovered": [],
-      "percent": 100
+      "stated": 22,
+      "covered": 21,
+      "uncovered": [
+        "SPREAD-024"
+      ],
+      "percent": 95
     },
     {
       "prefix": "DIR",
@@ -279,7 +282,7 @@
     {
       "prefix": "PLACE",
       "section": "Routing keys and placement",
-      "stated": 45,
+      "stated": 47,
       "covered": 38,
       "uncovered": [
         "PLACE-004",
@@ -288,9 +291,11 @@
         "PLACE-071",
         "PLACE-073",
         "PLACE-074",
-        "PLACE-075"
+        "PLACE-075",
+        "PLACE-076",
+        "PLACE-077"
       ],
-      "percent": 84
+      "percent": 80
     },
     {
       "prefix": "PROP",
@@ -303,12 +308,12 @@
     {
       "prefix": "RING",
       "section": "Routing keys and placement",
-      "stated": 19,
-      "covered": 18,
+      "stated": 20,
+      "covered": 19,
       "uncovered": [
         "RING-012"
       ],
-      "percent": 94
+      "percent": 95
     },
     {
       "prefix": "RV",
@@ -593,6 +598,7 @@
         "RING-023",
         "RING-024",
         "RING-025",
+        "RING-026",
         "RING-030",
         "RING-031",
         "RING-032",
@@ -627,6 +633,7 @@
         "SPREAD-004",
         "SPREAD-005",
         "SPREAD-006",
+        "SPREAD-007",
         "SPREAD-010",
         "SPREAD-011",
         "SPREAD-012",
@@ -639,10 +646,12 @@
         "SPREAD-019",
         "SPREAD-020",
         "SPREAD-021",
+        "SPREAD-022",
+        "SPREAD-023",
         "TOPO-151"
       ],
-      "requirementsAtLevel": 185,
-      "requirementsWhenDeclared": 202
+      "requirementsAtLevel": 189,
+      "requirementsWhenDeclared": 206
     },
     {
       "level": "core",
@@ -758,7 +767,7 @@
         "TOPO-241"
       ],
       "requirementsAtLevel": 106,
-      "requirementsWhenDeclared": 266
+      "requirementsWhenDeclared": 270
     },
     {
       "level": "failover",
@@ -825,7 +834,7 @@
         "SEC-031"
       ],
       "requirementsAtLevel": 57,
-      "requirementsWhenDeclared": 319
+      "requirementsWhenDeclared": 323
     },
     {
       "level": "readAffinity",
@@ -846,7 +855,7 @@
         "SPREAD-006"
       ],
       "requirementsAtLevel": 11,
-      "requirementsWhenDeclared": 275
+      "requirementsWhenDeclared": 279
     },
     {
       "level": "fencing",
@@ -894,7 +903,7 @@
         "TOPO-171"
       ],
       "requirementsAtLevel": 38,
-      "requirementsWhenDeclared": 355
+      "requirementsWhenDeclared": 359
     },
     {
       "level": "migration",
@@ -974,7 +983,7 @@
         "TOPO-231"
       ],
       "requirementsAtLevel": 70,
-      "requirementsWhenDeclared": 382
+      "requirementsWhenDeclared": 386
     }
   ],
   "coveredBy": {
@@ -1897,6 +1906,9 @@
       "vectors/ring/administrative-states.json",
       "vectors/ring/explicit-tokens.json"
     ],
+    "RING-026": [
+      "vectors/ring/administrative-states.json"
+    ],
     "CORE-040": [
       "vectors/ring/derived-walk.json"
     ],
@@ -1932,6 +1944,14 @@
       "properties/properties.json",
       "vectors/ring/derived-zoned.json",
       "vectors/spread/all-nodes-one-domain-relaxed.json",
+      "vectors/spread/skipped-level.json"
+    ],
+    "SPREAD-007": [
+      "vectors/ring/derived-zoned.json",
+      "vectors/spread/all-nodes-one-domain-relaxed.json",
+      "vectors/spread/all-nodes-one-domain-strict.json",
+      "vectors/spread/degradation-ladder.json",
+      "vectors/spread/relaxation-stages.json",
       "vectors/spread/skipped-level.json"
     ],
     "SPREAD-011": [
@@ -2003,6 +2023,14 @@
       "vectors/spread/degradation-ladder.json",
       "vectors/spread/relaxation-stages.json",
       "vectors/spread/skipped-level.json"
+    ],
+    "SPREAD-022": [
+      "vectors/spread/all-nodes-one-domain-relaxed.json",
+      "vectors/spread/relaxation-stages.json"
+    ],
+    "SPREAD-023": [
+      "vectors/spread/all-nodes-one-domain-relaxed.json",
+      "vectors/spread/relaxation-stages.json"
     ],
     "SPREAD-014": [
       "properties/properties.json",

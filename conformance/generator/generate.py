@@ -559,7 +559,8 @@ def build_ring_vectors(out):
                 "Exercises the preference list builder over a ring candidate ordering.",
                 "ring-zoned",
                 ["RING-001", "PLACE-041", "PLACE-050", "REPL-012", "REPL-013", "REPL-014",
-                 "REPL-017", "SPREAD-001", "SPREAD-011", "SPREAD-012", "SPREAD-015"], cases)
+                 "REPL-017", "SPREAD-001", "SPREAD-007", "SPREAD-011", "SPREAD-012",
+                 "SPREAD-015"], cases)
 
     snapshot = SNAPSHOTS["ring-explicit"]
     cases = [routing_case(snapshot, k, n, r, note) for n, k, r, note in [
@@ -589,7 +590,7 @@ def build_ring_vectors(out):
                 "The placement set is `active` plus `draining`.  A `joining` or `leaving` node "
                 "never reaches a candidate ordering.",
                 "ring-admin-states",
-                ["PLACE-001", "PLACE-002", "RING-005"], cases)
+                ["PLACE-001", "PLACE-002", "RING-005", "RING-026"], cases)
 
     snapshot = SNAPSHOTS["ring-seeded"]
     cases = [routing_case(snapshot, ("seeded-%d" % i).encode(), "seeded/%d" % i,
@@ -849,8 +850,8 @@ def build_spread_vectors(out):
                 "Every node in one failure domain under `relaxed`: the builder degrades to "
                 "distinctness alone and reports the relaxed level.",
                 "one-domain-relaxed",
-                ["SPREAD-001", "SPREAD-010", "SPREAD-011", "SPREAD-012", "SPREAD-013",
-                 "SPREAD-015", "SPREAD-021"], cases)
+                ["SPREAD-001", "SPREAD-007", "SPREAD-010", "SPREAD-011", "SPREAD-012",
+                 "SPREAD-013", "SPREAD-015", "SPREAD-021", "SPREAD-022", "SPREAD-023"], cases)
 
     snapshot = SNAPSHOTS["one-domain-strict"]
     cases = [routing_case(snapshot, ("r%d" % i).encode(), "strict/%d" % i,
@@ -863,7 +864,7 @@ def build_spread_vectors(out):
                 "The same node set under `strict`: a shorter replica prefix rather than a "
                 "degraded spread.",
                 "one-domain-strict",
-                ["SPREAD-014", "SPREAD-015", "REPL-020", "REPL-021"], cases)
+                ["SPREAD-007", "SPREAD-014", "SPREAD-015", "REPL-020", "REPL-021"], cases)
 
     snapshot = SNAPSHOTS["spread-ladder"]
     cases = [routing_case(snapshot, ("ladder-%d" % i).encode(), "ladder/%d" % i,
@@ -878,9 +879,9 @@ def build_spread_vectors(out):
                 "stage is the coarsest level at which a full replica prefix exists.  "
                 "`vectors/spread/relaxation-stages.json` records each stage separately.",
                 "spread-ladder",
-                ["SPREAD-005", "SPREAD-010", "SPREAD-011", "SPREAD-012", "SPREAD-013",
-                 "SPREAD-015", "SPREAD-016", "SPREAD-017", "SPREAD-018", "SPREAD-019",
-                 "SPREAD-020", "SPREAD-021", "REPL-013"], cases)
+                ["SPREAD-005", "SPREAD-007", "SPREAD-010", "SPREAD-011", "SPREAD-012",
+                 "SPREAD-013", "SPREAD-015", "SPREAD-016", "SPREAD-017", "SPREAD-018",
+                 "SPREAD-019", "SPREAD-020", "SPREAD-021", "REPL-013"], cases)
 
     # Every relaxation stage, recorded as data.  `SPREAD-010` enforces the finest `m-k` levels at
     # stage `k`, and `SPREAD-011` compares a domain path that runs from the coarsest declared level
@@ -928,8 +929,9 @@ def build_spread_vectors(out):
                "it reaches the effective replication factor.  `distinctStageOutcomes` counts how "
                "many of the m+1 stages differ, and `SPREAD-018` makes it m+1 where the topology "
                "has a distinct domain at each level.",
-               ["SPREAD-005", "SPREAD-010", "SPREAD-011", "SPREAD-012", "SPREAD-013",
-                "SPREAD-015", "SPREAD-017", "SPREAD-018", "SPREAD-019", "SPREAD-020"],
+               ["SPREAD-005", "SPREAD-007", "SPREAD-010", "SPREAD-011", "SPREAD-012",
+                "SPREAD-013", "SPREAD-015", "SPREAD-017", "SPREAD-018", "SPREAD-019",
+                "SPREAD-020", "SPREAD-022", "SPREAD-023"],
                ladder_cases, level="place")
 
     # `SPREAD-006` fixes the scope of a domain path to `domainLevels`.  This topology declares
@@ -963,8 +965,8 @@ def build_spread_vectors(out):
                 "`replication.spread` would compare the rack identifier alone and skip the "
                 "second of them.",
                 "spread-skipped-level",
-                ["SPREAD-001", "SPREAD-005", "SPREAD-006", "SPREAD-010", "SPREAD-011",
-                 "SPREAD-012", "SPREAD-015", "SPREAD-021", "REPL-013"], cases)
+                ["SPREAD-001", "SPREAD-005", "SPREAD-006", "SPREAD-007", "SPREAD-010",
+                 "SPREAD-011", "SPREAD-012", "SPREAD-015", "SPREAD-021", "REPL-013"], cases)
 
     snapshot = SNAPSHOTS["ring-zoned"]
     cases = [routing_case(snapshot, ("tail-%d" % i).encode(), "tail/%d" % i,

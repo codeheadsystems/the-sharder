@@ -1,13 +1,19 @@
 # 0015. Spread degradation algorithm
 
 Status: accepted, with the ladder direction superseded by
-[`0036`](0036-spread-relaxation-ladder-direction.md). Date: 2026-09-16.
+[`0036`](0036-spread-relaxation-ladder-direction.md) and the admission test generalised by
+[`0069`](0069-per-level-occupancy-cap.md). Date: 2026-09-16.
 
 The direction this record fixes, stage `k` enforcing the coarsest `m-k` levels, collapses against
 the `domain_path` comparison the specification uses, so stages `0` through `m-1` admit the same
 entries. [`0036`](0036-spread-relaxation-ladder-direction.md) reverses it and records why.
 Everything else here, including whole-stage evaluation, the minimum over a finite ladder, the
 `strict` rule, and the rejected alternatives, stands unchanged.
+
+The alternative rejected below as an occupancy cap incremented one level at a time is rejected
+still. [`0069`](0069-per-level-occupancy-cap.md) generalises the admission test to a fixed per-level
+cap that the ladder drops whole levels of, which is this record's greedy walk at a cap of 1 and not
+a ladder over caps.
 
 ## Context
 

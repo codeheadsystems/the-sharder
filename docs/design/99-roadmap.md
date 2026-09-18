@@ -65,15 +65,16 @@ migrates carries none of it either way.
 | Item | Shape of the change |
 |---|---|
 | a `range` strategy, withdrawn at v0.1 | a minor format version adding a fifth kind, under [`adr/0054`](adr/0054-range-strategy-withdrawal.md) |
-| per-domain replication factors, `OQ-03` | a minor format version adding `replication.byDomain` |
+| per-domain replication factors, `OQ-03` | a format member and a second preference list builder |
 | a matcher kind beyond exact and prefix, `OQ-05` | a minor format version with a stated precedence rule |
 | ports beyond Java | Go, Rust, and Python, each declaring its levels against a suite revision |
 | a control-plane provider adapter | third-party, written against the provider contract without forking |
 | hinted handoff | a hook exists at v0.1 and the library implements no part of it |
 
-An occupancy cap per failure domain, `OQ-04`, is not scheduled. It changes which nodes are replicas,
-so it would arrive as a behaviour change with a full regeneration of the spread vectors rather than
-as an added member.
+An occupancy cap per failure domain, `OQ-04`, is not scheduled. `SPREAD-007` carries the cap in the
+builder and every cap is 1, so the change is a minor format version adding the member that sets one
+and it moves nothing until a document does. What stays open with it is the ladder's treatment of a
+level carrying a cap above 1.
 
 ## One-way doors
 
@@ -156,6 +157,15 @@ levels, and the builder takes the smallest `k` that yields a full replica prefix
 already been corrected once, and each correction moves replicas in every topology whose
 `replication.spread` names more than one level. `SPREAD-010` and
 [`adr/0036`](adr/0036-spread-relaxation-ladder-direction.md).
+
+The preference list builder's walk. `REPL-012` selects the replica prefix with one greedy forward
+pass over the candidate ordering, admitting each entry that no enforced level has already filled to
+its occupancy cap. The pass expresses a ceiling per failure domain and cannot express a floor, so
+the per-domain replication factors of `OQ-03` are a second builder beside the first rather than a
+document member alone, carrying their own relaxation behaviour, their own `PROP-*` statements, and
+their own conformance surface. A published suite joins vectors to `REPL-012` and a port implements
+it, and after that the walk is fixed. `REPL-012`, `SPREAD-011`, and
+[`adr/0069`](adr/0069-per-level-occupancy-cap.md).
 
 Integer-only placement arithmetic. No floating-point value reaches placement, validation, an
 ordering, fencing, handoff admission, a step budget, or any threshold comparison. A single

@@ -78,11 +78,17 @@ def candidate_ordering(snapshot, routing_key, entry, eligible):
     return placement.candidates(snapshot, routing_key, eligible)
 
 
-def _shares_domain(node, prefix, levels):
+def occupancy_cap(level):
+    """`SPREAD-007`: the occupancy cap of a level, which no document member sets."""
+    return 1
+
+
+def _exceeds_cap(node, prefix, levels):
     for level in levels:
-        for other in prefix:
-            if node.domain_path(level) == other.domain_path(level):
-                return True
+        path = node.domain_path(level)
+        occupied = sum(1 for other in prefix if other.domain_path(level) == path)
+        if occupied >= occupancy_cap(level):
+            return True
     return False
 
 
@@ -96,7 +102,7 @@ def select_stage(snapshot, ordering_nodes, n, levels):
     for node in ordering_nodes:
         if any(p.id == node.id for p in prefix):
             continue
-        if _shares_domain(node, prefix, levels):
+        if _exceeds_cap(node, prefix, levels):
             continue
         prefix.append(node)
         if len(prefix) == n:

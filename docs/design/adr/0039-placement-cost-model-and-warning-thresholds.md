@@ -1,8 +1,12 @@
 # 0039. Placement cost model and warning thresholds
 
 Status: accepted, with `PLACE-071` extended by
-[`0046`](0046-bounded-routing-decision-surface.md) and the derived threshold withdrawn by
-[`0055`](0055-slot-derived-assignment-withdrawal.md). Date: 2026-09-16.
+[`0046`](0046-bounded-routing-decision-surface.md), the derived threshold withdrawn by
+[`0055`](0055-slot-derived-assignment-withdrawal.md), the routing figures extended by
+[`0070`](0070-spread-stage-feasibility-from-a-domain-count.md), the emission point and the ring
+threshold amended by [`0072`](0072-preparation-cost-reported-before-preparation.md), and the
+retention multiple stated by [`0073`](0073-prepared-placement-retention-multiple.md).
+Date: 2026-09-16.
 
 The third threshold this record added, `derivedWarnEvaluations` with the
 `sharder.topology.derived_large` event, existed for `slot` and `range` with derived assignment. Both
@@ -16,6 +20,12 @@ notation stand.
 routing decision consumed the whole ordering, so `p` was the eligible node count under `ring` as
 well as under `rendezvous`. `0046` bounds what the decision materialises, and `PLACE-071` now names
 that bound.
+
+Three figures this record states have since moved. The routing table gives the cost of one candidate
+ordering, and `PLACE-076` multiplies its walk term by the relaxation stages a builder evaluates. The
+resident size table gives the size of one prepared placement, and `PLACE-070` now states the
+multiple `retentionDepth` applies to it. `PLACE-073` emitted its event at publication, after stage 6
+had paid the cost it measures, and `PLACE-077` moves the computation ahead of the preparation.
 
 ## Context
 

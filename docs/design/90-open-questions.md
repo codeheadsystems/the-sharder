@@ -55,26 +55,58 @@ Whether the format expresses a count of replicas per failure domain, in the mann
 ask for three replicas in each of two regions. Read affinity under `READ-010` prefers a replica in a
 named domain and guarantees none, which is the same requirement's other half.
 
-Recommended default: omit from format version 1.0, and add `replication.byDomain` as a minor version
-whose absence reproduces the current behaviour.
+The format half of the change is additive and the builder half is not. An optional
+`replication.byDomain` member whose absence reproduces the current behaviour is the minor version
+[`20-topology-format.md`](20-topology-format.md#versioning-and-compatibility) permits, and it costs
+a schema member and a validation rule. The builder is the expensive half. `REPL-012` and
+`SPREAD-011` fix one greedy forward walk over the candidate ordering, admitting each entry an
+enforced level has room for and halting at `n`. That walk expresses a ceiling, which is what a
+spread requirement and the occupancy cap of `SPREAD-007` both are, and it cannot express a floor. A
+floor per domain needs per-domain sub-walks, or a round robin over domains, and neither is a filter
+over one pass. Adding one is therefore a second preference list builder living beside the first,
+with its own interaction with the relaxation ladder of `SPREAD-010`, its own determinism, balance,
+and movement statements under `PROP-*`, and its own conformance surface.
+
+Recommended default: no `replication.byDomain` member in format version 1.0, with the question left
+open rather than closed by the omission. Deferring it is not free and the cost does not fall with
+time: what falls is the freedom to change `REPL-012`, which a published conformance suite and a
+shipped port each remove.
 
 Evidence that settles it: a deployment whose durability requirement cannot be written with `factor`
-and `spread`. Multi-region storage with a quorum inside each region is the shape that produces one.
+and `spread`. Multi-region storage with a quorum inside each region is the shape that produces one,
+and the distinguishing question to ask of it is whether an occupancy cap above 1 satisfies it.
+`SPREAD-007` carries the cap and `OQ-04` carries the member that would set one, so a cap of 3 at
+`region` bounds a region's share of the replicas and guarantees nothing inside a region. A
+requirement the cap satisfies settles this question by making the floor unnecessary; a requirement
+that names a quorum inside each region does not, and is the evidence for the second builder. Where
+that evidence arrives before a port ships, the builder is chosen once rather than twice.
 
 ### OQ-04. Occupancy cap per failure domain
 
 Whether spread degradation relaxes all or nothing per level, as `SPREAD-010` does, or caps occupancy
 per domain and raises the cap one step at a time. A topology at factor 4 across three zones drops
 the zone requirement entirely under the ladder and may place three replicas in one zone, where a cap
-would place two, one, and one.
+of 2 would place two, one, and one.
 
-Recommended default: keep the ladder. [`adr/0015`](adr/0015-spread-degradation-algorithm.md)
-rejected the cap, and [`adr/0036`](adr/0036-spread-relaxation-ladder-direction.md) reopened the
-ladder's direction without reopening its shape.
+The builder already carries the cap. `SPREAD-007` gives every level an occupancy cap `c(L)` and
+`SPREAD-011` admits an entry that no enforced level has already filled, so the spread rule of
+`SPREAD-001` is the case where every cap is 1. What remains open is the document member that sets a
+cap above 1, and what the ladder does with a level that carries one.
+
+Recommended default: every cap 1 in format version 1.0. A later member is additive under
+[`20-topology-format.md`](20-topology-format.md#versioning-and-compatibility), because its absence
+reproduces the current behaviour exactly and no vector moves until a document sets a cap. The
+question it leaves is whether a level carrying a cap above 1 is dropped whole, as `SPREAD-010` drops
+a level now, or is relaxed by raising its cap a step at a time.
+[`adr/0015`](adr/0015-spread-degradation-algorithm.md) rejected a ladder over caps because it has no
+obvious total order once two levels are both capped, and that objection stands against a ladder of
+caps rather than against the fixed cap `SPREAD-007` states.
+[`adr/0069`](adr/0069-per-level-occupancy-cap.md) records the generalisation.
 
 Evidence that settles it: a deployment at a replication factor above its domain count whose
-durability argument the all-or-nothing relaxation breaks. Changing the ladder changes which nodes
-are replicas, so the change regenerates every spread vector and every witness that rests on one.
+durability argument the all-or-nothing relaxation breaks. A document that sets a cap changes which
+nodes are replicas for the keys it governs, so it regenerates the spread vectors it touches and
+every witness that rests on one; a document that sets none moves nothing.
 
 ### OQ-05. Suffix and glob matchers
 

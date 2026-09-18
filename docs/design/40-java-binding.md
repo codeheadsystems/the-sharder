@@ -1448,11 +1448,19 @@ on demand and on a nightly job on fixed hardware, and a regression is read from 
 
 | Benchmark | Shape |
 |---|---|
-| `route` | factor 1 and 3, each strategy, 10, 100, and 1000 nodes |
+| `route` | factor 1 and 3, each strategy, 10, 100, and 1000 nodes, plus the two shapes below |
 | `routeForRead` | factor 3, with and without a matching affinity path |
 | `explain` | 1000 nodes, to confirm the cost `OBS-046` keeps off the routing path |
 | `prepare` | stage 6 of `TOPO-001`, 1000 nodes at 4096 tokens each |
 | `canonicalise` | RFC 8785 plus SHA-256 over a 1000-node document |
+
+The two shapes the `route` row adds are the ones whose cost the node count does not show. A
+`rendezvous` topology at `virtualNodesPerWeightUnit` of 64 costs `V` hash evaluations per call under
+`PLACE-070`, and the matrix above holds the multiplier at its default of 1, so nothing in it
+separates the node count from the summed virtual node count. A topology under `relaxed` whose
+coarsest spread level no placement satisfies walks the candidate ordering once per relaxation stage,
+which `PLACE-076` bounds and `SPREAD-023` removes where a domain count rules the stage out, and the
+matrix above carries no shortfall at all.
 
 One placement gate does run in `check`. A test measures the allocation of a `route` call with
 `ThreadMXBean.getThreadAllocatedBytes` and fails above a stated ceiling with headroom. It runs at
