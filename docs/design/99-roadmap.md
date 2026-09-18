@@ -12,7 +12,8 @@ published until every port passes the conformance suite at the levels its surfac
 its own test harness, so every stage below is a milestone rather than a release.
 
 Status: nothing is published and no release has been made. The Java port is under way and reaches
-the `hash` stage, no other port has been started, and no date is attached to anything below.
+the `hash` and `place` stages, no other port has been started, and no date is attached to anything
+below.
 
 ## Implementation stages
 
