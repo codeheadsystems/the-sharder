@@ -19,7 +19,10 @@ codes, the JSON reader, and the conformance harness are written, and the port re
 conformance level. Every implementation sits under [`ports/`](ports/), and
 [`docs/design/35-port-conventions.md`](docs/design/35-port-conventions.md) states what each one
 carries whatever its language.
-[`docs/design/99-roadmap.md`](docs/design/99-roadmap.md) gives the staging, and
+Nothing is published. The release comes after every port passes the conformance suite in its own
+test harness, under
+[`docs/design/adr/0083`](docs/design/adr/0083-publication-as-the-last-stage.md).
+[`docs/design/99-roadmap.md`](docs/design/99-roadmap.md) gives the stages before it, and
 [`docs/design/90-open-questions.md`](docs/design/90-open-questions.md) gives what is still
 unresolved.
 
@@ -98,7 +101,7 @@ port.
 |---|---|
 | repository | `codeheadsystems/the-sharder` |
 | group | `com.codeheadsystems` |
-| published artifact | `sharder`, one module carrying the library, under [`adr/0081`](docs/design/adr/0081-single-java-module.md) |
+| artifact | `sharder`, one module carrying the library, under [`adr/0081`](docs/design/adr/0081-single-java-module.md) |
 | top package | `com.codeheadsystems.sharder` |
 | JDK floor | 21 |
 | runtime dependencies | none beyond `java.base`, outside the conformance harness |

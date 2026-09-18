@@ -156,6 +156,11 @@ and what the check does not establish.
 A port's release is tagged `ports/<port>/vX.Y.Z`. Go requires that shape for a module in a
 subdirectory and every other port takes it, so one convention covers the repository.
 
+No port publishes anything before the release, under
+[`adr/0083`](adr/0083-publication-as-the-last-stage.md): a port that has not passed the suite at the
+levels its surfaces commit it to has nothing to tag, and an artifact a consumer can resolve closes
+the one-way doors of [`99-roadmap.md`](99-roadmap.md#one-way-doors) whatever it is called.
+
 A port versions independently of every other port, and a version states nothing about conformance.
 What a release conforms to is the declaration, which names a suite revision, and the topology
 document format carries its own version under

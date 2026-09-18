@@ -1,24 +1,49 @@
 # Roadmap
 
-The staged plan for the sharder library: what a first release carries, what follows it, and which
-decisions cannot be revisited once the format is published and a second implementation exists.
+The staged plan for the sharder library: the stages the ports are implemented in, what the release
+after them publishes, and which decisions cannot be revisited once that release exists.
 
 The design is complete across the whole scope, including rebalancing, concurrent ownership, and
-stale callers. The staging is the order in which the Java implementation renders that design, and
-not a reduction of it.
+stale callers. The staging is the order in which a port renders that design, and not a reduction of
+it.
 
-Status: no release has been made and no implementation exists. Every release below is planned, and
-no date is attached to any of them.
+Publication comes last, under [`adr/0083`](adr/0083-publication-as-the-last-stage.md). Nothing is
+published until every port passes the conformance suite at the levels its surfaces commit it to, in
+its own test harness, so every stage below is a milestone rather than a release.
+
+Status: nothing is published and no release has been made. The Java port is under way and reaches
+the `hash` stage, no other port has been started, and no date is attached to anything below.
+
+## Implementation stages
+
+A stage is one conformance level of
+[`30-conformance.md`](30-conformance.md#conformance-levels), and the order is the requires relation
+the `levels` table of [`../../conformance/manifest.json`](../../conformance/manifest.json) carries
+rather than a preference. A stage is finished when every port exposing the surface it tests runs it
+with no failures, and a port that exposes no such surface passes over it.
+
+| Stage | What a port implements |
+|---|---|
+| `hash` | SipHash-2-4, the framed domain-tagged construction, and the three key transforms |
+| `place` | `ring`, `rendezvous`, `slot`, and `directory`, the overrides, the preference list, the failure domain spread and its relaxation ladder, shard enumeration, movement, and the tie-breaks |
+| `core` | the document pipeline, the canonical form and the digest, validation, the snapshot lifecycle, the provider contract, the error taxonomy, the ownership delta, skew detection, and the observability inventories |
+| `scale` | the same placement function over two documents of a thousand nodes, reported rather than bounded |
+| `failover` | the five-state health machine, signal ingestion, outlier ejection, probation, attempt sequences, and retry budgets |
+| `readAffinity` | `routeForRead` and the bounded reordering of the replica prefix |
+| `fencing` | the token, its propagation, the recipient verdict, and the redirect walk |
+| `migration` | the handoff coordinator, the eleven-state machine, the movement hooks, idempotence and recovery, plan rebase, abort and rollback, and rate control |
+
+One stage carries no conformance level. The build gates of a port, which for Java are the unsigned
+comparison check, the documentation checks, the dependency check that fails a published POM carrying
+a compile or runtime dependency, and the allocation gate, are written before the release rather than
+after it, because each of them is a rule the release publishes something under.
 
 ## Release v0.1
 
-The first release publishes the specification, the topology document format, the conformance suite,
-and a Java implementation that reaches the `hash`, `place`, `core`, `scale`, `failover`, `fencing`,
-and `readAffinity` conformance levels of
-[`30-conformance.md`](30-conformance.md#conformance-levels), exposing all four placement strategy
-surfaces. Its declaration carries the wall time and the peak resident size it observed at `scale`,
-which the declaration rule of [`30-conformance.md`](30-conformance.md#declaring-conformance)
-requires and the suite bounds by nothing.
+The release publishes the specification, the topology document format and its schema, the
+conformance suite with its revision, and every port that has declared, together. It happens once
+every port in the repository passes the suite at the levels its surfaces commit it to and carries a
+declaration under [`../../conformance/declarations/`](../../conformance/declarations/).
 
 | Surface | Contents |
 |---|---|
@@ -30,6 +55,7 @@ requires and the suite bounds by nothing.
 | read routing | `routeForRead` and the bounded reordering of the replica prefix |
 | topology lifecycle | the load pipeline, monotonicity, snapshot installation, retention, and the ownership delta |
 | fencing | the token, its propagation, the recipient verdict, and the redirect walk |
+| migration | the handoff coordinator, the eleven-state machine, the movement hooks, recovery, rebase, abort, and rate control |
 | errors | the closed set of sixteen conditions with their codes, names, and causes |
 | observability | the metrics, the events, skew detection, and the explain record |
 | configuration | every setting of the `CFG-*` group with its default |
@@ -37,32 +63,25 @@ requires and the suite bounds by nothing.
 | providers | the in-memory reference provider and the static file provider |
 | conformance | the vector files, topology documents, properties, and scenarios, with the manifest that counts and indexes them |
 | scale | the placement function over a thousand nodes, reported rather than bounded |
+| benchmarks | the JMH sources a regression is read from, run on demand rather than in `check` |
 
-An integrator who routes a tenant identifier to one of several clusters is served in full by v0.1
-and depends on `sharder` alone.
+A declaration carries the wall time and the peak resident size the port observed at `scale`, which
+the declaration rule of [`30-conformance.md`](30-conformance.md#declaring-conformance) requires and
+the suite bounds by nothing.
 
-One question in [`90-open-questions.md`](90-open-questions.md) is answered before v0.1 publishes,
-because v0.1 publishes the document that leaves it open: `OQ-02`, the three requirements with no
-owning interface. The provider contract's absence from the normative surface is settled by
-`CORE-080` to `CORE-101` in [`10-specification.md`](10-specification.md#topology-provider).
-
-## Release v0.2
-
-The second release implements the migration surface: the handoff coordinator, the eleven-state
-machine, the movement hook interface, idempotence and recovery, plan rebase onto a newer snapshot,
-concurrent ownership and the cutover record, abort and rollback, and rate control and backpressure.
-It reaches the `migration` conformance level, which carries the handoff scenarios and the rate
-control vectors.
+An integrator who routes a tenant identifier to one of several clusters is served in full and
+depends on `sharder` alone.
 
 Orchestrated migration rests on one primitive the integrator supplies. `MOVE-321` requires
 `commitCutover` to be a single-winner write over a store both the source and the destination read,
 and the coordinator supports no weaker mode. An integrator whose store offers no such write moves a
 shard outside the library.
 
-The specification, the conformance scenarios, and the Java binding for that surface are complete at
-v0.1 and unimplemented. The migration surface sits in packages of its own, which an integrator who
-never migrates never imports, and [`adr/0081`](adr/0081-single-java-module.md) states when it
-becomes an artifact of its own.
+One question in [`90-open-questions.md`](90-open-questions.md) is answered before the release
+publishes, because the release publishes the document that leaves it open: `OQ-02`, the three
+requirements with no owning interface. The provider contract's absence from the normative surface is
+settled by `CORE-080` to `CORE-101` in
+[`10-specification.md`](10-specification.md#topology-provider).
 
 ## Later releases
 
@@ -71,7 +90,7 @@ becomes an artifact of its own.
 | a `range` strategy, withdrawn at v0.1 | a minor format version adding a fifth kind, under [`adr/0054`](adr/0054-range-strategy-withdrawal.md) |
 | per-domain replication factors, `OQ-03` | a format member and a second preference list builder |
 | a matcher kind beyond exact and prefix, `OQ-05` | a minor format version with a stated precedence rule |
-| ports beyond Java | Go, Rust, Ruby, and Python, each under `ports/` and each declaring its levels against a suite revision |
+| ports beyond Java | Go, Rust, Ruby, and Python, each under `ports/`, landing either side of the release and each declaring its levels against a suite revision |
 | a control-plane provider adapter | third-party, written against the provider contract without forking |
 | hinted handoff | a hook exists at v0.1 and the library implements no part of it |
 
@@ -84,6 +103,11 @@ level carrying a cap above 1.
 
 These decisions are cheap now and expensive or impossible once the format is published, once a
 second implementation exists, or once a deployment holds data placed under them.
+
+Every door below stays open through the stages above, because publication comes after the last of
+them under [`adr/0083`](adr/0083-publication-as-the-last-stage.md). A defect the migration surface
+surfaces can still move a requirement, a vector, or the format, and the cost of moving one is a
+re-run by the ports in this repository rather than a re-declaration by somebody outside it.
 
 ### Format and wire
 

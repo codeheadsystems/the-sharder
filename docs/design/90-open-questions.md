@@ -6,7 +6,9 @@ the evidence that would settle it. Each entry carries an identifier that
 
 A question blocks v0.1 where the answer changes something v0.1 publishes: a requirement, a document
 member, an error code, or an interface a second port reads. Everything else rides along and is
-answered from a running deployment.
+answered from a running deployment. The release is the one
+[`99-roadmap.md`](99-roadmap.md#release-v01) describes, which publishes the whole surface once every
+port passes the conformance suite in its own test harness.
 
 Status: no implementation of the sharder library exists. Several questions below name a running
 deployment, a benchmark, or a second port as the evidence that settles them, and none of those has
