@@ -144,6 +144,14 @@ public sealed interface JsonValue {
         throw new IllegalStateException("not a number: " + this);
     }
 
+    /** The value as a boolean, or a failure where it is another kind. */
+    default boolean asBoolean() {
+        if (this instanceof JsonBoolean value) {
+            return value.value();
+        }
+        throw new IllegalStateException("not a boolean: " + this);
+    }
+
     /** Whether the value is the null literal. */
     default boolean isNull() {
         return this instanceof JsonNull;

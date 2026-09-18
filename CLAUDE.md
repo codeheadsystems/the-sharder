@@ -14,7 +14,8 @@ computed by a Python reference implementation.
 
 Three kinds of change are possible today: a change to a Markdown document, a change to the
 conformance suite through its generator, and a change to the Java port under `ports/java/`, which is
-under way and reaches the `hash` conformance level. Nothing is published, and nothing is until every
+under way and reaches the `hash` and `place` conformance levels. Nothing is published, and nothing
+is until every
 port passes the suite in its own harness, under
 [`docs/design/adr/0083-publication-as-the-last-stage.md`](docs/design/adr/0083-publication-as-the-last-stage.md);
 [`docs/design/99-roadmap.md`](docs/design/99-roadmap.md) gives the stages.

@@ -3,8 +3,8 @@
 The sharder library is designed and is being implemented. Three kinds of change are possible today:
 a change to a document, a change to the conformance suite through its generator, and a change to a
 port. The Java port under [`ports/java/`](ports/java/) is the one that exists, and it reaches the
-`hash` conformance level. [`docs/design/99-roadmap.md`](docs/design/99-roadmap.md) gives the
-staging.
+`hash` and `place` conformance levels.
+[`docs/design/99-roadmap.md`](docs/design/99-roadmap.md) gives the staging.
 
 [`docs/maintain/style.md`](docs/maintain/style.md) is binding on every Markdown file in this
 repository, including this one. A change that adds prose is written to it.

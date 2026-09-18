@@ -14,9 +14,10 @@ Design complete. No implementation exists.
 
 The specification, the topology document format and its schema, the conformance suite with its
 reference generator, the Java binding design, and the decision records are written. Java is the
-first implementation and is under way: the hash construction, the opaque identifier types, the error
-codes, the JSON reader, and the conformance harness are written, and the port reaches the `hash`
-conformance level. Every implementation sits under [`ports/`](ports/), and
+first implementation and is under way: the hash construction, the four placement strategies, the
+overrides, the preference list builder, and the conformance harness are written, and the port
+reaches the `hash` and `place` conformance levels. Every implementation sits under
+[`ports/`](ports/), and
 [`docs/design/35-port-conventions.md`](docs/design/35-port-conventions.md) states what each one
 carries whatever its language.
 Nothing is published. The release comes after every port passes the conformance suite in its own

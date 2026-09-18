@@ -34,7 +34,7 @@ import org.junit.jupiter.api.TestFactory;
 class ConformanceSuite {
 
     /** The levels this port runs, each carrying the levels it requires. */
-    private static final Set<String> DECLARED = Set.of("hash");
+    private static final Set<String> DECLARED = Set.of("place");
 
     private static final HexFormat HEX = HexFormat.of();
 
@@ -66,6 +66,7 @@ class ConformanceSuite {
 
     private DynamicNode vectorFile(FileEntry entry) {
         JsonObject file = source.readObject(entry.file());
+        PlaceVectors place = new PlaceVectors(file);
         List<JsonValue> cases = file.array("cases").elements();
         Stream<DynamicNode> integrity = Stream.of(
                 dynamicTest("the file matches the digest the manifest holds",
@@ -76,15 +77,26 @@ class ConformanceSuite {
                 .map(JsonValue::asObject)
                 .map(testCase -> dynamicTest(
                         testCase.text("name") + " " + testCase.array("requirements").texts(),
-                        () -> runCase(entry.kind(), testCase)));
+                        () -> runCase(entry.kind(), testCase, place)));
         return dynamicContainer(entry.vectorSet() + " (" + entry.file() + ")",
                 Stream.concat(integrity, vectors));
     }
 
-    private void runCase(String kind, JsonObject testCase) {
+    private void runCase(String kind, JsonObject testCase, PlaceVectors place) {
         switch (kind) {
             case "siphash" -> sipHashCase(testCase);
             case "hash" -> hashConstructionCase(testCase);
+            case "keyTransform" -> place.keyTransform(testCase);
+            case "routing" -> place.routing(testCase);
+            case "shards" -> place.shards(testCase);
+            case "permutation" -> place.permutation(testCase);
+            case "collidingKeys" -> place.collidingKeys(testCase);
+            case "movement" -> place.movement(testCase);
+            case "tieBreak" -> place.tieBreak(testCase);
+            case "stages" -> place.stages(testCase);
+            case "defaults" -> place.defaults(testCase);
+            case "pinShard" -> place.pinShard(testCase);
+            case "formula" -> PlaceVectors.formula(testCase);
             default -> throw new AssertionError(
                     "the driver implements no vector kind " + kind);
         }

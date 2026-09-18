@@ -4,18 +4,21 @@ Java is the first implementation of the sharder library, and it is one Gradle mo
 artifact, `sharder`, under
 [`adr/0081`](../../docs/design/adr/0081-single-java-module.md).
 
-Status: under way. The port reaches the `hash` conformance level and no other, so it declares no
-conformance yet: a declaration waits for `hash`, `place`, `core`, and `scale`, which `CORE-110`
-makes mandatory.
+Status: under way. The port reaches the `hash` and `place` conformance levels and no other, so it
+declares no conformance yet: a declaration waits for `core` and `scale` as well, which `CORE-110`
+makes mandatory alongside the two it has.
 
 | Written | Not written |
 |---|---|
 | the Gradle build, `module-info.java`, and the wrapper | the topology document pipeline and the snapshot lifecycle |
-| `NodeId`, `ShardId`, `RoutingKey`, and `Digest` | the four placement strategies and the preference list builder |
-| `ErrorCode`, the closed condition set of `ERR-010` | the exception hierarchy the conditions raise |
-| SipHash-2-4, the framing, and the three domain-tagged functions | the key transforms |
-| a strict JSON reader | the canonical form and the digest |
-| the conformance harness, driven from `manifest.json` | health, fencing, observability, and migration |
+| `NodeId`, `ShardId`, `RoutingKey`, and `Digest` | the public `Router` and `RoutingDecision` |
+| SipHash-2-4, the framing, and the three domain-tagged functions | the canonical form, the digest, and document validation |
+| the three key transforms and the matcher precedence | the health view, the attempt walk, and the retry budget |
+| `ring`, `rendezvous`, `slot`, and `directory` | the recipient check and the redirect walk |
+| the override layer: pins, constraints, and per-entry factor | the handoff coordinator and rate control |
+| the preference list builder and the spread relaxation ladder | the metrics, the events, and the explain record |
+| `ErrorCode` and the no-candidate condition of `ERR-021` | the thirteen conditions no surface here raises |
+| the conformance harness, driven from `manifest.json` | the levels above `place` |
 
 [`../../docs/design/40-java-binding.md`](../../docs/design/40-java-binding.md) is the design this
 directory renders. It fixes the package layout, the public type set, the JDK floor, the dependency
