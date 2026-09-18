@@ -40,7 +40,7 @@ on its own.
 A split in flight is represented by two epochs and by nothing else. The source epoch names the
 parent and the target epoch names the children, and there is no epoch in which both are addressable.
 Both documents independently satisfy the contiguity and coverage rules, so a partially applied split
-is not a document the library will load.
+is not a document the library loads.
 
 The handoff state machine handles the split by decomposition. A `split` becomes one local split step
 followed by one handoff per child whose replica set differs from the parent's, with the local step

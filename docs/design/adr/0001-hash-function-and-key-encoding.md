@@ -38,8 +38,8 @@ of that.
 Two objections survive that repair, and they are the ones that decide the question. The first is the
 acceptance test. Murmur3 has no per-input reference table of comparable authority, Appleby
 publishing a verification checksum over a corpus rather than an expected output per input, and no
-Murmur3 implementation ships in OpenSSL. Adopting it would remove the only external oracle the
-system has and leave the verification this record requires with nothing independent to run against.
+Murmur3 implementation ships in OpenSSL. Adopting it would remove the only external oracle
+available and leave the verification this record requires with nothing independent to run against.
 The second is the keyed property. Murmur3 takes a seed, so it reads as a weaker keyed function than
 SipHash-2-4, and it is not a keyed function at all for this purpose: Aumasson, Bernstein, and
 Boßlet demonstrated seed-independent multicollisions in MurmurHash3, colliding inputs generable in
@@ -138,9 +138,8 @@ to a public repository provides none. The zero default is chosen so that conform
 reproducible, and an operator who cares about crafted keys sets a random seed.
 
 Every port carries a SipHash-2-4 implementation, verified against the reference vectors from the
-original paper before any conformance vector runs. The hundred-line criterion above therefore stays
-a selection criterion rather than becoming historical: under
-[`0040`](0040-cryptographic-primitive-sourcing-policy.md) the project writes no cryptographic
+original paper before any conformance vector runs. The hundred-line criterion above still applies:
+under [`0040`](0040-cryptographic-primitive-sourcing-policy.md) the project writes no cryptographic
 algorithm by hand and this function is classified outside that rule, so each port still transcribes
 it and still pays the cost of a length the transcriber can read in one sitting.
 
@@ -150,7 +149,7 @@ MurmurHash3, in the `x64_128` form Cassandra uses. Fast and widely deployed, and
 cheaper per hash evaluation than the function chosen. The ecosystem divergence the Context describes
 is mostly repairable by naming the variant and the truncation rule, and the rejection does not rest
 on it. Rejected because it has no per-input reference table of comparable authority and no OpenSSL
-implementation, so adopting it would remove the only external oracle in the system, and because
+implementation, so adopting it would remove the only external oracle available, and because
 seed-independent multicollisions make it an unkeyed function for this purpose whatever seed it is
 given, which forecloses the adversarial property permanently.
 

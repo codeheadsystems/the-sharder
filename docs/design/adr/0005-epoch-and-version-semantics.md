@@ -64,8 +64,8 @@ makes the epoch a reliable ordering and an unreliable indicator of how many dist
 existed.
 
 Monotonicity resetting on restart is a real gap for a storage deployment, since a restarted caller
-will accept whatever the provider offers first, including an old document from a lagging replica of
-the source. `minEpoch` closes it, at the cost of an integrator persisting a value.
+accepts whatever the provider offers first, including an old document from a lagging replica of the
+source. `minEpoch` closes it, at the cost of an integrator persisting a value.
 
 Comparing epochs across topology identifiers is impossible by construction, so splitting one cluster
 into two under new identifiers is safe, and renaming a cluster's identifier is a full restart of the

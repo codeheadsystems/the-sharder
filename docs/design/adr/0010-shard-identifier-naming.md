@@ -33,6 +33,7 @@ Under `ring` the token is unique across the document, under `explicit` by valida
 `derived` by the framed hash over node identity and index, with collisions broken in the ring order.
 `RING-031` enumerates distinct token values, so two ring entries that collide on one token are one
 shard.
+
 Under `directory` two entries with identical matchers make the document invalid, so the matcher is a
 unique name, and it survives an edit that inserts an entry ahead of it, which an array index would
 not.

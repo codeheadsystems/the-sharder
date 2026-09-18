@@ -98,9 +98,9 @@ A plan's target epoch and a handoff's target epoch are distinct after a rebase. 
 epoch for an implementation to carry and for an operator to read, and it is what lets a handoff at
 `cutover` finish under the epoch its record names while the rest of the plan moves on.
 
-The rebase predicate is deliberately narrow. A handoff whose destination stayed and whose source
-changed, or whose shard was split, is aborted rather than reinterpreted. Widening it would require
-the library to decide that a differently shaped move is the same move, which it has no basis for.
+The rebase predicate is narrow. A handoff whose destination stayed and whose source changed, or
+whose shard was split, is aborted rather than reinterpreted. Widening it would require the library
+to decide that a differently shaped move is the same move, which it has no basis for.
 
 `plan-superseded-by-new-epoch.json` changes, because the epoch it installs is now comparable and
 marks the plan rather than superseding it. The scenario keeps its supersession coverage by

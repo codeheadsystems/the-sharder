@@ -101,7 +101,7 @@ The design covers:
   format between languages and the input format for conformance vectors. Versioning and
   compatibility rules are part of it.
 - Reference providers that ship in core: in-memory and static file. Adapters for ZooKeeper, etcd,
-  Consul, DynamoDB or a control-plane API are third-party and are writable without forking the
+  Consul, DynamoDB, or a control-plane API are third-party and are writable without forking the
   library. Demonstrate this by sketching one such adapter against the interface.
 - The behaviour when the provider is unreachable, returns a topology that fails validation, or
   returns an older epoch than the one already loaded.
@@ -204,8 +204,8 @@ part of the task.
    of the three use cases.
 
 4. `docs/design/30-conformance.md`, plus `conformance/`. The conformance suite design and a starter
-   set of real vectors. This is the mechanism that keeps the Java, Go, Rust and Python ports honest,
-   so it is a first-class deliverable rather than an appendix. It covers:
+   set of real vectors. This is the mechanism that keeps the Java, Go, Rust, and Python ports
+   honest, so it is a first-class deliverable rather than an appendix. It covers:
    - Golden vectors: language-neutral data files of topology, key, expected ordered node list and
      expected epoch. Include the adversarial cases: empty topology, single node, replica count
      greater than node count, all nodes in one failure domain, duplicate node identifiers, and
@@ -235,7 +235,7 @@ part of the task.
    package is `com.codeheadsystems.sharder`.
 
 6. `docs/design/adr/NNNN-<slug>.md`. One record per significant decision above, with Context,
-   Decision, Consequences and Alternatives sections. Terse is fine. These exist so nobody
+   Decision, Consequences, and Alternatives sections. Terse is fine. These exist so nobody
    relitigates a decision in six months without the reasons, and they are the only documents in the
    corpus where argument is the content.
 
@@ -252,10 +252,10 @@ part of the task.
 
 - Language-agnostic means it. No Java types, no JVM assumptions, and no language-specific
   concurrency primitives anywhere except `docs/design/40-java-binding.md`. A construct that cannot
-  be expressed in C, Go, Rust, Python and Java alike does not belong in the core specification.
+  be expressed in C, Go, Rust, Python, and Java alike does not belong in the core specification.
 - Determinism is a hard requirement. Two implementations in two languages, given the same topology
   and key, produce the same ordered node list, always. This constrains hash choice, integer width,
-  rounding, sort stability and tie-breaking. Tie-breaking is specified explicitly everywhere
+  rounding, sort stability, and tie-breaking. Tie-breaking is specified explicitly everywhere
   ordering could otherwise be ambiguous.
 - For the storage use case, a wrong routing decision can mean data loss. The specification is
   explicit about which guarantees are real and which are best-effort.
@@ -274,7 +274,7 @@ part of the task.
 - No consensus protocol.
 - No single giant document. The file split above is part of the deliverable.
 - No deferring the hard parts (rebalancing, split-brain, stale callers) to future work. Those are
-  the reason this library is worth building.
+  the reason the library exists.
 - No vague sentence standing in for an unresolved question. It goes in the register.
 
 ## Working order

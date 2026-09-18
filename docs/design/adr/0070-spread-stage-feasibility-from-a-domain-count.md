@@ -22,7 +22,7 @@ A zone outage. At factor 3 with a `zone` spread over three zones, one zone movin
 its nodes out of the placement set under `PLACE-001`. Stage 0 can then never reach 3, so every
 routing call for every key walks the ordering to its end before relaxing. The routing cost of the
 fleet rises by orders of magnitude at the moment the fleet is absorbing a zone's worth of redirected
-traffic, which is a metastable shape: the response to the outage makes the system slower, and the
+traffic, which is a metastable shape: the response to the outage makes the fleet slower, and the
 slowness makes the outage worse.
 
 A single-zone cluster. [`0015`](0015-spread-degradation-algorithm.md) chose `relaxed` as the default
@@ -91,8 +91,8 @@ term of the resident size table of `PLACE-070` at any topology size.
 
 An operator whose topology cannot satisfy its coarsest spread level learns it from an event at
 publication rather than from a latency graph. The event fires on a single-zone test cluster, which
-is a deployment the library serves deliberately, so it names the stage that is reachable rather than
-reporting a fault.
+is a deployment the library serves, so it names the stage that is reachable rather than reporting a
+fault.
 
 ## Alternatives
 

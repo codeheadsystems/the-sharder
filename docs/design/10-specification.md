@@ -324,8 +324,8 @@ same rule for configuration.
 ### Hash construction
 
 Every placement decision rests on one keyed hash function applied to a framed, domain-tagged input.
-A strategy section names one of the five functions this section defines and performs no hash
-arithmetic of its own.
+A strategy section names one of the functions this section defines and performs no hash arithmetic
+of its own.
 
 `HASH-001`. The hash function MUST be SipHash-2-4 as Aumasson and Bernstein publish it: a keyed
 pseudorandom function over a 128-bit key and a message of octets, with two compression rounds per
@@ -380,9 +380,8 @@ field MUST NOT exceed 4294967295 octets.
 
 #### Domain-tagged functions
 
-`HASH-030`. The three hash functions this specification uses MUST be exactly these, and an
-implementation MUST NOT introduce a fourth, MUST NOT reuse a tag for a second purpose, and MUST NOT
-omit a tag.
+`HASH-030`. The hash functions this specification uses MUST be exactly these, and an implementation
+MUST NOT introduce another, MUST NOT reuse a tag for a second purpose, and MUST NOT omit a tag.
 
 | Function | Domain tag | Framed fields after the tag |
 |---|---|---|
@@ -837,8 +836,8 @@ call each at most once, and MUST make no further call into either afterwards.
 
 A routing call derives a routing key from the key, matches the override table against it, computes a
 candidate ordering over the eligible node set under the configured strategy, and names the shard the
-key belongs to. Each of the five core strategies computes the candidate ordering by arithmetic of
-its own, over a set of rules that holds for all of them.
+key belongs to. Each core strategy computes the candidate ordering by arithmetic of its own, over a
+set of rules that holds for all of them.
 
 ### Routing key handling
 
@@ -2123,7 +2122,7 @@ preference list.
 entry whose identity is absent from the snapshot in force MUST NOT affect any routing call, and MAY
 be evicted once absent for longer than the ejection reset interval.
 
-`HEALTH-007`. An identity **re-enters the placement set** where the snapshot `onSnapshotInstalled`
+`HEALTH-007`. An identity re-enters the placement set where the snapshot `onSnapshotInstalled`
 delivers holds it in its placement set and the snapshot delivered before it did not. Where the
 parameter `resetOnPlacementReentry` is true, a `HealthView` MUST discard the health entry of an
 identity that re-enters, so that the identity holds `unknown` under `HEALTH-004` with no window, no
@@ -2666,8 +2665,8 @@ its placement preparation, may change after installation.
 No intermediate state may be observable.
 
 `TOPO-121`. A routing call MUST read the snapshot reference exactly once, at entry, and MUST compute
-its whole result from that snapshot. This satisfies invariant 12: a routing call sees exactly one
-snapshot for its whole lifetime.
+its whole result from that snapshot. A routing call therefore sees exactly one snapshot for its
+whole lifetime.
 
 `TOPO-131`. An implementation MUST keep a snapshot readable until every call that acquired it has
 completed. Installing a newer snapshot MUST NOT invalidate a snapshot a call is still reading.
@@ -4291,7 +4290,7 @@ tenants.
 
 `SEC-012`. An implementation MUST NOT derive a seed of its own. It MUST NOT synthesise one from
 `topologyId`, from a host name, from a process identifier, or from a clock, because two callers that
-derived different seeds would compute different owners for one key at one epoch, which invariant 4
+derived different seeds would compute different owners for one key at one epoch, which `PROP-045`
 forbids.
 
 `SEC-013`. A seed change moves every key. An implementation MUST refuse to compute an ownership

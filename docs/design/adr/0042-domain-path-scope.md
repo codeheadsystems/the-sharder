@@ -71,8 +71,8 @@ alone.
 An operator naming a coarse level in `domainLevels` and omitting it from `replication.spread` gets a
 spread requirement that is weaker to satisfy than the identifier count suggests. Ten racks named
 `k1` through `k10` in each of three zones give thirty rack domains rather than ten, so a factor of
-four spreads across four of the thirty. That is the behaviour a reader of
-[`0006`](0006-failure-domain-model.md) expects, and it is the reason the declared reading is the one
+four spreads across four of the thirty. That is the behaviour
+[`0006`](0006-failure-domain-model.md) states, and it is the reason the declared reading is the one
 worth having: the alternative would collapse thirty racks into ten and refuse placements that are
 genuinely well spread.
 

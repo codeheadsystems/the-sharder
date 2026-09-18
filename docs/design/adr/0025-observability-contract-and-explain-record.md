@@ -71,9 +71,8 @@ it. Its cost grows with the node set, so it does not belong on the routing path.
 
 ## Consequences
 
-An implementation carries two code paths that must agree: the routing path and the explain path. The
-requirement that they agree is stated, and it is the kind of requirement that a conformance vector
-can check directly by asserting both against one topology.
+An implementation carries two code paths that must agree: the routing path and the explain path. A
+conformance vector can check that agreement directly by asserting both against one topology.
 
 Dropping the shard label above a threshold means a large `slot` topology loses per-shard metrics at
 the moment an operator most wants them. The alternative is a metrics backend that falls over, which

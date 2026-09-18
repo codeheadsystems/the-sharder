@@ -2,7 +2,7 @@
 
 Measurement sources that a decision record cites. Each one is standalone, builds with a system
 compiler, and depends on nothing in this repository, so a figure quoted in a record can be
-reproduced rather than taken on trust.
+reproduced.
 
 | Source | Cited by |
 |---|---|

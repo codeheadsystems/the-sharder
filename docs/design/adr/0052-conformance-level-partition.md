@@ -92,7 +92,7 @@ naming the levels reached alone.
 
 The v0.1 Java implementation declares `hash`, `core`, `failover`, `fencing`, and `readAffinity`,
 which is what [`../99-roadmap.md`](../99-roadmap.md) already claimed and could not previously mean.
-`core` is 53 vector files, 462 cases, one scenario, and 24 properties, and nothing in it reaches
+`core` was 53 vector files, 462 cases, one scenario, and 24 properties, and nothing in it reaches
 `sharder-migrate`. v0.2 adds `migration` without moving anything already declared.
 
 A port may now declare `core` while implementing no health view, which the old definition made
@@ -101,7 +101,7 @@ visible rather than silent: a declaration lists `failover` as excluded and names
 not expose, and `0035` already requires the harness to report a level out of scope as a declared
 exclusion rather than as a pass.
 
-A level added later is a data change. The suite's largest topology is eleven nodes, so a `scale`
+A level added later is a data change. The suite's largest topology was eleven nodes, so a `scale`
 level over larger documents is a plausible addition; it arrives as new vector files carrying
 `"level": "scale"` and one row in the `levels` table, and it changes nothing an existing level
 contains, because the levels are disjoint rather than nested.

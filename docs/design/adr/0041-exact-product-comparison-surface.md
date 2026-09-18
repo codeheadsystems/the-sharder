@@ -87,8 +87,7 @@ Both are total over the whole unsigned 64-bit range of every operand. The produc
 A left-hand side of three operands folds its two small factors into one operand before the call,
 which is what keeps the surface at two products rather than three. `OBS-031` folds
 `shardCount * 100` into a single `long`, exactly, because `shardCount` is an `int`. That fold is the
-whole reason a two-product signature is enough, and it is stated in the binding rather than left to
-the reader.
+whole reason a two-product signature is enough, and the binding states it.
 
 `Math.multiplyHigh` joins the forbidden forms of the unsigned discipline of
 [`0030-unsigned-integer-discipline.md`](0030-unsigned-integer-discipline.md), alongside

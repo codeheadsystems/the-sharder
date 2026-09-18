@@ -20,8 +20,7 @@ nothing where a port had to choose. The unrepaired remainder of both is in
 
 This record covers the repairs taken for those defects. The spread relaxation ladder is the largest
 behaviour change among them and has its own record,
-[`0036`](0036-spread-relaxation-ladder-direction.md). The specification itself states what the
-library does and carries no justification, so the reasoning for each repair lives here.
+[`0036`](0036-spread-relaxation-ladder-direction.md).
 
 Every repair was constrained by one rule: a requirement identifier is permanent, because the
 conformance suite joins to the specification on it. No identifier was renumbered, withdrawn, or

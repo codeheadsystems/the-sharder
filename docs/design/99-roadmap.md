@@ -43,7 +43,7 @@ and depends on `sharder-api` and `sharder-core` alone.
 
 One question in [`90-open-questions.md`](90-open-questions.md) is answered before v0.1 publishes,
 because v0.1 publishes the document that leaves it open: `OQ-02`, the three requirements with no
-owning interface. `OQ-01`, the provider contract's absence from the normative surface, is settled by
+owning interface. The provider contract's absence from the normative surface is settled by
 `CORE-080` to `CORE-101` in [`10-specification.md`](10-specification.md#topology-provider).
 
 ## Release v0.2
@@ -156,10 +156,9 @@ replicas satisfy spread, and therefore which nodes are replicas. `SPREAD-002` an
 [`adr/0006`](adr/0006-failure-domain-model.md).
 
 The spread relaxation ladder. Stage `k` enforces node distinctness together with the finest `m-k`
-levels, and the builder takes the smallest `k` that yields a full replica prefix. The direction has
-already been corrected once, and each correction moves replicas in every topology whose
-`replication.spread` names more than one level. `SPREAD-010` and
-[`adr/0036`](adr/0036-spread-relaxation-ladder-direction.md).
+levels, and the builder takes the smallest `k` that yields a full replica prefix. Changing the
+direction moves replicas in every topology whose `replication.spread` names more than one level.
+`SPREAD-010` and [`adr/0036`](adr/0036-spread-relaxation-ladder-direction.md).
 
 The preference list builder's walk. `REPL-012` selects the replica prefix with one greedy forward
 pass over the candidate ordering, admitting each entry that no enforced level has already filled to
@@ -215,7 +214,7 @@ reaches no consumer; the Bouncy Castle oracle of
 
 ### Reversible decisions
 
-These look like one-way doors and are not. Each may change in a minor release.
+These decisions are reversible, and each may change in a minor release.
 
 | Decision | Why it moves |
 |---|---|

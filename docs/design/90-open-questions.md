@@ -225,11 +225,11 @@ read the snapshot and `CORE-064` forbids a routing call blocking on anything but
 requirement is violated, and a port that implements either counter with a lock pays a contended
 write per attempt.
 
-Both writes are now on the attempt walk rather than on the routing call. `HEALTH-017` moves probe
+Both writes are on the attempt walk rather than on the routing call. `HEALTH-017` moves probe
 admission to `next` of `FAIL-023`, so `route` writes nothing and a node in `probation` is
 incremented once per attempt that reaches it rather than once per entry a routing call examines.
 [`adr/0067`](adr/0067-probe-admission-at-the-attempt.md) records that decision. The budget window
-was already accounted at the attempt, so the two counters now contend under the same rate.
+was already accounted at the attempt, so the two counters contend under the same rate.
 
 Recommended default: no change to the specification. The Java binding uses an atomic increment for
 the probe counter and an array of adders for the budget window, and neither takes a lock.

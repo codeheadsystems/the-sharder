@@ -4,8 +4,8 @@ Status: accepted. Date: 2026-09-16.
 
 ## Context
 
-Invariant 11 forbids the library from starting a thread it was not given, and invariant 12 requires
-a routing call to see exactly one snapshot for its whole lifetime. Neither states how a snapshot
+`CORE-060` forbids the library from starting a thread it was not given, and `TOPO-121` requires a
+routing call to see exactly one snapshot for its whole lifetime. Neither states how a snapshot
 becomes visible to a routing call running concurrently with an installation, and a specification
 that leaves that to each port produces two ports that disagree under load rather than under test.
 
@@ -89,8 +89,8 @@ Sequence-locked reads, where a routing call reads a version counter before and a
 a mismatch. Rejected because it solves a problem the design does not have. Snapshots are immutable,
 so there is nothing for a reader to be torn by once publication is ordered.
 
-An internal thread for polling, started lazily and stopped on `close`. Rejected against invariant
-11. The deployments in view run their own executors, size their own pools, and account their own
+An internal thread for polling, started lazily and stopped on `close`. Rejected against `CORE-060`.
+The deployments in view run their own executors, size their own pools, and account their own
 threads, and a library thread that appears in a flight recording without an owner is a support
 burden out of proportion to the convenience.
 

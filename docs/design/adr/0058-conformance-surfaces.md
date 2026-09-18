@@ -130,6 +130,6 @@ Deriving a file's strategies from a table of file paths in the generator. Reject
 `0052` rejected the same shape: the table becomes a second place the suite's structure is written
 down, and it can disagree with the documents the file actually names.
 
-Making `routing` the name of the base surface rather than reusing `core`. Adopted, and worth
-recording: `core` names a conformance level of the suite and `routing` names a surface of the
-library, and the two partitions are not the same. `hash`, `place`, and `core` all test `routing`.
+Making `routing` the name of the base surface rather than reusing `core`. Adopted: `core` names a
+conformance level of the suite and `routing` names a surface of the library, and the two partitions
+are not the same. `hash`, `place`, and `core` all test `routing`.

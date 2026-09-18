@@ -24,7 +24,6 @@ differed. A `spread` of `["region", "zone", "rack"]` had two outcomes rather tha
 regions, or nothing beyond distinct nodes. A topology that could not place four replicas in distinct
 regions never settled for distinct zones, which is the behaviour the ladder exists to provide.
 
-The conformance suite measured it rather than reasoning about it.
 `conformance/vectors/spread/relaxation-stages.json` records every stage and counts the distinct
 outcomes, and its `spread-ladder` cases reported `distinctStageOutcomes` of 2 against the four
 stages `SPREAD-017` permits.

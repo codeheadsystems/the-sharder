@@ -1,6 +1,6 @@
 # Documentation style
 
-The register, the emphasis rules and the punctuation conventions every document in this repository
+The register, the emphasis rules, and the punctuation conventions every document in this repository
 is written to, together with the terminology it uses. A reference manual describes a system; it does
 not argue for one.
 
@@ -15,7 +15,7 @@ Every Markdown document in the repository is written to this guide. There are no
 - `docs/maintain/`, including this guide
 - `docs/README.md`, the repository's `README.md`, and `CONTRIBUTING.md`
 - `conformance/` and `bench/`, including the suite and generator entry points
-- `DESIGN_PROMPT.md`
+- `DESIGN_PROMPT.md` and `CLAUDE.md`
 
 A new directory under `docs/` joins this list in the commit that creates it.
 
@@ -37,20 +37,20 @@ Documentation is written in the third person, in the present tense, about the li
 - Second person is correct in one place: the numbered steps of a procedure, where the imperative is
   the clearest form. "Drain the node." "Reload the topology." Everything around those steps returns
   to the third person.
-- Do not address the reader's expectations, assumptions or feelings. "That is the library working,
+- Do not address the reader's expectations, assumptions, or feelings. "That is the library working,
   not failing" and "worth knowing before you start" describe a conversation rather than a system.
 - Do not write in the first person, singular or plural. The documentation has no narrator.
 
 ## Emphasis
 
 Bold marks the first occurrence of a defined term in the document that defines it. It has no other
-use. Bold applied to a clause for stress is the most common defect this guide exists to remove, and
-its effect is cumulative: where a fifth of the text is emphasised, emphasis carries no information.
+use. Bold applied to a clause for stress is the most common defect in this corpus, and its effect
+is cumulative: where a fifth of the text is emphasised, emphasis carries no information.
 
-- No bold for stress, contrast, warning or surprise.
+- No bold for stress, contrast, warning, or surprise.
 - No capitalised words for stress. Capitals are for acronyms, identifiers, enum constants, HTTP
-  methods, environment variables and other things that are genuinely spelled that way.
-- The RFC 2119 keywords are spelled that way. `MUST`, `MUST NOT`, `SHOULD`, `SHOULD NOT` and `MAY`
+  methods, environment variables, and other things that are genuinely spelled that way.
+- The RFC 2119 keywords are spelled that way. `MUST`, `MUST NOT`, `SHOULD`, `SHOULD NOT`, and `MAY`
   are capitalised in the normative specification, where they carry their RFC 2119 meaning, and
   nowhere else. A document that is not normative says "refuses" rather than "MUST refuse".
 - No italics for stress. Italics mark a term quoted as a term, and little else.
@@ -76,10 +76,10 @@ State what the library does. Explain a decision only where a reader who does not
 a wrong conclusion, and then explain it plainly, in its own sentence.
 
 - Do not defend a design against an imagined objection. "That is deliberate rather than unfinished",
-  "rather than an oversight" and "this is the design working" all answer a criticism nobody reading
+  "rather than an oversight", and "this is the design working" all answer a criticism nobody reading
   a manual has made.
 - Do not certify a claim's provenance in passing. "Measured, not reasoned about", "read out of the
-  source" and "and none of it is hedged" are assurances about the author's diligence. Where
+  source", and "and none of it is hedged" are assurances about the author's diligence. Where
   provenance genuinely matters, such as a benchmark's conditions, it is content: give it a sentence
   that says what was measured, on what, and when.
 - Do not write about the document. A document does not explain why it exists, why it is separate
@@ -87,7 +87,7 @@ a wrong conclusion, and then explain it plainly, in its own sentence.
   the directory's entry point.
 
 A decision record under `docs/design/adr/` is the one place justification is the content rather than
-a defect. Its Context, Consequences and Alternatives sections say why a decision was taken and what
+a defect. Its Context, Consequences, and Alternatives sections say why a decision was taken and what
 was rejected, because recording that is the document's purpose. Every other rule in this guide
 applies to it unchanged: third person, no bold for stress, noun-phrase headings. The carve-out
 covers what an ADR is allowed to discuss, not how it is allowed to sound.
@@ -126,7 +126,7 @@ records what was true on the date the record carries and does not move afterward
 | Use | Instead of |
 |---|---|
 | the sharder library, on first mention in a document; the library thereafter | this library, the framework, the system, the product, the tool |
-| `sharder`, when naming the library, the Gradle project or a published artifact | |
+| `sharder`, when naming the library, the Gradle project, or a published artifact | |
 | `the-sharder`, only when naming the GitHub repository | |
 | a caller, an integrator, an operator | you, the user, the developer |
 | refuses, returns, answers with | will refuse, is going to return |
@@ -161,7 +161,7 @@ rules it covers bind a document whether or not the check runs, and the reviewer 
 them. The decision and its cost are recorded in
 [`adr/0062`](../design/adr/0062-documentation-style-check-as-a-warning.md).
 
-`verifyDocStyle` refuses four things and no more. It does not judge register, justification or
+`verifyDocStyle` refuses four things and no more. It does not judge register, justification, or
 terminology, because whether a sentence describes the design or argues for it is not a property a
 regular expression can see, and a check that guessed would be wrong often enough to be worked
 around. Those stay with the reviewer, and the checks exist so that a reviewer's attention goes to

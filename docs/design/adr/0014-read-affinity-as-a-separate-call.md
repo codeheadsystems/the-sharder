@@ -43,7 +43,7 @@ the read call returns, and the specification forbids using a read-affinity resul
 target.
 
 The pipeline order is fixed: build the preference list, apply read affinity where requested, then
-apply the health filter. Health therefore still filters a list it never reordered, and invariant 4
+apply the health filter. Health therefore still filters a list it never reordered, and `PROP-045`
 holds unchanged.
 
 The specification carries this as `READ-001` through `READ-023`.
@@ -75,8 +75,8 @@ replicas and stops there.
 
 Sorting the preference list by proximity for every caller. Rejected because it makes the preference
 list caller-dependent, so two callers compute different owners for the same key at the same epoch.
-This is the alternative [`0007`](0007-administrative-state-and-health-state.md) rejects, restated
-here because the read path is where the temptation arises.
+This is the alternative [`0007`](0007-administrative-state-and-health-state.md) rejects, and the
+read path is where the temptation arises.
 
 A per-caller `locality` field in the topology document, with the strategy consuming it. Rejected
 because the topology document is agreed between callers and a caller's own location is not; a

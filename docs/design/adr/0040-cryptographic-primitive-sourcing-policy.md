@@ -15,9 +15,9 @@ security property nobody checked rather than as a crash. That is why a project t
 a library that many people have audited, and why the rule needs to be written down once rather than
 settled privately by whoever writes the next one.
 
-Three requirements make SipHash-2-4's role in this design a security role, and a record that
-pretended otherwise would not survive a reader of the `SEC-*` group. `SEC-003` names a seed the
-adversary cannot read as the library's only defence against a crafted key. `SEC-010` requires
+`SEC-003`, `SEC-010`, `SEC-014`, and `SEC-015` make SipHash-2-4's role in this design a security
+role. `SEC-003` names a seed
+the adversary cannot read as the library's only defence against a crafted key. `SEC-010` requires
 `hash.seed` to be treated as a secret and forbids exposing it through an accessor, an event, a
 condition detail, or an explain record. `SEC-014` forbids a comparison that reads the seed from
 short-circuiting on its octets, which is a prohibition on a timing oracle. `SEC-015` refuses an
@@ -43,11 +43,11 @@ reference C implementation, a straightforward Java implementation, and a tuned J
 all answer `a129ca6149be45e5` for the 15-octet message of that table, which is the table's row for
 that message read as `HASH-002` requires.
 
-The cost of the alternative was measured rather than assumed. On OpenJDK 25 on an AMD Ryzen 7 7840U,
-over the 67-octet `rvScore` frame of `HASH-030`, four thousand routing calls after warm-up at a
-summed virtual node count of 8000, Bouncy Castle's `SipHash` with one reused instance per thread
-costs 57 nanoseconds per hash evaluation against 29 for a tuned hand-written implementation, and
-allocates 256 kilobytes per routing call if an instance is constructed per evaluation instead.
+On OpenJDK 25 on an AMD Ryzen 7 7840U, over the 67-octet `rvScore` frame of `HASH-030`, four
+thousand routing calls after warm-up at a summed virtual node count of 8000, Bouncy Castle's
+`SipHash` with one reused instance per thread costs 57 nanoseconds per hash evaluation against 29
+for a tuned hand-written implementation, and allocates 256 kilobytes per routing call if an instance
+is constructed per evaluation instead.
 
 ## Decision
 
@@ -99,9 +99,7 @@ third implementation from a library nobody in this repository wrote, before any 
 is evaluated.
 
 The classification is a judgement, and a judgement has to be made again for the next primitive. That
-is the cost of not taking the rule strictly, and it is why the rule and the exception are recorded
-together: the next reader sees what the exception rests on and can see whether their primitive rests
-on the same things.
+is the cost of not taking the rule strictly.
 
 The routing path keeps 29 nanoseconds per hash evaluation rather than 57. What that is worth depends
 on the strategy, and [`0039`](0039-placement-cost-model-and-warning-thresholds.md) is the record
@@ -143,5 +141,5 @@ would have to be observable to be debuggable, which puts it in a document or a c
 setting.
 
 No rule at all, with the question settled per primitive at review. Rejected because the question was
-in fact settled per primitive at review until now, and this record exists because that produced no
-statement a reviewer could hold a change against.
+in fact settled per primitive at review until now, and that produced no statement a reviewer could
+hold a change against.

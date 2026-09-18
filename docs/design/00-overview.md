@@ -9,8 +9,8 @@ The library is embedded in an application. It consumes a topology published by a
 authority, exposes a routing call over that topology, and exposes a coordination surface for the
 period during which ownership of a shard moves from one node to another.
 
-Status: the library is designed and not implemented. This document describes the shape of that
-design, not the behaviour of any running code.
+Status: the library is designed and not implemented. The components and flows below describe the
+shape of that design, not the behaviour of any running code.
 
 The vocabulary every document here uses is defined in [`05-glossary.md`](05-glossary.md), and a term
 below carries the meaning that document gives it.
@@ -56,9 +56,9 @@ The three extension points are the topology provider, the health view, and the m
 integrator who routes a tenant identifier to one of five clusters implements none of them beyond a
 static file provider, and never instantiates the handoff coordinator.
 
-Four further hooks are optional and carry a default of doing nothing: a pressure gauge and a shard
-metrics source for the handoff coordinator, a hint observer for substitution notices, and a metrics
-registry and an event sink for reporting.
+Five further hooks are optional and carry a default of doing nothing: a pressure gauge for the
+handoff coordinator, a shard metrics source for hot shard detection, a hint observer for
+substitution notices, and a metrics registry and an event sink for reporting.
 
 ## Route call data flow
 
@@ -177,7 +177,7 @@ integrator calls, not a product of installation, because walking every shard und
 costs a preference list evaluation per shard per snapshot and a caller that never migrates never
 needs one. A migration begins when the integrator calls `plan`, and a plan may target a snapshot
 that has been validated and not installed, which is how a handoff is prepared ahead of the epoch
-that will route to it.
+that routes to it.
 
 A rebalance large enough to matter outlives several epochs, because a fleet publishes an epoch
 whenever a node dies, is drained, or changes weight. A plan therefore follows the topology rather

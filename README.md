@@ -5,8 +5,8 @@ answers which nodes handle that key, in what order, and what happens when those 
 unavailable.
 
 Two implementations in two languages, given the same topology and the same key, produce the same
-ordered list of nodes. Determinism is a hard requirement rather than a goal, and a conformance suite
-of language-neutral data files is what holds every port to it.
+ordered list of nodes. Determinism is a hard requirement, and a conformance suite of
+language-neutral data files is what holds every port to it.
 
 ## Status
 

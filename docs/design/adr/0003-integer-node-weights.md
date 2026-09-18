@@ -5,7 +5,7 @@ Status: accepted. Date: 2026-09-16.
 ## Context
 
 Nodes in a real cluster are not identical. A storage cluster acquires larger disks over time, a
-cache cluster runs two instance sizes, and a tenant router sends more traffic to a cluster with more
+cache cluster runs two node sizes, and a tenant router sends more traffic to a cluster with more
 capacity. Placement has to honour that, and it has to honour it identically in every language.
 
 The published weighted form of rendezvous hashing computes a score of `-weight / ln(h / 2^64)` and
@@ -15,10 +15,10 @@ a disagreement in the last bits is a different node for some key.
 
 ## Decision
 
-A node's capacity is an integer `weight` in weight units, in the range 0 to 1000000, defaulting to
-1. Weight units have no dimension and are meaningful only in ratio to the other weights in the same
-   topology. A weight of 0 keeps a node in the placement set while giving it no keys from a hash
-   strategy.
+A node's capacity is an integer `weight` in weight units, in the range 0 to 1000000, defaulting
+to 1. Weight units have no dimension and are meaningful only in ratio to the other weights in the
+same topology. A weight of 0 keeps a node in the placement set while giving it no keys from a hash
+strategy.
 
 Weight is honoured by replicating a node in the hash strategy's input space, in proportion to its
 weight, and never by scaling a score.

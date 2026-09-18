@@ -175,7 +175,7 @@ written.
 | [`design/99-roadmap.md`](design/99-roadmap.md) | release staging, one-way doors, and what the suite makes easier or harder |
 | [`design/adr/`](design/adr/) | the decision records, the only documents here where argument is the content |
 | [`maintain/style.md`](maintain/style.md) | the register, emphasis, punctuation, and terminology rules |
-| [`../CONTRIBUTING.md`](../CONTRIBUTING.md) | what a change may not do, and how a document or the suite is changed |
+| [`../CONTRIBUTING.md`](../CONTRIBUTING.md) | the constraints on every change, and how a document or the suite is changed |
 | [`../conformance/README.md`](../conformance/README.md) | the suite tree, how to run it, and how to regenerate it |
 | [`../conformance/generator/README.md`](../conformance/generator/README.md) | the reference implementation, its scripts, and what each verifies |
 | [`../bench/README.md`](../bench/README.md) | the standalone measurement sources a decision record cites |

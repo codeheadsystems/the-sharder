@@ -55,7 +55,7 @@ nothing about it.
 
 The design already has a pattern for a configuration that is legitimate but expensive: `PLACE-052`
 clamps a virtual node count and emits `topology.weight_clamped`, and `directoryWarnEntries` emits
-`topology.directory_large` above its threshold. The two largest cost products in the system had no
+`topology.directory_large` above its threshold. The two largest cost products in the design had no
 equivalent.
 
 The figures below were measured on 16 September 2026 as part of the architecture review of this

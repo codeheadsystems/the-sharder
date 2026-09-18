@@ -73,7 +73,7 @@ only what it must achieve.
 
 ## Alternatives
 
-An active coordinator owning a thread pool. Rejected because invariant 11 forbids the library
+An active coordinator owning a thread pool. Rejected because `CORE-060` forbids the library
 starting a thread it was not given, and because the scheduling policy that suits a storage cluster
 suits nothing else.
 

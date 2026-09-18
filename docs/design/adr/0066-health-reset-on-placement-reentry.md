@@ -82,7 +82,7 @@ maintenance and returns it wants the ejection history it had.
 
 Resetting only the ejection count, leaving the state. Rejected because the state is what skips the
 node: an entry left in `unavailable` with a reset count is still skipped for a full
-`baseEjectionMillis`, which is the outcome the record is written to avoid.
+`baseEjectionMillis`.
 
 Keying a health entry by identity and epoch of first sight, so that a returning node is a different
 key. Rejected because `HEALTH-006` requires an entry to survive an epoch change, which is the

@@ -22,7 +22,7 @@ Two questions follow from that. The first is where a setting lives. The topology
 carries a replication factor, a spread policy, and a strategy configuration, and every one of those
 is agreed between callers by construction. A setting that changed placement and lived outside the
 document would let two callers holding one snapshot compute different owners for one key, which
-invariant 4 forbids.
+`PROP-045` forbids.
 
 The second question is what a default means. The integrator who reads no documentation is the
 integrator whose defaults matter, and a default is the library's opinion about the common case
@@ -100,14 +100,14 @@ Refusing construction on an out-of-range setting means a deployment fails at sta
 behaving oddly in production. That is the intended trade and it makes a rolling restart with a bad
 configuration fail fast and visibly.
 
-The step budget defaults are the weakest part of the set, and knowingly so. A budget of one unit per
-step is correct for an integrator whose unit is a gigabyte and absurd for one whose unit is a row.
-The additive increase to a ceiling of 64 recovers from the second case in a few steps and never
-overwhelms the first, which is the best a library that cannot interpret the unit can do.
+The step budget defaults are the weakest part of the set. A budget of one unit per step is correct
+for an integrator whose unit is a gigabyte and absurd for one whose unit is a row. The additive
+increase to a ceiling of 64 recovers from the second case in a few steps and never overwhelms the
+first, which is the best a library that cannot interpret the unit can do.
 
-The default of `serve` for staleness and `strict` for the recipient looks inconsistent read side by
-side. It is the same decision from two ends: the router is permissive because it cannot know the
-consequences, and the recipient is strict because it can.
+The default of `serve` for staleness and `strict` for the recipient is the same decision from two
+ends: the router is permissive because it cannot know the consequences, and the recipient is strict
+because it can.
 
 ## Alternatives
 

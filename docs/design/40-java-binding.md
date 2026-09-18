@@ -201,9 +201,8 @@ These forms are forbidden on an unsigned 64-bit value, and a build check refuses
 - `Long.compare`, `Math.max`, `Math.min`, and `Long.signum`.
 - `Math.multiplyHigh`, whose high half is the signed one. The unsigned form is
   `Math.unsignedMultiplyHigh`, and the two disagree for every operand at or above 2^63.
-- `Comparator.comparingLong` and `Comparator.naturalOrder`. This is the sharpest trap of the set,
-  because the comparator a ring or a rendezvous ordering wants is the one an author reaches for
-  first and it is signed.
+- `Comparator.comparingLong` and `Comparator.naturalOrder`. Both order a `long` as a signed
+  quantity, and both are the comparator a ring or a rendezvous ordering otherwise calls for.
 - `Long.MAX_VALUE` as the greatest value and `Long.MIN_VALUE` as the least. The unsigned greatest is
   `-1L` and the unsigned least is `0L`.
 - Any conversion to `double`, `float`, or `BigDecimal`.
@@ -1001,8 +1000,8 @@ point, attached where `ERR-063` requires the original to survive.
 
 ### Conditions that never raise
 
-A document rejected by the load pipeline is ordinary operation, not a failure of a call the
-integrator made. A lower epoch arriving from a lagging provider replica calls for no response at the
+A document rejected by the load pipeline is ordinary operation, and no call the integrator made is
+waiting on it. A lower epoch arriving from a lagging provider replica calls for no response at the
 caller under `ERR-011`. The library therefore does not raise `staleDocument`, `topologyConflict`,
 `invalidTopology`, or `providerError` out of `TopologySink.onDocument` or out of a poll the executor
 ran. It records the condition, increments `sharder.topology.documents`, and emits
@@ -1034,9 +1033,7 @@ The features the design depends on, and the release that finalised each.
 | `Math.unsignedMultiplyHigh` | 18 | the exact product comparison of `FAIL-031`, `OBS-031`, `OBS-032` |
 | `Long.compareUnsigned`, `Long.remainderUnsigned` | 8 | every unsigned 64-bit operation |
 
-Java 21 is a long-term-support release with a support window that outlasts several versions of this
-library, and it is the baseline a library meant to be embedded widely can take without excluding a
-deployment that has not moved. The trade against a floor of 17 and a floor of 25 is in
+Java 21 is a long-term-support release. The trade against a floor of 17 and a floor of 25 is in
 [`adr/0031-jdk-baseline.md`](adr/0031-jdk-baseline.md).
 
 The library starts no unit of execution, holds no lock across a call into an extension point under
@@ -1125,7 +1122,7 @@ of `HASH-030`, that form costs 29 nanoseconds per evaluation against 49 for the 
 form; [`adr/0040`](adr/0040-cryptographic-primitive-sourcing-policy.md) states the conditions the 29
 was taken under and compares it with a library implementation. The figures are from a prototype
 rather than from this binding, which has not been written. Neither form allocates, and the
-allocation gate under "Benchmarks" is what will hold the tuned one to that.
+allocation gate under "Benchmarks" is what holds the tuned one to that.
 
 Bouncy Castle's `org.bouncycastle.crypto.macs.SipHash` is a third oracle for `HASH-003`, at test
 scope, under `adr/0040`. The reference table of the paper and
@@ -1234,7 +1231,7 @@ construction and cancels both in `close()`. Scheduling on a supplied executor is
 permits; creating one is what it forbids.
 
 Where `executor` is unset, the library polls nothing and advances no timer of its own under
-`CORE-062`, and three calls are then the only path by which anything happens.
+`CORE-062`, and the calls below are then the only path by which anything happens.
 
 | Call | Drives |
 |---|---|
@@ -1254,15 +1251,17 @@ it from a loop whose pacing is the integrator's.
 
 ### Caller obligations
 
-- Construct one `Router` and hold it for the life of the process, under `CORE-071`.
-- Supply a `MonotonicClock`. `java.time.Clock` is a wall clock and is not accepted;
+- A caller constructs one `Router` and holds it for the life of the process, under `CORE-071`.
+- A caller supplies a `MonotonicClock`. `java.time.Clock` is a wall clock and is not accepted;
   `System.currentTimeMillis` is not read anywhere in the library, under `CORE-004`.
-- Do not modify a key buffer while a call that reads it has not returned, under `CORE-070`.
-- Do not share an `AttemptSequence` or a `CandidateCursor` across threads, under `CORE-057`.
-- Supply an executor, or call `refresh`, `advance`, and `step`, under `CORE-062`.
-- Make every supplied extension point safe to call from any thread on which the library is called,
-  under `CORE-072`.
-- Call `close()` at shutdown.
+- A caller does not modify a key buffer while a call that reads it has not returned, under
+  `CORE-070`.
+- A caller does not share an `AttemptSequence` or a `CandidateCursor` across threads, under
+  `CORE-057`.
+- A caller supplies an executor, or calls `refresh`, `advance`, and `step`, under `CORE-062`.
+- A caller makes every supplied extension point safe to call from any thread on which the library is
+  called, under `CORE-072`.
+- A caller calls `close()` at shutdown.
 
 ## Conformance harness
 
@@ -1283,7 +1282,7 @@ public interface VectorSource {
 ```
 
 `VectorSource.ofClasspath()` is the default. The system property `sharder.conformance.dir`
-substitutes a directory, so a developer runs the suite against an edited vector tree without
+substitutes a directory, so a maintainer runs the suite against an edited vector tree without
 rebuilding the resources artifact. `sharder-conformance-vectors` is a resources-only project whose
 `processResources` copies `conformance/` from the repository root verbatim, so the packaged tree and
 the repository tree are the same bytes.
@@ -1347,9 +1346,9 @@ sizes. The harness evaluates each one exactly as the specification
 writes it, in `BigInteger` so that no product overflows, and applies no tolerance of its own.
 
 Sample keys come from a deterministic generator the vector names and seeds, not from
-`java.util.Random`, so a failure in the Java port reproduces in the Go port on the same keys. The
-specification states the distribution and not the generator, which is recorded for the
-specification.
+`java.util.Random`, so a failure in the Java port reproduces in the Go port on the same keys.
+`PROP-006` requires that sample, and [`30-conformance.md`](30-conformance.md#key-sample) fixes the
+generator and the seed.
 
 A simulation scenario is a list of steps, each of which maps to one library call: install a
 document, advance the clock, report a health signal, route a key, record an outcome, take a plan

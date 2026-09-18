@@ -40,13 +40,13 @@ for a scope, and the coordinator takes the highest of the cluster scope, the sou
 destination node before each step. Three levels rather than a number, because a number would invite
 arithmetic on a quantity whose meaning the library does not know.
 
-The response to pressure is asymmetric, and the asymmetry is the decision worth recording. At
-`soft`, no handoff leaves `planned` and budgets shrink. At `hard`, no handoff leaves `planned` and
-neither `transfer` nor `catchUp` is called, but `quiesce`, `commitCutover`, `verify`, `cleanup`,
-`rollback`, and `observe` all continue. Those six complete work that is already begun. Withholding
-them would hold shards in the window where two nodes hold a copy, which is the state a migration
-should spend the least time in, and would leave a quiesced shard refusing writes for as long as the
-pressure lasts. Backpressure slows the start of work and never the finish of it.
+The response to pressure is asymmetric. At `soft`, no handoff leaves `planned` and budgets shrink.
+At `hard`, no handoff leaves `planned` and neither `transfer` nor `catchUp` is called, but
+`quiesce`, `commitCutover`, `verify`, `cleanup`, `rollback`, and `observe` all continue. Those six
+complete work that is already begun. Withholding them would hold shards in the window where two
+nodes hold a copy, which is the state a migration should spend the least time in, and would leave a
+quiesced shard refusing writes for as long as the pressure lasts. Backpressure slows the start of
+work and never the finish of it.
 
 The coordinator returns `idle` when nothing is admissible. It does not spin, wait, or sleep inside
 `step`, because the thread belongs to the integrator.
@@ -63,8 +63,7 @@ starting point.
 
 The quality of the control is the quality of the gauge. An integrator who wires it to a queue depth
 or a compaction backlog gets a migration that yields to production traffic; one who returns `none`
-unconditionally gets none of the protection, and the library cannot tell the difference. That
-dependency is stated rather than hidden.
+unconditionally gets none of the protection, and the library cannot tell the difference.
 
 Budget adjustment is fully deterministic given a sequence of step outcomes, so it is a property test
 rather than a benchmark: the same outcomes produce the same budgets in every port.

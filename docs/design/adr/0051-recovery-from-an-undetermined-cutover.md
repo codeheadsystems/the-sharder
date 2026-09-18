@@ -11,7 +11,7 @@ The row order of `MOVE-211` is stated by
 Re-observation stands as this record decided it. Both exceptions it had to admit are gone with the
 surfaces that forced them: `SPLIT-171` excluded a handoff whose local split had succeeded, and
 `MOVE-235` refused a resumption at `cutover` under `advisory` hooks. Every handoff that reaches
-`failed` with the kind `undetermined` is now admissible, which is what this record wanted.
+`failed` with the kind `undetermined` is now admissible.
 
 ## Context
 

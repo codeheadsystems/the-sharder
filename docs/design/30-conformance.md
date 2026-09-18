@@ -13,8 +13,8 @@ runner.
 
 Status: the suite, the reference generator, and the reference driver exist and run. No
 implementation of the sharder library exists, so no port has yet run the suite, and every level,
-kind, and driver rule below describes what a port will do rather than what one has done. The only
-implementation the suite has run against is the reference that computed its expectations.
+kind, and driver rule below states what a port is required to do rather than what one has done. The
+only implementation the suite has run against is the reference that computed its expectations.
 
 ## Suite layout
 
@@ -152,9 +152,8 @@ case of `ERR-020`.
 ## Driver contract
 
 A **driver** is the per-language harness that reads the suite and runs it. The suite is designed so
-that a driver needs no parser beyond a JSON reader: the reference driver is under a thousand lines
-covering every kind, and a driver that starts at the `hash` and `routing` kinds alone is under a
-hundred.
+that a driver needs no parser beyond a JSON reader, and a driver that starts at the `hash` and
+`routing` kinds alone reaches the rest by adding a branch per kind.
 
 1. Read `manifest.json`, note the `revision` a declaration names, and fail where any file it lists
    is absent.
@@ -262,8 +261,7 @@ A file at `place` carries `topologyDigest` as provenance, so that the document i
 matched against the copy under `topologies/`. Step 5 of the driver contract asserts that member only
 for a file naming a topology and carrying none, so a run confined to `place` compares no digest.
 [`../../conformance/driver/python/run_suite.py`](../../conformance/driver/python/run_suite.py)
-runs `--level place` without entering its canonicaliser or its SHA-256, which is what makes the
-level cost what this section says it costs.
+runs `--level place` without entering its canonicaliser or its SHA-256.
 
 `core` is what the document pipeline adds. A port reaches `place` with the placement engine alone
 and reaches `core` once a document becomes a snapshot, which is the order the work is done in.
@@ -273,7 +271,7 @@ and reaches `core` once a document becomes a snapshot, which is the order the wo
 
 `scale` runs the placement function of `place` and the document pipeline of `core` over two
 topologies a maintainer cannot check by hand. `scale-ring-1000` carries a thousand nodes under
-`ring` with derived tokens, and four of them ask for more tokens than `maxTokensPerNode` grants.
+`ring` with derived tokens, and some of them ask for more tokens than `maxTokensPerNode` grants.
 `scale-rendezvous-1000` carries the same thousand nodes under `rendezvous`. Each is configured so
 that the total `PLACE-073` measures is above the threshold `CFG-010` sets for it, and each case
 states that total, the setting it was compared against, and the shard cardinality, in the `total`,
@@ -400,12 +398,11 @@ rather than an assertion about it. `distinctStageOutcomes` counts the rungs that
 
 `vectors/spread/skipped-level.json` fixes the scope of a domain path. Its topology declares three
 levels, spreads over the finest one alone, and reuses rack identifiers across zones and regions, so
-four of its nine cases place two replicas carrying one rack identifier under distinct rack paths.
-A port that read `SPREAD-006` as spanning `replication.spread` rather than `domainLevels` cannot
-produce those four. `vectors/read/affinity.json` fixes the same scope for `READ-013` with cases at
-a level whose coarser level `replication.spread` does not name, and carries the four refusals of
-`READ-011` and `READ-017` so that a port answering a mismatched path rather than refusing it fails
-there.
+some of its cases place two replicas carrying one rack identifier under distinct rack paths. A port
+that read `SPREAD-006` as spanning `replication.spread` rather than `domainLevels` cannot produce
+them. `vectors/read/affinity.json` fixes the same scope for `READ-013` with cases at a level whose
+coarser level `replication.spread` does not name, and carries the refusals of `READ-011` and
+`READ-017` so that a port answering a mismatched path rather than refusing it fails there.
 
 ### Adversarial vectors
 
@@ -421,7 +418,7 @@ Each adversarial case the design calls for has a vector set.
 | duplicate node identities, invalid at load | `validation-documents`, case `duplicate-node-id` |
 | colliding keys | `adversarial-colliding-keys` |
 | weight zero | `adversarial-weight-zero`, `adversarial-weight-zero-all`, `ring-weight-zero`, `overrides-pin-admits-weight-zero` |
-| every key transform edge case | the six `keytransform` vector sets |
+| every key transform edge case | the `keytransform` vector sets |
 
 `adversarial-colliding-keys` covers collision at each level the specification makes it observable:
 two keys that transform to one routing key, two keys that reduce to one slot index, two keys owned
@@ -489,7 +486,6 @@ condition set of `errorTaxonomy`. The events a running library emits are asserte
 already drives one: the health scenarios carry `sharder.health.ejection_refused` in their
 expectations. [`adr/0078`](adr/0078-observability-contract-as-data.md) records what is asserted and
 what is not.
-
 
 ## Properties
 
@@ -756,7 +752,7 @@ covers `SEC-001`.
 
 ## Specification defects and their repairs
 
-Building the suite against [`10-specification.md`](10-specification.md) surfaced eleven defects.
+Building the suite against [`10-specification.md`](10-specification.md) surfaced the defects below.
 Each is repaired in the specification, and the repairs are recorded in
 [`adr/0036-spread-relaxation-ladder-direction.md`](adr/0036-spread-relaxation-ladder-direction.md)
 and
@@ -790,10 +786,10 @@ followed by a full stop at the start of a line, with no duplicate. `coverage.py`
 `run.sh` fails where the suite names one the specification does not state.
 
 The ladder repair changes behaviour and therefore changes vectors.
-`vectors/spread/relaxation-stages.json` moves from `distinctStageOutcomes` of 2 to 4 on the
-`spread-ladder` topology, and `vectors/spread/degradation-ladder.json` moves with it. The suite
-carries one topology whose `replication.spread` names more than one level, so a port that
-implements the old ladder fails those two files and passes the rest.
+`vectors/spread/relaxation-stages.json` records a higher `distinctStageOutcomes` on the
+`spread-ladder` topology under the repaired ladder, and `vectors/spread/degradation-ladder.json`
+moves with it. The suite carries one topology whose `replication.spread` names more than one level,
+so a port that implements the old ladder fails those two files and passes the rest.
 
 ## Regeneration
 

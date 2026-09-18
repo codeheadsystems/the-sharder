@@ -27,10 +27,10 @@ an operator's. Anything it did to defend a shard would be a guess applied to eve
 
 ## Decision
 
-The exposure is stated normatively rather than left to a reader to infer. The library is not to be
-relied upon to bound the load that keys of a caller's choosing place on one node, and it does not
-refuse, rewrite, rate limit, or reorder a key it judges adversarial. Admission control belongs to
-the caller, which sees the principal behind a request.
+The exposure is stated normatively. The library is not to be relied upon to bound the load that
+keys of a caller's choosing place on one node, and it does not refuse, rewrite, rate limit, or
+reorder a key it judges adversarial. Admission control belongs to the caller, which sees the
+principal behind a request.
 
 The defence is a seed the adversary cannot read, plus detection after the fact. The seed is treated
 as a secret: it is never logged, never placed in an error's detail, never placed in an event
@@ -38,7 +38,7 @@ payload, never placed in an explain record, and never exposed through an accesso
 router. A comparison that reads the seed does not short-circuit on its octets.
 
 The zero default is kept, because conformance vectors have to be reproducible and because a library
-that generated a seed of its own would break invariant 4 the moment two callers generated different
+that generated a seed of its own would break `PROP-045` the moment two callers generated different
 ones. The library never derives a seed from a topology identifier, a host name, a process
 identifier, or a clock.
 
@@ -94,7 +94,7 @@ has it, and `explain` is an operator surface.
 ## Alternatives
 
 Generating a random seed at first load when none is configured. Rejected because two callers would
-generate different seeds and compute different owners for one key at one epoch, which invariant 4
+generate different seeds and compute different owners for one key at one epoch, which `PROP-045`
 forbids outright. It is the most tempting alternative and the most clearly wrong.
 
 Deriving the seed from the topology identifier, so that it is agreed without being configured.

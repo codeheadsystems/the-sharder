@@ -76,7 +76,7 @@ which the library's refusal to read a wall clock under `CORE-004` and to start a
 and level, vectors passed and failed, declared exclusions, and the union of requirement identifiers
 the run exercised.
 
-## Amendment, 2026-09-17
+## Amendment 2026-09-17
 
 This record described a harness that discovers every level from `manifest.json` at a time when the
 manifest carried no level on a vector file or a scenario, and the reference driver held a table

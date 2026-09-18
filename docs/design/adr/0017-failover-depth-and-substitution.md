@@ -93,7 +93,7 @@ reachability problem.
 
 A retry budget shared across an instance makes one key's behaviour depend on another key's. A burst
 of failures on one shard can exhaust the budget and refuse a retry that an unrelated key would have
-been granted. That coupling is the mechanism, not a defect of it.
+been granted. That coupling is the mechanism.
 
 The hint hook computes the skipped replica list only when an observer is registered, so a caller
 that does not implement hinted handoff pays nothing for it. A caller that does gets the two facts

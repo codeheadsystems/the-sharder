@@ -58,9 +58,8 @@ partitioned source promptly, and completeness without a catch-up pass are best-e
 ## Consequences
 
 The safety of the storage use case rests on one integrator-supplied primitive rather than on the
-library. That is the honest position for a library that opens no connection and runs no consensus,
-and it is stated rather than implied: `MOVE-321` and `MOVE-401` make the dependency explicit, and
-the guarantee level appears in the plan summary and in every handoff event.
+library, which opens no connection and runs no consensus. `MOVE-321` and `MOVE-401` make the
+dependency explicit, and the guarantee level appears in the plan summary and in every handoff event.
 
 A caller pays one redirect per moved shard around a topology change, and the redirect bound of 2
 keeps a misconfigured cluster from turning that into a walk.
@@ -84,7 +83,7 @@ requires every caller to install simultaneously, which is consensus, and because
 thousand shards would hold every one of them in the concurrent window until the slowest finished.
 
 Forwarding from the old owner to the new one. Rejected because the library would have to speak the
-storage protocol to forward, which invariant 11 forbids, and because a forwarding chain across
+storage protocol to forward, which `CORE-073` forbids, and because a forwarding chain across
 several epochs is unbounded.
 
 Refusing to overlap at all, by quiescing the source for the whole transfer. Rejected because the

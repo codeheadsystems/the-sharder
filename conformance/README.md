@@ -6,7 +6,7 @@ decisions. The design is
 format, the driver contract, the conformance levels, and the rule by which a port declares
 conformance.
 
-Every expected value here was computed by the reference implementation in `generator/`. None was
+Every expected value here is computed by the reference implementation in `generator/`. None is
 written by hand.
 
 ## Contents

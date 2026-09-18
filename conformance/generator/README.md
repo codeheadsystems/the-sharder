@@ -25,6 +25,7 @@ implementation to compute against, and so that a maintainer can regenerate the s
 | `sharder_ref/formulas.py` | the integer formulas the specification states in closed form |
 | `sharder_ref/observability.py` | the events a snapshot publication emits |
 | `sharder_ref/sample.py` | the deterministic key sample |
+| `topologies.py` | every topology document the vectors route against |
 | `rho_search.c` | the 64-bit collision search the tie-break vectors need |
 
 | Script | What it does |

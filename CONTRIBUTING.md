@@ -8,7 +8,7 @@ change to the Java implementation, is not possible yet, because there is no Java
 [`docs/maintain/style.md`](docs/maintain/style.md) is binding on every Markdown file in this
 repository, including this one. A change that adds prose is written to it.
 
-## What a change may not do
+## Constraints on every change
 
 Three things are fixed, and a change that needs one of them is a different conversation from the
 change that revealed it.
@@ -18,10 +18,9 @@ to close a gap, and never reused after withdrawal.
 [`docs/design/10-specification.md`](docs/design/10-specification.md#requirement-identifiers) states
 the scheme, and
 [`docs/design/10-specification.md`](docs/design/10-specification.md#withdrawn-identifiers) states
-what happens to an identifier whose behaviour the specification stops stating. The rule is not
-cosmetic: [`conformance/manifest.json`](conformance/manifest.json) joins the suite to the
-specification on that identifier, and the generator fails where the suite names one the
-specification does not state.
+what happens to an identifier whose behaviour the specification stops stating.
+[`conformance/manifest.json`](conformance/manifest.json) joins the suite to the specification on
+that identifier, and the generator fails where the suite names one the specification does not state.
 
 The generated tree is not edited by hand. Every file under `conformance/topologies/`,
 `conformance/vectors/`, `conformance/properties/`, and `conformance/scenarios/` is computed by the
@@ -39,7 +38,7 @@ into it, so a rename carries the repairs in the same commit.
    that carries a meaning in [`docs/design/10-specification.md`](docs/design/10-specification.md)
    carries that meaning everywhere else.
 3. Put a fact in one document. Where a second document needs it, cross-reference the first rather
-   than restating it. The exceptions are deliberate and are marked where they occur.
+   than restating it. The exceptions are marked where they occur.
 4. State no figure that something in the repository computes. The Computed figures section of the
    style guide names the artefacts that hold them.
 5. Keep the RFC 2119 capitals inside

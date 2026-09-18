@@ -16,7 +16,7 @@ tenant routing and cache cluster examples below are reproduced as suite topologi
 
 ## Document structure
 
-A document is a JSON object with eleven possible members, five of which are required.
+A document is a JSON object whose possible members are given below, with the required ones marked.
 
 | Member | Required | Type | Default |
 |---|---|---|---|
@@ -369,7 +369,7 @@ an offending node, and never merges a partially valid document into the snapshot
 ## Storage cluster example
 
 Six storage nodes across three availability zones, three replicas spread by zone, ring placement
-with derived tokens, and one node joining ahead of a later epoch that will give it ownership.
+with derived tokens, and one node joining ahead of a later epoch that gives it ownership.
 
 ```json
 {
