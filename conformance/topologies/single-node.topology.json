@@ -1,0 +1,25 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "single-node",
+  "epoch": 1,
+  "domainLevels": [
+    "zone"
+  ],
+  "replication": {
+    "factor": 3,
+    "spread": [
+      "zone"
+    ]
+  },
+  "strategy": {
+    "kind": "rendezvous"
+  },
+  "nodes": [
+    {
+      "id": "only",
+      "domains": {
+        "zone": "za"
+      }
+    }
+  ]
+}

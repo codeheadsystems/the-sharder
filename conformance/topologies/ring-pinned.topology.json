@@ -1,0 +1,36 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "ring-pinned",
+  "epoch": 1,
+  "replication": {
+    "factor": 2
+  },
+  "strategy": {
+    "kind": "ring",
+    "tokenAssignment": "derived",
+    "tokensPerWeightUnit": 2
+  },
+  "nodes": [
+    {
+      "id": "rp1"
+    },
+    {
+      "id": "rp2"
+    },
+    {
+      "id": "rp3"
+    }
+  ],
+  "overrides": [
+    {
+      "match": {
+        "kind": "exact",
+        "value": "pinned-key"
+      },
+      "pin": [
+        "rp3",
+        "rp1"
+      ]
+    }
+  ]
+}

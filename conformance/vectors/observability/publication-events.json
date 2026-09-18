@@ -1,0 +1,188 @@
+{
+  "vectorSet": "observability-publication-events",
+  "kind": "publicationEvents",
+  "level": "core",
+  "description": "The events one publication of a document emits, from the totals `PLACE-077` computes before preparation and from the scans of `SPREAD-024` and `SEC-011`.",
+  "requirements": [
+    "CFG-014",
+    "OBS-020",
+    "PLACE-050",
+    "PLACE-052",
+    "PLACE-073",
+    "PLACE-074",
+    "PLACE-077",
+    "SEC-011",
+    "SPREAD-022",
+    "SPREAD-023",
+    "SPREAD-024"
+  ],
+  "cases": [
+    {
+      "name": "scale-ring-1000",
+      "requirements": [
+        "CFG-014",
+        "OBS-020",
+        "PLACE-050",
+        "PLACE-052",
+        "PLACE-073",
+        "PLACE-074",
+        "PLACE-077"
+      ],
+      "topology": "topologies/scale-ring-1000.topology.json",
+      "expect": {
+        "events": [
+          {
+            "event": "sharder.topology.ring_large",
+            "severity": "warning",
+            "topologyId": "scale-ring-1000",
+            "epoch": 1,
+            "nodeCount": 1000,
+            "total": 1036288,
+            "threshold": 1000000
+          },
+          {
+            "event": "sharder.topology.weight_clamped",
+            "severity": "warning",
+            "topologyId": "scale-ring-1000",
+            "epoch": 1,
+            "node": "node-0996",
+            "requestedCount": 4608,
+            "grantedCount": 4096
+          },
+          {
+            "event": "sharder.topology.weight_clamped",
+            "severity": "warning",
+            "topologyId": "scale-ring-1000",
+            "epoch": 1,
+            "node": "node-0997",
+            "requestedCount": 4608,
+            "grantedCount": 4096
+          },
+          {
+            "event": "sharder.topology.weight_clamped",
+            "severity": "warning",
+            "topologyId": "scale-ring-1000",
+            "epoch": 1,
+            "node": "node-0998",
+            "requestedCount": 4608,
+            "grantedCount": 4096
+          },
+          {
+            "event": "sharder.topology.weight_clamped",
+            "severity": "warning",
+            "topologyId": "scale-ring-1000",
+            "epoch": 1,
+            "node": "node-0999",
+            "requestedCount": 4608,
+            "grantedCount": 4096
+          }
+        ]
+      }
+    },
+    {
+      "name": "scale-rendezvous-1000",
+      "requirements": [
+        "CFG-014",
+        "OBS-020",
+        "PLACE-073",
+        "PLACE-077"
+      ],
+      "topology": "topologies/scale-rendezvous-1000.topology.json",
+      "expect": {
+        "events": [
+          {
+            "event": "sharder.topology.rendezvous_large",
+            "severity": "warning",
+            "topologyId": "scale-rendezvous-1000",
+            "epoch": 1,
+            "nodeCount": 1000,
+            "total": 7996,
+            "threshold": 4096
+          }
+        ]
+      }
+    },
+    {
+      "name": "one-domain-relaxed",
+      "requirements": [
+        "OBS-020",
+        "SPREAD-022",
+        "SPREAD-023",
+        "SPREAD-024"
+      ],
+      "topology": "topologies/one-domain-relaxed.topology.json",
+      "expect": {
+        "events": [
+          {
+            "event": "sharder.topology.spread_infeasible",
+            "severity": "warning",
+            "topologyId": "one-domain-relaxed",
+            "epoch": 1,
+            "level": "zone",
+            "domainCount": 1,
+            "factor": 3,
+            "stage": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "spread-ladder",
+      "requirements": [
+        "OBS-020",
+        "SPREAD-022",
+        "SPREAD-023",
+        "SPREAD-024"
+      ],
+      "topology": "topologies/spread-ladder.topology.json",
+      "expect": {
+        "events": [
+          {
+            "event": "sharder.topology.spread_infeasible",
+            "severity": "warning",
+            "topologyId": "spread-ladder",
+            "epoch": 1,
+            "level": "region",
+            "domainCount": 2,
+            "factor": 4,
+            "stage": 2
+          }
+        ]
+      }
+    },
+    {
+      "name": "directory-tenants",
+      "requirements": [
+        "OBS-020",
+        "SEC-011"
+      ],
+      "topology": "topologies/directory-tenants.topology.json",
+      "expect": {
+        "events": [
+          {
+            "event": "sharder.topology.default_seed",
+            "severity": "warning",
+            "topologyId": "directory-tenants",
+            "epoch": 11,
+            "evidence": [
+              "directory"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "ring-plain",
+      "requirements": [
+        "OBS-020",
+        "PLACE-073",
+        "SEC-011",
+        "SPREAD-024"
+      ],
+      "topology": "topologies/ring-plain.topology.json",
+      "expect": {
+        "events": []
+      }
+    }
+  ]
+}

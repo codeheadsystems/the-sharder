@@ -1,0 +1,693 @@
+{
+  "vectorSet": "rendezvous-tenant-router",
+  "kind": "routing",
+  "level": "place",
+  "description": "The tenant routing example of `20-topology-format.md`, with the key transform, an exact pin, and a residency constraint.",
+  "requirements": [
+    "CORE-046",
+    "CORE-047",
+    "KEY-041",
+    "OVR-001",
+    "OVR-002",
+    "OVR-004",
+    "OVR-010",
+    "OVR-011",
+    "OVR-020",
+    "OVR-022",
+    "PLACE-003",
+    "PLACE-061",
+    "PLACE-062",
+    "PLACE-065",
+    "REPL-002"
+  ],
+  "topology": "topologies/rendezvous-tenant.topology.json",
+  "topologyDigest": "f21eee1f3e4c9041825242745cf1524d69051ff7a484a6f62b07e8f179da4ec3",
+  "topologyDocuments": {
+    "topologies/rendezvous-tenant.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "tenant-router",
+      "epoch": 42,
+      "keyTransform": {
+        "kind": "prefixFields",
+        "separator": "3a",
+        "count": 1
+      },
+      "domainLevels": [
+        "region"
+      ],
+      "replication": {
+        "factor": 1
+      },
+      "strategy": {
+        "kind": "rendezvous",
+        "virtualNodesPerWeightUnit": 1
+      },
+      "nodes": [
+        {
+          "id": "cluster-eu-1",
+          "weight": 1,
+          "domains": {
+            "region": "eu-west"
+          },
+          "address": "https://eu1.internal",
+          "tags": {
+            "tier": "standard"
+          }
+        },
+        {
+          "id": "cluster-eu-2",
+          "weight": 1,
+          "domains": {
+            "region": "eu-central"
+          },
+          "address": "https://eu2.internal",
+          "tags": {
+            "tier": "standard"
+          }
+        },
+        {
+          "id": "cluster-us-1",
+          "weight": 2,
+          "domains": {
+            "region": "us-east"
+          },
+          "address": "https://us1.internal",
+          "tags": {
+            "tier": "standard"
+          }
+        },
+        {
+          "id": "cluster-us-2",
+          "weight": 1,
+          "domains": {
+            "region": "us-east"
+          },
+          "address": "https://us2.internal",
+          "tags": {
+            "tier": "dedicated"
+          }
+        }
+      ],
+      "overrides": [
+        {
+          "match": {
+            "kind": "exact",
+            "value": "acme"
+          },
+          "pin": [
+            "cluster-us-2",
+            "cluster-us-1"
+          ],
+          "note": "contract 8841, dedicated tier"
+        },
+        {
+          "match": {
+            "kind": "prefix",
+            "value": "eu-"
+          },
+          "constrain": {
+            "domains": {
+              "region": [
+                "eu-west",
+                "eu-central"
+              ]
+            }
+          },
+          "note": "residency"
+        }
+      ]
+    }
+  },
+  "cases": [
+    {
+      "name": "tenant/acme-pinned",
+      "requirements": [
+        "KEY-041",
+        "OVR-002",
+        "OVR-010",
+        "OVR-011"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "acme:orders:99"
+      },
+      "note": "the worked example of 20-topology-format.md: pinned to cluster-us-2 then cluster-us-1",
+      "expect": {
+        "routingKey": "61636d65",
+        "shard": "61636d65",
+        "token": {
+          "topologyId": "tenant-router",
+          "epoch": 42
+        },
+        "factor": 1,
+        "replicaCount": 1,
+        "candidates": [
+          "cluster-us-2",
+          "cluster-us-1"
+        ],
+        "preferenceList": [
+          {
+            "node": "cluster-us-2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "cluster-us-1",
+            "position": 1,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 2,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": {
+          "index": 0,
+          "mode": "pin"
+        }
+      }
+    },
+    {
+      "name": "tenant/eu-constrained",
+      "requirements": [
+        "OVR-020",
+        "OVR-022",
+        "PLACE-003"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "eu-bank:ledger:7"
+      },
+      "note": "the worked example: placed by rendezvous across the two European clusters only",
+      "expect": {
+        "routingKey": "65752d62616e6b",
+        "shard": "65752d62616e6b",
+        "token": {
+          "topologyId": "tenant-router",
+          "epoch": 42
+        },
+        "factor": 1,
+        "replicaCount": 1,
+        "candidates": [
+          "cluster-eu-2",
+          "cluster-eu-1"
+        ],
+        "preferenceList": [
+          {
+            "node": "cluster-eu-2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "cluster-eu-1",
+            "position": 1,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 2,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": {
+          "index": 1,
+          "mode": "constrain"
+        }
+      }
+    },
+    {
+      "name": "tenant/unmatched",
+      "requirements": [
+        "OVR-004"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "globex:orders:1"
+      },
+      "expect": {
+        "routingKey": "676c6f626578",
+        "shard": "676c6f626578",
+        "token": {
+          "topologyId": "tenant-router",
+          "epoch": 42
+        },
+        "factor": 1,
+        "replicaCount": 1,
+        "candidates": [
+          "cluster-eu-1",
+          "cluster-us-1",
+          "cluster-eu-2",
+          "cluster-us-2"
+        ],
+        "preferenceList": [
+          {
+            "node": "cluster-eu-1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "cluster-us-1",
+            "position": 1,
+            "role": "fallback"
+          },
+          {
+            "node": "cluster-eu-2",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "cluster-us-2",
+            "position": 3,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 3,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "tenant/acme-exact-only",
+      "requirements": [
+        "PLACE-061"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "acmecorp:x:1"
+      },
+      "note": "an exact matcher does not match a longer routing key",
+      "expect": {
+        "routingKey": "61636d65636f7270",
+        "shard": "61636d65636f7270",
+        "token": {
+          "topologyId": "tenant-router",
+          "epoch": 42
+        },
+        "factor": 1,
+        "replicaCount": 1,
+        "candidates": [
+          "cluster-eu-2",
+          "cluster-eu-1",
+          "cluster-us-1",
+          "cluster-us-2"
+        ],
+        "preferenceList": [
+          {
+            "node": "cluster-eu-2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "cluster-eu-1",
+            "position": 1,
+            "role": "fallback"
+          },
+          {
+            "node": "cluster-us-1",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "cluster-us-2",
+            "position": 3,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 3,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "tenant/eu-prefix-boundary",
+      "requirements": [
+        "PLACE-062"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "eu-:x"
+      },
+      "expect": {
+        "routingKey": "65752d",
+        "shard": "65752d",
+        "token": {
+          "topologyId": "tenant-router",
+          "epoch": 42
+        },
+        "factor": 1,
+        "replicaCount": 1,
+        "candidates": [
+          "cluster-eu-1",
+          "cluster-eu-2"
+        ],
+        "preferenceList": [
+          {
+            "node": "cluster-eu-1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "cluster-eu-2",
+            "position": 1,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 2,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": {
+          "index": 1,
+          "mode": "constrain"
+        }
+      }
+    },
+    {
+      "name": "tenant/hashed-0",
+      "requirements": [
+        "KEY-041",
+        "RV-010"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "tenant-0:orders:1"
+      },
+      "expect": {
+        "routingKey": "74656e616e742d30",
+        "shard": "74656e616e742d30",
+        "token": {
+          "topologyId": "tenant-router",
+          "epoch": 42
+        },
+        "factor": 1,
+        "replicaCount": 1,
+        "candidates": [
+          "cluster-eu-2",
+          "cluster-us-2",
+          "cluster-us-1",
+          "cluster-eu-1"
+        ],
+        "preferenceList": [
+          {
+            "node": "cluster-eu-2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "cluster-us-2",
+            "position": 1,
+            "role": "fallback"
+          },
+          {
+            "node": "cluster-us-1",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "cluster-eu-1",
+            "position": 3,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 3,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "tenant/hashed-1",
+      "requirements": [
+        "KEY-041",
+        "RV-010"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "tenant-1:orders:1"
+      },
+      "expect": {
+        "routingKey": "74656e616e742d31",
+        "shard": "74656e616e742d31",
+        "token": {
+          "topologyId": "tenant-router",
+          "epoch": 42
+        },
+        "factor": 1,
+        "replicaCount": 1,
+        "candidates": [
+          "cluster-us-1",
+          "cluster-eu-1",
+          "cluster-eu-2",
+          "cluster-us-2"
+        ],
+        "preferenceList": [
+          {
+            "node": "cluster-us-1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "cluster-eu-1",
+            "position": 1,
+            "role": "fallback"
+          },
+          {
+            "node": "cluster-eu-2",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "cluster-us-2",
+            "position": 3,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 3,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "tenant/hashed-2",
+      "requirements": [
+        "KEY-041",
+        "RV-010"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "tenant-2:orders:1"
+      },
+      "expect": {
+        "routingKey": "74656e616e742d32",
+        "shard": "74656e616e742d32",
+        "token": {
+          "topologyId": "tenant-router",
+          "epoch": 42
+        },
+        "factor": 1,
+        "replicaCount": 1,
+        "candidates": [
+          "cluster-us-1",
+          "cluster-us-2",
+          "cluster-eu-1",
+          "cluster-eu-2"
+        ],
+        "preferenceList": [
+          {
+            "node": "cluster-us-1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "cluster-us-2",
+            "position": 1,
+            "role": "fallback"
+          },
+          {
+            "node": "cluster-eu-1",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "cluster-eu-2",
+            "position": 3,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 3,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "tenant/hashed-3",
+      "requirements": [
+        "KEY-041",
+        "RV-010"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "tenant-3:orders:1"
+      },
+      "expect": {
+        "routingKey": "74656e616e742d33",
+        "shard": "74656e616e742d33",
+        "token": {
+          "topologyId": "tenant-router",
+          "epoch": 42
+        },
+        "factor": 1,
+        "replicaCount": 1,
+        "candidates": [
+          "cluster-us-1",
+          "cluster-us-2",
+          "cluster-eu-1",
+          "cluster-eu-2"
+        ],
+        "preferenceList": [
+          {
+            "node": "cluster-us-1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "cluster-us-2",
+            "position": 1,
+            "role": "fallback"
+          },
+          {
+            "node": "cluster-eu-1",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "cluster-eu-2",
+            "position": 3,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 3,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "tenant/hashed-4",
+      "requirements": [
+        "KEY-041",
+        "RV-010"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "tenant-4:orders:1"
+      },
+      "expect": {
+        "routingKey": "74656e616e742d34",
+        "shard": "74656e616e742d34",
+        "token": {
+          "topologyId": "tenant-router",
+          "epoch": 42
+        },
+        "factor": 1,
+        "replicaCount": 1,
+        "candidates": [
+          "cluster-us-1",
+          "cluster-us-2",
+          "cluster-eu-1",
+          "cluster-eu-2"
+        ],
+        "preferenceList": [
+          {
+            "node": "cluster-us-1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "cluster-us-2",
+            "position": 1,
+            "role": "fallback"
+          },
+          {
+            "node": "cluster-eu-1",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "cluster-eu-2",
+            "position": 3,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 3,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "tenant/hashed-5",
+      "requirements": [
+        "KEY-041",
+        "RV-010"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "tenant-5:orders:1"
+      },
+      "expect": {
+        "routingKey": "74656e616e742d35",
+        "shard": "74656e616e742d35",
+        "token": {
+          "topologyId": "tenant-router",
+          "epoch": 42
+        },
+        "factor": 1,
+        "replicaCount": 1,
+        "candidates": [
+          "cluster-us-2",
+          "cluster-eu-2",
+          "cluster-us-1",
+          "cluster-eu-1"
+        ],
+        "preferenceList": [
+          {
+            "node": "cluster-us-2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "cluster-eu-2",
+            "position": 1,
+            "role": "fallback"
+          },
+          {
+            "node": "cluster-us-1",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "cluster-eu-1",
+            "position": 3,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 3,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    }
+  ]
+}

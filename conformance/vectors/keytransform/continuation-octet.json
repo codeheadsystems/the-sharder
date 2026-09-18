@@ -1,0 +1,84 @@
+{
+  "vectorSet": "keytransform-continuation-octet",
+  "kind": "keyTransform",
+  "level": "place",
+  "description": "A separator that is a UTF-8 continuation octet, so the routing key is an incomplete encoding of text.",
+  "requirements": [
+    "KEY-011",
+    "KEY-012",
+    "KEY-013",
+    "KEY-014",
+    "KEY-043"
+  ],
+  "topologyDocuments": {
+    "topologies/kt-continuation.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "kt-continuation",
+      "epoch": 1,
+      "keyTransform": {
+        "kind": "prefixFields",
+        "separator": "a9",
+        "count": 1
+      },
+      "strategy": {
+        "kind": "rendezvous"
+      },
+      "nodes": [
+        {
+          "id": "n1"
+        }
+      ]
+    }
+  },
+  "cases": [
+    {
+      "name": "splits-inside-a-character",
+      "requirements": [
+        "KEY-012",
+        "KEY-013",
+        "KEY-014"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "café:x"
+      },
+      "note": "KEY-012: the separator octet 0xa9 is the second octet of é, and the transform treats it like any other occurrence",
+      "expect": {
+        "routingKey": "636166c3"
+      }
+    },
+    {
+      "name": "no-occurrence",
+      "requirements": [
+        "KEY-012",
+        "KEY-013",
+        "KEY-014"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "plain-key"
+      },
+      "note": "KEY-042",
+      "expect": {
+        "routingKey": "706c61696e2d6b6579"
+      }
+    },
+    {
+      "name": "leading",
+      "requirements": [
+        "KEY-012",
+        "KEY-013",
+        "KEY-014"
+      ],
+      "key": {
+        "encoding": "base16",
+        "value": "a961"
+      },
+      "note": "KEY-043 and KEY-014: an empty routing key",
+      "expect": {
+        "routingKey": ""
+      }
+    }
+  ],
+  "topology": "topologies/kt-continuation.topology.json"
+}

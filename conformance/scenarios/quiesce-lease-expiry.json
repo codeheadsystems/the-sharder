@@ -1,0 +1,215 @@
+{
+  "scenario": "quiesce-lease-expiry",
+  "level": "migration",
+  "description": "A quiesce lease runs out before the coordinator reaches `commitCutover`, so the commit is refused and a fresh quiesce restores the window.  A lease too short to carry the commit deadline and the margin is a failed quiesce.",
+  "requirements": [
+    "CFG-050",
+    "CFG-055",
+    "MOVE-021",
+    "MOVE-311",
+    "MOVE-331",
+    "MOVE-332",
+    "MOVE-333",
+    "MOVE-336"
+  ],
+  "deterministic": true,
+  "setup": {},
+  "steps": [
+    {
+      "action": "handoffStep",
+      "handoff": "h-1",
+      "trigger": "admittedByRatePolicy",
+      "at": 1000,
+      "expect": {
+        "outcome": {
+          "outcome": "advanced",
+          "id": "h-1",
+          "fromState": "planned",
+          "toState": "preparing"
+        },
+        "state": "preparing"
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-1",
+      "trigger": "prepareSuccess",
+      "at": 2000,
+      "expect": {
+        "outcome": {
+          "outcome": "advanced",
+          "id": "h-1",
+          "fromState": "preparing",
+          "toState": "transferring"
+        },
+        "state": "transferring"
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-1",
+      "trigger": "noBulkRemaining",
+      "at": 3000,
+      "expect": {
+        "outcome": {
+          "outcome": "advanced",
+          "id": "h-1",
+          "fromState": "transferring",
+          "toState": "catchingUp"
+        },
+        "state": "catchingUp"
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-1",
+      "trigger": "residueAtOrBelowThreshold",
+      "at": 4000,
+      "expect": {
+        "outcome": {
+          "outcome": "advanced",
+          "id": "h-1",
+          "fromState": "catchingUp",
+          "toState": "cutover"
+        },
+        "state": "cutover"
+      }
+    },
+    {
+      "action": "handoffQuiesce",
+      "handoff": "h-1",
+      "leaseMillis": 40000,
+      "at": 5000,
+      "expect": {
+        "outcome": {
+          "outcome": "quiesced",
+          "quiesceInstant": 5000,
+          "leaseMillis": 40000,
+          "commitHorizon": 44000,
+          "state": "cutover"
+        },
+        "state": "cutover"
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-1",
+      "trigger": "cutoverCommitted",
+      "at": 20000,
+      "note": "`MOVE-333`: the reading plus `commitDeadlineMillis` is above the commit horizon, so `commitCutover` is not called and `MOVE-331` re-quiesces",
+      "expect": {
+        "outcome": {
+          "outcome": "idle",
+          "reason": "quiesceExpired",
+          "commitHorizon": 44000
+        },
+        "state": "cutover"
+      }
+    },
+    {
+      "action": "handoffQuiesce",
+      "handoff": "h-1",
+      "leaseMillis": 40000,
+      "at": 21000,
+      "expect": {
+        "outcome": {
+          "outcome": "quiesced",
+          "quiesceInstant": 21000,
+          "leaseMillis": 40000,
+          "commitHorizon": 60000,
+          "state": "cutover"
+        },
+        "state": "cutover"
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-1",
+      "trigger": "cutoverCommitted",
+      "at": 22000,
+      "note": "the fresh lease admits the whole window, so the commit is called",
+      "expect": {
+        "outcome": {
+          "outcome": "advanced",
+          "id": "h-1",
+          "fromState": "cutover",
+          "toState": "verifying"
+        },
+        "state": "verifying"
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-1",
+      "trigger": "verifySuccess",
+      "at": 23000,
+      "expect": {
+        "outcome": {
+          "outcome": "advanced",
+          "id": "h-1",
+          "fromState": "verifying",
+          "toState": "cleanup"
+        },
+        "state": "cleanup"
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-1",
+      "trigger": "cleanupSuccess",
+      "at": 24000,
+      "expect": {
+        "outcome": {
+          "outcome": "settled",
+          "id": "h-1",
+          "terminalState": "complete",
+          "failureKind": null
+        },
+        "state": "complete"
+      }
+    },
+    {
+      "action": "expectSummary",
+      "expect": {
+        "complete": 1
+      }
+    },
+    {
+      "action": "handoffQuiesce",
+      "handoff": "h-1",
+      "leaseMillis": 31000,
+      "at": 5000,
+      "note": "`MOVE-336`: the lease is at `quiesceLeaseMarginMillis` plus `commitDeadlineMillis`, so it is a failed quiesce rather than a call to repeat",
+      "expect": {
+        "outcome": {
+          "outcome": "advanced",
+          "reason": "leaseBelowCommitWindow",
+          "leaseMillis": 31000,
+          "state": "aborting"
+        },
+        "state": "aborting"
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-1",
+      "trigger": "rollbackSuccess",
+      "at": 6000,
+      "expect": {
+        "outcome": {
+          "outcome": "settled",
+          "id": "h-1",
+          "terminalState": "aborted",
+          "failureKind": null
+        },
+        "state": "aborted"
+      }
+    },
+    {
+      "action": "expectSummary",
+      "expect": {
+        "aborted": 1
+      }
+    }
+  ]
+}

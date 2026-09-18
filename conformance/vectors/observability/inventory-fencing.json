@@ -1,0 +1,81 @@
+{
+  "vectorSet": "observability-inventory-fencing",
+  "kind": "observabilityInventory",
+  "level": "fencing",
+  "description": "The metric and event names, label sets, severities, and payload members of the `fencing` surface, as `OBS-010` and `OBS-020` state them.",
+  "requirements": [
+    "OBS-001",
+    "OBS-003",
+    "OBS-010",
+    "OBS-020",
+    "OBS-021",
+    "OBS-024"
+  ],
+  "cases": [
+    {
+      "name": "metric-inventory",
+      "requirements": [
+        "OBS-001",
+        "OBS-003",
+        "OBS-010"
+      ],
+      "note": "`OBS-010` names each metric and its label set.  A port compares the names it registers and the labels it attaches against these, and a name it does not register is a metric it does not expose.",
+      "expect": {
+        "surface": "fencing",
+        "metricCount": 2,
+        "names": [
+          "sharder.fencing.redirects",
+          "sharder.fencing.verdicts"
+        ],
+        "metrics": [
+          {
+            "name": "sharder.fencing.verdicts",
+            "instrument": "counter",
+            "labels": [
+              "ownership",
+              "relation",
+              "served"
+            ]
+          },
+          {
+            "name": "sharder.fencing.redirects",
+            "instrument": "counter",
+            "labels": [
+              "topology_id"
+            ]
+          }
+        ],
+        "labelValues": {}
+      }
+    },
+    {
+      "name": "event-inventory",
+      "requirements": [
+        "OBS-020",
+        "OBS-021",
+        "OBS-024"
+      ],
+      "note": "`OBS-020` names each event, the severity it carries, and the payload members it carries beyond the common members of `OBS-021`.  A port may carry further members and may not rename one of these.  A `deduplication` member appears on the four events `OBS-024` names and on no other.",
+      "expect": {
+        "surface": "fencing",
+        "eventCount": 1,
+        "names": [
+          "sharder.fencing.refused"
+        ],
+        "events": [
+          {
+            "name": "sharder.fencing.refused",
+            "severity": "warning",
+            "payload": [
+              "relation",
+              "ownership",
+              "currentOwner",
+              "token"
+            ],
+            "deduplication": "perOccurrence"
+          }
+        ]
+      }
+    }
+  ]
+}

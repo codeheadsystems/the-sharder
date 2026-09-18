@@ -1,0 +1,232 @@
+{
+  "vectorSet": "formulas-skew-detection",
+  "kind": "formula",
+  "level": "core",
+  "description": "Hot shard detection and key skew detection.",
+  "requirements": [
+    "CORE-005",
+    "OBS-031",
+    "OBS-032",
+    "OBS-033"
+  ],
+  "cases": [
+    {
+      "name": "shardIsHot/100-10-1000",
+      "requirements": [
+        "CORE-005",
+        "OBS-031",
+        "OBS-033"
+      ],
+      "formula": "shardIsHot",
+      "inputs": {
+        "shardRequests": 100,
+        "shardCount": 10,
+        "totalRequests": 1000,
+        "hotShardFactorPercent": 400
+      },
+      "expect": false
+    },
+    {
+      "name": "shardIsHot/400-10-1000",
+      "requirements": [
+        "CORE-005",
+        "OBS-031",
+        "OBS-033"
+      ],
+      "formula": "shardIsHot",
+      "inputs": {
+        "shardRequests": 400,
+        "shardCount": 10,
+        "totalRequests": 1000,
+        "hotShardFactorPercent": 400
+      },
+      "expect": true
+    },
+    {
+      "name": "shardIsHot/399-10-1000",
+      "requirements": [
+        "CORE-005",
+        "OBS-031",
+        "OBS-033"
+      ],
+      "formula": "shardIsHot",
+      "inputs": {
+        "shardRequests": 399,
+        "shardCount": 10,
+        "totalRequests": 1000,
+        "hotShardFactorPercent": 400
+      },
+      "expect": false
+    },
+    {
+      "name": "shardIsHot/1-1-1",
+      "requirements": [
+        "CORE-005",
+        "OBS-031",
+        "OBS-033"
+      ],
+      "formula": "shardIsHot",
+      "inputs": {
+        "shardRequests": 1,
+        "shardCount": 1,
+        "totalRequests": 1,
+        "hotShardFactorPercent": 400
+      },
+      "expect": false
+    },
+    {
+      "name": "shardIsHot/0-16384-1000000",
+      "requirements": [
+        "CORE-005",
+        "OBS-031",
+        "OBS-033"
+      ],
+      "formula": "shardIsHot",
+      "inputs": {
+        "shardRequests": 0,
+        "shardCount": 16384,
+        "totalRequests": 1000000,
+        "hotShardFactorPercent": 400
+      },
+      "expect": false
+    },
+    {
+      "name": "shardIsHot/1125899906842624-1048576-9223372036854775808",
+      "requirements": [
+        "CORE-005",
+        "OBS-031",
+        "OBS-033"
+      ],
+      "formula": "shardIsHot",
+      "inputs": {
+        "shardRequests": 1125899906842624,
+        "shardCount": 1048576,
+        "totalRequests": 9223372036854775808,
+        "hotShardFactorPercent": 400
+      },
+      "expect": true
+    },
+    {
+      "name": "shardIsHot/1099511627776-1048576-9223372036854775808",
+      "requirements": [
+        "CORE-005",
+        "OBS-031",
+        "OBS-033"
+      ],
+      "formula": "shardIsHot",
+      "inputs": {
+        "shardRequests": 1099511627776,
+        "shardCount": 1048576,
+        "totalRequests": 9223372036854775808,
+        "hotShardFactorPercent": 400
+      },
+      "expect": false
+    },
+    {
+      "name": "shardIsHot/9223372036854775807-1048576-18446744073709551615",
+      "requirements": [
+        "CORE-005",
+        "OBS-031",
+        "OBS-033"
+      ],
+      "formula": "shardIsHot",
+      "inputs": {
+        "shardRequests": 9223372036854775807,
+        "shardCount": 1048576,
+        "totalRequests": 18446744073709551615,
+        "hotShardFactorPercent": 400
+      },
+      "expect": true
+    },
+    {
+      "name": "keySkew/50-100",
+      "requirements": [
+        "CORE-005",
+        "OBS-032"
+      ],
+      "formula": "keySkew",
+      "inputs": {
+        "hottestKeyRequests": 50,
+        "requests": 100,
+        "keySkewPercent": 50
+      },
+      "note": "the left-hand side reaches 71 bits, so a 64-bit product is not conforming",
+      "expect": true
+    },
+    {
+      "name": "keySkew/49-100",
+      "requirements": [
+        "CORE-005",
+        "OBS-032"
+      ],
+      "formula": "keySkew",
+      "inputs": {
+        "hottestKeyRequests": 49,
+        "requests": 100,
+        "keySkewPercent": 50
+      },
+      "note": "the left-hand side reaches 71 bits, so a 64-bit product is not conforming",
+      "expect": false
+    },
+    {
+      "name": "keySkew/1-1",
+      "requirements": [
+        "CORE-005",
+        "OBS-032"
+      ],
+      "formula": "keySkew",
+      "inputs": {
+        "hottestKeyRequests": 1,
+        "requests": 1,
+        "keySkewPercent": 50
+      },
+      "note": "the left-hand side reaches 71 bits, so a 64-bit product is not conforming",
+      "expect": true
+    },
+    {
+      "name": "keySkew/0-0",
+      "requirements": [
+        "CORE-005",
+        "OBS-032"
+      ],
+      "formula": "keySkew",
+      "inputs": {
+        "hottestKeyRequests": 0,
+        "requests": 0,
+        "keySkewPercent": 50
+      },
+      "note": "the left-hand side reaches 71 bits, so a 64-bit product is not conforming",
+      "expect": true
+    },
+    {
+      "name": "keySkew/9223372036854775808-18446744073709551615",
+      "requirements": [
+        "CORE-005",
+        "OBS-032"
+      ],
+      "formula": "keySkew",
+      "inputs": {
+        "hottestKeyRequests": 9223372036854775808,
+        "requests": 18446744073709551615,
+        "keySkewPercent": 50
+      },
+      "note": "the left-hand side reaches 71 bits, so a 64-bit product is not conforming",
+      "expect": true
+    },
+    {
+      "name": "keySkew/4611686018427387904-18446744073709551615",
+      "requirements": [
+        "CORE-005",
+        "OBS-032"
+      ],
+      "formula": "keySkew",
+      "inputs": {
+        "hottestKeyRequests": 4611686018427387904,
+        "requests": 18446744073709551615,
+        "keySkewPercent": 50
+      },
+      "note": "the left-hand side reaches 71 bits, so a 64-bit product is not conforming",
+      "expect": false
+    }
+  ]
+}

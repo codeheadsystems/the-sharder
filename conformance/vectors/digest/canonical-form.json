@@ -1,0 +1,507 @@
+{
+  "vectorSet": "digest-canonical-form",
+  "kind": "digest",
+  "level": "core",
+  "description": "RFC 8785 canonical form and the SHA-256 topology digest of every document the suite uses.",
+  "requirements": [
+    "TOPO-001",
+    "TOPO-061"
+  ],
+  "cases": [
+    {
+      "name": "directory-sparse",
+      "requirements": [
+        "TOPO-001",
+        "CORE-020"
+      ],
+      "topology": "topologies/directory-sparse.topology.json",
+      "expect": {
+        "canonicalLength": 391,
+        "digest": "801a8f04db57c5fffa78267d43e8c6f607ce69f63f69bed0e3c4799aeec61690",
+        "canonicalForm": "{\"epoch\":1,\"formatVersion\":\"1.0\",\"nodes\":[{\"id\":\"c1\"},{\"id\":\"c2\"},{\"id\":\"c-leaving\",\"state\":\"leaving\"}],\"replication\":{\"factor\":1},\"strategy\":{\"entries\":[{\"match\":{\"kind\":\"exact\",\"value\":\"known\"},\"nodes\":[\"c1\"]},{\"match\":{\"kind\":\"prefix\",\"value\":\"pre\"},\"nodes\":[\"c2\",\"c1\"]},{\"match\":{\"kind\":\"exact\",\"value\":\"gone\"},\"nodes\":[\"c-leaving\"]}],\"kind\":\"directory\"},\"topologyId\":\"directory-sparse\"}"
+      }
+    },
+    {
+      "name": "directory-tenants",
+      "requirements": [
+        "TOPO-001",
+        "CORE-020"
+      ],
+      "topology": "topologies/directory-tenants.topology.json",
+      "expect": {
+        "canonicalLength": 754,
+        "digest": "6cb7c945ddadfdb94086be26fa3641281a0b50369bf71ed888b8d58216366240"
+      }
+    },
+    {
+      "name": "empty-nodes",
+      "requirements": [
+        "TOPO-001",
+        "CORE-020"
+      ],
+      "topology": "topologies/empty-nodes.topology.json",
+      "expect": {
+        "canonicalLength": 134,
+        "digest": "2a1e3db9ca2adee4f6cb58c6ea7ef73167c33ac450b0be34af44532bebef4194",
+        "canonicalForm": "{\"epoch\":1,\"formatVersion\":\"1.0\",\"nodes\":[],\"replication\":{\"factor\":3},\"strategy\":{\"kind\":\"rendezvous\"},\"topologyId\":\"empty-topology\"}"
+      }
+    },
+    {
+      "name": "empty-nodes-ring",
+      "requirements": [
+        "TOPO-001",
+        "CORE-020"
+      ],
+      "topology": "topologies/empty-nodes-ring.topology.json",
+      "expect": {
+        "canonicalLength": 133,
+        "digest": "256738da32eada4abf387e629f42242db11a2a52f38b44ca4273457e3ca49880",
+        "canonicalForm": "{\"epoch\":1,\"formatVersion\":\"1.0\",\"nodes\":[],\"replication\":{\"factor\":1},\"strategy\":{\"kind\":\"ring\"},\"topologyId\":\"empty-topology-ring\"}"
+      }
+    },
+    {
+      "name": "factor-exceeds-nodes",
+      "requirements": [
+        "TOPO-001",
+        "CORE-020"
+      ],
+      "topology": "topologies/factor-exceeds-nodes.topology.json",
+      "expect": {
+        "canonicalLength": 314,
+        "digest": "ce5879007c0bf0f8c29b9052d58dca4764581a17699fc26e80ce052a3508d826",
+        "canonicalForm": "{\"domainLevels\":[\"zone\"],\"epoch\":1,\"formatVersion\":\"1.0\",\"nodes\":[{\"domains\":{\"zone\":\"za\"},\"id\":\"n1\"},{\"domains\":{\"zone\":\"zb\"},\"id\":\"n2\"},{\"domains\":{\"zone\":\"zc\"},\"id\":\"n3\"}],\"replication\":{\"factor\":5,\"spread\":[\"zone\"],\"spreadPolicy\":\"relaxed\"},\"strategy\":{\"kind\":\"rendezvous\"},\"topologyId\":\"factor-exceeds-nodes\"}"
+      }
+    },
+    {
+      "name": "kt-brace",
+      "requirements": [
+        "TOPO-001",
+        "CORE-020"
+      ],
+      "topology": "topologies/kt-brace.topology.json",
+      "expect": {
+        "canonicalLength": 147,
+        "digest": "da41241db86173aaed6f30d490c558ecaec2d81be5b25a4deb8a00abb8f895e8",
+        "canonicalForm": "{\"epoch\":1,\"formatVersion\":\"1.0\",\"keyTransform\":{\"kind\":\"braceTag\"},\"nodes\":[{\"id\":\"n1\"}],\"strategy\":{\"kind\":\"rendezvous\"},\"topologyId\":\"kt-brace\"}"
+      }
+    },
+    {
+      "name": "kt-brace-same",
+      "requirements": [
+        "TOPO-001",
+        "CORE-020"
+      ],
+      "topology": "topologies/kt-brace-same.topology.json",
+      "expect": {
+        "canonicalLength": 177,
+        "digest": "dd8453569dfff0e71d167147c47fe915ad8e5042059a24095e89bb330b7a9371",
+        "canonicalForm": "{\"epoch\":1,\"formatVersion\":\"1.0\",\"keyTransform\":{\"close\":\"7c\",\"kind\":\"braceTag\",\"open\":\"7c\"},\"nodes\":[{\"id\":\"n1\"}],\"strategy\":{\"kind\":\"rendezvous\"},\"topologyId\":\"kt-brace-same\"}"
+      }
+    },
+    {
+      "name": "kt-continuation",
+      "requirements": [
+        "TOPO-001",
+        "CORE-020"
+      ],
+      "topology": "topologies/kt-continuation.topology.json",
+      "expect": {
+        "canonicalLength": 185,
+        "digest": "c10c9e972ac920ca2a186ce1bfbf68b6b9f6b1ed04d133e9d85e6631dda31993",
+        "canonicalForm": "{\"epoch\":1,\"formatVersion\":\"1.0\",\"keyTransform\":{\"count\":1,\"kind\":\"prefixFields\",\"separator\":\"a9\"},\"nodes\":[{\"id\":\"n1\"}],\"strategy\":{\"kind\":\"rendezvous\"},\"topologyId\":\"kt-continuation\"}"
+      }
+    },
+    {
+      "name": "kt-none",
+      "requirements": [
+        "TOPO-001",
+        "CORE-020"
+      ],
+      "topology": "topologies/kt-none.topology.json",
+      "expect": {
+        "canonicalLength": 142,
+        "digest": "c02c1e19b76ed328e3a9f7f14779b535faf375436c36073029102bb1977c9de5",
+        "canonicalForm": "{\"epoch\":1,\"formatVersion\":\"1.0\",\"keyTransform\":{\"kind\":\"none\"},\"nodes\":[{\"id\":\"n1\"}],\"strategy\":{\"kind\":\"rendezvous\"},\"topologyId\":\"kt-none\"}"
+      }
+    },
+    {
+      "name": "kt-prefix-1",
+      "requirements": [
+        "TOPO-001",
+        "CORE-020"
+      ],
+      "topology": "topologies/kt-prefix-1.topology.json",
+      "expect": {
+        "canonicalLength": 181,
+        "digest": "3fcd08283c37f4fbe78d6bf111be1e700e563fd2a165bd88ff86892130986dd1",
+        "canonicalForm": "{\"epoch\":1,\"formatVersion\":\"1.0\",\"keyTransform\":{\"count\":1,\"kind\":\"prefixFields\",\"separator\":\"3a\"},\"nodes\":[{\"id\":\"n1\"}],\"strategy\":{\"kind\":\"rendezvous\"},\"topologyId\":\"kt-prefix-1\"}"
+      }
+    },
+    {
+      "name": "kt-prefix-2",
+      "requirements": [
+        "TOPO-001",
+        "CORE-020"
+      ],
+      "topology": "topologies/kt-prefix-2.topology.json",
+      "expect": {
+        "canonicalLength": 181,
+        "digest": "7797a43770f84df98db19f9d11329d55243c779d050fd21cce026f985e0394bb",
+        "canonicalForm": "{\"epoch\":1,\"formatVersion\":\"1.0\",\"keyTransform\":{\"count\":2,\"kind\":\"prefixFields\",\"separator\":\"3a\"},\"nodes\":[{\"id\":\"n1\"}],\"strategy\":{\"kind\":\"rendezvous\"},\"topologyId\":\"kt-prefix-2\"}"
+      }
+    },
+    {
+      "name": "movement-ring-after",
+      "requirements": [
+        "TOPO-001",
+        "CORE-020"
+      ],
+      "topology": "topologies/movement-ring-after.topology.json",
+      "expect": {
+        "canonicalLength": 317,
+        "digest": "675c31fc57d64fa34f11186dbff08b12d545d9ee3948765b3d157327600edfc6",
+        "canonicalForm": "{\"epoch\":2,\"formatVersion\":\"1.0\",\"nodes\":[{\"id\":\"m1\",\"weight\":1},{\"id\":\"m2\",\"weight\":1},{\"id\":\"m3\",\"weight\":1},{\"id\":\"m4\",\"weight\":1},{\"id\":\"m5\",\"weight\":1},{\"id\":\"m6\",\"weight\":1}],\"replication\":{\"factor\":3},\"strategy\":{\"kind\":\"ring\",\"tokenAssignment\":\"derived\",\"tokensPerWeightUnit\":16},\"topologyId\":\"movement-ring\"}"
+      }
+    },
+    {
+      "name": "movement-ring-before",
+      "requirements": [
+        "TOPO-001",
+        "CORE-020"
+      ],
+      "topology": "topologies/movement-ring-before.topology.json",
+      "expect": {
+        "canonicalLength": 294,
+        "digest": "29b29c60bedcd878851bd84eb0d39d712edde4e44648c2d6ed46af660959fe3d",
+        "canonicalForm": "{\"epoch\":1,\"formatVersion\":\"1.0\",\"nodes\":[{\"id\":\"m1\",\"weight\":1},{\"id\":\"m2\",\"weight\":1},{\"id\":\"m3\",\"weight\":1},{\"id\":\"m4\",\"weight\":1},{\"id\":\"m5\",\"weight\":1}],\"replication\":{\"factor\":3},\"strategy\":{\"kind\":\"ring\",\"tokenAssignment\":\"derived\",\"tokensPerWeightUnit\":16},\"topologyId\":\"movement-ring\"}"
+      }
+    },
+    {
+      "name": "movement-rv-after",
+      "requirements": [
+        "TOPO-001",
+        "CORE-020"
+      ],
+      "topology": "topologies/movement-rv-after.topology.json",
+      "expect": {
+        "canonicalLength": 298,
+        "digest": "393c25488c9c6294abea035fc9ad4326ad40e4d7032524f18adb2fb1a79c5d0c",
+        "canonicalForm": "{\"epoch\":2,\"formatVersion\":\"1.0\",\"nodes\":[{\"id\":\"m1\",\"weight\":1},{\"id\":\"m2\",\"weight\":1},{\"id\":\"m3\",\"weight\":1},{\"id\":\"m4\",\"weight\":1},{\"id\":\"m5\",\"weight\":1},{\"id\":\"m6\",\"weight\":1}],\"replication\":{\"factor\":3},\"strategy\":{\"kind\":\"rendezvous\",\"virtualNodesPerWeightUnit\":1},\"topologyId\":\"movement-rv\"}"
+      }
+    },
+    {
+      "name": "movement-rv-before",
+      "requirements": [
+        "TOPO-001",
+        "CORE-020"
+      ],
+      "topology": "topologies/movement-rv-before.topology.json",
+      "expect": {
+        "canonicalLength": 275,
+        "digest": "8f82e3f38a6c726022520616807adf5c9856bc17a490f742f52917145061fb53",
+        "canonicalForm": "{\"epoch\":1,\"formatVersion\":\"1.0\",\"nodes\":[{\"id\":\"m1\",\"weight\":1},{\"id\":\"m2\",\"weight\":1},{\"id\":\"m3\",\"weight\":1},{\"id\":\"m4\",\"weight\":1},{\"id\":\"m5\",\"weight\":1}],\"replication\":{\"factor\":3},\"strategy\":{\"kind\":\"rendezvous\",\"virtualNodesPerWeightUnit\":1},\"topologyId\":\"movement-rv\"}"
+      }
+    },
+    {
+      "name": "one-domain-relaxed",
+      "requirements": [
+        "TOPO-001",
+        "CORE-020"
+      ],
+      "topology": "topologies/one-domain-relaxed.topology.json",
+      "expect": {
+        "canonicalLength": 348,
+        "digest": "fe0b64a56f15c265f005b9ae83b4d253c520b8276e1afd31bc758bf297c2db7e",
+        "canonicalForm": "{\"domainLevels\":[\"zone\"],\"epoch\":1,\"formatVersion\":\"1.0\",\"nodes\":[{\"domains\":{\"zone\":\"za\"},\"id\":\"n1\"},{\"domains\":{\"zone\":\"za\"},\"id\":\"n2\"},{\"domains\":{\"zone\":\"za\"},\"id\":\"n3\"},{\"domains\":{\"zone\":\"za\"},\"id\":\"n4\"}],\"replication\":{\"factor\":3,\"spread\":[\"zone\"],\"spreadPolicy\":\"relaxed\"},\"strategy\":{\"kind\":\"rendezvous\"},\"topologyId\":\"one-domain-relaxed\"}"
+      }
+    },
+    {
+      "name": "one-domain-strict",
+      "requirements": [
+        "TOPO-001",
+        "CORE-020"
+      ],
+      "topology": "topologies/one-domain-strict.topology.json",
+      "expect": {
+        "canonicalLength": 346,
+        "digest": "93fe191069d9c5dce39535f53a70705c0850be74285c8d41b1b5bb7d652c178f",
+        "canonicalForm": "{\"domainLevels\":[\"zone\"],\"epoch\":1,\"formatVersion\":\"1.0\",\"nodes\":[{\"domains\":{\"zone\":\"za\"},\"id\":\"n1\"},{\"domains\":{\"zone\":\"za\"},\"id\":\"n2\"},{\"domains\":{\"zone\":\"za\"},\"id\":\"n3\"},{\"domains\":{\"zone\":\"za\"},\"id\":\"n4\"}],\"replication\":{\"factor\":3,\"spread\":[\"zone\"],\"spreadPolicy\":\"strict\"},\"strategy\":{\"kind\":\"rendezvous\"},\"topologyId\":\"one-domain-strict\"}"
+      }
+    },
+    {
+      "name": "overrides-precedence",
+      "requirements": [
+        "TOPO-001",
+        "CORE-020"
+      ],
+      "topology": "topologies/overrides-precedence.topology.json",
+      "expect": {
+        "canonicalLength": 1557,
+        "digest": "f2609780f639e23c817877c929f2d1c28fc3605ef1a22d1ce09b8dbeb83f71fb"
+      }
+    },
+    {
+      "name": "read-affinity",
+      "requirements": [
+        "TOPO-001",
+        "CORE-020"
+      ],
+      "topology": "topologies/read-affinity.topology.json",
+      "expect": {
+        "canonicalLength": 516,
+        "digest": "4fd4967e2c7e9f5f85fefe32e0b9f7905064edcd0b643c5125c2cebf21b697d1",
+        "canonicalForm": "{\"domainLevels\":[\"region\",\"zone\"],\"epoch\":1,\"formatVersion\":\"1.0\",\"nodes\":[{\"domains\":{\"region\":\"eu\",\"zone\":\"a\"},\"id\":\"eu-a\"},{\"domains\":{\"region\":\"eu\",\"zone\":\"b\"},\"id\":\"eu-b\"},{\"domains\":{\"region\":\"us\",\"zone\":\"a\"},\"id\":\"us-a\"},{\"domains\":{\"region\":\"us\",\"zone\":\"b\"},\"id\":\"us-b\"},{\"domains\":{\"region\":\"ap\",\"zone\":\"a\"},\"id\":\"ap-a\"},{\"domains\":{\"region\":\"ap\",\"zone\":\"b\"},\"id\":\"ap-b\"}],\"replication\":{\"factor\":4,\"spread\":[\"region\"],\"spreadPolicy\":\"relaxed\"},\"strategy\":{\"kind\":\"rendezvous\"},\"topologyId\":\"read-affinity\"}"
+      }
+    },
+    {
+      "name": "rendezvous-cache",
+      "requirements": [
+        "TOPO-001",
+        "CORE-020"
+      ],
+      "topology": "topologies/rendezvous-cache.topology.json",
+      "expect": {
+        "canonicalLength": 693,
+        "digest": "5cd959daa09825e26e1d6cae5b0df890828c386566500fde3014d4f5a6bf78ad"
+      }
+    },
+    {
+      "name": "rendezvous-capped",
+      "requirements": [
+        "TOPO-001",
+        "CORE-020"
+      ],
+      "topology": "topologies/rendezvous-capped.topology.json",
+      "expect": {
+        "canonicalLength": 268,
+        "digest": "ae5aa134faad3519a5c58ff04a6d8d969a86d6b20da2f61f06436b355e63f6ca",
+        "canonicalForm": "{\"epoch\":2,\"formatVersion\":\"1.0\",\"nodes\":[{\"id\":\"small\",\"weight\":1},{\"id\":\"medium\",\"weight\":2},{\"id\":\"clamped\",\"weight\":100}],\"replication\":{\"factor\":2},\"strategy\":{\"kind\":\"rendezvous\",\"maxVirtualNodesPerNode\":6,\"virtualNodesPerWeightUnit\":4},\"topologyId\":\"rv-capped\"}"
+      }
+    },
+    {
+      "name": "rendezvous-plain",
+      "requirements": [
+        "TOPO-001",
+        "CORE-020"
+      ],
+      "topology": "topologies/rendezvous-plain.topology.json",
+      "expect": {
+        "canonicalLength": 187,
+        "digest": "088094afef54cb2a8709423959e29c2c66d279459feeed7b7422affee04615d6",
+        "canonicalForm": "{\"epoch\":1,\"formatVersion\":\"1.0\",\"nodes\":[{\"id\":\"n1\"},{\"id\":\"n2\"},{\"id\":\"n3\"},{\"id\":\"n4\"},{\"id\":\"n5\"}],\"replication\":{\"factor\":3},\"strategy\":{\"kind\":\"rendezvous\"},\"topologyId\":\"rv-plain\"}"
+      }
+    },
+    {
+      "name": "rendezvous-tenant",
+      "requirements": [
+        "TOPO-001",
+        "CORE-020"
+      ],
+      "topology": "topologies/rendezvous-tenant.topology.json",
+      "expect": {
+        "canonicalLength": 1009,
+        "digest": "f21eee1f3e4c9041825242745cf1524d69051ff7a484a6f62b07e8f179da4ec3"
+      }
+    },
+    {
+      "name": "ring-admin-states",
+      "requirements": [
+        "TOPO-001",
+        "CORE-020"
+      ],
+      "topology": "topologies/ring-admin-states.topology.json",
+      "expect": {
+        "canonicalLength": 365,
+        "digest": "389bfdcdacec4fbec1f6b8a9f3fe3c70f7e4f0e0a07df1a157e9eeefeb1c2bc5",
+        "canonicalForm": "{\"epoch\":5,\"formatVersion\":\"1.0\",\"nodes\":[{\"id\":\"active-1\",\"state\":\"active\"},{\"id\":\"active-2\",\"state\":\"active\"},{\"id\":\"draining-1\",\"state\":\"draining\"},{\"id\":\"joining-1\",\"state\":\"joining\"},{\"id\":\"leaving-1\",\"state\":\"leaving\"}],\"replication\":{\"factor\":3},\"strategy\":{\"kind\":\"ring\",\"tokenAssignment\":\"derived\",\"tokensPerWeightUnit\":2},\"topologyId\":\"ring-admin-states\"}"
+      }
+    },
+    {
+      "name": "ring-explicit",
+      "requirements": [
+        "TOPO-001",
+        "CORE-020"
+      ],
+      "topology": "topologies/ring-explicit.topology.json",
+      "expect": {
+        "canonicalLength": 330,
+        "digest": "ff32327ae05a045e7bf6768d1ff6db0839d24992784611624373b32d04408683",
+        "canonicalForm": "{\"epoch\":3,\"formatVersion\":\"1.0\",\"nodes\":[{\"id\":\"n1\",\"tokens\":[\"1000000000000000\",\"8000000000000000\"]},{\"id\":\"n2\",\"tokens\":[\"4000000000000000\",\"c000000000000000\"]},{\"id\":\"n3\",\"tokens\":[\"2000000000000000\"],\"weight\":0}],\"replication\":{\"factor\":2},\"strategy\":{\"kind\":\"ring\",\"tokenAssignment\":\"explicit\"},\"topologyId\":\"ring-explicit\"}"
+      }
+    },
+    {
+      "name": "ring-plain",
+      "requirements": [
+        "TOPO-001",
+        "CORE-020"
+      ],
+      "topology": "topologies/ring-plain.topology.json",
+      "expect": {
+        "canonicalLength": 220,
+        "digest": "3b304305d80fd970e789d00acd8409f4126b2b6c4e6b6ce6d891acbd5b0540eb",
+        "canonicalForm": "{\"epoch\":1,\"formatVersion\":\"1.0\",\"nodes\":[{\"id\":\"n1\"},{\"id\":\"n2\"},{\"id\":\"n3\"},{\"id\":\"n4\"}],\"strategy\":{\"kind\":\"ring\",\"maxTokensPerNode\":4096,\"tokenAssignment\":\"derived\",\"tokensPerWeightUnit\":1},\"topologyId\":\"ring-plain\"}"
+      }
+    },
+    {
+      "name": "ring-seeded",
+      "requirements": [
+        "TOPO-001",
+        "CORE-020"
+      ],
+      "topology": "topologies/ring-seeded.topology.json",
+      "expect": {
+        "canonicalLength": 303,
+        "digest": "d87982666b99da9bec68618eeddc31864b8dada1abd889121c54584434f6cc5e",
+        "canonicalForm": "{\"epoch\":118,\"formatVersion\":\"1.0\",\"hash\":{\"algorithm\":\"siphash-2-4\",\"seed\":\"9e3779b97f4a7c159e3779b97f4a7c15\"},\"nodes\":[{\"id\":\"n1\"},{\"id\":\"n2\"},{\"id\":\"n3\"},{\"id\":\"n4\"}],\"replication\":{\"factor\":2},\"strategy\":{\"kind\":\"ring\",\"tokenAssignment\":\"derived\",\"tokensPerWeightUnit\":1},\"topologyId\":\"ring-seeded\"}"
+      }
+    },
+    {
+      "name": "ring-zoned",
+      "requirements": [
+        "TOPO-001",
+        "CORE-020"
+      ],
+      "topology": "topologies/ring-zoned.topology.json",
+      "expect": {
+        "canonicalLength": 670,
+        "digest": "d947c4aa45a782f32c422ce8bfdd6bef4f79186378ece4f0ed02e89686615ca2"
+      }
+    },
+    {
+      "name": "single-node",
+      "requirements": [
+        "TOPO-001",
+        "CORE-020"
+      ],
+      "topology": "topologies/single-node.topology.json",
+      "expect": {
+        "canonicalLength": 210,
+        "digest": "c95f340f1c68aeeff2dd0afe3320884ac006832ddea99b63ef08057ab44a12fc",
+        "canonicalForm": "{\"domainLevels\":[\"zone\"],\"epoch\":1,\"formatVersion\":\"1.0\",\"nodes\":[{\"domains\":{\"zone\":\"za\"},\"id\":\"only\"}],\"replication\":{\"factor\":3,\"spread\":[\"zone\"]},\"strategy\":{\"kind\":\"rendezvous\"},\"topologyId\":\"single-node\"}"
+      }
+    },
+    {
+      "name": "slot-explicit",
+      "requirements": [
+        "TOPO-001",
+        "CORE-020"
+      ],
+      "topology": "topologies/slot-explicit.topology.json",
+      "expect": {
+        "canonicalLength": 397,
+        "digest": "22c66e62f08a62d26eebe87ca590146c0adcd435fc839e4a5a8a71fba845f549",
+        "canonicalForm": "{\"epoch\":4,\"formatVersion\":\"1.0\",\"nodes\":[{\"id\":\"shard-a\"},{\"id\":\"shard-b\"},{\"id\":\"shard-c\"}],\"replication\":{\"factor\":2},\"strategy\":{\"assignment\":\"explicit\",\"assignments\":[{\"nodes\":[\"shard-a\",\"shard-b\"],\"slots\":[\"0-5460\"]},{\"nodes\":[\"shard-b\",\"shard-c\"],\"slots\":[\"5461-10922\"]},{\"nodes\":[\"shard-c\",\"shard-a\"],\"slots\":[\"10923-16383\"]}],\"kind\":\"slot\",\"slotCount\":16384},\"topologyId\":\"slot-explicit\"}"
+      }
+    },
+    {
+      "name": "slot-small",
+      "requirements": [
+        "TOPO-001",
+        "CORE-020"
+      ],
+      "topology": "topologies/slot-small.topology.json",
+      "expect": {
+        "canonicalLength": 318,
+        "digest": "c6968798e55f3743abf417cf2c99ebfdb8b21cdf26eef4dcad13d4fab5eeafb6",
+        "canonicalForm": "{\"epoch\":1,\"formatVersion\":\"1.0\",\"nodes\":[{\"id\":\"a\"},{\"id\":\"b\"},{\"id\":\"c\"}],\"replication\":{\"factor\":1},\"strategy\":{\"assignment\":\"explicit\",\"assignments\":[{\"nodes\":[\"a\",\"b\"],\"slots\":[\"0-2\"]},{\"nodes\":[\"b\",\"c\"],\"slots\":[\"3-4\"]},{\"nodes\":[\"c\",\"a\"],\"slots\":[\"5-6\"]}],\"kind\":\"slot\",\"slotCount\":7},\"topologyId\":\"slot-small\"}"
+      }
+    },
+    {
+      "name": "spread-ladder",
+      "requirements": [
+        "TOPO-001",
+        "CORE-020"
+      ],
+      "topology": "topologies/spread-ladder.topology.json",
+      "expect": {
+        "canonicalLength": 621,
+        "digest": "603a8ce1a2c447149b7076017b4997c1fd06b54e8e5c6d341d5612cc3e31a89e"
+      }
+    },
+    {
+      "name": "spread-skipped-level",
+      "requirements": [
+        "TOPO-001",
+        "CORE-020"
+      ],
+      "topology": "topologies/spread-skipped-level.topology.json",
+      "expect": {
+        "canonicalLength": 532,
+        "digest": "d7eab398cdfbd76294877480aa1ea8d1da24a973a8d69e7765776c7f8338dcba",
+        "canonicalForm": "{\"domainLevels\":[\"region\",\"zone\",\"rack\"],\"epoch\":1,\"formatVersion\":\"1.0\",\"nodes\":[{\"domains\":{\"rack\":\"k1\",\"region\":\"r1\",\"zone\":\"z1\"},\"id\":\"a1\"},{\"domains\":{\"rack\":\"k1\",\"region\":\"r1\",\"zone\":\"z2\"},\"id\":\"a2\"},{\"domains\":{\"rack\":\"k1\",\"region\":\"r2\",\"zone\":\"z3\"},\"id\":\"b1\"},{\"domains\":{\"rack\":\"k9\",\"region\":\"r2\",\"zone\":\"z3\"},\"id\":\"b2\"},{\"domains\":{\"rack\":\"k9\",\"region\":\"r1\",\"zone\":\"z1\"},\"id\":\"c1\"}],\"replication\":{\"factor\":2,\"spread\":[\"rack\"],\"spreadPolicy\":\"relaxed\"},\"strategy\":{\"kind\":\"rendezvous\"},\"topologyId\":\"spread-skipped-level\"}"
+      }
+    },
+    {
+      "name": "weight-zero",
+      "requirements": [
+        "TOPO-001",
+        "CORE-020"
+      ],
+      "topology": "topologies/weight-zero.topology.json",
+      "expect": {
+        "canonicalLength": 257,
+        "digest": "77b803fb37ac0134ee05083f568eb643d94e26b7c7b70498928b44a2ce108d87",
+        "canonicalForm": "{\"epoch\":1,\"formatVersion\":\"1.0\",\"nodes\":[{\"id\":\"live-1\",\"weight\":1},{\"id\":\"live-2\",\"weight\":1},{\"id\":\"zero-1\",\"weight\":0},{\"id\":\"zero-2\",\"state\":\"draining\",\"weight\":0}],\"replication\":{\"factor\":2},\"strategy\":{\"kind\":\"rendezvous\"},\"topologyId\":\"weight-zero\"}"
+      }
+    },
+    {
+      "name": "weight-zero-all",
+      "requirements": [
+        "TOPO-001",
+        "CORE-020"
+      ],
+      "topology": "topologies/weight-zero-all.topology.json",
+      "expect": {
+        "canonicalLength": 180,
+        "digest": "9e6855e02d4144bbcbe86621349e28b53c029ca39766feea0351e6fe334fe884",
+        "canonicalForm": "{\"epoch\":1,\"formatVersion\":\"1.0\",\"nodes\":[{\"id\":\"z1\",\"weight\":0},{\"id\":\"z2\",\"weight\":0}],\"replication\":{\"factor\":1},\"strategy\":{\"kind\":\"rendezvous\"},\"topologyId\":\"weight-zero-all\"}"
+      }
+    },
+    {
+      "name": "weight-zero-pinned",
+      "requirements": [
+        "TOPO-001",
+        "CORE-020"
+      ],
+      "topology": "topologies/weight-zero-pinned.topology.json",
+      "expect": {
+        "canonicalLength": 275,
+        "digest": "489ec01ac90e5e8d52af0c5a364c725d9a96498941565e10913f0481034aafa6",
+        "canonicalForm": "{\"epoch\":1,\"formatVersion\":\"1.0\",\"nodes\":[{\"id\":\"live-1\",\"weight\":1},{\"id\":\"zero-1\",\"weight\":0}],\"overrides\":[{\"match\":{\"kind\":\"exact\",\"value\":\"pinned\"},\"pin\":[\"zero-1\",\"live-1\"]}],\"replication\":{\"factor\":2},\"strategy\":{\"kind\":\"rendezvous\"},\"topologyId\":\"weight-zero-pinned\"}"
+      }
+    },
+    {
+      "name": "escaping-and-member-order",
+      "requirements": [
+        "TOPO-001"
+      ],
+      "note": "RFC 8785 string escaping and member name ordering, inline rather than a file so that a port reads the document from the vector rather than from disk.",
+      "document": {
+        "formatVersion": "1.0",
+        "topologyId": "digest-escaping",
+        "epoch": 1,
+        "strategy": {
+          "kind": "rendezvous"
+        },
+        "nodes": [
+          {
+            "id": "n1"
+          }
+        ],
+        "metadata": {
+          "quote": "a \"quoted\" word",
+          "backslash": "a\\b",
+          "controls": "tab\there\nnewline",
+          "unicode": "café 日本",
+          "zwj": "\u0001\u001f",
+          "": "empty member name sorts first"
+        }
+      },
+      "expect": {
+        "canonicalForm": "{\"epoch\":1,\"formatVersion\":\"1.0\",\"metadata\":{\"\":\"empty member name sorts first\",\"backslash\":\"a\\\\b\",\"controls\":\"tab\\there\\nnewline\",\"quote\":\"a \\\"quoted\\\" word\",\"unicode\":\"café 日本\",\"zwj\":\"\\u0001\\u001f\"},\"nodes\":[{\"id\":\"n1\"}],\"strategy\":{\"kind\":\"rendezvous\"},\"topologyId\":\"digest-escaping\"}",
+        "canonicalLength": 292,
+        "digest": "7394366f95f5fe4d7e2e7b1911ae89b215eebb4ea85e9a32b6e3c99f9ae9a44d"
+      }
+    }
+  ]
+}

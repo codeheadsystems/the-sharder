@@ -1,0 +1,209 @@
+{
+  "scenario": "health-reset-on-reentry",
+  "level": "failover",
+  "description": "A node is ejected, leaves the placement set, is re-imaged, and returns under the same identity.  The entry survives the absence under the default parameter and is discarded where the integrator asks for it.",
+  "requirements": [
+    "CFG-030",
+    "FAIL-010",
+    "HEALTH-004",
+    "HEALTH-006",
+    "HEALTH-007",
+    "HEALTH-016",
+    "HEALTH-043",
+    "HEALTH-055"
+  ],
+  "deterministic": true,
+  "setup": {},
+  "steps": [
+    {
+      "action": "configureHealth",
+      "parameters": {
+        "resetOnPlacementReentry": false
+      },
+      "note": "`CFG-030` accepts the parameters of `HEALTH-055`, and a fresh health view holds no entry"
+    },
+    {
+      "action": "installTopology",
+      "topology": "topologies/health-peers-epoch-1.topology.json",
+      "expect": {
+        "outcome": "installed",
+        "condition": null,
+        "epochInForce": 1
+      }
+    },
+    {
+      "action": "healthSnapshotInstalled",
+      "topology": "topologies/health-peers-epoch-1.topology.json",
+      "placementSet": [
+        "p1",
+        "p2",
+        "p3",
+        "p4",
+        "p5"
+      ],
+      "expect": {
+        "placementSetSize": 5
+      }
+    },
+    {
+      "action": "reportHealth",
+      "node": "p1",
+      "outcome": "failure",
+      "repeat": 6,
+      "at": 1500,
+      "note": "`HEALTH-043`: the consecutive failure threshold ejects the node",
+      "expect": {
+        "state": "unavailable",
+        "ejectionCount": 1
+      }
+    },
+    {
+      "action": "installTopology",
+      "topology": "topologies/health-peers-epoch-2.topology.json",
+      "expect": {
+        "outcome": "installed",
+        "condition": null,
+        "epochInForce": 2
+      }
+    },
+    {
+      "action": "healthSnapshotInstalled",
+      "topology": "topologies/health-peers-epoch-2.topology.json",
+      "placementSet": [
+        "p2",
+        "p3",
+        "p4",
+        "p5"
+      ],
+      "at": 2500,
+      "note": "`HEALTH-006`: the entry survives the absence and affects no routing call while the identity is outside the placement set",
+      "expect": {
+        "placementSetSize": 4,
+        "state": "unavailable"
+      }
+    },
+    {
+      "action": "installTopology",
+      "topology": "topologies/health-peers-epoch-3.topology.json",
+      "expect": {
+        "outcome": "installed",
+        "condition": null,
+        "epochInForce": 3
+      }
+    },
+    {
+      "action": "healthSnapshotInstalled",
+      "topology": "topologies/health-peers-epoch-3.topology.json",
+      "placementSet": [
+        "p1",
+        "p2",
+        "p3",
+        "p4",
+        "p5"
+      ],
+      "at": 3500,
+      "note": "`HEALTH-007`: the identity re-enters the placement set.  Where `resetOnPlacementReentry` is true the entry is discarded and the identity holds `unknown`; where it is false the entry and its ejection count survive.",
+      "expect": {
+        "resetOnPlacementReentry": false,
+        "state": "unavailable",
+        "attemptable": false,
+        "ejectionCount": 1
+      }
+    },
+    {
+      "action": "configureHealth",
+      "parameters": {
+        "resetOnPlacementReentry": true
+      },
+      "note": "`CFG-030` accepts the parameters of `HEALTH-055`, and a fresh health view holds no entry"
+    },
+    {
+      "action": "installTopology",
+      "topology": "topologies/health-peers-epoch-4.topology.json",
+      "expect": {
+        "outcome": "installed",
+        "condition": null,
+        "epochInForce": 4
+      }
+    },
+    {
+      "action": "healthSnapshotInstalled",
+      "topology": "topologies/health-peers-epoch-4.topology.json",
+      "placementSet": [
+        "p1",
+        "p2",
+        "p3",
+        "p4",
+        "p5"
+      ],
+      "expect": {
+        "placementSetSize": 5
+      }
+    },
+    {
+      "action": "reportHealth",
+      "node": "p1",
+      "outcome": "failure",
+      "repeat": 6,
+      "at": 1500,
+      "note": "`HEALTH-043`: the consecutive failure threshold ejects the node",
+      "expect": {
+        "state": "unavailable",
+        "ejectionCount": 1
+      }
+    },
+    {
+      "action": "installTopology",
+      "topology": "topologies/health-peers-epoch-5.topology.json",
+      "expect": {
+        "outcome": "installed",
+        "condition": null,
+        "epochInForce": 5
+      }
+    },
+    {
+      "action": "healthSnapshotInstalled",
+      "topology": "topologies/health-peers-epoch-5.topology.json",
+      "placementSet": [
+        "p2",
+        "p3",
+        "p4",
+        "p5"
+      ],
+      "at": 2500,
+      "note": "`HEALTH-006`: the entry survives the absence and affects no routing call while the identity is outside the placement set",
+      "expect": {
+        "placementSetSize": 4,
+        "state": "unavailable"
+      }
+    },
+    {
+      "action": "installTopology",
+      "topology": "topologies/health-peers-epoch-6.topology.json",
+      "expect": {
+        "outcome": "installed",
+        "condition": null,
+        "epochInForce": 6
+      }
+    },
+    {
+      "action": "healthSnapshotInstalled",
+      "topology": "topologies/health-peers-epoch-6.topology.json",
+      "placementSet": [
+        "p1",
+        "p2",
+        "p3",
+        "p4",
+        "p5"
+      ],
+      "at": 3500,
+      "note": "`HEALTH-007`: the identity re-enters the placement set.  Where `resetOnPlacementReentry` is true the entry is discarded and the identity holds `unknown`; where it is false the entry and its ejection count survive.",
+      "expect": {
+        "resetOnPlacementReentry": true,
+        "state": "unknown",
+        "attemptable": true,
+        "ejectionCount": 0
+      }
+    }
+  ]
+}

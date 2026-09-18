@@ -1,0 +1,261 @@
+{
+  "vectorSet": "determinism-tie-breaks",
+  "kind": "tieBreak",
+  "level": "place",
+  "description": "The tie-break paths a total order needs but a random input almost never reaches. The file holds ring-token-collision, rendezvous-score-tie. Every case was found by the Pollard rho search in `rho_search.c` and was recomputed through the reference before it was written.",
+  "requirements": [
+    "PLACE-016",
+    "PLACE-020",
+    "PLACE-021",
+    "PLACE-023"
+  ],
+  "topologyDocuments": {
+    "topologies/rendezvous-score-tie.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "rendezvous-score-tie",
+      "epoch": 1,
+      "replication": {
+        "factor": 2
+      },
+      "strategy": {
+        "kind": "rendezvous",
+        "virtualNodesPerWeightUnit": 1,
+        "maxVirtualNodesPerNode": 1
+      },
+      "nodes": [
+        {
+          "id": "b08cfe34be8e9321"
+        },
+        {
+          "id": "e6d7fd19d016a1b2"
+        },
+        {
+          "id": "zz-third"
+        }
+      ],
+      "metadata": {
+        "note": "the first two identities score identically for `tie-probe`"
+      }
+    },
+    "topologies/ring-token-collision.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "ring-token-collision",
+      "epoch": 1,
+      "replication": {
+        "factor": 2
+      },
+      "strategy": {
+        "kind": "ring",
+        "tokenAssignment": "derived",
+        "tokensPerWeightUnit": 1,
+        "maxTokensPerNode": 1
+      },
+      "nodes": [
+        {
+          "id": "0b1a4700c87f5839"
+        },
+        {
+          "id": "e88025c0246a27df"
+        },
+        {
+          "id": "zz-third"
+        }
+      ],
+      "metadata": {
+        "note": "the first two identities derive the same token at index 0"
+      }
+    }
+  },
+  "cases": [
+    {
+      "name": "ring-token-collision",
+      "requirements": [
+        "RING-010",
+        "RING-011",
+        "RING-031",
+        "PLACE-020",
+        "PLACE-021",
+        "PLACE-023"
+      ],
+      "topology": "topologies/ring-token-collision.topology.json",
+      "note": "two node identities deriving one token value, found by a Pollard rho search.  `RING-011` puts the lower identity first in ring order, and `RING-031` enumerates each distinct token value once, so three ring entries name two shards.",
+      "expect": {
+        "collidingToken": "d80565d2d29e70c3",
+        "owners": [
+          "0b1a4700c87f5839",
+          "e88025c0246a27df"
+        ],
+        "lowerIdentity": "0b1a4700c87f5839",
+        "ringOrderAtCollision": [
+          {
+            "token": "d80565d2d29e70c3",
+            "owner": "0b1a4700c87f5839",
+            "index": 0
+          },
+          {
+            "token": "d80565d2d29e70c3",
+            "owner": "e88025c0246a27df",
+            "index": 0
+          }
+        ],
+        "shardEnumeration": {
+          "ringEntryCount": 3,
+          "shardCount": 2,
+          "shards": [
+            "d80565d2d29e70c3",
+            "f3485bbcb5d7f31a"
+          ],
+          "collapsedTokens": [
+            "d80565d2d29e70c3"
+          ]
+        },
+        "candidates": [
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "tie-0"
+            },
+            "candidates": [
+              "0b1a4700c87f5839",
+              "e88025c0246a27df",
+              "zz-third"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "tie-1"
+            },
+            "candidates": [
+              "zz-third",
+              "0b1a4700c87f5839",
+              "e88025c0246a27df"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "tie-2"
+            },
+            "candidates": [
+              "0b1a4700c87f5839",
+              "e88025c0246a27df",
+              "zz-third"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "tie-3"
+            },
+            "candidates": [
+              "0b1a4700c87f5839",
+              "e88025c0246a27df",
+              "zz-third"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "tie-4"
+            },
+            "candidates": [
+              "0b1a4700c87f5839",
+              "e88025c0246a27df",
+              "zz-third"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "tie-5"
+            },
+            "candidates": [
+              "0b1a4700c87f5839",
+              "e88025c0246a27df",
+              "zz-third"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "tie-6"
+            },
+            "candidates": [
+              "0b1a4700c87f5839",
+              "e88025c0246a27df",
+              "zz-third"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "tie-7"
+            },
+            "candidates": [
+              "0b1a4700c87f5839",
+              "e88025c0246a27df",
+              "zz-third"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "tie-8"
+            },
+            "candidates": [
+              "0b1a4700c87f5839",
+              "e88025c0246a27df",
+              "zz-third"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "tie-9"
+            },
+            "candidates": [
+              "0b1a4700c87f5839",
+              "e88025c0246a27df",
+              "zz-third"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "rendezvous-score-tie",
+      "requirements": [
+        "RV-003",
+        "RV-010",
+        "PLACE-020",
+        "PLACE-023"
+      ],
+      "topology": "topologies/rendezvous-score-tie.topology.json",
+      "note": "two node identities with an equal maximum score, found by a Pollard rho search.  The comparator falls through to ascending node identity.",
+      "expect": {
+        "routingKey": "7469652d70726f6265",
+        "equalScore": "627d9ab28d7293ba",
+        "tiedNodes": [
+          "b08cfe34be8e9321",
+          "e6d7fd19d016a1b2"
+        ],
+        "lowerIdentity": "b08cfe34be8e9321",
+        "candidates": [
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "tie-probe"
+            },
+            "candidates": [
+              "b08cfe34be8e9321",
+              "e6d7fd19d016a1b2",
+              "zz-third"
+            ],
+            "shard": "7469652d70726f6265"
+          }
+        ]
+      }
+    }
+  ]
+}

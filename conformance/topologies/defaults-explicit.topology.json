@@ -1,0 +1,49 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "defaults-explicit",
+  "epoch": 1,
+  "hash": {
+    "algorithm": "siphash-2-4",
+    "seed": "00000000000000000000000000000000"
+  },
+  "keyTransform": {
+    "kind": "none"
+  },
+  "domainLevels": [],
+  "replication": {
+    "factor": 1,
+    "spread": [],
+    "spreadPolicy": "relaxed"
+  },
+  "strategy": {
+    "kind": "ring",
+    "tokenAssignment": "derived",
+    "tokensPerWeightUnit": 4,
+    "maxTokensPerNode": 4096
+  },
+  "nodes": [
+    {
+      "id": "d1",
+      "state": "active",
+      "weight": 1,
+      "domains": {},
+      "tags": {}
+    },
+    {
+      "id": "d2",
+      "state": "active",
+      "weight": 1,
+      "domains": {},
+      "tags": {}
+    },
+    {
+      "id": "d3",
+      "state": "active",
+      "weight": 1,
+      "domains": {},
+      "tags": {}
+    }
+  ],
+  "overrides": [],
+  "metadata": {}
+}

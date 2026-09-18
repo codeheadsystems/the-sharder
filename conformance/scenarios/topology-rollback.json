@@ -1,0 +1,271 @@
+{
+  "scenario": "topology-rollback",
+  "level": "core",
+  "description": "An authority reverts an assignment.  The library never accepts a lower epoch, so the revert arrives as a higher epoch carrying the former assignment.  The scenario also covers the equal-epoch digest conflict and the foreign identifier.",
+  "requirements": [
+    "ERR-031",
+    "ERR-032",
+    "TOPO-051",
+    "TOPO-061",
+    "TOPO-081",
+    "TOPO-091"
+  ],
+  "deterministic": true,
+  "setup": {},
+  "steps": [
+    {
+      "action": "installTopology",
+      "topology": "topologies/migration-epoch-1.topology.json",
+      "expect": {
+        "outcome": "installed",
+        "condition": null,
+        "epochInForce": 1,
+        "digest": "cd1f26b41f447f1d7007fafe9211a09ba8db1b8a78e9461f62c9a3c3d0568276"
+      }
+    },
+    {
+      "action": "installTopology",
+      "topology": "topologies/migration-epoch-2.topology.json",
+      "expect": {
+        "outcome": "installed",
+        "condition": null,
+        "epochInForce": 2,
+        "digest": "88174beca86efc281ac17c76a28b20728055b2a526d2cd9a216a3ca5f2307bb8"
+      }
+    },
+    {
+      "action": "installTopology",
+      "topology": "topologies/migration-epoch-1.topology.json",
+      "expect": {
+        "outcome": "rejected",
+        "condition": {
+          "code": 203,
+          "name": "staleDocument",
+          "detail": "an epoch below the epoch in force"
+        },
+        "epochInForce": 2,
+        "digest": "cd1f26b41f447f1d7007fafe9211a09ba8db1b8a78e9461f62c9a3c3d0568276"
+      }
+    },
+    {
+      "action": "installTopology",
+      "topology": "topologies/migration-epoch-2.topology.json",
+      "expect": {
+        "outcome": "noop",
+        "condition": null,
+        "epochInForce": 2,
+        "digest": "88174beca86efc281ac17c76a28b20728055b2a526d2cd9a216a3ca5f2307bb8"
+      }
+    },
+    {
+      "action": "installTopology",
+      "document": {
+        "formatVersion": "1.0",
+        "topologyId": "migration",
+        "epoch": 2,
+        "domainLevels": [
+          "zone"
+        ],
+        "replication": {
+          "factor": 2
+        },
+        "strategy": {
+          "kind": "slot",
+          "slotCount": 3,
+          "assignment": "explicit",
+          "assignments": [
+            {
+              "slots": [
+                "0"
+              ],
+              "nodes": [
+                "n1",
+                "n2"
+              ]
+            },
+            {
+              "slots": [
+                "1"
+              ],
+              "nodes": [
+                "n4",
+                "n3"
+              ]
+            },
+            {
+              "slots": [
+                "2"
+              ],
+              "nodes": [
+                "n3",
+                "n1"
+              ]
+            }
+          ]
+        },
+        "nodes": [
+          {
+            "id": "n1",
+            "domains": {
+              "zone": "za"
+            },
+            "address": "10.0.0.1:7000"
+          },
+          {
+            "id": "n2",
+            "domains": {
+              "zone": "zb"
+            },
+            "address": "10.0.0.2:7000"
+          },
+          {
+            "id": "n3",
+            "domains": {
+              "zone": "zc"
+            },
+            "address": "10.0.0.3:7000"
+          },
+          {
+            "id": "n4",
+            "state": "active",
+            "domains": {
+              "zone": "zd"
+            },
+            "address": "10.0.0.4:7000"
+          }
+        ],
+        "metadata": {
+          "note": "same epoch, different content"
+        }
+      },
+      "expect": {
+        "outcome": "rejected",
+        "condition": {
+          "code": 202,
+          "name": "topologyConflict",
+          "detail": "an equal epoch whose digest differs"
+        },
+        "epochInForce": 2,
+        "digest": "74972bc6ce126108d0287b7ee0385d77f0dbb86d5a3c442433de5b0c7f45a7de"
+      }
+    },
+    {
+      "action": "installTopology",
+      "document": {
+        "formatVersion": "1.0",
+        "topologyId": "some-other-cluster",
+        "epoch": 3,
+        "domainLevels": [
+          "zone"
+        ],
+        "replication": {
+          "factor": 2
+        },
+        "strategy": {
+          "kind": "slot",
+          "slotCount": 3,
+          "assignment": "explicit",
+          "assignments": [
+            {
+              "slots": [
+                "0"
+              ],
+              "nodes": [
+                "n1",
+                "n2"
+              ]
+            },
+            {
+              "slots": [
+                "1"
+              ],
+              "nodes": [
+                "n4",
+                "n1"
+              ]
+            },
+            {
+              "slots": [
+                "2"
+              ],
+              "nodes": [
+                "n3",
+                "n1"
+              ]
+            }
+          ]
+        },
+        "nodes": [
+          {
+            "id": "n1",
+            "domains": {
+              "zone": "za"
+            },
+            "address": "10.0.0.1:7000"
+          },
+          {
+            "id": "n2",
+            "domains": {
+              "zone": "zb"
+            },
+            "address": "10.0.0.2:7000"
+          },
+          {
+            "id": "n3",
+            "domains": {
+              "zone": "zc"
+            },
+            "address": "10.0.0.3:7000"
+          },
+          {
+            "id": "n4",
+            "state": "active",
+            "domains": {
+              "zone": "zd"
+            },
+            "address": "10.0.0.4:7000"
+          }
+        ]
+      },
+      "expect": {
+        "outcome": "rejected",
+        "condition": {
+          "code": 202,
+          "name": "topologyConflict",
+          "detail": "a differing topologyId"
+        },
+        "epochInForce": 2
+      }
+    },
+    {
+      "action": "installTopology",
+      "topology": "topologies/migration-epoch-5-rollback.topology.json",
+      "note": "the rollback: the epoch 1 assignment republished at epoch 5, because `TOPO-081` accepts no lower epoch",
+      "expect": {
+        "outcome": "installed",
+        "condition": null,
+        "epochInForce": 5,
+        "digest": "5e8f44c72edd94e7aa528d96cfe6498d0ce328042df6127ab87b3ae30a9fd0ff"
+      }
+    },
+    {
+      "action": "route",
+      "key": {
+        "encoding": "base16",
+        "value": "05"
+      },
+      "expect": {
+        "shard": "1",
+        "token": {
+          "topologyId": "migration",
+          "epoch": 5
+        },
+        "preferenceList": [
+          "n2",
+          "n3"
+        ],
+        "replicaCount": 2
+      }
+    }
+  ]
+}

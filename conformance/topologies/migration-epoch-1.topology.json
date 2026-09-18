@@ -1,0 +1,76 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "migration",
+  "epoch": 1,
+  "domainLevels": [
+    "zone"
+  ],
+  "replication": {
+    "factor": 2
+  },
+  "strategy": {
+    "kind": "slot",
+    "slotCount": 3,
+    "assignment": "explicit",
+    "assignments": [
+      {
+        "slots": [
+          "0"
+        ],
+        "nodes": [
+          "n1",
+          "n2"
+        ]
+      },
+      {
+        "slots": [
+          "1"
+        ],
+        "nodes": [
+          "n2",
+          "n3"
+        ]
+      },
+      {
+        "slots": [
+          "2"
+        ],
+        "nodes": [
+          "n3",
+          "n1"
+        ]
+      }
+    ]
+  },
+  "nodes": [
+    {
+      "id": "n1",
+      "domains": {
+        "zone": "za"
+      },
+      "address": "10.0.0.1:7000"
+    },
+    {
+      "id": "n2",
+      "domains": {
+        "zone": "zb"
+      },
+      "address": "10.0.0.2:7000"
+    },
+    {
+      "id": "n3",
+      "domains": {
+        "zone": "zc"
+      },
+      "address": "10.0.0.3:7000"
+    },
+    {
+      "id": "n4",
+      "state": "joining",
+      "domains": {
+        "zone": "zd"
+      },
+      "address": "10.0.0.4:7000"
+    }
+  ]
+}

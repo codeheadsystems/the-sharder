@@ -1,0 +1,105 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "rebalance",
+  "epoch": 13,
+  "domainLevels": [
+    "zone"
+  ],
+  "replication": {
+    "factor": 2
+  },
+  "strategy": {
+    "kind": "slot",
+    "slotCount": 4,
+    "assignment": "explicit",
+    "assignments": [
+      {
+        "slots": [
+          "0"
+        ],
+        "nodes": [
+          "n5",
+          "n2"
+        ]
+      },
+      {
+        "slots": [
+          "1"
+        ],
+        "nodes": [
+          "n2",
+          "n3"
+        ]
+      },
+      {
+        "slots": [
+          "2"
+        ],
+        "nodes": [
+          "n3",
+          "n4"
+        ]
+      },
+      {
+        "slots": [
+          "3"
+        ],
+        "nodes": [
+          "n4",
+          "n1"
+        ]
+      }
+    ]
+  },
+  "nodes": [
+    {
+      "id": "n1",
+      "domains": {
+        "zone": "za"
+      },
+      "address": "10.1.0.1:7000"
+    },
+    {
+      "id": "n2",
+      "domains": {
+        "zone": "zb"
+      },
+      "address": "10.1.0.2:7000"
+    },
+    {
+      "id": "n3",
+      "domains": {
+        "zone": "zc"
+      },
+      "address": "10.1.0.3:7000"
+    },
+    {
+      "id": "n4",
+      "domains": {
+        "zone": "zd"
+      },
+      "address": "10.1.0.4:7000"
+    },
+    {
+      "id": "n5",
+      "domains": {
+        "zone": "ze"
+      },
+      "address": "10.1.0.5:7000"
+    },
+    {
+      "id": "n6",
+      "domains": {
+        "zone": "zf"
+      },
+      "address": "10.1.0.6:7000"
+    },
+    {
+      "id": "n7",
+      "domains": {
+        "zone": "zg"
+      },
+      "address": "10.1.0.7:7000"
+    }
+  ]
+}

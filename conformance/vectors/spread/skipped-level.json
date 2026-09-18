@@ -1,0 +1,655 @@
+{
+  "vectorSet": "spread-skipped-level",
+  "kind": "routing",
+  "level": "place",
+  "description": "`domainLevels` of region, zone, and rack with a `spread` of rack alone.  A domain path under `SPREAD-006` spans every declared level through the level compared, so two nodes in rack `k1` under different zones occupy distinct rack domains and both may hold a replica.  A port that scoped the path to `replication.spread` would compare the rack identifier alone and skip the second of them.",
+  "requirements": [
+    "CORE-046",
+    "CORE-047",
+    "REPL-013",
+    "SPREAD-001",
+    "SPREAD-005",
+    "SPREAD-006",
+    "SPREAD-007",
+    "SPREAD-010",
+    "SPREAD-011",
+    "SPREAD-012",
+    "SPREAD-015",
+    "SPREAD-021"
+  ],
+  "topology": "topologies/spread-skipped-level.topology.json",
+  "topologyDigest": "d7eab398cdfbd76294877480aa1ea8d1da24a973a8d69e7765776c7f8338dcba",
+  "topologyDocuments": {
+    "topologies/spread-skipped-level.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "spread-skipped-level",
+      "epoch": 1,
+      "domainLevels": [
+        "region",
+        "zone",
+        "rack"
+      ],
+      "replication": {
+        "factor": 2,
+        "spread": [
+          "rack"
+        ],
+        "spreadPolicy": "relaxed"
+      },
+      "strategy": {
+        "kind": "rendezvous"
+      },
+      "nodes": [
+        {
+          "id": "a1",
+          "domains": {
+            "region": "r1",
+            "zone": "z1",
+            "rack": "k1"
+          }
+        },
+        {
+          "id": "a2",
+          "domains": {
+            "region": "r1",
+            "zone": "z2",
+            "rack": "k1"
+          }
+        },
+        {
+          "id": "b1",
+          "domains": {
+            "region": "r2",
+            "zone": "z3",
+            "rack": "k1"
+          }
+        },
+        {
+          "id": "b2",
+          "domains": {
+            "region": "r2",
+            "zone": "z3",
+            "rack": "k9"
+          }
+        },
+        {
+          "id": "c1",
+          "domains": {
+            "region": "r1",
+            "zone": "z1",
+            "rack": "k9"
+          }
+        }
+      ]
+    }
+  },
+  "cases": [
+    {
+      "name": "skipped-level/0",
+      "requirements": [
+        "SPREAD-005",
+        "SPREAD-006",
+        "SPREAD-011",
+        "SPREAD-012"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "key-0"
+      },
+      "note": "two replicas carry the rack identifier k1 and distinct rack domain paths",
+      "expect": {
+        "routingKey": "6b65792d30",
+        "shard": "6b65792d30",
+        "token": {
+          "topologyId": "spread-skipped-level",
+          "epoch": 1
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "a2",
+          "a1",
+          "b2",
+          "b1",
+          "c1"
+        ],
+        "preferenceList": [
+          {
+            "node": "a2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "a1",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "b2",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "b1",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "c1",
+            "position": 4,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 4,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "skipped-level/1",
+      "requirements": [
+        "SPREAD-005",
+        "SPREAD-006",
+        "SPREAD-011",
+        "SPREAD-012"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "key-1"
+      },
+      "note": "two replicas carry the rack identifier k1 and distinct rack domain paths",
+      "expect": {
+        "routingKey": "6b65792d31",
+        "shard": "6b65792d31",
+        "token": {
+          "topologyId": "spread-skipped-level",
+          "epoch": 1
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "b1",
+          "a1",
+          "b2",
+          "a2",
+          "c1"
+        ],
+        "preferenceList": [
+          {
+            "node": "b1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "a1",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "b2",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "a2",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "c1",
+            "position": 4,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 4,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "skipped-level/2",
+      "requirements": [
+        "SPREAD-005",
+        "SPREAD-006",
+        "SPREAD-011",
+        "SPREAD-012"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "key-2"
+      },
+      "note": "the replicas carry distinct rack identifiers",
+      "expect": {
+        "routingKey": "6b65792d32",
+        "shard": "6b65792d32",
+        "token": {
+          "topologyId": "spread-skipped-level",
+          "epoch": 1
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "c1",
+          "a2",
+          "b1",
+          "a1",
+          "b2"
+        ],
+        "preferenceList": [
+          {
+            "node": "c1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "a2",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "b1",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "a1",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "b2",
+            "position": 4,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 4,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "skipped-level/3",
+      "requirements": [
+        "SPREAD-005",
+        "SPREAD-006",
+        "SPREAD-011",
+        "SPREAD-012"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "key-3"
+      },
+      "note": "the replicas carry distinct rack identifiers",
+      "expect": {
+        "routingKey": "6b65792d33",
+        "shard": "6b65792d33",
+        "token": {
+          "topologyId": "spread-skipped-level",
+          "epoch": 1
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "b2",
+          "a2",
+          "b1",
+          "c1",
+          "a1"
+        ],
+        "preferenceList": [
+          {
+            "node": "b2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "a2",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "b1",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "c1",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "a1",
+            "position": 4,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 4,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "skipped-level/4",
+      "requirements": [
+        "SPREAD-005",
+        "SPREAD-006",
+        "SPREAD-011",
+        "SPREAD-012"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "key-4"
+      },
+      "note": "the replicas carry distinct rack identifiers",
+      "expect": {
+        "routingKey": "6b65792d34",
+        "shard": "6b65792d34",
+        "token": {
+          "topologyId": "spread-skipped-level",
+          "epoch": 1
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "c1",
+          "a1",
+          "b2",
+          "a2",
+          "b1"
+        ],
+        "preferenceList": [
+          {
+            "node": "c1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "a1",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "b2",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "a2",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "b1",
+            "position": 4,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 4,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "skipped-level/5",
+      "requirements": [
+        "SPREAD-005",
+        "SPREAD-006",
+        "SPREAD-011",
+        "SPREAD-012"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "key-5"
+      },
+      "note": "the replicas carry distinct rack identifiers",
+      "expect": {
+        "routingKey": "6b65792d35",
+        "shard": "6b65792d35",
+        "token": {
+          "topologyId": "spread-skipped-level",
+          "epoch": 1
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "b1",
+          "c1",
+          "b2",
+          "a2",
+          "a1"
+        ],
+        "preferenceList": [
+          {
+            "node": "b1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "c1",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "b2",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "a2",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "a1",
+            "position": 4,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 4,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "skipped-level/6",
+      "requirements": [
+        "SPREAD-005",
+        "SPREAD-006",
+        "SPREAD-011",
+        "SPREAD-012"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "key-6"
+      },
+      "note": "two replicas carry the rack identifier k1 and distinct rack domain paths",
+      "expect": {
+        "routingKey": "6b65792d36",
+        "shard": "6b65792d36",
+        "token": {
+          "topologyId": "spread-skipped-level",
+          "epoch": 1
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "b1",
+          "a2",
+          "c1",
+          "a1",
+          "b2"
+        ],
+        "preferenceList": [
+          {
+            "node": "b1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "a2",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "c1",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "a1",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "b2",
+            "position": 4,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 4,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "skipped-level/7",
+      "requirements": [
+        "SPREAD-005",
+        "SPREAD-006",
+        "SPREAD-011",
+        "SPREAD-012"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "key-7"
+      },
+      "note": "the replicas carry distinct rack identifiers",
+      "expect": {
+        "routingKey": "6b65792d37",
+        "shard": "6b65792d37",
+        "token": {
+          "topologyId": "spread-skipped-level",
+          "epoch": 1
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "a1",
+          "c1",
+          "b2",
+          "a2",
+          "b1"
+        ],
+        "preferenceList": [
+          {
+            "node": "a1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "c1",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "b2",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "a2",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "b1",
+            "position": 4,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 4,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "skipped-level/17",
+      "requirements": [
+        "SPREAD-005",
+        "SPREAD-006",
+        "SPREAD-011",
+        "SPREAD-012"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "key-17"
+      },
+      "note": "two replicas carry the rack identifier k1 and distinct rack domain paths",
+      "expect": {
+        "routingKey": "6b65792d3137",
+        "shard": "6b65792d3137",
+        "token": {
+          "topologyId": "spread-skipped-level",
+          "epoch": 1
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "a2",
+          "b1",
+          "a1",
+          "b2",
+          "c1"
+        ],
+        "preferenceList": [
+          {
+            "node": "a2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "b1",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "a1",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "b2",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "c1",
+            "position": 4,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 4,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    }
+  ]
+}

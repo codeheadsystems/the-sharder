@@ -1,0 +1,675 @@
+{
+  "vectorSet": "slot-non-power-of-two",
+  "kind": "routing",
+  "level": "place",
+  "description": "`keyHash mod slotCount` at a slot count of 7, which a bitwise mask cannot reproduce.",
+  "requirements": [
+    "CORE-046",
+    "CORE-047",
+    "PROP-024",
+    "SLOT-001",
+    "SLOT-002",
+    "SLOT-003"
+  ],
+  "topology": "topologies/slot-small.topology.json",
+  "topologyDigest": "c6968798e55f3743abf417cf2c99ebfdb8b21cdf26eef4dcad13d4fab5eeafb6",
+  "topologyDocuments": {
+    "topologies/slot-small.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "slot-small",
+      "epoch": 1,
+      "replication": {
+        "factor": 1
+      },
+      "strategy": {
+        "kind": "slot",
+        "slotCount": 7,
+        "assignment": "explicit",
+        "assignments": [
+          {
+            "slots": [
+              "0-2"
+            ],
+            "nodes": [
+              "a",
+              "b"
+            ]
+          },
+          {
+            "slots": [
+              "3-4"
+            ],
+            "nodes": [
+              "b",
+              "c"
+            ]
+          },
+          {
+            "slots": [
+              "5-6"
+            ],
+            "nodes": [
+              "c",
+              "a"
+            ]
+          }
+        ]
+      },
+      "nodes": [
+        {
+          "id": "a"
+        },
+        {
+          "id": "b"
+        },
+        {
+          "id": "c"
+        }
+      ]
+    }
+  },
+  "cases": [
+    {
+      "name": "modulus/0",
+      "requirements": [
+        "SLOT-001",
+        "SLOT-003"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "m0"
+      },
+      "note": "a slot count that is not a power of two",
+      "expect": {
+        "routingKey": "6d30",
+        "shard": "6",
+        "token": {
+          "topologyId": "slot-small",
+          "epoch": 1
+        },
+        "factor": 1,
+        "replicaCount": 1,
+        "candidates": [
+          "c",
+          "a"
+        ],
+        "preferenceList": [
+          {
+            "node": "c",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "a",
+            "position": 1,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 2,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "modulus/1",
+      "requirements": [
+        "SLOT-001",
+        "SLOT-003"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "m1"
+      },
+      "note": "a slot count that is not a power of two",
+      "expect": {
+        "routingKey": "6d31",
+        "shard": "0",
+        "token": {
+          "topologyId": "slot-small",
+          "epoch": 1
+        },
+        "factor": 1,
+        "replicaCount": 1,
+        "candidates": [
+          "a",
+          "b"
+        ],
+        "preferenceList": [
+          {
+            "node": "a",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "b",
+            "position": 1,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 2,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "modulus/2",
+      "requirements": [
+        "SLOT-001",
+        "SLOT-003"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "m2"
+      },
+      "note": "a slot count that is not a power of two",
+      "expect": {
+        "routingKey": "6d32",
+        "shard": "1",
+        "token": {
+          "topologyId": "slot-small",
+          "epoch": 1
+        },
+        "factor": 1,
+        "replicaCount": 1,
+        "candidates": [
+          "a",
+          "b"
+        ],
+        "preferenceList": [
+          {
+            "node": "a",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "b",
+            "position": 1,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 2,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "modulus/3",
+      "requirements": [
+        "SLOT-001",
+        "SLOT-003"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "m3"
+      },
+      "note": "a slot count that is not a power of two",
+      "expect": {
+        "routingKey": "6d33",
+        "shard": "5",
+        "token": {
+          "topologyId": "slot-small",
+          "epoch": 1
+        },
+        "factor": 1,
+        "replicaCount": 1,
+        "candidates": [
+          "c",
+          "a"
+        ],
+        "preferenceList": [
+          {
+            "node": "c",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "a",
+            "position": 1,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 2,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "modulus/4",
+      "requirements": [
+        "SLOT-001",
+        "SLOT-003"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "m4"
+      },
+      "note": "a slot count that is not a power of two",
+      "expect": {
+        "routingKey": "6d34",
+        "shard": "5",
+        "token": {
+          "topologyId": "slot-small",
+          "epoch": 1
+        },
+        "factor": 1,
+        "replicaCount": 1,
+        "candidates": [
+          "c",
+          "a"
+        ],
+        "preferenceList": [
+          {
+            "node": "c",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "a",
+            "position": 1,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 2,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "modulus/5",
+      "requirements": [
+        "SLOT-001",
+        "SLOT-003"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "m5"
+      },
+      "note": "a slot count that is not a power of two",
+      "expect": {
+        "routingKey": "6d35",
+        "shard": "0",
+        "token": {
+          "topologyId": "slot-small",
+          "epoch": 1
+        },
+        "factor": 1,
+        "replicaCount": 1,
+        "candidates": [
+          "a",
+          "b"
+        ],
+        "preferenceList": [
+          {
+            "node": "a",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "b",
+            "position": 1,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 2,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "modulus/6",
+      "requirements": [
+        "SLOT-001",
+        "SLOT-003"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "m6"
+      },
+      "note": "a slot count that is not a power of two",
+      "expect": {
+        "routingKey": "6d36",
+        "shard": "4",
+        "token": {
+          "topologyId": "slot-small",
+          "epoch": 1
+        },
+        "factor": 1,
+        "replicaCount": 1,
+        "candidates": [
+          "b",
+          "c"
+        ],
+        "preferenceList": [
+          {
+            "node": "b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "c",
+            "position": 1,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 2,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "modulus/7",
+      "requirements": [
+        "SLOT-001",
+        "SLOT-003"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "m7"
+      },
+      "note": "a slot count that is not a power of two",
+      "expect": {
+        "routingKey": "6d37",
+        "shard": "4",
+        "token": {
+          "topologyId": "slot-small",
+          "epoch": 1
+        },
+        "factor": 1,
+        "replicaCount": 1,
+        "candidates": [
+          "b",
+          "c"
+        ],
+        "preferenceList": [
+          {
+            "node": "b",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "c",
+            "position": 1,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 2,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "modulus/8",
+      "requirements": [
+        "SLOT-001",
+        "SLOT-003"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "m8"
+      },
+      "note": "a slot count that is not a power of two",
+      "expect": {
+        "routingKey": "6d38",
+        "shard": "1",
+        "token": {
+          "topologyId": "slot-small",
+          "epoch": 1
+        },
+        "factor": 1,
+        "replicaCount": 1,
+        "candidates": [
+          "a",
+          "b"
+        ],
+        "preferenceList": [
+          {
+            "node": "a",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "b",
+            "position": 1,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 2,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "modulus/9",
+      "requirements": [
+        "SLOT-001",
+        "SLOT-003"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "m9"
+      },
+      "note": "a slot count that is not a power of two",
+      "expect": {
+        "routingKey": "6d39",
+        "shard": "2",
+        "token": {
+          "topologyId": "slot-small",
+          "epoch": 1
+        },
+        "factor": 1,
+        "replicaCount": 1,
+        "candidates": [
+          "a",
+          "b"
+        ],
+        "preferenceList": [
+          {
+            "node": "a",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "b",
+            "position": 1,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 2,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "modulus/10",
+      "requirements": [
+        "SLOT-001",
+        "SLOT-003"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "m10"
+      },
+      "note": "a slot count that is not a power of two",
+      "expect": {
+        "routingKey": "6d3130",
+        "shard": "0",
+        "token": {
+          "topologyId": "slot-small",
+          "epoch": 1
+        },
+        "factor": 1,
+        "replicaCount": 1,
+        "candidates": [
+          "a",
+          "b"
+        ],
+        "preferenceList": [
+          {
+            "node": "a",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "b",
+            "position": 1,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 2,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "modulus/11",
+      "requirements": [
+        "SLOT-001",
+        "SLOT-003"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "m11"
+      },
+      "note": "a slot count that is not a power of two",
+      "expect": {
+        "routingKey": "6d3131",
+        "shard": "2",
+        "token": {
+          "topologyId": "slot-small",
+          "epoch": 1
+        },
+        "factor": 1,
+        "replicaCount": 1,
+        "candidates": [
+          "a",
+          "b"
+        ],
+        "preferenceList": [
+          {
+            "node": "a",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "b",
+            "position": 1,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 2,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "modulus/12",
+      "requirements": [
+        "SLOT-001",
+        "SLOT-003"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "m12"
+      },
+      "note": "a slot count that is not a power of two",
+      "expect": {
+        "routingKey": "6d3132",
+        "shard": "1",
+        "token": {
+          "topologyId": "slot-small",
+          "epoch": 1
+        },
+        "factor": 1,
+        "replicaCount": 1,
+        "candidates": [
+          "a",
+          "b"
+        ],
+        "preferenceList": [
+          {
+            "node": "a",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "b",
+            "position": 1,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 2,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "modulus/13",
+      "requirements": [
+        "SLOT-001",
+        "SLOT-003"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "m13"
+      },
+      "note": "a slot count that is not a power of two",
+      "expect": {
+        "routingKey": "6d3133",
+        "shard": "5",
+        "token": {
+          "topologyId": "slot-small",
+          "epoch": 1
+        },
+        "factor": 1,
+        "replicaCount": 1,
+        "candidates": [
+          "c",
+          "a"
+        ],
+        "preferenceList": [
+          {
+            "node": "c",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "a",
+            "position": 1,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 2,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    }
+  ]
+}

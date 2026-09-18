@@ -1,0 +1,53 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "slot-small",
+  "epoch": 1,
+  "replication": {
+    "factor": 1
+  },
+  "strategy": {
+    "kind": "slot",
+    "slotCount": 7,
+    "assignment": "explicit",
+    "assignments": [
+      {
+        "slots": [
+          "0-2"
+        ],
+        "nodes": [
+          "a",
+          "b"
+        ]
+      },
+      {
+        "slots": [
+          "3-4"
+        ],
+        "nodes": [
+          "b",
+          "c"
+        ]
+      },
+      {
+        "slots": [
+          "5-6"
+        ],
+        "nodes": [
+          "c",
+          "a"
+        ]
+      }
+    ]
+  },
+  "nodes": [
+    {
+      "id": "a"
+    },
+    {
+      "id": "b"
+    },
+    {
+      "id": "c"
+    }
+  ]
+}

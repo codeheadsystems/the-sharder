@@ -1,0 +1,133 @@
+{
+  "vectorSet": "siphash-primitive",
+  "kind": "siphash",
+  "level": "hash",
+  "description": "SipHash-2-4 itself, at the published key and messages of `HASH-003`, so that a port that fails the construction vectors can tell which layer is wrong.",
+  "requirements": [
+    "HASH-001",
+    "HASH-002",
+    "HASH-003",
+    "HASH-040",
+    "HASH-044",
+    "SEC-015"
+  ],
+  "cases": [
+    {
+      "name": "siphash-2-4/paper/0",
+      "requirements": [
+        "HASH-001",
+        "HASH-002",
+        "HASH-003",
+        "SEC-015"
+      ],
+      "reference": "Aumasson and Bernstein, SipHash, reference vectors",
+      "key": "000102030405060708090a0b0c0d0e0f",
+      "message": "",
+      "expect": "726fdb47dd0e0e31"
+    },
+    {
+      "name": "siphash-2-4/paper/1",
+      "requirements": [
+        "HASH-001",
+        "HASH-002",
+        "HASH-003",
+        "SEC-015"
+      ],
+      "reference": "Aumasson and Bernstein, SipHash, reference vectors",
+      "key": "000102030405060708090a0b0c0d0e0f",
+      "message": "00",
+      "expect": "74f839c593dc67fd"
+    },
+    {
+      "name": "siphash-2-4/paper/7",
+      "requirements": [
+        "HASH-001",
+        "HASH-002",
+        "HASH-003",
+        "SEC-015"
+      ],
+      "reference": "Aumasson and Bernstein, SipHash, reference vectors",
+      "key": "000102030405060708090a0b0c0d0e0f",
+      "message": "00010203040506",
+      "expect": "ab0200f58b01d137"
+    },
+    {
+      "name": "siphash-2-4/paper/8",
+      "requirements": [
+        "HASH-001",
+        "HASH-002",
+        "HASH-003",
+        "SEC-015"
+      ],
+      "reference": "Aumasson and Bernstein, SipHash, reference vectors",
+      "key": "000102030405060708090a0b0c0d0e0f",
+      "message": "0001020304050607",
+      "expect": "93f5f5799a932462"
+    },
+    {
+      "name": "siphash-2-4/paper/15",
+      "requirements": [
+        "HASH-001",
+        "HASH-002",
+        "HASH-003",
+        "SEC-015"
+      ],
+      "reference": "Aumasson and Bernstein, SipHash, reference vectors",
+      "key": "000102030405060708090a0b0c0d0e0f",
+      "message": "000102030405060708090a0b0c0d0e",
+      "expect": "a129ca6149be45e5"
+    },
+    {
+      "name": "siphash-2-4/paper/16",
+      "requirements": [
+        "HASH-001",
+        "HASH-002",
+        "HASH-003",
+        "SEC-015"
+      ],
+      "reference": "Aumasson and Bernstein, SipHash, reference vectors",
+      "key": "000102030405060708090a0b0c0d0e0f",
+      "message": "000102030405060708090a0b0c0d0e0f",
+      "expect": "3f2acc7f57c29bdb"
+    },
+    {
+      "name": "siphash-2-4/paper/31",
+      "requirements": [
+        "HASH-001",
+        "HASH-002",
+        "HASH-003",
+        "SEC-015"
+      ],
+      "reference": "Aumasson and Bernstein, SipHash, reference vectors",
+      "key": "000102030405060708090a0b0c0d0e0f",
+      "message": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e",
+      "expect": "32d892fad841c342"
+    },
+    {
+      "name": "siphash-2-4/paper/32",
+      "requirements": [
+        "HASH-001",
+        "HASH-002",
+        "HASH-003",
+        "SEC-015"
+      ],
+      "reference": "Aumasson and Bernstein, SipHash, reference vectors",
+      "key": "000102030405060708090a0b0c0d0e0f",
+      "message": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "expect": "7127512f72f27cce"
+    },
+    {
+      "name": "siphash-2-4/paper/63",
+      "requirements": [
+        "HASH-001",
+        "HASH-002",
+        "HASH-003",
+        "SEC-015"
+      ],
+      "reference": "Aumasson and Bernstein, SipHash, reference vectors",
+      "key": "000102030405060708090a0b0c0d0e0f",
+      "message": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e",
+      "expect": "958a324ceb064572"
+    }
+  ]
+}

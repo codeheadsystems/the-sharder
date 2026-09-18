@@ -1,0 +1,34 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "invalid-constrain-level",
+  "epoch": 1,
+  "domainLevels": [
+    "zone"
+  ],
+  "strategy": {
+    "kind": "rendezvous"
+  },
+  "nodes": [
+    {
+      "id": "n1",
+      "domains": {
+        "zone": "za"
+      }
+    }
+  ],
+  "overrides": [
+    {
+      "match": {
+        "kind": "prefix",
+        "value": "k"
+      },
+      "constrain": {
+        "domains": {
+          "region": [
+            "eu"
+          ]
+        }
+      }
+    }
+  ]
+}

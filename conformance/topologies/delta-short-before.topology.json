@@ -1,0 +1,59 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "delta-short",
+  "epoch": 1,
+  "domainLevels": [
+    "zone"
+  ],
+  "replication": {
+    "factor": 3,
+    "spread": [
+      "zone"
+    ],
+    "spreadPolicy": "strict"
+  },
+  "strategy": {
+    "kind": "slot",
+    "slotCount": 4,
+    "assignment": "explicit",
+    "assignments": [
+      {
+        "slots": [
+          "0-3"
+        ],
+        "nodes": [
+          "a",
+          "b",
+          "c",
+          "d"
+        ]
+      }
+    ]
+  },
+  "nodes": [
+    {
+      "id": "a",
+      "domains": {
+        "zone": "z1"
+      }
+    },
+    {
+      "id": "b",
+      "domains": {
+        "zone": "z1"
+      }
+    },
+    {
+      "id": "c",
+      "domains": {
+        "zone": "z2"
+      }
+    },
+    {
+      "id": "d",
+      "domains": {
+        "zone": "z2"
+      }
+    }
+  ]
+}

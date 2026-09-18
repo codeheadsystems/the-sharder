@@ -1,0 +1,4 @@
+mode keyHash
+lambda 2927927891 mu 1699479781
+a 6b9b1719780493fd eb8bf8ead80b3a87
+b 9cba71daa13281ed eb8bf8ead80b3a87

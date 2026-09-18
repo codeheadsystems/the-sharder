@@ -1,0 +1,12 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "empty-topology",
+  "epoch": 1,
+  "replication": {
+    "factor": 3
+  },
+  "strategy": {
+    "kind": "rendezvous"
+  },
+  "nodes": []
+}

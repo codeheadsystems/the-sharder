@@ -1,0 +1,391 @@
+{
+  "vectorSet": "property-witnesses",
+  "kind": "propertyWitness",
+  "level": "core",
+  "description": "Observed counts and evaluated inequalities for every property the reference can evaluate.  The sample is deterministic, so a port reproduces these numbers exactly rather than approximately.",
+  "requirements": [
+    "PLACE-041",
+    "PROP-006",
+    "PROP-013",
+    "PROP-014",
+    "PROP-015",
+    "PROP-020",
+    "PROP-021",
+    "PROP-030",
+    "PROP-032"
+  ],
+  "cases": [
+    {
+      "name": "sample-generator",
+      "property": "P-SAMPLE-001",
+      "requirements": [
+        "PROP-006"
+      ],
+      "reference": "the deterministic sample `PROP-006` requires every bound to be drawn from",
+      "note": "SplitMix64 at the suite seed.  The generator is the suite's, and `PROP-006` requires every sampled bound to be evaluated over it, so a port checks this first and a failing property is a placement defect rather than a different sample.",
+      "expect": {
+        "seed": "5348415244455201",
+        "firstDraws": [
+          "d46a62d59930d4e9",
+          "81173fcf9194f460",
+          "fa77f9dc1136a46f",
+          "dad45cb239f6e6d1",
+          "64f27b91ef755b60",
+          "1226a347c1d90f8a",
+          "c60b0d8a000fdfce",
+          "6d37e3268c4a907b"
+        ],
+        "firstKeys": [
+          "d46a62d59930d4e981173fcf9194f460",
+          "fa77f9dc1136a46fdad45cb239f6e6d1",
+          "64f27b91ef755b601226a347c1d90f8a",
+          "c60b0d8a000fdfce6d37e3268c4a907b"
+        ]
+      }
+    },
+    {
+      "name": "balance-rendezvous-equal-weights",
+      "property": "P-BALANCE-001",
+      "requirements": [
+        "PROP-020",
+        "PROP-030"
+      ],
+      "topology": "topologies/balance-rendezvous.topology.json",
+      "sample": {
+        "generator": "splitmix64",
+        "seed": "5348415244455201",
+        "count": 100000,
+        "keyOctets": 16
+      },
+      "expect": {
+        "sumVirtualNodes": 8,
+        "sampleSize": 100000,
+        "multiplier": 20,
+        "perNode": [
+          {
+            "node": "b0",
+            "virtualNodes": 1,
+            "observed": 12484,
+            "left": 2560,
+            "right": 100000,
+            "holds": true
+          },
+          {
+            "node": "b1",
+            "virtualNodes": 1,
+            "observed": 12476,
+            "left": 3840,
+            "right": 100000,
+            "holds": true
+          },
+          {
+            "node": "b2",
+            "virtualNodes": 1,
+            "observed": 12512,
+            "left": 1920,
+            "right": 100000,
+            "holds": true
+          },
+          {
+            "node": "b3",
+            "virtualNodes": 1,
+            "observed": 12323,
+            "left": 28320,
+            "right": 100000,
+            "holds": true
+          },
+          {
+            "node": "b4",
+            "virtualNodes": 1,
+            "observed": 12667,
+            "left": 26720,
+            "right": 100000,
+            "holds": true
+          },
+          {
+            "node": "b5",
+            "virtualNodes": 1,
+            "observed": 12579,
+            "left": 12640,
+            "right": 100000,
+            "holds": true
+          },
+          {
+            "node": "b6",
+            "virtualNodes": 1,
+            "observed": 12554,
+            "left": 8640,
+            "right": 100000,
+            "holds": true
+          },
+          {
+            "node": "b7",
+            "virtualNodes": 1,
+            "observed": 12405,
+            "left": 15200,
+            "right": 100000,
+            "holds": true
+          }
+        ],
+        "passed": true,
+        "precondition": {
+          "form": "M * v_min >= 10000 * V",
+          "vMin": 1,
+          "value": 100000,
+          "threshold": 80000,
+          "holds": true
+        }
+      }
+    },
+    {
+      "name": "balance-rendezvous-weighted",
+      "property": "P-BALANCE-001",
+      "requirements": [
+        "PROP-020",
+        "PROP-030",
+        "PROP-032",
+        "PLACE-041"
+      ],
+      "topology": "topologies/balance-rendezvous-weighted.topology.json",
+      "note": "weights 1, 1, 2, 4.  `PROP-030` is exact proportionality, so the observed share tracks the virtual node share rather than the node count.",
+      "sample": {
+        "generator": "splitmix64",
+        "seed": "5348415244455201",
+        "count": 80000,
+        "keyOctets": 16
+      },
+      "expect": {
+        "sumVirtualNodes": 8,
+        "sampleSize": 80000,
+        "multiplier": 20,
+        "perNode": [
+          {
+            "node": "w1",
+            "virtualNodes": 1,
+            "observed": 10121,
+            "left": 19360,
+            "right": 80000,
+            "holds": true
+          },
+          {
+            "node": "w2",
+            "virtualNodes": 1,
+            "observed": 10017,
+            "left": 2720,
+            "right": 80000,
+            "holds": true
+          },
+          {
+            "node": "w3",
+            "virtualNodes": 2,
+            "observed": 19879,
+            "left": 19360,
+            "right": 160000,
+            "holds": true
+          },
+          {
+            "node": "w4",
+            "virtualNodes": 4,
+            "observed": 39983,
+            "left": 2720,
+            "right": 320000,
+            "holds": true
+          }
+        ],
+        "passed": true,
+        "precondition": {
+          "form": "M * v_min >= 10000 * V",
+          "vMin": 1,
+          "value": 80000,
+          "threshold": 80000,
+          "holds": true
+        }
+      }
+    },
+    {
+      "name": "balance-ring-256-tokens",
+      "property": "P-BALANCE-002",
+      "requirements": [
+        "PROP-021"
+      ],
+      "topology": "topologies/balance-ring.topology.json",
+      "note": "weight 64 at four tokens per weight unit gives 256 tokens per node, which is the threshold below which `PROP-021` states no bound.",
+      "sample": {
+        "generator": "splitmix64",
+        "seed": "5348415244455201",
+        "count": 120000,
+        "keyOctets": 16
+      },
+      "expect": {
+        "sumVirtualNodes": 2560,
+        "sampleSize": 120000,
+        "multiplier": 4,
+        "perNode": [
+          {
+            "node": "t0",
+            "virtualNodes": 256,
+            "observed": 13035,
+            "left": 10598400,
+            "right": 30720000,
+            "holds": true
+          },
+          {
+            "node": "t1",
+            "virtualNodes": 256,
+            "observed": 11366,
+            "left": 6492160,
+            "right": 30720000,
+            "holds": true
+          },
+          {
+            "node": "t2",
+            "virtualNodes": 256,
+            "observed": 11402,
+            "left": 6123520,
+            "right": 30720000,
+            "holds": true
+          },
+          {
+            "node": "t3",
+            "virtualNodes": 256,
+            "observed": 10870,
+            "left": 11571200,
+            "right": 30720000,
+            "holds": true
+          },
+          {
+            "node": "t4",
+            "virtualNodes": 256,
+            "observed": 12776,
+            "left": 7946240,
+            "right": 30720000,
+            "holds": true
+          },
+          {
+            "node": "t5",
+            "virtualNodes": 256,
+            "observed": 12281,
+            "left": 2877440,
+            "right": 30720000,
+            "holds": true
+          },
+          {
+            "node": "t6",
+            "virtualNodes": 256,
+            "observed": 11756,
+            "left": 2498560,
+            "right": 30720000,
+            "holds": true
+          },
+          {
+            "node": "t7",
+            "virtualNodes": 256,
+            "observed": 12658,
+            "left": 6737920,
+            "right": 30720000,
+            "holds": true
+          },
+          {
+            "node": "t8",
+            "virtualNodes": 256,
+            "observed": 12577,
+            "left": 5908480,
+            "right": 30720000,
+            "holds": true
+          },
+          {
+            "node": "t9",
+            "virtualNodes": 256,
+            "observed": 11279,
+            "left": 7383040,
+            "right": 30720000,
+            "holds": true
+          }
+        ],
+        "passed": true,
+        "precondition": {
+          "form": "M * t_min >= 10000 * T, and every node holds >= 256 tokens",
+          "vMin": 256,
+          "value": 30720000,
+          "threshold": 25600000,
+          "holds": true,
+          "tokensPerNodeAtLeast256": true
+        },
+        "tokensPerNode": 256
+      }
+    },
+    {
+      "name": "movement-rendezvous-add-one",
+      "property": "P-MOVEMENT-002",
+      "requirements": [
+        "PROP-013",
+        "PROP-015"
+      ],
+      "before": "topologies/movement-bound-rv-before.topology.json",
+      "after": "topologies/movement-bound-rv-after.topology.json",
+      "addedNode": "b8",
+      "note": "eight equal nodes gain a ninth, so the expected moved fraction is 1/9.",
+      "sample": {
+        "generator": "splitmix64",
+        "seed": "5348415244455201",
+        "count": 90000,
+        "keyOctets": 16
+      },
+      "expect": {
+        "sampleSize": 90000,
+        "movedCount": 10159,
+        "expectedFraction": {
+          "numerator": 1,
+          "denominator": 9
+        },
+        "multiplier": 20,
+        "left": 28620,
+        "right": 90000,
+        "passed": true,
+        "precondition": {
+          "form": "M * p_num >= 10000 * p_den",
+          "value": 90000,
+          "threshold": 90000,
+          "holds": true
+        }
+      }
+    },
+    {
+      "name": "movement-ring-add-one",
+      "property": "P-MOVEMENT-003",
+      "requirements": [
+        "PROP-014",
+        "PROP-015"
+      ],
+      "before": "topologies/movement-bound-ring-before.topology.json",
+      "after": "topologies/movement-bound-ring-after.topology.json",
+      "addedNode": "t10",
+      "note": "ten nodes of 256 tokens gain an eleventh, so the expected moved fraction is 256/2816.  `PROP-015` sets the multiplier to 4 for `ring`.",
+      "sample": {
+        "generator": "splitmix64",
+        "seed": "5348415244455201",
+        "count": 110000,
+        "keyOctets": 16
+      },
+      "expect": {
+        "sampleSize": 110000,
+        "movedCount": 9561,
+        "expectedFraction": {
+          "numerator": 256,
+          "denominator": 2816
+        },
+        "multiplier": 4,
+        "left": 4944896,
+        "right": 28160000,
+        "passed": true,
+        "precondition": {
+          "form": "M * p_num >= 10000 * p_den",
+          "value": 28160000,
+          "threshold": 28160000,
+          "holds": true
+        },
+        "tokensPerNode": 256
+      }
+    }
+  ]
+}

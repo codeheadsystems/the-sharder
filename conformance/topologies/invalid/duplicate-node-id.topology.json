@@ -1,0 +1,19 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "invalid-duplicate-id",
+  "epoch": 1,
+  "strategy": {
+    "kind": "rendezvous"
+  },
+  "nodes": [
+    {
+      "id": "dup"
+    },
+    {
+      "id": "other"
+    },
+    {
+      "id": "dup"
+    }
+  ]
+}

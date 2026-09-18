@@ -1,0 +1,200 @@
+{
+  "vectorSet": "formulas-migration-rate",
+  "kind": "formula",
+  "level": "migration",
+  "description": "Retry backoff and migration policy validation.",
+  "requirements": [
+    "MOVE-171",
+    "RATE-021",
+    "RATE-051"
+  ],
+  "cases": [
+    {
+      "name": "retryBackoffMillis/1",
+      "requirements": [
+        "RATE-051",
+        "MOVE-171"
+      ],
+      "formula": "retryBackoffMillis",
+      "inputs": {
+        "attempt": 1,
+        "retryBackoffBaseMillis": 1000,
+        "retryBackoffCapMillis": 60000
+      },
+      "expect": 1000
+    },
+    {
+      "name": "retryBackoffMillis/2",
+      "requirements": [
+        "RATE-051",
+        "MOVE-171"
+      ],
+      "formula": "retryBackoffMillis",
+      "inputs": {
+        "attempt": 2,
+        "retryBackoffBaseMillis": 1000,
+        "retryBackoffCapMillis": 60000
+      },
+      "expect": 2000
+    },
+    {
+      "name": "retryBackoffMillis/3",
+      "requirements": [
+        "RATE-051",
+        "MOVE-171"
+      ],
+      "formula": "retryBackoffMillis",
+      "inputs": {
+        "attempt": 3,
+        "retryBackoffBaseMillis": 1000,
+        "retryBackoffCapMillis": 60000
+      },
+      "expect": 4000
+    },
+    {
+      "name": "retryBackoffMillis/6",
+      "requirements": [
+        "RATE-051",
+        "MOVE-171"
+      ],
+      "formula": "retryBackoffMillis",
+      "inputs": {
+        "attempt": 6,
+        "retryBackoffBaseMillis": 1000,
+        "retryBackoffCapMillis": 60000
+      },
+      "expect": 32000
+    },
+    {
+      "name": "retryBackoffMillis/7",
+      "requirements": [
+        "RATE-051",
+        "MOVE-171"
+      ],
+      "formula": "retryBackoffMillis",
+      "inputs": {
+        "attempt": 7,
+        "retryBackoffBaseMillis": 1000,
+        "retryBackoffCapMillis": 60000
+      },
+      "expect": 60000
+    },
+    {
+      "name": "retryBackoffMillis/8",
+      "requirements": [
+        "RATE-051",
+        "MOVE-171"
+      ],
+      "formula": "retryBackoffMillis",
+      "inputs": {
+        "attempt": 8,
+        "retryBackoffBaseMillis": 1000,
+        "retryBackoffCapMillis": 60000
+      },
+      "expect": 60000
+    },
+    {
+      "name": "retryBackoffMillis/20",
+      "requirements": [
+        "RATE-051",
+        "MOVE-171"
+      ],
+      "formula": "retryBackoffMillis",
+      "inputs": {
+        "attempt": 20,
+        "retryBackoffBaseMillis": 1000,
+        "retryBackoffCapMillis": 60000
+      },
+      "expect": 60000
+    },
+    {
+      "name": "policyRefused/1-0-18446744073709551615",
+      "requirements": [
+        "RATE-021",
+        "ERR-050",
+        "CFG-050",
+        "CFG-052"
+      ],
+      "formula": "policyRefused",
+      "inputs": {
+        "initialStepBudget": 1,
+        "catchUpResidualThreshold": 0,
+        "reTransferResidualThreshold": 18446744073709551615
+      },
+      "expect": []
+    },
+    {
+      "name": "policyRefused/0-0-10",
+      "requirements": [
+        "RATE-021",
+        "ERR-050",
+        "CFG-050",
+        "CFG-052"
+      ],
+      "formula": "policyRefused",
+      "inputs": {
+        "initialStepBudget": 0,
+        "catchUpResidualThreshold": 0,
+        "reTransferResidualThreshold": 10
+      },
+      "expect": [
+        "initialStepBudgetZero"
+      ]
+    },
+    {
+      "name": "policyRefused/1-10-10",
+      "requirements": [
+        "RATE-021",
+        "ERR-050",
+        "CFG-050",
+        "CFG-052"
+      ],
+      "formula": "policyRefused",
+      "inputs": {
+        "initialStepBudget": 1,
+        "catchUpResidualThreshold": 10,
+        "reTransferResidualThreshold": 10
+      },
+      "expect": [
+        "retransferThresholdNotAboveCatchUp"
+      ]
+    },
+    {
+      "name": "policyRefused/1-10-5",
+      "requirements": [
+        "RATE-021",
+        "ERR-050",
+        "CFG-050",
+        "CFG-052"
+      ],
+      "formula": "policyRefused",
+      "inputs": {
+        "initialStepBudget": 1,
+        "catchUpResidualThreshold": 10,
+        "reTransferResidualThreshold": 5
+      },
+      "expect": [
+        "retransferThresholdNotAboveCatchUp"
+      ]
+    },
+    {
+      "name": "policyRefused/0-10-5",
+      "requirements": [
+        "RATE-021",
+        "ERR-050",
+        "CFG-050",
+        "CFG-052"
+      ],
+      "formula": "policyRefused",
+      "inputs": {
+        "initialStepBudget": 0,
+        "catchUpResidualThreshold": 10,
+        "reTransferResidualThreshold": 5
+      },
+      "expect": [
+        "initialStepBudgetZero",
+        "retransferThresholdNotAboveCatchUp"
+      ]
+    }
+  ]
+}

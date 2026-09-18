@@ -1,0 +1,691 @@
+{
+  "vectorSet": "ring-explicit-tokens",
+  "kind": "routing",
+  "level": "place",
+  "description": "Ring placement under authored tokens, including a node of weight 0 that carries tokens and therefore appears in the ordering.",
+  "requirements": [
+    "CORE-046",
+    "CORE-047",
+    "PLACE-043",
+    "PLACE-044",
+    "RING-003",
+    "RING-004",
+    "RING-005",
+    "RING-020",
+    "RING-021"
+  ],
+  "topology": "topologies/ring-explicit.topology.json",
+  "topologyDigest": "ff32327ae05a045e7bf6768d1ff6db0839d24992784611624373b32d04408683",
+  "topologyDocuments": {
+    "topologies/ring-explicit.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "ring-explicit",
+      "epoch": 3,
+      "replication": {
+        "factor": 2
+      },
+      "strategy": {
+        "kind": "ring",
+        "tokenAssignment": "explicit"
+      },
+      "nodes": [
+        {
+          "id": "n1",
+          "tokens": [
+            "1000000000000000",
+            "8000000000000000"
+          ]
+        },
+        {
+          "id": "n2",
+          "tokens": [
+            "4000000000000000",
+            "c000000000000000"
+          ]
+        },
+        {
+          "id": "n3",
+          "weight": 0,
+          "tokens": [
+            "2000000000000000"
+          ]
+        }
+      ]
+    }
+  },
+  "cases": [
+    {
+      "name": "explicit/below-first",
+      "requirements": [
+        "RING-003",
+        "RING-020"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "a"
+      },
+      "expect": {
+        "routingKey": "61",
+        "shard": "c000000000000000",
+        "token": {
+          "topologyId": "ring-explicit",
+          "epoch": 3
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "n2",
+          "n1",
+          "n3"
+        ],
+        "preferenceList": [
+          {
+            "node": "n2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n1",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n3",
+            "position": 2,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 3,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "explicit/k1",
+      "requirements": [
+        "RING-003",
+        "RING-020"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "k1"
+      },
+      "expect": {
+        "routingKey": "6b31",
+        "shard": "1000000000000000",
+        "token": {
+          "topologyId": "ring-explicit",
+          "epoch": 3
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "n1",
+          "n3",
+          "n2"
+        ],
+        "preferenceList": [
+          {
+            "node": "n1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n3",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n2",
+            "position": 2,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 3,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "explicit/k2",
+      "requirements": [
+        "RING-003",
+        "RING-020"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "k2"
+      },
+      "expect": {
+        "routingKey": "6b32",
+        "shard": "8000000000000000",
+        "token": {
+          "topologyId": "ring-explicit",
+          "epoch": 3
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "n1",
+          "n2",
+          "n3"
+        ],
+        "preferenceList": [
+          {
+            "node": "n1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n2",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n3",
+            "position": 2,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 3,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "explicit/k3",
+      "requirements": [
+        "RING-003",
+        "RING-020"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "k3"
+      },
+      "expect": {
+        "routingKey": "6b33",
+        "shard": "c000000000000000",
+        "token": {
+          "topologyId": "ring-explicit",
+          "epoch": 3
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "n2",
+          "n1",
+          "n3"
+        ],
+        "preferenceList": [
+          {
+            "node": "n2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n1",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n3",
+            "position": 2,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 3,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "explicit/weight-zero-owns-tokens",
+      "requirements": [
+        "PLACE-043",
+        "RING-004"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "k4"
+      },
+      "note": "n3 carries weight 0 and explicit tokens, so it owns ranges and appears",
+      "expect": {
+        "routingKey": "6b34",
+        "shard": "1000000000000000",
+        "token": {
+          "topologyId": "ring-explicit",
+          "epoch": 3
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "n1",
+          "n3",
+          "n2"
+        ],
+        "preferenceList": [
+          {
+            "node": "n1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n3",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n2",
+            "position": 2,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 3,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "explicit/e0",
+      "requirements": [
+        "RING-003",
+        "RING-020",
+        "RING-021"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "e0"
+      },
+      "expect": {
+        "routingKey": "6530",
+        "shard": "c000000000000000",
+        "token": {
+          "topologyId": "ring-explicit",
+          "epoch": 3
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "n2",
+          "n1",
+          "n3"
+        ],
+        "preferenceList": [
+          {
+            "node": "n2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n1",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n3",
+            "position": 2,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 3,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "explicit/e1",
+      "requirements": [
+        "RING-003",
+        "RING-020",
+        "RING-021"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "e1"
+      },
+      "expect": {
+        "routingKey": "6531",
+        "shard": "c000000000000000",
+        "token": {
+          "topologyId": "ring-explicit",
+          "epoch": 3
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "n2",
+          "n1",
+          "n3"
+        ],
+        "preferenceList": [
+          {
+            "node": "n2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n1",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n3",
+            "position": 2,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 3,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "explicit/e2",
+      "requirements": [
+        "RING-003",
+        "RING-020",
+        "RING-021"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "e2"
+      },
+      "expect": {
+        "routingKey": "6532",
+        "shard": "4000000000000000",
+        "token": {
+          "topologyId": "ring-explicit",
+          "epoch": 3
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "n2",
+          "n1",
+          "n3"
+        ],
+        "preferenceList": [
+          {
+            "node": "n2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n1",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n3",
+            "position": 2,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 3,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "explicit/e3",
+      "requirements": [
+        "RING-003",
+        "RING-020",
+        "RING-021"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "e3"
+      },
+      "expect": {
+        "routingKey": "6533",
+        "shard": "2000000000000000",
+        "token": {
+          "topologyId": "ring-explicit",
+          "epoch": 3
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "n3",
+          "n2",
+          "n1"
+        ],
+        "preferenceList": [
+          {
+            "node": "n3",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n2",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n1",
+            "position": 2,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 3,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "explicit/e4",
+      "requirements": [
+        "RING-003",
+        "RING-020",
+        "RING-021"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "e4"
+      },
+      "expect": {
+        "routingKey": "6534",
+        "shard": "c000000000000000",
+        "token": {
+          "topologyId": "ring-explicit",
+          "epoch": 3
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "n2",
+          "n1",
+          "n3"
+        ],
+        "preferenceList": [
+          {
+            "node": "n2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n1",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n3",
+            "position": 2,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 3,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "explicit/e5",
+      "requirements": [
+        "RING-003",
+        "RING-020",
+        "RING-021"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "e5"
+      },
+      "expect": {
+        "routingKey": "6535",
+        "shard": "1000000000000000",
+        "token": {
+          "topologyId": "ring-explicit",
+          "epoch": 3
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "n1",
+          "n3",
+          "n2"
+        ],
+        "preferenceList": [
+          {
+            "node": "n1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n3",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n2",
+            "position": 2,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 3,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "explicit/e6",
+      "requirements": [
+        "RING-003",
+        "RING-020",
+        "RING-021"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "e6"
+      },
+      "expect": {
+        "routingKey": "6536",
+        "shard": "1000000000000000",
+        "token": {
+          "topologyId": "ring-explicit",
+          "epoch": 3
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "n1",
+          "n3",
+          "n2"
+        ],
+        "preferenceList": [
+          {
+            "node": "n1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n3",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n2",
+            "position": 2,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 3,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "explicit/e7",
+      "requirements": [
+        "RING-003",
+        "RING-020",
+        "RING-021"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "e7"
+      },
+      "expect": {
+        "routingKey": "6537",
+        "shard": "c000000000000000",
+        "token": {
+          "topologyId": "ring-explicit",
+          "epoch": 3
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "n2",
+          "n1",
+          "n3"
+        ],
+        "preferenceList": [
+          {
+            "node": "n2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n1",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n3",
+            "position": 2,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 3,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    }
+  ]
+}

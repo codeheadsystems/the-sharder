@@ -1,0 +1,283 @@
+{
+  "vectorSet": "error-taxonomy",
+  "kind": "errorTaxonomy",
+  "level": "core",
+  "description": "The closed set of failure conditions, their codes, their retryability, their closed cause sets, and the order in which one call reports the first that holds.",
+  "requirements": [
+    "ERR-001",
+    "ERR-002",
+    "ERR-003",
+    "ERR-004",
+    "ERR-005",
+    "ERR-006",
+    "ERR-007",
+    "ERR-008",
+    "ERR-009",
+    "ERR-010",
+    "ERR-011",
+    "ERR-021"
+  ],
+  "cases": [
+    {
+      "name": "closed-set",
+      "requirements": [
+        "ERR-001",
+        "ERR-002",
+        "ERR-003",
+        "ERR-010",
+        "ERR-011"
+      ],
+      "note": "the closed set is exactly these sixteen.  A binding renders each as the idiom of its language and changes neither the code nor the name.",
+      "expect": {
+        "conditionCount": 16,
+        "conditions": [
+          {
+            "code": 101,
+            "name": "noCandidate",
+            "retryable": "no",
+            "condition": "the candidate ordering is empty",
+            "callerResponse": "inspect the topology; the same key answers the same way",
+            "causes": [
+              "emptyPlacementSet",
+              "constraintExcludedAll",
+              "noDirectoryEntry",
+              "pinExcludedAll",
+              "noSlotEntry",
+              "zeroVirtualNodes",
+              "authoredListExcludedAll",
+              "noEligibleTokenOwner"
+            ]
+          },
+          {
+            "code": 102,
+            "name": "exhausted",
+            "retryable": "yes",
+            "condition": "the attempt sequence ran out after at least one attempt",
+            "callerResponse": "back off, then retry; a retryBudget cause means the cluster is shedding",
+            "causes": [
+              "preferenceList",
+              "attemptLimit",
+              "retryBudget"
+            ]
+          },
+          {
+            "code": 103,
+            "name": "unready",
+            "retryable": "yes",
+            "condition": "no snapshot is in force",
+            "callerResponse": "wait for a first document, bounded by initialTimeoutMillis",
+            "causes": []
+          },
+          {
+            "code": 104,
+            "name": "staleSnapshot",
+            "retryable": "yes",
+            "condition": "the snapshot in force is stale and the policy is refuse",
+            "callerResponse": "wait for the provider, or serve the request from another region",
+            "causes": []
+          },
+          {
+            "code": 105,
+            "name": "invalidArgument",
+            "retryable": "no",
+            "condition": "a caller-supplied argument is outside the contract",
+            "callerResponse": "correct the call",
+            "causes": []
+          },
+          {
+            "code": 201,
+            "name": "invalidTopology",
+            "retryable": "no",
+            "condition": "a document failed schema or semantic validation",
+            "callerResponse": "fix the document at the authority; the snapshot in force is unchanged",
+            "causes": []
+          },
+          {
+            "code": 202,
+            "name": "topologyConflict",
+            "retryable": "no",
+            "condition": "a differing identifier, or an equal epoch with a new digest",
+            "callerResponse": "an authority defect; two writers are publishing one identifier",
+            "causes": []
+          },
+          {
+            "code": 203,
+            "name": "staleDocument",
+            "retryable": "no",
+            "condition": "an arriving epoch is below the epoch in force or below minEpoch",
+            "callerResponse": "none at the caller; the provider is serving a lagging replica",
+            "causes": []
+          },
+          {
+            "code": 204,
+            "name": "providerError",
+            "retryable": "yes",
+            "condition": "the provider failed to deliver a document",
+            "callerResponse": "none; the snapshot in force stays in force and the backoff applies",
+            "causes": []
+          },
+          {
+            "code": 301,
+            "name": "notOwner",
+            "retryable": "at another node",
+            "condition": "the recipient does not hold the shard for the key",
+            "callerResponse": "retry at currentOwner, bounded by maxRedirects",
+            "causes": []
+          },
+          {
+            "code": 302,
+            "name": "epochMismatch",
+            "retryable": "after a refresh",
+            "condition": "the sender is behind or ahead of the recipient",
+            "callerResponse": "refresh the topology, then retry",
+            "causes": [
+              "senderBehind",
+              "senderAhead",
+              "unfenced"
+            ]
+          },
+          {
+            "code": 303,
+            "name": "identityMismatch",
+            "retryable": "no",
+            "condition": "the two topologyId values differ",
+            "callerResponse": "operator action; epochs under two identifiers are incomparable",
+            "causes": []
+          },
+          {
+            "code": 304,
+            "name": "redirectExhausted",
+            "retryable": "no",
+            "condition": "a redirect walk reached its bound or revisited a node",
+            "callerResponse": "surface the failure; do not fall back to an arbitrary node",
+            "causes": []
+          },
+          {
+            "code": 401,
+            "name": "planRefused",
+            "retryable": "no",
+            "condition": "a plan cannot be built from the two snapshots and the policy",
+            "callerResponse": "correct the snapshots or the policy member named in cause",
+            "causes": [
+              "incomparableShards",
+              "epochNotAdvancing",
+              "strategyUnsupported",
+              "destinationOutsidePlacementSet",
+              "policyInvalid"
+            ]
+          },
+          {
+            "code": 402,
+            "name": "quiesced",
+            "retryable": "yes",
+            "condition": "the shard is inside the cutover window",
+            "callerResponse": "retry after the window, which commitDeadlineMillis bounds",
+            "causes": []
+          },
+          {
+            "code": 403,
+            "name": "handoffFailed",
+            "retryable": "no",
+            "condition": "a handoff reached failed",
+            "callerResponse": "operator action, directed by the failure kind in cause",
+            "causes": [
+              "unverified",
+              "residue",
+              "undetermined",
+              "rollbackFailed"
+            ]
+          }
+        ],
+        "codes": [
+          101,
+          102,
+          103,
+          104,
+          105,
+          201,
+          202,
+          203,
+          204,
+          301,
+          302,
+          303,
+          304,
+          401,
+          402,
+          403
+        ],
+        "names": [
+          "epochMismatch",
+          "exhausted",
+          "handoffFailed",
+          "identityMismatch",
+          "invalidArgument",
+          "invalidTopology",
+          "noCandidate",
+          "notOwner",
+          "planRefused",
+          "providerError",
+          "quiesced",
+          "redirectExhausted",
+          "staleDocument",
+          "staleSnapshot",
+          "topologyConflict",
+          "unready"
+        ]
+      }
+    },
+    {
+      "name": "report-order",
+      "requirements": [
+        "ERR-008"
+      ],
+      "note": "`ERR-008`: where more than one condition holds for one call, the first that holds in this order is reported.",
+      "expect": {
+        "order": [
+          "invalidArgument",
+          "unready",
+          "staleSnapshot",
+          "noCandidate",
+          "exhausted"
+        ]
+      }
+    },
+    {
+      "name": "shortfall-is-not-a-condition",
+      "requirements": [
+        "ERR-009",
+        "REPL-025"
+      ],
+      "note": "a preference list shorter than the effective replication factor is a successful routing decision, reported through `shortfall` on the decision.",
+      "expect": {
+        "raisesCondition": false,
+        "reportedThrough": "shortfall"
+      }
+    },
+    {
+      "name": "error-members",
+      "requirements": [
+        "ERR-004",
+        "ERR-005",
+        "ERR-006",
+        "ERR-007"
+      ],
+      "note": "every condition carries these members, and none carries the key unless `includeKeysInDiagnostics` is enabled.",
+      "expect": {
+        "members": [
+          "code",
+          "name",
+          "retryable",
+          "detail",
+          "token",
+          "shard",
+          "cause",
+          "currentOwner"
+        ],
+        "carriesKeyByDefault": false,
+        "mergeablePairs": [],
+        "causeIsAClosedSubReason": true
+      }
+    }
+  ]
+}

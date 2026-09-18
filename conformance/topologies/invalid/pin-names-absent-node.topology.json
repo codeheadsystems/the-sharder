@@ -1,0 +1,24 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "invalid-pin-absent",
+  "epoch": 1,
+  "strategy": {
+    "kind": "rendezvous"
+  },
+  "nodes": [
+    {
+      "id": "n1"
+    }
+  ],
+  "overrides": [
+    {
+      "match": {
+        "kind": "exact",
+        "value": "k"
+      },
+      "pin": [
+        "ghost"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,112 @@
+{
+  "vectorSet": "overrides-pin-keeps-shard",
+  "kind": "pinShard",
+  "level": "place",
+  "description": "A pinned routing key keeps its shard identifier, and its candidate ordering differs from the ordering the shard itself produces.",
+  "requirements": [
+    "OVR-010",
+    "OVR-016",
+    "PLACE-030",
+    "PLACE-033"
+  ],
+  "topologyDocuments": {
+    "topologies/ring-pinned.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "ring-pinned",
+      "epoch": 1,
+      "replication": {
+        "factor": 2
+      },
+      "strategy": {
+        "kind": "ring",
+        "tokenAssignment": "derived",
+        "tokensPerWeightUnit": 2
+      },
+      "nodes": [
+        {
+          "id": "rp1"
+        },
+        {
+          "id": "rp2"
+        },
+        {
+          "id": "rp3"
+        }
+      ],
+      "overrides": [
+        {
+          "match": {
+            "kind": "exact",
+            "value": "pinned-key"
+          },
+          "pin": [
+            "rp3",
+            "rp1"
+          ]
+        }
+      ]
+    }
+  },
+  "cases": [
+    {
+      "name": "pinned",
+      "requirements": [
+        "OVR-016",
+        "PLACE-030",
+        "PLACE-033"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "pinned-key"
+      },
+      "note": "`OVR-016`: `shardOf` keeps answering for a pinned key, and the pinned ordering differs from the shard's ordering, so `PLACE-033` does not hold for a pinned routing key.",
+      "expect": {
+        "shard": "6394d998107bfd9e",
+        "candidates": [
+          "rp3",
+          "rp1"
+        ],
+        "candidatesForShard": [
+          "rp2",
+          "rp3",
+          "rp1"
+        ],
+        "agrees": false,
+        "matchedOverride": {
+          "index": 0,
+          "mode": "pin"
+        }
+      }
+    },
+    {
+      "name": "unpinned",
+      "requirements": [
+        "OVR-016",
+        "PLACE-030",
+        "PLACE-033"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "other-key"
+      },
+      "note": "`OVR-016`: `shardOf` keeps answering for a pinned key, and the pinned ordering differs from the shard's ordering, so `PLACE-033` does not hold for a pinned routing key.",
+      "expect": {
+        "shard": "13649a5e59732d73",
+        "candidates": [
+          "rp2",
+          "rp1",
+          "rp3"
+        ],
+        "candidatesForShard": [
+          "rp2",
+          "rp1",
+          "rp3"
+        ],
+        "agrees": true,
+        "matchedOverride": null
+      }
+    }
+  ],
+  "topology": "topologies/ring-pinned.topology.json",
+  "topologyDigest": "2ab054497a7e65f4052e67096005d1db50dfb4b25f2265aa4732907a16928dac"
+}

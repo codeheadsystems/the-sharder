@@ -1,0 +1,170 @@
+{
+  "scenario": "node-dies-mid-migration",
+  "level": "migration",
+  "description": "The destination stops answering during `transferring`.  The health view ejects it, the step attempts exhaust, the handoff compensates, and the source keeps ownership because no cutover record was committed.",
+  "requirements": [
+    "HEALTH-005",
+    "HEALTH-041",
+    "HEALTH-043",
+    "HEALTH-048",
+    "MOVE-021",
+    "MOVE-171",
+    "MOVE-421",
+    "MOVE-481",
+    "MOVE-491"
+  ],
+  "deterministic": true,
+  "setup": {},
+  "steps": [
+    {
+      "action": "handoffStep",
+      "handoff": "h-1",
+      "trigger": "admittedByRatePolicy",
+      "at": 1000,
+      "expect": {
+        "outcome": {
+          "outcome": "advanced",
+          "id": "h-1",
+          "fromState": "planned",
+          "toState": "preparing"
+        },
+        "state": "preparing"
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-1",
+      "trigger": "prepareSuccess",
+      "at": 2000,
+      "expect": {
+        "outcome": {
+          "outcome": "advanced",
+          "id": "h-1",
+          "fromState": "preparing",
+          "toState": "transferring"
+        },
+        "state": "transferring"
+      }
+    },
+    {
+      "action": "reportHealth",
+      "node": "n4",
+      "outcome": "timeout",
+      "at": 10000,
+      "expect": {
+        "state": "suspect"
+      }
+    },
+    {
+      "action": "reportHealth",
+      "node": "n4",
+      "outcome": "timeout",
+      "at": 10500,
+      "expect": {
+        "state": "suspect"
+      }
+    },
+    {
+      "action": "reportHealth",
+      "node": "n4",
+      "outcome": "timeout",
+      "at": 11000,
+      "expect": {
+        "state": "suspect"
+      }
+    },
+    {
+      "action": "reportHealth",
+      "node": "n4",
+      "outcome": "timeout",
+      "at": 11500,
+      "expect": {
+        "state": "suspect"
+      }
+    },
+    {
+      "action": "reportHealth",
+      "node": "n4",
+      "outcome": "timeout",
+      "at": 12000,
+      "expect": {
+        "state": "unavailable"
+      }
+    },
+    {
+      "action": "reportHealth",
+      "node": "n4",
+      "outcome": "timeout",
+      "at": 12500,
+      "expect": {
+        "state": "unavailable"
+      }
+    },
+    {
+      "action": "expectHealth",
+      "node": "n4",
+      "expect": {
+        "state": "unavailable",
+        "attemptable": false
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-1",
+      "trigger": "attemptsExhausted",
+      "at": 13500,
+      "expect": {
+        "outcome": {
+          "outcome": "advanced",
+          "id": "h-1",
+          "fromState": "transferring",
+          "toState": "aborting"
+        },
+        "state": "aborting"
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-1",
+      "trigger": "rollbackSuccess",
+      "at": 15500,
+      "expect": {
+        "outcome": {
+          "outcome": "settled",
+          "id": "h-1",
+          "terminalState": "aborted",
+          "failureKind": null
+        },
+        "state": "aborted"
+      }
+    },
+    {
+      "action": "routeInView",
+      "view": "source",
+      "topology": "topologies/migration-epoch-1.topology.json",
+      "key": {
+        "encoding": "base16",
+        "value": "05"
+      },
+      "note": "`MOVE-421`: the source is untouched by the abort, so the shard is still served",
+      "expect": {
+        "shard": "1",
+        "token": {
+          "topologyId": "migration",
+          "epoch": 1
+        },
+        "preferenceList": [
+          "n2",
+          "n3"
+        ],
+        "replicaCount": 2
+      }
+    },
+    {
+      "action": "expectSummary",
+      "expect": {
+        "aborted": 1
+      }
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "invalid-duplicate-matcher",
+  "epoch": 1,
+  "strategy": {
+    "kind": "rendezvous"
+  },
+  "nodes": [
+    {
+      "id": "n1"
+    },
+    {
+      "id": "n2"
+    }
+  ],
+  "overrides": [
+    {
+      "match": {
+        "kind": "exact",
+        "value": "same"
+      },
+      "pin": [
+        "n1"
+      ]
+    },
+    {
+      "match": {
+        "kind": "exact",
+        "value": "same"
+      },
+      "pin": [
+        "n2"
+      ]
+    }
+  ]
+}

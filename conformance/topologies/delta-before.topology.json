@@ -1,0 +1,47 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "delta",
+  "epoch": 1,
+  "replication": {
+    "factor": 2
+  },
+  "strategy": {
+    "kind": "slot",
+    "slotCount": 6,
+    "assignment": "explicit",
+    "assignments": [
+      {
+        "slots": [
+          "0-2"
+        ],
+        "nodes": [
+          "a",
+          "b"
+        ]
+      },
+      {
+        "slots": [
+          "3-5"
+        ],
+        "nodes": [
+          "b",
+          "c"
+        ]
+      }
+    ]
+  },
+  "nodes": [
+    {
+      "id": "a"
+    },
+    {
+      "id": "b"
+    },
+    {
+      "id": "c"
+    },
+    {
+      "id": "d"
+    }
+  ]
+}

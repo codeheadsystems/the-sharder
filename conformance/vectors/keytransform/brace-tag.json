@@ -1,0 +1,204 @@
+{
+  "vectorSet": "keytransform-brace-tag",
+  "kind": "keyTransform",
+  "level": "place",
+  "description": "The `braceTag` transform at the default delimiters.",
+  "requirements": [
+    "KEY-030",
+    "KEY-031",
+    "KEY-032",
+    "KEY-033",
+    "KEY-034",
+    "KEY-035",
+    "KEY-036"
+  ],
+  "topologyDocuments": {
+    "topologies/kt-brace.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "kt-brace",
+      "epoch": 1,
+      "keyTransform": {
+        "kind": "braceTag"
+      },
+      "strategy": {
+        "kind": "rendezvous"
+      },
+      "nodes": [
+        {
+          "id": "n1"
+        }
+      ]
+    }
+  },
+  "cases": [
+    {
+      "name": "tagged",
+      "requirements": [
+        "KEY-030"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "a{b}c"
+      },
+      "note": "the tagged octets",
+      "expect": {
+        "routingKey": "62"
+      }
+    },
+    {
+      "name": "delimiter-at-zero",
+      "requirements": [
+        "KEY-030"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "{b}"
+      },
+      "note": "KEY-034: position zero is not special",
+      "expect": {
+        "routingKey": "62"
+      }
+    },
+    {
+      "name": "empty-tag",
+      "requirements": [
+        "KEY-030"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "{}"
+      },
+      "note": "KEY-033: no octet between the delimiters",
+      "expect": {
+        "routingKey": "7b7d"
+      }
+    },
+    {
+      "name": "no-close",
+      "requirements": [
+        "KEY-030"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "{abc"
+      },
+      "note": "KEY-032",
+      "expect": {
+        "routingKey": "7b616263"
+      }
+    },
+    {
+      "name": "no-open",
+      "requirements": [
+        "KEY-030"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "abc}"
+      },
+      "note": "KEY-031",
+      "expect": {
+        "routingKey": "6162637d"
+      }
+    },
+    {
+      "name": "close-before-open",
+      "requirements": [
+        "KEY-030"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "}a{b}"
+      },
+      "note": "KEY-035: the earlier close is ignored",
+      "expect": {
+        "routingKey": "62"
+      }
+    },
+    {
+      "name": "no-nesting",
+      "requirements": [
+        "KEY-030"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "{a{b}c}"
+      },
+      "note": "KEY-036",
+      "expect": {
+        "routingKey": "617b62"
+      }
+    },
+    {
+      "name": "empty-key",
+      "requirements": [
+        "KEY-030"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": ""
+      },
+      "note": "KEY-031: no open octet",
+      "expect": {
+        "routingKey": ""
+      }
+    },
+    {
+      "name": "redis-style",
+      "requirements": [
+        "KEY-030"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "session:{u-9912}:profile"
+      },
+      "note": "the documented hash tag case",
+      "expect": {
+        "routingKey": "752d39393132"
+      }
+    },
+    {
+      "name": "open-at-end",
+      "requirements": [
+        "KEY-030"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "abc{"
+      },
+      "note": "KEY-032",
+      "expect": {
+        "routingKey": "6162637b"
+      }
+    },
+    {
+      "name": "adjacent-pair",
+      "requirements": [
+        "KEY-030"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "{}{x}"
+      },
+      "note": "KEY-033 applies to the first pair",
+      "expect": {
+        "routingKey": "7b7d7b787d"
+      }
+    },
+    {
+      "name": "multibyte-inside",
+      "requirements": [
+        "KEY-030"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "a{café}b"
+      },
+      "note": "KEY-012: the delimiter search is over octets",
+      "expect": {
+        "routingKey": "636166c3a9"
+      }
+    }
+  ],
+  "topology": "topologies/kt-brace.topology.json"
+}

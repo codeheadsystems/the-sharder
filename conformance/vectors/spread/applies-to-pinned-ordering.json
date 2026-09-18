@@ -1,0 +1,193 @@
+{
+  "vectorSet": "spread-applies-to-pinned-ordering",
+  "kind": "routing",
+  "level": "place",
+  "description": "A pin is exempt from the balance and movement bounds and is not exempt from spread.",
+  "requirements": [
+    "CORE-046",
+    "CORE-047",
+    "OVR-013",
+    "PROP-050",
+    "REPL-013",
+    "SPREAD-004"
+  ],
+  "topologyDocuments": {
+    "topologies/spread-pinned.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "spread-pinned",
+      "epoch": 1,
+      "domainLevels": [
+        "zone"
+      ],
+      "replication": {
+        "factor": 3,
+        "spread": [
+          "zone"
+        ],
+        "spreadPolicy": "strict"
+      },
+      "strategy": {
+        "kind": "rendezvous"
+      },
+      "nodes": [
+        {
+          "id": "sp-a1",
+          "domains": {
+            "zone": "za"
+          }
+        },
+        {
+          "id": "sp-a2",
+          "domains": {
+            "zone": "za"
+          }
+        },
+        {
+          "id": "sp-b1",
+          "domains": {
+            "zone": "zb"
+          }
+        },
+        {
+          "id": "sp-c1",
+          "domains": {
+            "zone": "zc"
+          }
+        }
+      ],
+      "overrides": [
+        {
+          "match": {
+            "kind": "exact",
+            "value": "pinned-key"
+          },
+          "pin": [
+            "sp-a1",
+            "sp-a2",
+            "sp-b1",
+            "sp-c1"
+          ]
+        }
+      ]
+    }
+  },
+  "cases": [
+    {
+      "name": "pinned",
+      "requirements": [
+        "SPREAD-004",
+        "OVR-013",
+        "PROP-050"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "pinned-key"
+      },
+      "note": "`SPREAD-004`: spread applies to a pinned ordering by filtering it, never by reordering it.  Under `strict` the pinned key admits one node per zone, so `sp-a2` is skipped and reappears in the tail at its original position.",
+      "expect": {
+        "routingKey": "70696e6e65642d6b6579",
+        "shard": "70696e6e65642d6b6579",
+        "token": {
+          "topologyId": "spread-pinned",
+          "epoch": 1
+        },
+        "factor": 3,
+        "replicaCount": 3,
+        "candidates": [
+          "sp-a1",
+          "sp-a2",
+          "sp-b1",
+          "sp-c1"
+        ],
+        "preferenceList": [
+          {
+            "node": "sp-a1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "sp-b1",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "sp-c1",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "sp-a2",
+            "position": 3,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 4,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": {
+          "index": 0,
+          "mode": "pin"
+        }
+      }
+    },
+    {
+      "name": "unpinned",
+      "requirements": [
+        "SPREAD-004",
+        "OVR-013",
+        "PROP-050"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "other-key"
+      },
+      "note": "`SPREAD-004`: spread applies to a pinned ordering by filtering it, never by reordering it.  Under `strict` the pinned key admits one node per zone, so `sp-a2` is skipped and reappears in the tail at its original position.",
+      "expect": {
+        "routingKey": "6f746865722d6b6579",
+        "shard": "6f746865722d6b6579",
+        "token": {
+          "topologyId": "spread-pinned",
+          "epoch": 1
+        },
+        "factor": 3,
+        "replicaCount": 3,
+        "candidates": [
+          "sp-b1",
+          "sp-a1",
+          "sp-a2",
+          "sp-c1"
+        ],
+        "preferenceList": [
+          {
+            "node": "sp-b1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "sp-a1",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "sp-c1",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "sp-a2",
+            "position": 3,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 4,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    }
+  ],
+  "topology": "topologies/spread-pinned.topology.json",
+  "topologyDigest": "e86bcb4493b8a7779c155333892d569dbcf9f4ed8684efa763be5044a9377710"
+}

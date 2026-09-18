@@ -1,0 +1,27 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "rv-capped",
+  "epoch": 2,
+  "replication": {
+    "factor": 2
+  },
+  "strategy": {
+    "kind": "rendezvous",
+    "virtualNodesPerWeightUnit": 4,
+    "maxVirtualNodesPerNode": 6
+  },
+  "nodes": [
+    {
+      "id": "small",
+      "weight": 1
+    },
+    {
+      "id": "medium",
+      "weight": 2
+    },
+    {
+      "id": "clamped",
+      "weight": 100
+    }
+  ]
+}

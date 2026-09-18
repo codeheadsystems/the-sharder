@@ -1,0 +1,644 @@
+{
+  "vectorSet": "formulas-health",
+  "kind": "formula",
+  "level": "failover",
+  "description": "The closed-form integer arithmetic of the health state machine.",
+  "requirements": [
+    "CORE-005",
+    "HEALTH-021",
+    "HEALTH-023",
+    "HEALTH-031",
+    "HEALTH-032",
+    "HEALTH-034",
+    "HEALTH-050",
+    "HEALTH-051",
+    "HEALTH-055"
+  ],
+  "cases": [
+    {
+      "name": "failurePercent/0-0",
+      "requirements": [
+        "HEALTH-021",
+        "HEALTH-023"
+      ],
+      "formula": "failurePercent",
+      "inputs": {
+        "successes": 0,
+        "failures": 0
+      },
+      "note": "integer division truncating towards zero; 1 of 3 is 33, not 34",
+      "expect": 0
+    },
+    {
+      "name": "failurePercent/1-0",
+      "requirements": [
+        "HEALTH-021",
+        "HEALTH-023"
+      ],
+      "formula": "failurePercent",
+      "inputs": {
+        "successes": 1,
+        "failures": 0
+      },
+      "note": "integer division truncating towards zero; 1 of 3 is 33, not 34",
+      "expect": 0
+    },
+    {
+      "name": "failurePercent/0-1",
+      "requirements": [
+        "HEALTH-021",
+        "HEALTH-023"
+      ],
+      "formula": "failurePercent",
+      "inputs": {
+        "successes": 0,
+        "failures": 1
+      },
+      "note": "integer division truncating towards zero; 1 of 3 is 33, not 34",
+      "expect": 100
+    },
+    {
+      "name": "failurePercent/2-1",
+      "requirements": [
+        "HEALTH-021",
+        "HEALTH-023"
+      ],
+      "formula": "failurePercent",
+      "inputs": {
+        "successes": 2,
+        "failures": 1
+      },
+      "note": "integer division truncating towards zero; 1 of 3 is 33, not 34",
+      "expect": 33
+    },
+    {
+      "name": "failurePercent/1-2",
+      "requirements": [
+        "HEALTH-021",
+        "HEALTH-023"
+      ],
+      "formula": "failurePercent",
+      "inputs": {
+        "successes": 1,
+        "failures": 2
+      },
+      "note": "integer division truncating towards zero; 1 of 3 is 33, not 34",
+      "expect": 66
+    },
+    {
+      "name": "failurePercent/99-1",
+      "requirements": [
+        "HEALTH-021",
+        "HEALTH-023"
+      ],
+      "formula": "failurePercent",
+      "inputs": {
+        "successes": 99,
+        "failures": 1
+      },
+      "note": "integer division truncating towards zero; 1 of 3 is 33, not 34",
+      "expect": 1
+    },
+    {
+      "name": "failurePercent/1-99",
+      "requirements": [
+        "HEALTH-021",
+        "HEALTH-023"
+      ],
+      "formula": "failurePercent",
+      "inputs": {
+        "successes": 1,
+        "failures": 99
+      },
+      "note": "integer division truncating towards zero; 1 of 3 is 33, not 34",
+      "expect": 99
+    },
+    {
+      "name": "failurePercent/3-4",
+      "requirements": [
+        "HEALTH-021",
+        "HEALTH-023"
+      ],
+      "formula": "failurePercent",
+      "inputs": {
+        "successes": 3,
+        "failures": 4
+      },
+      "note": "integer division truncating towards zero; 1 of 3 is 33, not 34",
+      "expect": 57
+    },
+    {
+      "name": "failurePercent/7-3",
+      "requirements": [
+        "HEALTH-021",
+        "HEALTH-023"
+      ],
+      "formula": "failurePercent",
+      "inputs": {
+        "successes": 7,
+        "failures": 3
+      },
+      "note": "integer division truncating towards zero; 1 of 3 is 33, not 34",
+      "expect": 30
+    },
+    {
+      "name": "failurePercent/1-1",
+      "requirements": [
+        "HEALTH-021",
+        "HEALTH-023"
+      ],
+      "formula": "failurePercent",
+      "inputs": {
+        "successes": 1,
+        "failures": 1
+      },
+      "note": "integer division truncating towards zero; 1 of 3 is 33, not 34",
+      "expect": 50
+    },
+    {
+      "name": "ejectionRefused/0-50-3",
+      "requirements": [
+        "CORE-005",
+        "HEALTH-034"
+      ],
+      "formula": "ejectionRefused",
+      "inputs": {
+        "ejected": 0,
+        "maxEjectionPercent": 50,
+        "placementSetSize": 3
+      },
+      "note": "`(ejected + 1) * 100 > maxEjectionPercent * placementSetSize`, a strict comparison, so exactly half the set may be ejected",
+      "expect": false
+    },
+    {
+      "name": "ejectionRefused/1-50-3",
+      "requirements": [
+        "CORE-005",
+        "HEALTH-034"
+      ],
+      "formula": "ejectionRefused",
+      "inputs": {
+        "ejected": 1,
+        "maxEjectionPercent": 50,
+        "placementSetSize": 3
+      },
+      "note": "`(ejected + 1) * 100 > maxEjectionPercent * placementSetSize`, a strict comparison, so exactly half the set may be ejected",
+      "expect": true
+    },
+    {
+      "name": "ejectionRefused/1-50-4",
+      "requirements": [
+        "CORE-005",
+        "HEALTH-034"
+      ],
+      "formula": "ejectionRefused",
+      "inputs": {
+        "ejected": 1,
+        "maxEjectionPercent": 50,
+        "placementSetSize": 4
+      },
+      "note": "`(ejected + 1) * 100 > maxEjectionPercent * placementSetSize`, a strict comparison, so exactly half the set may be ejected",
+      "expect": false
+    },
+    {
+      "name": "ejectionRefused/2-50-4",
+      "requirements": [
+        "CORE-005",
+        "HEALTH-034"
+      ],
+      "formula": "ejectionRefused",
+      "inputs": {
+        "ejected": 2,
+        "maxEjectionPercent": 50,
+        "placementSetSize": 4
+      },
+      "note": "`(ejected + 1) * 100 > maxEjectionPercent * placementSetSize`, a strict comparison, so exactly half the set may be ejected",
+      "expect": true
+    },
+    {
+      "name": "ejectionRefused/1-50-6",
+      "requirements": [
+        "CORE-005",
+        "HEALTH-034"
+      ],
+      "formula": "ejectionRefused",
+      "inputs": {
+        "ejected": 1,
+        "maxEjectionPercent": 50,
+        "placementSetSize": 6
+      },
+      "note": "`(ejected + 1) * 100 > maxEjectionPercent * placementSetSize`, a strict comparison, so exactly half the set may be ejected",
+      "expect": false
+    },
+    {
+      "name": "ejectionRefused/2-50-6",
+      "requirements": [
+        "CORE-005",
+        "HEALTH-034"
+      ],
+      "formula": "ejectionRefused",
+      "inputs": {
+        "ejected": 2,
+        "maxEjectionPercent": 50,
+        "placementSetSize": 6
+      },
+      "note": "`(ejected + 1) * 100 > maxEjectionPercent * placementSetSize`, a strict comparison, so exactly half the set may be ejected",
+      "expect": false
+    },
+    {
+      "name": "ejectionRefused/3-50-6",
+      "requirements": [
+        "CORE-005",
+        "HEALTH-034"
+      ],
+      "formula": "ejectionRefused",
+      "inputs": {
+        "ejected": 3,
+        "maxEjectionPercent": 50,
+        "placementSetSize": 6
+      },
+      "note": "`(ejected + 1) * 100 > maxEjectionPercent * placementSetSize`, a strict comparison, so exactly half the set may be ejected",
+      "expect": true
+    },
+    {
+      "name": "ejectionRefused/0-0-10",
+      "requirements": [
+        "CORE-005",
+        "HEALTH-034"
+      ],
+      "formula": "ejectionRefused",
+      "inputs": {
+        "ejected": 0,
+        "maxEjectionPercent": 0,
+        "placementSetSize": 10
+      },
+      "note": "`(ejected + 1) * 100 > maxEjectionPercent * placementSetSize`, a strict comparison, so exactly half the set may be ejected",
+      "expect": true
+    },
+    {
+      "name": "ejectionRefused/5-100-10",
+      "requirements": [
+        "CORE-005",
+        "HEALTH-034"
+      ],
+      "formula": "ejectionRefused",
+      "inputs": {
+        "ejected": 5,
+        "maxEjectionPercent": 100,
+        "placementSetSize": 10
+      },
+      "note": "`(ejected + 1) * 100 > maxEjectionPercent * placementSetSize`, a strict comparison, so exactly half the set may be ejected",
+      "expect": false
+    },
+    {
+      "name": "ejectionMillis/1",
+      "requirements": [
+        "HEALTH-050"
+      ],
+      "formula": "ejectionMillis",
+      "inputs": {
+        "ejectionCount": 1,
+        "baseEjectionMillis": 30000,
+        "maxEjectionMillis": 300000
+      },
+      "note": "the shift is clamped at ten before it is applied, so it never overflows",
+      "expect": 30000
+    },
+    {
+      "name": "ejectionMillis/2",
+      "requirements": [
+        "HEALTH-050"
+      ],
+      "formula": "ejectionMillis",
+      "inputs": {
+        "ejectionCount": 2,
+        "baseEjectionMillis": 30000,
+        "maxEjectionMillis": 300000
+      },
+      "note": "the shift is clamped at ten before it is applied, so it never overflows",
+      "expect": 60000
+    },
+    {
+      "name": "ejectionMillis/3",
+      "requirements": [
+        "HEALTH-050"
+      ],
+      "formula": "ejectionMillis",
+      "inputs": {
+        "ejectionCount": 3,
+        "baseEjectionMillis": 30000,
+        "maxEjectionMillis": 300000
+      },
+      "note": "the shift is clamped at ten before it is applied, so it never overflows",
+      "expect": 120000
+    },
+    {
+      "name": "ejectionMillis/4",
+      "requirements": [
+        "HEALTH-050"
+      ],
+      "formula": "ejectionMillis",
+      "inputs": {
+        "ejectionCount": 4,
+        "baseEjectionMillis": 30000,
+        "maxEjectionMillis": 300000
+      },
+      "note": "the shift is clamped at ten before it is applied, so it never overflows",
+      "expect": 240000
+    },
+    {
+      "name": "ejectionMillis/10",
+      "requirements": [
+        "HEALTH-050"
+      ],
+      "formula": "ejectionMillis",
+      "inputs": {
+        "ejectionCount": 10,
+        "baseEjectionMillis": 30000,
+        "maxEjectionMillis": 300000
+      },
+      "note": "the shift is clamped at ten before it is applied, so it never overflows",
+      "expect": 300000
+    },
+    {
+      "name": "ejectionMillis/11",
+      "requirements": [
+        "HEALTH-050"
+      ],
+      "formula": "ejectionMillis",
+      "inputs": {
+        "ejectionCount": 11,
+        "baseEjectionMillis": 30000,
+        "maxEjectionMillis": 300000
+      },
+      "note": "the shift is clamped at ten before it is applied, so it never overflows",
+      "expect": 300000
+    },
+    {
+      "name": "ejectionMillis/12",
+      "requirements": [
+        "HEALTH-050"
+      ],
+      "formula": "ejectionMillis",
+      "inputs": {
+        "ejectionCount": 12,
+        "baseEjectionMillis": 30000,
+        "maxEjectionMillis": 300000
+      },
+      "note": "the shift is clamped at ten before it is applied, so it never overflows",
+      "expect": 300000
+    },
+    {
+      "name": "ejectionMillis/20",
+      "requirements": [
+        "HEALTH-050"
+      ],
+      "formula": "ejectionMillis",
+      "inputs": {
+        "ejectionCount": 20,
+        "baseEjectionMillis": 30000,
+        "maxEjectionMillis": 300000
+      },
+      "note": "the shift is clamped at ten before it is applied, so it never overflows",
+      "expect": 300000
+    },
+    {
+      "name": "ejectionMillis/64",
+      "requirements": [
+        "HEALTH-050"
+      ],
+      "formula": "ejectionMillis",
+      "inputs": {
+        "ejectionCount": 64,
+        "baseEjectionMillis": 30000,
+        "maxEjectionMillis": 300000
+      },
+      "note": "the shift is clamped at ten before it is applied, so it never overflows",
+      "expect": 300000
+    },
+    {
+      "name": "probeAdmitted/1",
+      "requirements": [
+        "HEALTH-051"
+      ],
+      "formula": "probeAdmitted",
+      "inputs": {
+        "probeCounterAfterIncrement": 1,
+        "probationDivisor": 16
+      },
+      "note": "admitted when the incremented value modulo the divisor is 1, so the first call after entering probation is admitted",
+      "expect": true
+    },
+    {
+      "name": "probeAdmitted/2",
+      "requirements": [
+        "HEALTH-051"
+      ],
+      "formula": "probeAdmitted",
+      "inputs": {
+        "probeCounterAfterIncrement": 2,
+        "probationDivisor": 16
+      },
+      "note": "admitted when the incremented value modulo the divisor is 1, so the first call after entering probation is admitted",
+      "expect": false
+    },
+    {
+      "name": "probeAdmitted/15",
+      "requirements": [
+        "HEALTH-051"
+      ],
+      "formula": "probeAdmitted",
+      "inputs": {
+        "probeCounterAfterIncrement": 15,
+        "probationDivisor": 16
+      },
+      "note": "admitted when the incremented value modulo the divisor is 1, so the first call after entering probation is admitted",
+      "expect": false
+    },
+    {
+      "name": "probeAdmitted/16",
+      "requirements": [
+        "HEALTH-051"
+      ],
+      "formula": "probeAdmitted",
+      "inputs": {
+        "probeCounterAfterIncrement": 16,
+        "probationDivisor": 16
+      },
+      "note": "admitted when the incremented value modulo the divisor is 1, so the first call after entering probation is admitted",
+      "expect": false
+    },
+    {
+      "name": "probeAdmitted/17",
+      "requirements": [
+        "HEALTH-051"
+      ],
+      "formula": "probeAdmitted",
+      "inputs": {
+        "probeCounterAfterIncrement": 17,
+        "probationDivisor": 16
+      },
+      "note": "admitted when the incremented value modulo the divisor is 1, so the first call after entering probation is admitted",
+      "expect": true
+    },
+    {
+      "name": "probeAdmitted/32",
+      "requirements": [
+        "HEALTH-051"
+      ],
+      "formula": "probeAdmitted",
+      "inputs": {
+        "probeCounterAfterIncrement": 32,
+        "probationDivisor": 16
+      },
+      "note": "admitted when the incremented value modulo the divisor is 1, so the first call after entering probation is admitted",
+      "expect": false
+    },
+    {
+      "name": "probeAdmitted/33",
+      "requirements": [
+        "HEALTH-051"
+      ],
+      "formula": "probeAdmitted",
+      "inputs": {
+        "probeCounterAfterIncrement": 33,
+        "probationDivisor": 16
+      },
+      "note": "admitted when the incremented value modulo the divisor is 1, so the first call after entering probation is admitted",
+      "expect": true
+    },
+    {
+      "name": "peerMedian/0-10-20",
+      "requirements": [
+        "HEALTH-031"
+      ],
+      "formula": "peerMedian",
+      "inputs": {
+        "values": [
+          0,
+          10,
+          20
+        ]
+      },
+      "note": "the lower of the two central values where the count is even",
+      "expect": 10
+    },
+    {
+      "name": "peerMedian/0-10-20-30",
+      "requirements": [
+        "HEALTH-031"
+      ],
+      "formula": "peerMedian",
+      "inputs": {
+        "values": [
+          0,
+          10,
+          20,
+          30
+        ]
+      },
+      "note": "the lower of the two central values where the count is even",
+      "expect": 10
+    },
+    {
+      "name": "peerMedian/5",
+      "requirements": [
+        "HEALTH-031"
+      ],
+      "formula": "peerMedian",
+      "inputs": {
+        "values": [
+          5
+        ]
+      },
+      "note": "the lower of the two central values where the count is even",
+      "expect": 5
+    },
+    {
+      "name": "peerMedian/1-2",
+      "requirements": [
+        "HEALTH-031"
+      ],
+      "formula": "peerMedian",
+      "inputs": {
+        "values": [
+          1,
+          2
+        ]
+      },
+      "note": "the lower of the two central values where the count is even",
+      "expect": 1
+    },
+    {
+      "name": "peerMedian/50-50-50-50-50-50",
+      "requirements": [
+        "HEALTH-031"
+      ],
+      "formula": "peerMedian",
+      "inputs": {
+        "values": [
+          50,
+          50,
+          50,
+          50,
+          50,
+          50
+        ]
+      },
+      "note": "the lower of the two central values where the count is even",
+      "expect": 50
+    },
+    {
+      "name": "isOutlier/30-0-30",
+      "requirements": [
+        "HEALTH-032"
+      ],
+      "formula": "isOutlier",
+      "inputs": {
+        "failurePercent": 30,
+        "peerMedian": 0,
+        "outlierMarginPercent": 30
+      },
+      "expect": true
+    },
+    {
+      "name": "isOutlier/29-0-30",
+      "requirements": [
+        "HEALTH-032"
+      ],
+      "formula": "isOutlier",
+      "inputs": {
+        "failurePercent": 29,
+        "peerMedian": 0,
+        "outlierMarginPercent": 30
+      },
+      "expect": false
+    },
+    {
+      "name": "isOutlier/60-30-30",
+      "requirements": [
+        "HEALTH-032"
+      ],
+      "formula": "isOutlier",
+      "inputs": {
+        "failurePercent": 60,
+        "peerMedian": 30,
+        "outlierMarginPercent": 30
+      },
+      "expect": true
+    },
+    {
+      "name": "isOutlier/59-30-30",
+      "requirements": [
+        "HEALTH-032"
+      ],
+      "formula": "isOutlier",
+      "inputs": {
+        "failurePercent": 59,
+        "peerMedian": 30,
+        "outlierMarginPercent": 30
+      },
+      "expect": false
+    }
+  ]
+}

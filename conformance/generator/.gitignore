@@ -1,0 +1,5 @@
+# Build output of the collision searcher.  The search results in `collisions/` are inputs to the
+# suite and are committed; the binary that produced them is not.
+rho_search
+__pycache__/
+*.pyc

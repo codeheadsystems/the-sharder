@@ -1,0 +1,18 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "kt-continuation",
+  "epoch": 1,
+  "keyTransform": {
+    "kind": "prefixFields",
+    "separator": "a9",
+    "count": 1
+  },
+  "strategy": {
+    "kind": "rendezvous"
+  },
+  "nodes": [
+    {
+      "id": "n1"
+    }
+  ]
+}

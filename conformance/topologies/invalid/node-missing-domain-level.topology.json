@@ -1,0 +1,20 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "invalid-missing-domain",
+  "epoch": 1,
+  "domainLevels": [
+    "zone",
+    "rack"
+  ],
+  "strategy": {
+    "kind": "rendezvous"
+  },
+  "nodes": [
+    {
+      "id": "n1",
+      "domains": {
+        "zone": "za"
+      }
+    }
+  ]
+}

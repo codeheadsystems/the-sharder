@@ -1,0 +1,319 @@
+{
+  "vectorSet": "replication-factor-exceeds-node-count",
+  "kind": "routing",
+  "level": "place",
+  "description": "A replication factor above the eligible node count produces a shorter replica prefix, never a repeated node, and never a failed call.",
+  "requirements": [
+    "CORE-046",
+    "CORE-047",
+    "ERR-009",
+    "REPL-011",
+    "REPL-020",
+    "REPL-021",
+    "REPL-025"
+  ],
+  "topology": "topologies/factor-exceeds-nodes.topology.json",
+  "topologyDigest": "ce5879007c0bf0f8c29b9052d58dca4764581a17699fc26e80ce052a3508d826",
+  "topologyDocuments": {
+    "topologies/factor-exceeds-nodes.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "factor-exceeds-nodes",
+      "epoch": 1,
+      "domainLevels": [
+        "zone"
+      ],
+      "replication": {
+        "factor": 5,
+        "spread": [
+          "zone"
+        ],
+        "spreadPolicy": "relaxed"
+      },
+      "strategy": {
+        "kind": "rendezvous"
+      },
+      "nodes": [
+        {
+          "id": "n1",
+          "domains": {
+            "zone": "za"
+          }
+        },
+        {
+          "id": "n2",
+          "domains": {
+            "zone": "zb"
+          }
+        },
+        {
+          "id": "n3",
+          "domains": {
+            "zone": "zc"
+          }
+        }
+      ]
+    }
+  },
+  "cases": [
+    {
+      "name": "factor-above-node-count/0",
+      "requirements": [
+        "REPL-020",
+        "REPL-021",
+        "REPL-025"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "x0"
+      },
+      "note": "factor 5 over 3 nodes: r is 3 and the cause is `nodes`",
+      "expect": {
+        "routingKey": "7830",
+        "shard": "7830",
+        "token": {
+          "topologyId": "factor-exceeds-nodes",
+          "epoch": 1
+        },
+        "factor": 5,
+        "replicaCount": 3,
+        "candidates": [
+          "n2",
+          "n3",
+          "n1"
+        ],
+        "preferenceList": [
+          {
+            "node": "n2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n3",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n1",
+            "position": 2,
+            "role": "replica"
+          }
+        ],
+        "materialisedEntries": 3,
+        "relaxedLevels": [
+          "zone"
+        ],
+        "spreadStage": 1,
+        "shortfall": "nodes",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "factor-above-node-count/1",
+      "requirements": [
+        "REPL-020",
+        "REPL-021",
+        "REPL-025"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "x1"
+      },
+      "note": "factor 5 over 3 nodes: r is 3 and the cause is `nodes`",
+      "expect": {
+        "routingKey": "7831",
+        "shard": "7831",
+        "token": {
+          "topologyId": "factor-exceeds-nodes",
+          "epoch": 1
+        },
+        "factor": 5,
+        "replicaCount": 3,
+        "candidates": [
+          "n1",
+          "n3",
+          "n2"
+        ],
+        "preferenceList": [
+          {
+            "node": "n1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n3",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n2",
+            "position": 2,
+            "role": "replica"
+          }
+        ],
+        "materialisedEntries": 3,
+        "relaxedLevels": [
+          "zone"
+        ],
+        "spreadStage": 1,
+        "shortfall": "nodes",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "factor-above-node-count/2",
+      "requirements": [
+        "REPL-020",
+        "REPL-021",
+        "REPL-025"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "x2"
+      },
+      "note": "factor 5 over 3 nodes: r is 3 and the cause is `nodes`",
+      "expect": {
+        "routingKey": "7832",
+        "shard": "7832",
+        "token": {
+          "topologyId": "factor-exceeds-nodes",
+          "epoch": 1
+        },
+        "factor": 5,
+        "replicaCount": 3,
+        "candidates": [
+          "n3",
+          "n1",
+          "n2"
+        ],
+        "preferenceList": [
+          {
+            "node": "n3",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n1",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n2",
+            "position": 2,
+            "role": "replica"
+          }
+        ],
+        "materialisedEntries": 3,
+        "relaxedLevels": [
+          "zone"
+        ],
+        "spreadStage": 1,
+        "shortfall": "nodes",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "factor-above-node-count/3",
+      "requirements": [
+        "REPL-020",
+        "REPL-021",
+        "REPL-025"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "x3"
+      },
+      "note": "factor 5 over 3 nodes: r is 3 and the cause is `nodes`",
+      "expect": {
+        "routingKey": "7833",
+        "shard": "7833",
+        "token": {
+          "topologyId": "factor-exceeds-nodes",
+          "epoch": 1
+        },
+        "factor": 5,
+        "replicaCount": 3,
+        "candidates": [
+          "n1",
+          "n3",
+          "n2"
+        ],
+        "preferenceList": [
+          {
+            "node": "n1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n3",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n2",
+            "position": 2,
+            "role": "replica"
+          }
+        ],
+        "materialisedEntries": 3,
+        "relaxedLevels": [
+          "zone"
+        ],
+        "spreadStage": 1,
+        "shortfall": "nodes",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "factor-above-node-count/4",
+      "requirements": [
+        "REPL-020",
+        "REPL-021",
+        "REPL-025"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "x4"
+      },
+      "note": "factor 5 over 3 nodes: r is 3 and the cause is `nodes`",
+      "expect": {
+        "routingKey": "7834",
+        "shard": "7834",
+        "token": {
+          "topologyId": "factor-exceeds-nodes",
+          "epoch": 1
+        },
+        "factor": 5,
+        "replicaCount": 3,
+        "candidates": [
+          "n3",
+          "n2",
+          "n1"
+        ],
+        "preferenceList": [
+          {
+            "node": "n3",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n2",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n1",
+            "position": 2,
+            "role": "replica"
+          }
+        ],
+        "materialisedEntries": 3,
+        "relaxedLevels": [
+          "zone"
+        ],
+        "spreadStage": 1,
+        "shortfall": "nodes",
+        "matchedOverride": null
+      }
+    }
+  ]
+}

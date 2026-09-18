@@ -1,0 +1,301 @@
+{
+  "scenario": "redirect-walk-depth-limit",
+  "level": "fencing",
+  "description": "A caller follows `currentOwner` refusals, and the walk terminates at the redirect bound, on revisiting a node it already attempted, on an identity its own snapshot does not carry, or where the retry budget refuses the redirect.",
+  "requirements": [
+    "CFG-040",
+    "ERR-043",
+    "FAIL-030",
+    "FAIL-031",
+    "FENCE-171",
+    "FENCE-181",
+    "FENCE-191",
+    "FENCE-211",
+    "FENCE-221",
+    "FENCE-231"
+  ],
+  "deterministic": true,
+  "setup": {},
+  "steps": [
+    {
+      "action": "redirectWalk",
+      "name": "served-immediately",
+      "start": "n2",
+      "refusals": {
+        "n2": null
+      },
+      "maxRedirects": 2,
+      "note": "the first node serves",
+      "expect": {
+        "attempted": [
+          "n2"
+        ],
+        "outcome": "served",
+        "redirectsFollowed": 0
+      }
+    },
+    {
+      "action": "redirectWalk",
+      "name": "one-redirect",
+      "start": "n2",
+      "refusals": {
+        "n2": "n4",
+        "n4": null
+      },
+      "maxRedirects": 2,
+      "note": "one hop",
+      "expect": {
+        "attempted": [
+          "n2",
+          "n4"
+        ],
+        "outcome": "served",
+        "redirectsFollowed": 1
+      }
+    },
+    {
+      "action": "redirectWalk",
+      "name": "bound-reached",
+      "start": "n2",
+      "refusals": {
+        "n2": "n4",
+        "n4": "n3",
+        "n3": "n1",
+        "n1": null
+      },
+      "maxRedirects": 2,
+      "note": "`FENCE-181`: the walk stops at `maxRedirects`, defaulting to 2",
+      "expect": {
+        "attempted": [
+          "n2",
+          "n4",
+          "n3"
+        ],
+        "outcome": "redirectExhausted",
+        "cause": "boundReached",
+        "redirectsFollowed": 2,
+        "condition": {
+          "code": 304,
+          "name": "redirectExhausted"
+        }
+      }
+    },
+    {
+      "action": "redirectWalk",
+      "name": "revisited-node",
+      "start": "n2",
+      "refusals": {
+        "n2": "n4",
+        "n4": "n2"
+      },
+      "maxRedirects": 5,
+      "note": "`FENCE-191`: a redirect naming an already attempted node terminates the walk",
+      "expect": {
+        "attempted": [
+          "n2",
+          "n4"
+        ],
+        "outcome": "redirectExhausted",
+        "cause": "revisitedNode",
+        "redirectsFollowed": 1,
+        "condition": {
+          "code": 304,
+          "name": "redirectExhausted"
+        }
+      }
+    },
+    {
+      "action": "redirectWalk",
+      "name": "bound-zero",
+      "start": "n2",
+      "refusals": {
+        "n2": "n4"
+      },
+      "maxRedirects": 0,
+      "note": "a bound of 0 permits no redirect at all",
+      "expect": {
+        "attempted": [
+          "n2"
+        ],
+        "outcome": "redirectExhausted",
+        "cause": "boundReached",
+        "redirectsFollowed": 0,
+        "condition": {
+          "code": 304,
+          "name": "redirectExhausted"
+        }
+      }
+    },
+    {
+      "action": "redirectWalk",
+      "name": "unknown-node",
+      "start": "n2",
+      "refusals": {
+        "n2": "n9"
+      },
+      "maxRedirects": 2,
+      "note": "`FENCE-171`: the named identity is absent from the caller's own `nodes` list",
+      "expect": {
+        "attempted": [
+          "n2"
+        ],
+        "outcome": "redirectExhausted",
+        "cause": "unknownNode",
+        "redirectsFollowed": 0,
+        "condition": {
+          "code": 304,
+          "name": "redirectExhausted"
+        }
+      },
+      "nodes": [
+        "n1",
+        "n2",
+        "n3",
+        "n4"
+      ]
+    },
+    {
+      "action": "redirectWalk",
+      "name": "budget-permits",
+      "start": "n2",
+      "refusals": {
+        "n2": "n4",
+        "n4": "n3",
+        "n3": null
+      },
+      "maxRedirects": 5,
+      "note": "`FENCE-231`: each followed redirect is a retry, and the window has room for both",
+      "expect": {
+        "attempted": [
+          "n2",
+          "n4",
+          "n3"
+        ],
+        "outcome": "served",
+        "redirectsFollowed": 2,
+        "budgetRetries": 2
+      },
+      "nodes": [
+        "n1",
+        "n2",
+        "n3",
+        "n4"
+      ],
+      "budget": {
+        "firstAttempts": 100,
+        "retries": 0,
+        "percent": 20,
+        "minimum": 3
+      }
+    },
+    {
+      "action": "redirectWalk",
+      "name": "budget-refuses-second",
+      "start": "n2",
+      "refusals": {
+        "n2": "n4",
+        "n4": "n3",
+        "n3": null
+      },
+      "maxRedirects": 5,
+      "note": "the first redirect spends the window and the second is refused",
+      "expect": {
+        "attempted": [
+          "n2",
+          "n4"
+        ],
+        "outcome": "redirectExhausted",
+        "cause": "retryBudget",
+        "redirectsFollowed": 1,
+        "condition": {
+          "code": 304,
+          "name": "redirectExhausted"
+        },
+        "budgetRetries": 6
+      },
+      "nodes": [
+        "n1",
+        "n2",
+        "n3",
+        "n4"
+      ],
+      "budget": {
+        "firstAttempts": 10,
+        "retries": 5,
+        "percent": 20,
+        "minimum": 3
+      }
+    },
+    {
+      "action": "redirectWalk",
+      "name": "budget-refuses-first",
+      "start": "n2",
+      "refusals": {
+        "n2": "n4",
+        "n4": null
+      },
+      "maxRedirects": 5,
+      "note": "`FAIL-032` exempts a first attempt and not a redirect, so the walk never starts",
+      "expect": {
+        "attempted": [
+          "n2"
+        ],
+        "outcome": "redirectExhausted",
+        "cause": "retryBudget",
+        "redirectsFollowed": 0,
+        "condition": {
+          "code": 304,
+          "name": "redirectExhausted"
+        },
+        "budgetRetries": 4
+      },
+      "nodes": [
+        "n1",
+        "n2",
+        "n3",
+        "n4"
+      ],
+      "budget": {
+        "firstAttempts": 0,
+        "retries": 4,
+        "percent": 20,
+        "minimum": 3
+      }
+    },
+    {
+      "action": "redirectWalk",
+      "name": "bound-before-budget",
+      "start": "n2",
+      "refusals": {
+        "n2": "n4"
+      },
+      "maxRedirects": 0,
+      "note": "`FENCE-221`: the bound is evaluated before the budget, so the budget is not spent",
+      "expect": {
+        "attempted": [
+          "n2"
+        ],
+        "outcome": "redirectExhausted",
+        "cause": "boundReached",
+        "redirectsFollowed": 0,
+        "condition": {
+          "code": 304,
+          "name": "redirectExhausted"
+        },
+        "budgetRetries": 4
+      },
+      "nodes": [
+        "n1",
+        "n2",
+        "n3",
+        "n4"
+      ],
+      "budget": {
+        "firstAttempts": 0,
+        "retries": 4,
+        "percent": 20,
+        "minimum": 3
+      }
+    }
+  ]
+}

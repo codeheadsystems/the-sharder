@@ -1,0 +1,48 @@
+{
+  "vectorSet": "adversarial-empty-topology-ring",
+  "kind": "routing",
+  "level": "place",
+  "description": "The same empty topology under `ring`, where the ring order itself is empty.",
+  "requirements": [
+    "CORE-046",
+    "CORE-047",
+    "ERR-020",
+    "PLACE-005",
+    "RING-024"
+  ],
+  "topology": "topologies/empty-nodes-ring.topology.json",
+  "topologyDigest": "256738da32eada4abf387e629f42242db11a2a52f38b44ca4273457e3ca49880",
+  "topologyDocuments": {
+    "topologies/empty-nodes-ring.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "empty-topology-ring",
+      "epoch": 1,
+      "replication": {
+        "factor": 1
+      },
+      "strategy": {
+        "kind": "ring"
+      },
+      "nodes": []
+    }
+  },
+  "cases": [
+    {
+      "name": "empty-ring",
+      "requirements": [
+        "PLACE-005",
+        "RING-024"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "anything"
+      },
+      "note": "no eligible node owns a token",
+      "expectError": {
+        "code": 101,
+        "name": "noCandidate",
+        "cause": "emptyPlacementSet"
+      }
+    }
+  ]
+}

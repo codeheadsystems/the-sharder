@@ -1,0 +1,25 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "invalid-spread-level",
+  "epoch": 1,
+  "domainLevels": [
+    "zone"
+  ],
+  "replication": {
+    "factor": 2,
+    "spread": [
+      "rack"
+    ]
+  },
+  "strategy": {
+    "kind": "rendezvous"
+  },
+  "nodes": [
+    {
+      "id": "n1",
+      "domains": {
+        "zone": "za"
+      }
+    }
+  ]
+}

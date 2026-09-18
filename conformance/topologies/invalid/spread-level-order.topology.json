@@ -1,0 +1,28 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "invalid-spread-order",
+  "epoch": 1,
+  "domainLevels": [
+    "region",
+    "zone"
+  ],
+  "replication": {
+    "factor": 2,
+    "spread": [
+      "zone",
+      "region"
+    ]
+  },
+  "strategy": {
+    "kind": "rendezvous"
+  },
+  "nodes": [
+    {
+      "id": "n1",
+      "domains": {
+        "region": "eu",
+        "zone": "a"
+      }
+    }
+  ]
+}

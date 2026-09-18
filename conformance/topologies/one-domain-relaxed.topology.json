@@ -1,0 +1,44 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "one-domain-relaxed",
+  "epoch": 1,
+  "domainLevels": [
+    "zone"
+  ],
+  "replication": {
+    "factor": 3,
+    "spread": [
+      "zone"
+    ],
+    "spreadPolicy": "relaxed"
+  },
+  "strategy": {
+    "kind": "rendezvous"
+  },
+  "nodes": [
+    {
+      "id": "n1",
+      "domains": {
+        "zone": "za"
+      }
+    },
+    {
+      "id": "n2",
+      "domains": {
+        "zone": "za"
+      }
+    },
+    {
+      "id": "n3",
+      "domains": {
+        "zone": "za"
+      }
+    },
+    {
+      "id": "n4",
+      "domains": {
+        "zone": "za"
+      }
+    }
+  ]
+}

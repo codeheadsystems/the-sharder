@@ -1,0 +1,470 @@
+{
+  "vectorSet": "scale-ring-1000",
+  "kind": "scale",
+  "level": "scale",
+  "description": "A thousand nodes on a ring of over a million derived tokens: the token total, the shard cardinality, and six routing decisions over it.",
+  "requirements": [
+    "CORE-046",
+    "CORE-047",
+    "PLACE-015",
+    "PLACE-050",
+    "PLACE-052",
+    "PLACE-070",
+    "PLACE-071",
+    "PLACE-074",
+    "RING-010",
+    "RING-020",
+    "RING-021",
+    "RING-026",
+    "RING-031"
+  ],
+  "topology": "topologies/scale-ring-1000.topology.json",
+  "topologyDigest": "e3975f887932698d344504b03e8d6ea5a9c1a8404335828b7f4143b7f95f9a4f",
+  "cases": [
+    {
+      "name": "ring-1000-nodes",
+      "requirements": [
+        "CORE-046",
+        "CORE-047",
+        "PLACE-015",
+        "PLACE-050",
+        "PLACE-052",
+        "PLACE-070",
+        "PLACE-071",
+        "PLACE-074",
+        "RING-010",
+        "RING-020",
+        "RING-021",
+        "RING-026",
+        "RING-031"
+      ],
+      "note": "`PLACE-070` charges preparation at `T` hash evaluations and `T log T` comparisons, and one routing call at a walk of up to `T` entries.  A port that walks the whole ordering on every call pays the second figure on every key.",
+      "topology": "topologies/scale-ring-1000.topology.json",
+      "expect": {
+        "nodeCount": 1000,
+        "placementSetCount": 1000,
+        "total": 1036288,
+        "totalSetting": "ringWarnTokens",
+        "shardCount": 1036288,
+        "shardPrefix": [
+          "000002fe3b6bc1a3",
+          "00000d947c257040",
+          "0000284a8f64ad0f",
+          "000031335c9645d7",
+          "0000334723140618",
+          "0000493b1b720fee",
+          "000051de3e9ac272",
+          "000059f4f83fd597"
+        ],
+        "candidatesForFirstShard": [
+          "node-0690",
+          "node-0647",
+          "node-0980",
+          "node-0472",
+          "node-0509",
+          "node-0582",
+          "node-0539",
+          "node-0109"
+        ],
+        "rows": [
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "tenant-0001:orders:38291"
+            },
+            "routingKey": "74656e616e742d303030313a6f72646572733a3338323931",
+            "shard": "907922b046ae76e0",
+            "factor": 3,
+            "replicaCount": 3,
+            "candidatePrefix": [
+              "node-0920",
+              "node-0810",
+              "node-0250",
+              "node-0066",
+              "node-0971",
+              "node-0200",
+              "node-0242",
+              "node-0576"
+            ],
+            "preferenceListPrefix": [
+              {
+                "node": "node-0920",
+                "position": 0,
+                "role": "replica"
+              },
+              {
+                "node": "node-0810",
+                "position": 1,
+                "role": "replica"
+              },
+              {
+                "node": "node-0066",
+                "position": 2,
+                "role": "replica"
+              },
+              {
+                "node": "node-0250",
+                "position": 3,
+                "role": "fallback"
+              },
+              {
+                "node": "node-0971",
+                "position": 4,
+                "role": "fallback"
+              },
+              {
+                "node": "node-0200",
+                "position": 5,
+                "role": "fallback"
+              },
+              {
+                "node": "node-0242",
+                "position": 6,
+                "role": "fallback"
+              },
+              {
+                "node": "node-0576",
+                "position": 7,
+                "role": "fallback"
+              }
+            ],
+            "materialisedEntries": 5,
+            "relaxedLevels": [],
+            "spreadStage": 0,
+            "shortfall": "none"
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "tenant-0042:sessions:a"
+            },
+            "routingKey": "74656e616e742d303034323a73657373696f6e733a61",
+            "shard": "9d82577a40f82c11",
+            "factor": 3,
+            "replicaCount": 3,
+            "candidatePrefix": [
+              "node-0167",
+              "node-0181",
+              "node-0680",
+              "node-0541",
+              "node-0605",
+              "node-0492",
+              "node-0253",
+              "node-0715"
+            ],
+            "preferenceListPrefix": [
+              {
+                "node": "node-0167",
+                "position": 0,
+                "role": "replica"
+              },
+              {
+                "node": "node-0181",
+                "position": 1,
+                "role": "replica"
+              },
+              {
+                "node": "node-0680",
+                "position": 2,
+                "role": "replica"
+              },
+              {
+                "node": "node-0541",
+                "position": 3,
+                "role": "fallback"
+              },
+              {
+                "node": "node-0605",
+                "position": 4,
+                "role": "fallback"
+              },
+              {
+                "node": "node-0492",
+                "position": 5,
+                "role": "fallback"
+              },
+              {
+                "node": "node-0253",
+                "position": 6,
+                "role": "fallback"
+              },
+              {
+                "node": "node-0715",
+                "position": 7,
+                "role": "fallback"
+              }
+            ],
+            "materialisedEntries": 5,
+            "relaxedLevels": [],
+            "spreadStage": 0,
+            "shortfall": "none"
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "acme"
+            },
+            "routingKey": "61636d65",
+            "shard": "24b9c26b14a3ad98",
+            "factor": 3,
+            "replicaCount": 3,
+            "candidatePrefix": [
+              "node-0293",
+              "node-0313",
+              "node-0141",
+              "node-0285",
+              "node-0754",
+              "node-0707",
+              "node-0472",
+              "node-0615"
+            ],
+            "preferenceListPrefix": [
+              {
+                "node": "node-0293",
+                "position": 0,
+                "role": "replica"
+              },
+              {
+                "node": "node-0141",
+                "position": 1,
+                "role": "replica"
+              },
+              {
+                "node": "node-0285",
+                "position": 2,
+                "role": "replica"
+              },
+              {
+                "node": "node-0313",
+                "position": 3,
+                "role": "fallback"
+              },
+              {
+                "node": "node-0754",
+                "position": 4,
+                "role": "fallback"
+              },
+              {
+                "node": "node-0707",
+                "position": 5,
+                "role": "fallback"
+              },
+              {
+                "node": "node-0472",
+                "position": 6,
+                "role": "fallback"
+              },
+              {
+                "node": "node-0615",
+                "position": 7,
+                "role": "fallback"
+              }
+            ],
+            "materialisedEntries": 5,
+            "relaxedLevels": [],
+            "spreadStage": 0,
+            "shortfall": "none"
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "\u0000\u0001\u0002\u0003"
+            },
+            "routingKey": "00010203",
+            "shard": "8a8d5de4cc699121",
+            "factor": 3,
+            "replicaCount": 3,
+            "candidatePrefix": [
+              "node-0175",
+              "node-0395",
+              "node-0524",
+              "node-0688",
+              "node-0301",
+              "node-0775",
+              "node-0307",
+              "node-0025"
+            ],
+            "preferenceListPrefix": [
+              {
+                "node": "node-0175",
+                "position": 0,
+                "role": "replica"
+              },
+              {
+                "node": "node-0524",
+                "position": 1,
+                "role": "replica"
+              },
+              {
+                "node": "node-0688",
+                "position": 2,
+                "role": "replica"
+              },
+              {
+                "node": "node-0395",
+                "position": 3,
+                "role": "fallback"
+              },
+              {
+                "node": "node-0301",
+                "position": 4,
+                "role": "fallback"
+              },
+              {
+                "node": "node-0775",
+                "position": 5,
+                "role": "fallback"
+              },
+              {
+                "node": "node-0307",
+                "position": 6,
+                "role": "fallback"
+              },
+              {
+                "node": "node-0025",
+                "position": 7,
+                "role": "fallback"
+              }
+            ],
+            "materialisedEntries": 5,
+            "relaxedLevels": [],
+            "spreadStage": 0,
+            "shortfall": "none"
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "tenant-0999:ledger:0000000000"
+            },
+            "routingKey": "74656e616e742d303939393a6c65646765723a30303030303030303030",
+            "shard": "ca7d9e9208971def",
+            "factor": 3,
+            "replicaCount": 3,
+            "candidatePrefix": [
+              "node-0035",
+              "node-0335",
+              "node-0155",
+              "node-0822",
+              "node-0773",
+              "node-0252",
+              "node-0349",
+              "node-0176"
+            ],
+            "preferenceListPrefix": [
+              {
+                "node": "node-0035",
+                "position": 0,
+                "role": "replica"
+              },
+              {
+                "node": "node-0822",
+                "position": 1,
+                "role": "replica"
+              },
+              {
+                "node": "node-0773",
+                "position": 2,
+                "role": "replica"
+              },
+              {
+                "node": "node-0335",
+                "position": 3,
+                "role": "fallback"
+              },
+              {
+                "node": "node-0155",
+                "position": 4,
+                "role": "fallback"
+              },
+              {
+                "node": "node-0252",
+                "position": 5,
+                "role": "fallback"
+              },
+              {
+                "node": "node-0349",
+                "position": 6,
+                "role": "fallback"
+              },
+              {
+                "node": "node-0176",
+                "position": 7,
+                "role": "fallback"
+              }
+            ],
+            "materialisedEntries": 5,
+            "relaxedLevels": [],
+            "spreadStage": 0,
+            "shortfall": "none"
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "zz-last-tenant"
+            },
+            "routingKey": "7a7a2d6c6173742d74656e616e74",
+            "shard": "0356d5cb1eb74f34",
+            "factor": 3,
+            "replicaCount": 3,
+            "candidatePrefix": [
+              "node-0062",
+              "node-0214",
+              "node-0074",
+              "node-0529",
+              "node-0844",
+              "node-0773",
+              "node-0441",
+              "node-0937"
+            ],
+            "preferenceListPrefix": [
+              {
+                "node": "node-0062",
+                "position": 0,
+                "role": "replica"
+              },
+              {
+                "node": "node-0214",
+                "position": 1,
+                "role": "replica"
+              },
+              {
+                "node": "node-0529",
+                "position": 2,
+                "role": "replica"
+              },
+              {
+                "node": "node-0074",
+                "position": 3,
+                "role": "fallback"
+              },
+              {
+                "node": "node-0844",
+                "position": 4,
+                "role": "fallback"
+              },
+              {
+                "node": "node-0773",
+                "position": 5,
+                "role": "fallback"
+              },
+              {
+                "node": "node-0441",
+                "position": 6,
+                "role": "fallback"
+              },
+              {
+                "node": "node-0937",
+                "position": 7,
+                "role": "fallback"
+              }
+            ],
+            "materialisedEntries": 5,
+            "relaxedLevels": [],
+            "spreadStage": 0,
+            "shortfall": "none"
+          }
+        ]
+      }
+    }
+  ]
+}

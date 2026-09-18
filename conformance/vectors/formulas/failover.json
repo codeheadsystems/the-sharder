@@ -1,0 +1,398 @@
+{
+  "vectorSet": "formulas-failover",
+  "kind": "formula",
+  "level": "failover",
+  "description": "The retry budget, the default attempt limit, and the order in which a routing call resolves the limit it carries.",
+  "requirements": [
+    "CFG-020",
+    "CFG-021",
+    "CORE-005",
+    "CORE-045",
+    "CORE-048",
+    "FAIL-021",
+    "FAIL-022",
+    "FAIL-030",
+    "FAIL-031",
+    "FAIL-032",
+    "FAIL-033",
+    "FAIL-034",
+    "FAIL-035"
+  ],
+  "cases": [
+    {
+      "name": "retryPermitted/0-0-20-3",
+      "requirements": [
+        "CORE-005",
+        "FAIL-030",
+        "FAIL-031",
+        "FAIL-032",
+        "FAIL-035"
+      ],
+      "formula": "retryPermitted",
+      "inputs": {
+        "retries": 0,
+        "firstAttempts": 0,
+        "retryBudgetPercent": 20,
+        "retryBudgetMinimum": 3
+      },
+      "note": "`retries * 100 <= retryBudgetPercent * firstAttempts + 100 * minimum`",
+      "expect": true
+    },
+    {
+      "name": "retryPermitted/3-0-20-3",
+      "requirements": [
+        "CORE-005",
+        "FAIL-030",
+        "FAIL-031",
+        "FAIL-032",
+        "FAIL-035"
+      ],
+      "formula": "retryPermitted",
+      "inputs": {
+        "retries": 3,
+        "firstAttempts": 0,
+        "retryBudgetPercent": 20,
+        "retryBudgetMinimum": 3
+      },
+      "note": "`retries * 100 <= retryBudgetPercent * firstAttempts + 100 * minimum`",
+      "expect": true
+    },
+    {
+      "name": "retryPermitted/4-0-20-3",
+      "requirements": [
+        "CORE-005",
+        "FAIL-030",
+        "FAIL-031",
+        "FAIL-032",
+        "FAIL-035"
+      ],
+      "formula": "retryPermitted",
+      "inputs": {
+        "retries": 4,
+        "firstAttempts": 0,
+        "retryBudgetPercent": 20,
+        "retryBudgetMinimum": 3
+      },
+      "note": "`retries * 100 <= retryBudgetPercent * firstAttempts + 100 * minimum`",
+      "expect": false
+    },
+    {
+      "name": "retryPermitted/5-10-20-3",
+      "requirements": [
+        "CORE-005",
+        "FAIL-030",
+        "FAIL-031",
+        "FAIL-032",
+        "FAIL-035"
+      ],
+      "formula": "retryPermitted",
+      "inputs": {
+        "retries": 5,
+        "firstAttempts": 10,
+        "retryBudgetPercent": 20,
+        "retryBudgetMinimum": 3
+      },
+      "note": "`retries * 100 <= retryBudgetPercent * firstAttempts + 100 * minimum`",
+      "expect": true
+    },
+    {
+      "name": "retryPermitted/6-10-20-3",
+      "requirements": [
+        "CORE-005",
+        "FAIL-030",
+        "FAIL-031",
+        "FAIL-032",
+        "FAIL-035"
+      ],
+      "formula": "retryPermitted",
+      "inputs": {
+        "retries": 6,
+        "firstAttempts": 10,
+        "retryBudgetPercent": 20,
+        "retryBudgetMinimum": 3
+      },
+      "note": "`retries * 100 <= retryBudgetPercent * firstAttempts + 100 * minimum`",
+      "expect": false
+    },
+    {
+      "name": "retryPermitted/23-100-20-3",
+      "requirements": [
+        "CORE-005",
+        "FAIL-030",
+        "FAIL-031",
+        "FAIL-032",
+        "FAIL-035"
+      ],
+      "formula": "retryPermitted",
+      "inputs": {
+        "retries": 23,
+        "firstAttempts": 100,
+        "retryBudgetPercent": 20,
+        "retryBudgetMinimum": 3
+      },
+      "note": "`retries * 100 <= retryBudgetPercent * firstAttempts + 100 * minimum`",
+      "expect": true
+    },
+    {
+      "name": "retryPermitted/24-100-20-3",
+      "requirements": [
+        "CORE-005",
+        "FAIL-030",
+        "FAIL-031",
+        "FAIL-032",
+        "FAIL-035"
+      ],
+      "formula": "retryPermitted",
+      "inputs": {
+        "retries": 24,
+        "firstAttempts": 100,
+        "retryBudgetPercent": 20,
+        "retryBudgetMinimum": 3
+      },
+      "note": "`retries * 100 <= retryBudgetPercent * firstAttempts + 100 * minimum`",
+      "expect": false
+    },
+    {
+      "name": "retryPermitted/0-1000-0-0",
+      "requirements": [
+        "CORE-005",
+        "FAIL-030",
+        "FAIL-031",
+        "FAIL-032",
+        "FAIL-035"
+      ],
+      "formula": "retryPermitted",
+      "inputs": {
+        "retries": 0,
+        "firstAttempts": 1000,
+        "retryBudgetPercent": 0,
+        "retryBudgetMinimum": 0
+      },
+      "note": "`retries * 100 <= retryBudgetPercent * firstAttempts + 100 * minimum`",
+      "expect": true
+    },
+    {
+      "name": "retryPermitted/1-1000-0-0",
+      "requirements": [
+        "CORE-005",
+        "FAIL-030",
+        "FAIL-031",
+        "FAIL-032",
+        "FAIL-035"
+      ],
+      "formula": "retryPermitted",
+      "inputs": {
+        "retries": 1,
+        "firstAttempts": 1000,
+        "retryBudgetPercent": 0,
+        "retryBudgetMinimum": 0
+      },
+      "note": "`retries * 100 <= retryBudgetPercent * firstAttempts + 100 * minimum`",
+      "expect": false
+    },
+    {
+      "name": "defaultAttemptLimit/1-10",
+      "requirements": [
+        "CORE-048",
+        "FAIL-021",
+        "FAIL-022"
+      ],
+      "formula": "defaultAttemptLimit",
+      "inputs": {
+        "factor": 1,
+        "attemptSequenceLength": 10
+      },
+      "note": "`n + 2`, clamped to the length of the attempt sequence",
+      "expect": 3
+    },
+    {
+      "name": "defaultAttemptLimit/3-10",
+      "requirements": [
+        "CORE-048",
+        "FAIL-021",
+        "FAIL-022"
+      ],
+      "formula": "defaultAttemptLimit",
+      "inputs": {
+        "factor": 3,
+        "attemptSequenceLength": 10
+      },
+      "note": "`n + 2`, clamped to the length of the attempt sequence",
+      "expect": 5
+    },
+    {
+      "name": "defaultAttemptLimit/3-4",
+      "requirements": [
+        "CORE-048",
+        "FAIL-021",
+        "FAIL-022"
+      ],
+      "formula": "defaultAttemptLimit",
+      "inputs": {
+        "factor": 3,
+        "attemptSequenceLength": 4
+      },
+      "note": "`n + 2`, clamped to the length of the attempt sequence",
+      "expect": 4
+    },
+    {
+      "name": "defaultAttemptLimit/1-2",
+      "requirements": [
+        "CORE-048",
+        "FAIL-021",
+        "FAIL-022"
+      ],
+      "formula": "defaultAttemptLimit",
+      "inputs": {
+        "factor": 1,
+        "attemptSequenceLength": 2
+      },
+      "note": "`n + 2`, clamped to the length of the attempt sequence",
+      "expect": 2
+    },
+    {
+      "name": "defaultAttemptLimit/5-5",
+      "requirements": [
+        "CORE-048",
+        "FAIL-021",
+        "FAIL-022"
+      ],
+      "formula": "defaultAttemptLimit",
+      "inputs": {
+        "factor": 5,
+        "attemptSequenceLength": 5
+      },
+      "note": "`n + 2`, clamped to the length of the attempt sequence",
+      "expect": 5
+    },
+    {
+      "name": "defaultAttemptLimit/1-1",
+      "requirements": [
+        "CORE-048",
+        "FAIL-021",
+        "FAIL-022"
+      ],
+      "formula": "defaultAttemptLimit",
+      "inputs": {
+        "factor": 1,
+        "attemptSequenceLength": 1
+      },
+      "note": "`n + 2`, clamped to the length of the attempt sequence",
+      "expect": 1
+    },
+    {
+      "name": "resolvedAttemptLimit/none-none-3-10",
+      "requirements": [
+        "CORE-045",
+        "CORE-048",
+        "FAIL-021",
+        "FAIL-022",
+        "CFG-020"
+      ],
+      "formula": "resolvedAttemptLimit",
+      "inputs": {
+        "routeOptionsAttemptLimit": null,
+        "configuredAttemptLimit": null,
+        "factor": 3,
+        "attemptSequenceLength": 10
+      },
+      "note": "the call's limit, else the configured one, else `n + 2`, then clamped to the attempt sequence length",
+      "expect": 5
+    },
+    {
+      "name": "resolvedAttemptLimit/none-5-3-10",
+      "requirements": [
+        "CORE-045",
+        "CORE-048",
+        "FAIL-021",
+        "FAIL-022",
+        "CFG-020"
+      ],
+      "formula": "resolvedAttemptLimit",
+      "inputs": {
+        "routeOptionsAttemptLimit": null,
+        "configuredAttemptLimit": 5,
+        "factor": 3,
+        "attemptSequenceLength": 10
+      },
+      "note": "the call's limit, else the configured one, else `n + 2`, then clamped to the attempt sequence length",
+      "expect": 5
+    },
+    {
+      "name": "resolvedAttemptLimit/7-5-3-10",
+      "requirements": [
+        "CORE-045",
+        "CORE-048",
+        "FAIL-021",
+        "FAIL-022",
+        "CFG-020"
+      ],
+      "formula": "resolvedAttemptLimit",
+      "inputs": {
+        "routeOptionsAttemptLimit": 7,
+        "configuredAttemptLimit": 5,
+        "factor": 3,
+        "attemptSequenceLength": 10
+      },
+      "note": "the call's limit, else the configured one, else `n + 2`, then clamped to the attempt sequence length",
+      "expect": 7
+    },
+    {
+      "name": "resolvedAttemptLimit/none-5-3-4",
+      "requirements": [
+        "CORE-045",
+        "CORE-048",
+        "FAIL-021",
+        "FAIL-022",
+        "CFG-020"
+      ],
+      "formula": "resolvedAttemptLimit",
+      "inputs": {
+        "routeOptionsAttemptLimit": null,
+        "configuredAttemptLimit": 5,
+        "factor": 3,
+        "attemptSequenceLength": 4
+      },
+      "note": "the call's limit, else the configured one, else `n + 2`, then clamped to the attempt sequence length",
+      "expect": 4
+    },
+    {
+      "name": "resolvedAttemptLimit/1-none-3-10",
+      "requirements": [
+        "CORE-045",
+        "CORE-048",
+        "FAIL-021",
+        "FAIL-022",
+        "CFG-020"
+      ],
+      "formula": "resolvedAttemptLimit",
+      "inputs": {
+        "routeOptionsAttemptLimit": 1,
+        "configuredAttemptLimit": null,
+        "factor": 3,
+        "attemptSequenceLength": 10
+      },
+      "note": "the call's limit, else the configured one, else `n + 2`, then clamped to the attempt sequence length",
+      "expect": 1
+    },
+    {
+      "name": "resolvedAttemptLimit/none-12-1-6",
+      "requirements": [
+        "CORE-045",
+        "CORE-048",
+        "FAIL-021",
+        "FAIL-022",
+        "CFG-020"
+      ],
+      "formula": "resolvedAttemptLimit",
+      "inputs": {
+        "routeOptionsAttemptLimit": null,
+        "configuredAttemptLimit": 12,
+        "factor": 1,
+        "attemptSequenceLength": 6
+      },
+      "note": "the call's limit, else the configured one, else `n + 2`, then clamped to the attempt sequence length",
+      "expect": 6
+    }
+  ]
+}

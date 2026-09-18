@@ -1,0 +1,989 @@
+{
+  "vectorSet": "spread-relaxation-stages",
+  "kind": "stages",
+  "level": "place",
+  "description": "Every relaxation stage of `SPREAD-010`, with the entries it admits and whether it reaches the effective replication factor.  `distinctStageOutcomes` counts how many of the m+1 stages differ, and `SPREAD-018` makes it m+1 where the topology has a distinct domain at each level.",
+  "requirements": [
+    "SPREAD-005",
+    "SPREAD-007",
+    "SPREAD-010",
+    "SPREAD-011",
+    "SPREAD-012",
+    "SPREAD-013",
+    "SPREAD-015",
+    "SPREAD-017",
+    "SPREAD-018",
+    "SPREAD-019",
+    "SPREAD-020",
+    "SPREAD-022",
+    "SPREAD-023"
+  ],
+  "topologyDocuments": {
+    "topologies/one-domain-relaxed.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "one-domain-relaxed",
+      "epoch": 1,
+      "domainLevels": [
+        "zone"
+      ],
+      "replication": {
+        "factor": 3,
+        "spread": [
+          "zone"
+        ],
+        "spreadPolicy": "relaxed"
+      },
+      "strategy": {
+        "kind": "rendezvous"
+      },
+      "nodes": [
+        {
+          "id": "n1",
+          "domains": {
+            "zone": "za"
+          }
+        },
+        {
+          "id": "n2",
+          "domains": {
+            "zone": "za"
+          }
+        },
+        {
+          "id": "n3",
+          "domains": {
+            "zone": "za"
+          }
+        },
+        {
+          "id": "n4",
+          "domains": {
+            "zone": "za"
+          }
+        }
+      ]
+    },
+    "topologies/spread-ladder.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "spread-ladder",
+      "epoch": 1,
+      "domainLevels": [
+        "region",
+        "zone",
+        "rack"
+      ],
+      "replication": {
+        "factor": 4,
+        "spread": [
+          "region",
+          "zone",
+          "rack"
+        ],
+        "spreadPolicy": "relaxed"
+      },
+      "strategy": {
+        "kind": "rendezvous"
+      },
+      "nodes": [
+        {
+          "id": "eu-a-1",
+          "domains": {
+            "region": "eu",
+            "zone": "a",
+            "rack": "r1"
+          }
+        },
+        {
+          "id": "eu-a-2",
+          "domains": {
+            "region": "eu",
+            "zone": "a",
+            "rack": "r2"
+          }
+        },
+        {
+          "id": "eu-b-1",
+          "domains": {
+            "region": "eu",
+            "zone": "b",
+            "rack": "r1"
+          }
+        },
+        {
+          "id": "eu-b-2",
+          "domains": {
+            "region": "eu",
+            "zone": "b",
+            "rack": "r1"
+          }
+        },
+        {
+          "id": "us-a-1",
+          "domains": {
+            "region": "us",
+            "zone": "a",
+            "rack": "r1"
+          }
+        },
+        {
+          "id": "us-a-2",
+          "domains": {
+            "region": "us",
+            "zone": "a",
+            "rack": "r1"
+          }
+        }
+      ]
+    }
+  },
+  "cases": [
+    {
+      "name": "spread-ladder/stage-0",
+      "requirements": [
+        "SPREAD-010",
+        "SPREAD-011",
+        "SPREAD-012",
+        "SPREAD-013",
+        "SPREAD-015",
+        "SPREAD-017",
+        "SPREAD-018",
+        "SPREAD-019"
+      ],
+      "topology": "topologies/spread-ladder.topology.json",
+      "key": {
+        "encoding": "utf8",
+        "value": "stage-0"
+      },
+      "expect": {
+        "candidates": [
+          "eu-b-2",
+          "us-a-1",
+          "us-a-2",
+          "eu-b-1",
+          "eu-a-1",
+          "eu-a-2"
+        ],
+        "factor": 4,
+        "stages": [
+          {
+            "stage": 0,
+            "enforces": [
+              "region",
+              "zone",
+              "rack"
+            ],
+            "relaxes": [],
+            "selected": [
+              "eu-b-2",
+              "us-a-1"
+            ],
+            "reachesFactor": false
+          },
+          {
+            "stage": 1,
+            "enforces": [
+              "zone",
+              "rack"
+            ],
+            "relaxes": [
+              "region"
+            ],
+            "selected": [
+              "eu-b-2",
+              "us-a-1",
+              "eu-a-1"
+            ],
+            "reachesFactor": false
+          },
+          {
+            "stage": 2,
+            "enforces": [
+              "rack"
+            ],
+            "relaxes": [
+              "region",
+              "zone"
+            ],
+            "selected": [
+              "eu-b-2",
+              "us-a-1",
+              "eu-a-1",
+              "eu-a-2"
+            ],
+            "reachesFactor": true
+          },
+          {
+            "stage": 3,
+            "enforces": [],
+            "relaxes": [
+              "region",
+              "zone",
+              "rack"
+            ],
+            "selected": [
+              "eu-b-2",
+              "us-a-1",
+              "us-a-2",
+              "eu-b-1"
+            ],
+            "reachesFactor": true
+          }
+        ],
+        "chosenStage": 2,
+        "relaxedLevels": [
+          "region",
+          "zone"
+        ],
+        "preferenceList": [
+          {
+            "node": "eu-b-2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "us-a-1",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a-1",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a-2",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "us-a-2",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b-1",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "distinctStageOutcomes": 4
+      }
+    },
+    {
+      "name": "spread-ladder/stage-1",
+      "requirements": [
+        "SPREAD-010",
+        "SPREAD-011",
+        "SPREAD-012",
+        "SPREAD-013",
+        "SPREAD-015",
+        "SPREAD-017",
+        "SPREAD-018",
+        "SPREAD-019"
+      ],
+      "topology": "topologies/spread-ladder.topology.json",
+      "key": {
+        "encoding": "utf8",
+        "value": "stage-1"
+      },
+      "expect": {
+        "candidates": [
+          "us-a-1",
+          "eu-b-1",
+          "us-a-2",
+          "eu-b-2",
+          "eu-a-1",
+          "eu-a-2"
+        ],
+        "factor": 4,
+        "stages": [
+          {
+            "stage": 0,
+            "enforces": [
+              "region",
+              "zone",
+              "rack"
+            ],
+            "relaxes": [],
+            "selected": [
+              "us-a-1",
+              "eu-b-1"
+            ],
+            "reachesFactor": false
+          },
+          {
+            "stage": 1,
+            "enforces": [
+              "zone",
+              "rack"
+            ],
+            "relaxes": [
+              "region"
+            ],
+            "selected": [
+              "us-a-1",
+              "eu-b-1",
+              "eu-a-1"
+            ],
+            "reachesFactor": false
+          },
+          {
+            "stage": 2,
+            "enforces": [
+              "rack"
+            ],
+            "relaxes": [
+              "region",
+              "zone"
+            ],
+            "selected": [
+              "us-a-1",
+              "eu-b-1",
+              "eu-a-1",
+              "eu-a-2"
+            ],
+            "reachesFactor": true
+          },
+          {
+            "stage": 3,
+            "enforces": [],
+            "relaxes": [
+              "region",
+              "zone",
+              "rack"
+            ],
+            "selected": [
+              "us-a-1",
+              "eu-b-1",
+              "us-a-2",
+              "eu-b-2"
+            ],
+            "reachesFactor": true
+          }
+        ],
+        "chosenStage": 2,
+        "relaxedLevels": [
+          "region",
+          "zone"
+        ],
+        "preferenceList": [
+          {
+            "node": "us-a-1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b-1",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a-1",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a-2",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "us-a-2",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b-2",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "distinctStageOutcomes": 4
+      }
+    },
+    {
+      "name": "spread-ladder/stage-2",
+      "requirements": [
+        "SPREAD-010",
+        "SPREAD-011",
+        "SPREAD-012",
+        "SPREAD-013",
+        "SPREAD-015",
+        "SPREAD-017",
+        "SPREAD-018",
+        "SPREAD-019"
+      ],
+      "topology": "topologies/spread-ladder.topology.json",
+      "key": {
+        "encoding": "utf8",
+        "value": "stage-2"
+      },
+      "expect": {
+        "candidates": [
+          "eu-a-2",
+          "us-a-1",
+          "eu-b-1",
+          "us-a-2",
+          "eu-a-1",
+          "eu-b-2"
+        ],
+        "factor": 4,
+        "stages": [
+          {
+            "stage": 0,
+            "enforces": [
+              "region",
+              "zone",
+              "rack"
+            ],
+            "relaxes": [],
+            "selected": [
+              "eu-a-2",
+              "us-a-1"
+            ],
+            "reachesFactor": false
+          },
+          {
+            "stage": 1,
+            "enforces": [
+              "zone",
+              "rack"
+            ],
+            "relaxes": [
+              "region"
+            ],
+            "selected": [
+              "eu-a-2",
+              "us-a-1",
+              "eu-b-1"
+            ],
+            "reachesFactor": false
+          },
+          {
+            "stage": 2,
+            "enforces": [
+              "rack"
+            ],
+            "relaxes": [
+              "region",
+              "zone"
+            ],
+            "selected": [
+              "eu-a-2",
+              "us-a-1",
+              "eu-b-1",
+              "eu-a-1"
+            ],
+            "reachesFactor": true
+          },
+          {
+            "stage": 3,
+            "enforces": [],
+            "relaxes": [
+              "region",
+              "zone",
+              "rack"
+            ],
+            "selected": [
+              "eu-a-2",
+              "us-a-1",
+              "eu-b-1",
+              "us-a-2"
+            ],
+            "reachesFactor": true
+          }
+        ],
+        "chosenStage": 2,
+        "relaxedLevels": [
+          "region",
+          "zone"
+        ],
+        "preferenceList": [
+          {
+            "node": "eu-a-2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "us-a-1",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b-1",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a-1",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "us-a-2",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b-2",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "distinctStageOutcomes": 4
+      }
+    },
+    {
+      "name": "spread-ladder/stage-3",
+      "requirements": [
+        "SPREAD-010",
+        "SPREAD-011",
+        "SPREAD-012",
+        "SPREAD-013",
+        "SPREAD-015",
+        "SPREAD-017",
+        "SPREAD-018",
+        "SPREAD-019"
+      ],
+      "topology": "topologies/spread-ladder.topology.json",
+      "key": {
+        "encoding": "utf8",
+        "value": "stage-3"
+      },
+      "expect": {
+        "candidates": [
+          "eu-a-1",
+          "us-a-2",
+          "us-a-1",
+          "eu-a-2",
+          "eu-b-2",
+          "eu-b-1"
+        ],
+        "factor": 4,
+        "stages": [
+          {
+            "stage": 0,
+            "enforces": [
+              "region",
+              "zone",
+              "rack"
+            ],
+            "relaxes": [],
+            "selected": [
+              "eu-a-1",
+              "us-a-2"
+            ],
+            "reachesFactor": false
+          },
+          {
+            "stage": 1,
+            "enforces": [
+              "zone",
+              "rack"
+            ],
+            "relaxes": [
+              "region"
+            ],
+            "selected": [
+              "eu-a-1",
+              "us-a-2",
+              "eu-b-2"
+            ],
+            "reachesFactor": false
+          },
+          {
+            "stage": 2,
+            "enforces": [
+              "rack"
+            ],
+            "relaxes": [
+              "region",
+              "zone"
+            ],
+            "selected": [
+              "eu-a-1",
+              "us-a-2",
+              "eu-a-2",
+              "eu-b-2"
+            ],
+            "reachesFactor": true
+          },
+          {
+            "stage": 3,
+            "enforces": [],
+            "relaxes": [
+              "region",
+              "zone",
+              "rack"
+            ],
+            "selected": [
+              "eu-a-1",
+              "us-a-2",
+              "us-a-1",
+              "eu-a-2"
+            ],
+            "reachesFactor": true
+          }
+        ],
+        "chosenStage": 2,
+        "relaxedLevels": [
+          "region",
+          "zone"
+        ],
+        "preferenceList": [
+          {
+            "node": "eu-a-1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "us-a-2",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "eu-a-2",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "eu-b-2",
+            "position": 3,
+            "role": "replica"
+          },
+          {
+            "node": "us-a-1",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "eu-b-1",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "distinctStageOutcomes": 4
+      }
+    },
+    {
+      "name": "one-domain-relaxed/stage-0",
+      "requirements": [
+        "SPREAD-010",
+        "SPREAD-011",
+        "SPREAD-012",
+        "SPREAD-013",
+        "SPREAD-015",
+        "SPREAD-017",
+        "SPREAD-018",
+        "SPREAD-019"
+      ],
+      "topology": "topologies/one-domain-relaxed.topology.json",
+      "key": {
+        "encoding": "utf8",
+        "value": "stage-0"
+      },
+      "expect": {
+        "candidates": [
+          "n3",
+          "n2",
+          "n1",
+          "n4"
+        ],
+        "factor": 3,
+        "stages": [
+          {
+            "stage": 0,
+            "enforces": [
+              "zone"
+            ],
+            "relaxes": [],
+            "selected": [
+              "n3"
+            ],
+            "reachesFactor": false
+          },
+          {
+            "stage": 1,
+            "enforces": [],
+            "relaxes": [
+              "zone"
+            ],
+            "selected": [
+              "n3",
+              "n2",
+              "n1"
+            ],
+            "reachesFactor": true
+          }
+        ],
+        "chosenStage": 1,
+        "relaxedLevels": [
+          "zone"
+        ],
+        "preferenceList": [
+          {
+            "node": "n3",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n2",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n1",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "n4",
+            "position": 3,
+            "role": "fallback"
+          }
+        ],
+        "distinctStageOutcomes": 2
+      }
+    },
+    {
+      "name": "one-domain-relaxed/stage-1",
+      "requirements": [
+        "SPREAD-010",
+        "SPREAD-011",
+        "SPREAD-012",
+        "SPREAD-013",
+        "SPREAD-015",
+        "SPREAD-017",
+        "SPREAD-018",
+        "SPREAD-019"
+      ],
+      "topology": "topologies/one-domain-relaxed.topology.json",
+      "key": {
+        "encoding": "utf8",
+        "value": "stage-1"
+      },
+      "expect": {
+        "candidates": [
+          "n2",
+          "n3",
+          "n1",
+          "n4"
+        ],
+        "factor": 3,
+        "stages": [
+          {
+            "stage": 0,
+            "enforces": [
+              "zone"
+            ],
+            "relaxes": [],
+            "selected": [
+              "n2"
+            ],
+            "reachesFactor": false
+          },
+          {
+            "stage": 1,
+            "enforces": [],
+            "relaxes": [
+              "zone"
+            ],
+            "selected": [
+              "n2",
+              "n3",
+              "n1"
+            ],
+            "reachesFactor": true
+          }
+        ],
+        "chosenStage": 1,
+        "relaxedLevels": [
+          "zone"
+        ],
+        "preferenceList": [
+          {
+            "node": "n2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n3",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n1",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "n4",
+            "position": 3,
+            "role": "fallback"
+          }
+        ],
+        "distinctStageOutcomes": 2
+      }
+    },
+    {
+      "name": "one-domain-relaxed/stage-2",
+      "requirements": [
+        "SPREAD-010",
+        "SPREAD-011",
+        "SPREAD-012",
+        "SPREAD-013",
+        "SPREAD-015",
+        "SPREAD-017",
+        "SPREAD-018",
+        "SPREAD-019"
+      ],
+      "topology": "topologies/one-domain-relaxed.topology.json",
+      "key": {
+        "encoding": "utf8",
+        "value": "stage-2"
+      },
+      "expect": {
+        "candidates": [
+          "n3",
+          "n2",
+          "n1",
+          "n4"
+        ],
+        "factor": 3,
+        "stages": [
+          {
+            "stage": 0,
+            "enforces": [
+              "zone"
+            ],
+            "relaxes": [],
+            "selected": [
+              "n3"
+            ],
+            "reachesFactor": false
+          },
+          {
+            "stage": 1,
+            "enforces": [],
+            "relaxes": [
+              "zone"
+            ],
+            "selected": [
+              "n3",
+              "n2",
+              "n1"
+            ],
+            "reachesFactor": true
+          }
+        ],
+        "chosenStage": 1,
+        "relaxedLevels": [
+          "zone"
+        ],
+        "preferenceList": [
+          {
+            "node": "n3",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n2",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n1",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "n4",
+            "position": 3,
+            "role": "fallback"
+          }
+        ],
+        "distinctStageOutcomes": 2
+      }
+    },
+    {
+      "name": "one-domain-relaxed/stage-3",
+      "requirements": [
+        "SPREAD-010",
+        "SPREAD-011",
+        "SPREAD-012",
+        "SPREAD-013",
+        "SPREAD-015",
+        "SPREAD-017",
+        "SPREAD-018",
+        "SPREAD-019"
+      ],
+      "topology": "topologies/one-domain-relaxed.topology.json",
+      "key": {
+        "encoding": "utf8",
+        "value": "stage-3"
+      },
+      "expect": {
+        "candidates": [
+          "n1",
+          "n3",
+          "n2",
+          "n4"
+        ],
+        "factor": 3,
+        "stages": [
+          {
+            "stage": 0,
+            "enforces": [
+              "zone"
+            ],
+            "relaxes": [],
+            "selected": [
+              "n1"
+            ],
+            "reachesFactor": false
+          },
+          {
+            "stage": 1,
+            "enforces": [],
+            "relaxes": [
+              "zone"
+            ],
+            "selected": [
+              "n1",
+              "n3",
+              "n2"
+            ],
+            "reachesFactor": true
+          }
+        ],
+        "chosenStage": 1,
+        "relaxedLevels": [
+          "zone"
+        ],
+        "preferenceList": [
+          {
+            "node": "n1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n3",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n2",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "n4",
+            "position": 3,
+            "role": "fallback"
+          }
+        ],
+        "distinctStageOutcomes": 2
+      }
+    }
+  ]
+}

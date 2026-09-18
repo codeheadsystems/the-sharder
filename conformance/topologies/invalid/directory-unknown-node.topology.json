@@ -1,0 +1,24 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "invalid-directory-node",
+  "epoch": 1,
+  "strategy": {
+    "kind": "directory",
+    "entries": [
+      {
+        "match": {
+          "kind": "exact",
+          "value": "k"
+        },
+        "nodes": [
+          "ghost"
+        ]
+      }
+    ]
+  },
+  "nodes": [
+    {
+      "id": "n1"
+    }
+  ]
+}

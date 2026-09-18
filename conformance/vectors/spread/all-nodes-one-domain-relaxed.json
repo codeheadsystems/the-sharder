@@ -1,0 +1,360 @@
+{
+  "vectorSet": "spread-one-domain-relaxed",
+  "kind": "routing",
+  "level": "place",
+  "description": "Every node in one failure domain under `relaxed`: the builder degrades to distinctness alone and reports the relaxed level.",
+  "requirements": [
+    "CORE-046",
+    "CORE-047",
+    "SPREAD-001",
+    "SPREAD-007",
+    "SPREAD-010",
+    "SPREAD-011",
+    "SPREAD-012",
+    "SPREAD-013",
+    "SPREAD-015",
+    "SPREAD-021",
+    "SPREAD-022",
+    "SPREAD-023"
+  ],
+  "topology": "topologies/one-domain-relaxed.topology.json",
+  "topologyDigest": "fe0b64a56f15c265f005b9ae83b4d253c520b8276e1afd31bc758bf297c2db7e",
+  "topologyDocuments": {
+    "topologies/one-domain-relaxed.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "one-domain-relaxed",
+      "epoch": 1,
+      "domainLevels": [
+        "zone"
+      ],
+      "replication": {
+        "factor": 3,
+        "spread": [
+          "zone"
+        ],
+        "spreadPolicy": "relaxed"
+      },
+      "strategy": {
+        "kind": "rendezvous"
+      },
+      "nodes": [
+        {
+          "id": "n1",
+          "domains": {
+            "zone": "za"
+          }
+        },
+        {
+          "id": "n2",
+          "domains": {
+            "zone": "za"
+          }
+        },
+        {
+          "id": "n3",
+          "domains": {
+            "zone": "za"
+          }
+        },
+        {
+          "id": "n4",
+          "domains": {
+            "zone": "za"
+          }
+        }
+      ]
+    }
+  },
+  "cases": [
+    {
+      "name": "relaxed/0",
+      "requirements": [
+        "SPREAD-012",
+        "SPREAD-013",
+        "SPREAD-015"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "r0"
+      },
+      "note": "no zone spread is possible, so stage 1 is chosen and `zone` is reported relaxed",
+      "expect": {
+        "routingKey": "7230",
+        "shard": "7230",
+        "token": {
+          "topologyId": "one-domain-relaxed",
+          "epoch": 1
+        },
+        "factor": 3,
+        "replicaCount": 3,
+        "candidates": [
+          "n2",
+          "n4",
+          "n1",
+          "n3"
+        ],
+        "preferenceList": [
+          {
+            "node": "n2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n4",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n1",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "n3",
+            "position": 3,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 4,
+        "relaxedLevels": [
+          "zone"
+        ],
+        "spreadStage": 1,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "relaxed/1",
+      "requirements": [
+        "SPREAD-012",
+        "SPREAD-013",
+        "SPREAD-015"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "r1"
+      },
+      "note": "no zone spread is possible, so stage 1 is chosen and `zone` is reported relaxed",
+      "expect": {
+        "routingKey": "7231",
+        "shard": "7231",
+        "token": {
+          "topologyId": "one-domain-relaxed",
+          "epoch": 1
+        },
+        "factor": 3,
+        "replicaCount": 3,
+        "candidates": [
+          "n2",
+          "n4",
+          "n3",
+          "n1"
+        ],
+        "preferenceList": [
+          {
+            "node": "n2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n4",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n3",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "n1",
+            "position": 3,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 4,
+        "relaxedLevels": [
+          "zone"
+        ],
+        "spreadStage": 1,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "relaxed/2",
+      "requirements": [
+        "SPREAD-012",
+        "SPREAD-013",
+        "SPREAD-015"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "r2"
+      },
+      "note": "no zone spread is possible, so stage 1 is chosen and `zone` is reported relaxed",
+      "expect": {
+        "routingKey": "7232",
+        "shard": "7232",
+        "token": {
+          "topologyId": "one-domain-relaxed",
+          "epoch": 1
+        },
+        "factor": 3,
+        "replicaCount": 3,
+        "candidates": [
+          "n1",
+          "n4",
+          "n2",
+          "n3"
+        ],
+        "preferenceList": [
+          {
+            "node": "n1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n4",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n2",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "n3",
+            "position": 3,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 4,
+        "relaxedLevels": [
+          "zone"
+        ],
+        "spreadStage": 1,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "relaxed/3",
+      "requirements": [
+        "SPREAD-012",
+        "SPREAD-013",
+        "SPREAD-015"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "r3"
+      },
+      "note": "no zone spread is possible, so stage 1 is chosen and `zone` is reported relaxed",
+      "expect": {
+        "routingKey": "7233",
+        "shard": "7233",
+        "token": {
+          "topologyId": "one-domain-relaxed",
+          "epoch": 1
+        },
+        "factor": 3,
+        "replicaCount": 3,
+        "candidates": [
+          "n1",
+          "n2",
+          "n4",
+          "n3"
+        ],
+        "preferenceList": [
+          {
+            "node": "n1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n2",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n4",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "n3",
+            "position": 3,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 4,
+        "relaxedLevels": [
+          "zone"
+        ],
+        "spreadStage": 1,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "relaxed/4",
+      "requirements": [
+        "SPREAD-012",
+        "SPREAD-013",
+        "SPREAD-015"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "r4"
+      },
+      "note": "no zone spread is possible, so stage 1 is chosen and `zone` is reported relaxed",
+      "expect": {
+        "routingKey": "7234",
+        "shard": "7234",
+        "token": {
+          "topologyId": "one-domain-relaxed",
+          "epoch": 1
+        },
+        "factor": 3,
+        "replicaCount": 3,
+        "candidates": [
+          "n4",
+          "n3",
+          "n2",
+          "n1"
+        ],
+        "preferenceList": [
+          {
+            "node": "n4",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "n3",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "n2",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "n1",
+            "position": 3,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 4,
+        "relaxedLevels": [
+          "zone"
+        ],
+        "spreadStage": 1,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    }
+  ]
+}

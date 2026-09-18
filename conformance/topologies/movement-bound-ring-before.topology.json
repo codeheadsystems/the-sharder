@@ -1,0 +1,55 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "movement-bound-ring",
+  "epoch": 1,
+  "replication": {
+    "factor": 1
+  },
+  "strategy": {
+    "kind": "ring",
+    "tokenAssignment": "derived",
+    "tokensPerWeightUnit": 4
+  },
+  "nodes": [
+    {
+      "id": "t0",
+      "weight": 64
+    },
+    {
+      "id": "t1",
+      "weight": 64
+    },
+    {
+      "id": "t2",
+      "weight": 64
+    },
+    {
+      "id": "t3",
+      "weight": 64
+    },
+    {
+      "id": "t4",
+      "weight": 64
+    },
+    {
+      "id": "t5",
+      "weight": 64
+    },
+    {
+      "id": "t6",
+      "weight": 64
+    },
+    {
+      "id": "t7",
+      "weight": 64
+    },
+    {
+      "id": "t8",
+      "weight": 64
+    },
+    {
+      "id": "t9",
+      "weight": 64
+    }
+  ]
+}

@@ -1,0 +1,370 @@
+{
+  "vectorSet": "directory-matcher-precedence",
+  "kind": "routing",
+  "level": "place",
+  "description": "Directory evaluation and the reachable clauses of the matcher precedence rule.",
+  "requirements": [
+    "CORE-046",
+    "CORE-047",
+    "DIR-001",
+    "DIR-002",
+    "DIR-003",
+    "DIR-004",
+    "DIR-005",
+    "DIR-020",
+    "PLACE-060",
+    "PLACE-061",
+    "PLACE-062",
+    "PLACE-063",
+    "PLACE-064",
+    "PLACE-065"
+  ],
+  "topology": "topologies/directory-tenants.topology.json",
+  "topologyDigest": "6cb7c945ddadfdb94086be26fa3641281a0b50369bf71ed888b8d58216366240",
+  "topologyDocuments": {
+    "topologies/directory-tenants.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "directory-tenants",
+      "epoch": 11,
+      "replication": {
+        "factor": 2
+      },
+      "strategy": {
+        "kind": "directory",
+        "entries": [
+          {
+            "match": {
+              "kind": "prefix",
+              "value": ""
+            },
+            "nodes": [
+              "cluster-default"
+            ],
+            "note": "catch-all, PLACE-063"
+          },
+          {
+            "match": {
+              "kind": "prefix",
+              "value": "gov-"
+            },
+            "nodes": [
+              "cluster-gov-1"
+            ]
+          },
+          {
+            "match": {
+              "kind": "prefix",
+              "value": "gov-hi"
+            },
+            "nodes": [
+              "cluster-gov-2"
+            ]
+          },
+          {
+            "match": {
+              "kind": "exact",
+              "value": "gov-high"
+            },
+            "nodes": [
+              "cluster-gov-3"
+            ]
+          },
+          {
+            "match": {
+              "kind": "exact",
+              "value": "acme"
+            },
+            "nodes": [
+              "cluster-eu-1"
+            ]
+          },
+          {
+            "match": {
+              "kind": "prefix",
+              "value": "ff00",
+              "encoding": "base16"
+            },
+            "nodes": [
+              "cluster-binary"
+            ]
+          }
+        ]
+      },
+      "nodes": [
+        {
+          "id": "cluster-default"
+        },
+        {
+          "id": "cluster-gov-1"
+        },
+        {
+          "id": "cluster-gov-2"
+        },
+        {
+          "id": "cluster-gov-3"
+        },
+        {
+          "id": "cluster-eu-1"
+        },
+        {
+          "id": "cluster-binary"
+        }
+      ]
+    }
+  },
+  "cases": [
+    {
+      "name": "exact-beats-prefix",
+      "requirements": [
+        "DIR-002",
+        "PLACE-065"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "gov-high"
+      },
+      "note": "the exact matcher wins over `gov-hi` and `gov-`",
+      "expect": {
+        "routingKey": "676f762d68696768",
+        "shard": "exact:676f762d68696768",
+        "token": {
+          "topologyId": "directory-tenants",
+          "epoch": 11
+        },
+        "factor": 2,
+        "replicaCount": 1,
+        "candidates": [
+          "cluster-gov-3"
+        ],
+        "preferenceList": [
+          {
+            "node": "cluster-gov-3",
+            "position": 0,
+            "role": "replica"
+          }
+        ],
+        "materialisedEntries": 1,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "nodes",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "longest-prefix",
+      "requirements": [
+        "DIR-002",
+        "PLACE-065"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "gov-hire"
+      },
+      "note": "`gov-hi` beats `gov-` and the empty prefix",
+      "expect": {
+        "routingKey": "676f762d68697265",
+        "shard": "prefix:676f762d6869",
+        "token": {
+          "topologyId": "directory-tenants",
+          "epoch": 11
+        },
+        "factor": 2,
+        "replicaCount": 1,
+        "candidates": [
+          "cluster-gov-2"
+        ],
+        "preferenceList": [
+          {
+            "node": "cluster-gov-2",
+            "position": 0,
+            "role": "replica"
+          }
+        ],
+        "materialisedEntries": 1,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "nodes",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "shorter-prefix",
+      "requirements": [
+        "PLACE-065"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "gov-low"
+      },
+      "expect": {
+        "routingKey": "676f762d6c6f77",
+        "shard": "prefix:676f762d",
+        "token": {
+          "topologyId": "directory-tenants",
+          "epoch": 11
+        },
+        "factor": 2,
+        "replicaCount": 1,
+        "candidates": [
+          "cluster-gov-1"
+        ],
+        "preferenceList": [
+          {
+            "node": "cluster-gov-1",
+            "position": 0,
+            "role": "replica"
+          }
+        ],
+        "materialisedEntries": 1,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "nodes",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "empty-prefix-catch-all",
+      "requirements": [
+        "DIR-001",
+        "PLACE-063"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "anything-else"
+      },
+      "note": "the empty prefix matches every routing key",
+      "expect": {
+        "routingKey": "616e797468696e672d656c7365",
+        "shard": "prefix:",
+        "token": {
+          "topologyId": "directory-tenants",
+          "epoch": 11
+        },
+        "factor": 2,
+        "replicaCount": 1,
+        "candidates": [
+          "cluster-default"
+        ],
+        "preferenceList": [
+          {
+            "node": "cluster-default",
+            "position": 0,
+            "role": "replica"
+          }
+        ],
+        "materialisedEntries": 1,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "nodes",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "exact-tenant",
+      "requirements": [
+        "PLACE-061"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "acme"
+      },
+      "expect": {
+        "routingKey": "61636d65",
+        "shard": "exact:61636d65",
+        "token": {
+          "topologyId": "directory-tenants",
+          "epoch": 11
+        },
+        "factor": 2,
+        "replicaCount": 1,
+        "candidates": [
+          "cluster-eu-1"
+        ],
+        "preferenceList": [
+          {
+            "node": "cluster-eu-1",
+            "position": 0,
+            "role": "replica"
+          }
+        ],
+        "materialisedEntries": 1,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "nodes",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "base16-matcher",
+      "requirements": [
+        "PLACE-060"
+      ],
+      "key": {
+        "encoding": "base16",
+        "value": "ff0001"
+      },
+      "note": "a matcher whose value is not text",
+      "expect": {
+        "routingKey": "ff0001",
+        "shard": "prefix:ff00",
+        "token": {
+          "topologyId": "directory-tenants",
+          "epoch": 11
+        },
+        "factor": 2,
+        "replicaCount": 1,
+        "candidates": [
+          "cluster-binary"
+        ],
+        "preferenceList": [
+          {
+            "node": "cluster-binary",
+            "position": 0,
+            "role": "replica"
+          }
+        ],
+        "materialisedEntries": 1,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "nodes",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "empty-key",
+      "requirements": [
+        "PLACE-063"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": ""
+      },
+      "note": "the empty prefix matches the empty routing key",
+      "expect": {
+        "routingKey": "",
+        "shard": "prefix:",
+        "token": {
+          "topologyId": "directory-tenants",
+          "epoch": 11
+        },
+        "factor": 2,
+        "replicaCount": 1,
+        "candidates": [
+          "cluster-default"
+        ],
+        "preferenceList": [
+          {
+            "node": "cluster-default",
+            "position": 0,
+            "role": "replica"
+          }
+        ],
+        "materialisedEntries": 1,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "nodes",
+        "matchedOverride": null
+      }
+    }
+  ]
+}

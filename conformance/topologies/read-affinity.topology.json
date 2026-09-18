@@ -1,0 +1,63 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "read-affinity",
+  "epoch": 1,
+  "domainLevels": [
+    "region",
+    "zone"
+  ],
+  "replication": {
+    "factor": 4,
+    "spread": [
+      "region"
+    ],
+    "spreadPolicy": "relaxed"
+  },
+  "strategy": {
+    "kind": "rendezvous"
+  },
+  "nodes": [
+    {
+      "id": "eu-a",
+      "domains": {
+        "region": "eu",
+        "zone": "a"
+      }
+    },
+    {
+      "id": "eu-b",
+      "domains": {
+        "region": "eu",
+        "zone": "b"
+      }
+    },
+    {
+      "id": "us-a",
+      "domains": {
+        "region": "us",
+        "zone": "a"
+      }
+    },
+    {
+      "id": "us-b",
+      "domains": {
+        "region": "us",
+        "zone": "b"
+      }
+    },
+    {
+      "id": "ap-a",
+      "domains": {
+        "region": "ap",
+        "zone": "a"
+      }
+    },
+    {
+      "id": "ap-b",
+      "domains": {
+        "region": "ap",
+        "zone": "b"
+      }
+    }
+  ]
+}

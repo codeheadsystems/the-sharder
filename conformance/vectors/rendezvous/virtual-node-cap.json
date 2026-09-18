@@ -1,0 +1,456 @@
+{
+  "vectorSet": "rendezvous-virtual-node-cap",
+  "kind": "routing",
+  "level": "place",
+  "description": "The virtual node count is `min(weight * perWeightUnit, cap)`.  Clamping is an event rather than a validation failure, so the node still places.",
+  "requirements": [
+    "CORE-046",
+    "CORE-047",
+    "PLACE-050",
+    "PLACE-051",
+    "PLACE-052",
+    "PLACE-054",
+    "RV-001"
+  ],
+  "topology": "topologies/rendezvous-capped.topology.json",
+  "topologyDigest": "ae5aa134faad3519a5c58ff04a6d8d969a86d6b20da2f61f06436b355e63f6ca",
+  "topologyDocuments": {
+    "topologies/rendezvous-capped.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "rv-capped",
+      "epoch": 2,
+      "replication": {
+        "factor": 2
+      },
+      "strategy": {
+        "kind": "rendezvous",
+        "virtualNodesPerWeightUnit": 4,
+        "maxVirtualNodesPerNode": 6
+      },
+      "nodes": [
+        {
+          "id": "small",
+          "weight": 1
+        },
+        {
+          "id": "medium",
+          "weight": 2
+        },
+        {
+          "id": "clamped",
+          "weight": 100
+        }
+      ]
+    }
+  },
+  "cases": [
+    {
+      "name": "capped/0",
+      "requirements": [
+        "PLACE-050",
+        "PLACE-051",
+        "PLACE-052",
+        "RV-001"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "cap-0"
+      },
+      "note": "`clamped` asks for 400 virtual nodes and is granted 6",
+      "expect": {
+        "routingKey": "6361702d30",
+        "shard": "6361702d30",
+        "token": {
+          "topologyId": "rv-capped",
+          "epoch": 2
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "clamped",
+          "medium",
+          "small"
+        ],
+        "preferenceList": [
+          {
+            "node": "clamped",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "medium",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "small",
+            "position": 2,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 3,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "capped/1",
+      "requirements": [
+        "PLACE-050",
+        "PLACE-051",
+        "PLACE-052",
+        "RV-001"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "cap-1"
+      },
+      "note": "`clamped` asks for 400 virtual nodes and is granted 6",
+      "expect": {
+        "routingKey": "6361702d31",
+        "shard": "6361702d31",
+        "token": {
+          "topologyId": "rv-capped",
+          "epoch": 2
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "medium",
+          "clamped",
+          "small"
+        ],
+        "preferenceList": [
+          {
+            "node": "medium",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "clamped",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "small",
+            "position": 2,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 3,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "capped/2",
+      "requirements": [
+        "PLACE-050",
+        "PLACE-051",
+        "PLACE-052",
+        "RV-001"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "cap-2"
+      },
+      "note": "`clamped` asks for 400 virtual nodes and is granted 6",
+      "expect": {
+        "routingKey": "6361702d32",
+        "shard": "6361702d32",
+        "token": {
+          "topologyId": "rv-capped",
+          "epoch": 2
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "medium",
+          "clamped",
+          "small"
+        ],
+        "preferenceList": [
+          {
+            "node": "medium",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "clamped",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "small",
+            "position": 2,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 3,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "capped/3",
+      "requirements": [
+        "PLACE-050",
+        "PLACE-051",
+        "PLACE-052",
+        "RV-001"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "cap-3"
+      },
+      "note": "`clamped` asks for 400 virtual nodes and is granted 6",
+      "expect": {
+        "routingKey": "6361702d33",
+        "shard": "6361702d33",
+        "token": {
+          "topologyId": "rv-capped",
+          "epoch": 2
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "medium",
+          "small",
+          "clamped"
+        ],
+        "preferenceList": [
+          {
+            "node": "medium",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "small",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "clamped",
+            "position": 2,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 3,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "capped/4",
+      "requirements": [
+        "PLACE-050",
+        "PLACE-051",
+        "PLACE-052",
+        "RV-001"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "cap-4"
+      },
+      "note": "`clamped` asks for 400 virtual nodes and is granted 6",
+      "expect": {
+        "routingKey": "6361702d34",
+        "shard": "6361702d34",
+        "token": {
+          "topologyId": "rv-capped",
+          "epoch": 2
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "clamped",
+          "medium",
+          "small"
+        ],
+        "preferenceList": [
+          {
+            "node": "clamped",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "medium",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "small",
+            "position": 2,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 3,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "capped/5",
+      "requirements": [
+        "PLACE-050",
+        "PLACE-051",
+        "PLACE-052",
+        "RV-001"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "cap-5"
+      },
+      "note": "`clamped` asks for 400 virtual nodes and is granted 6",
+      "expect": {
+        "routingKey": "6361702d35",
+        "shard": "6361702d35",
+        "token": {
+          "topologyId": "rv-capped",
+          "epoch": 2
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "small",
+          "medium",
+          "clamped"
+        ],
+        "preferenceList": [
+          {
+            "node": "small",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "medium",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "clamped",
+            "position": 2,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 3,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "capped/6",
+      "requirements": [
+        "PLACE-050",
+        "PLACE-051",
+        "PLACE-052",
+        "RV-001"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "cap-6"
+      },
+      "note": "`clamped` asks for 400 virtual nodes and is granted 6",
+      "expect": {
+        "routingKey": "6361702d36",
+        "shard": "6361702d36",
+        "token": {
+          "topologyId": "rv-capped",
+          "epoch": 2
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "medium",
+          "small",
+          "clamped"
+        ],
+        "preferenceList": [
+          {
+            "node": "medium",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "small",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "clamped",
+            "position": 2,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 3,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "capped/7",
+      "requirements": [
+        "PLACE-050",
+        "PLACE-051",
+        "PLACE-052",
+        "RV-001"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "cap-7"
+      },
+      "note": "`clamped` asks for 400 virtual nodes and is granted 6",
+      "expect": {
+        "routingKey": "6361702d37",
+        "shard": "6361702d37",
+        "token": {
+          "topologyId": "rv-capped",
+          "epoch": 2
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "small",
+          "medium",
+          "clamped"
+        ],
+        "preferenceList": [
+          {
+            "node": "small",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "medium",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "clamped",
+            "position": 2,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 3,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    }
+  ]
+}

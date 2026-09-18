@@ -1,0 +1,1085 @@
+{
+  "vectorSet": "movement-add-one-node",
+  "kind": "movement",
+  "level": "place",
+  "description": "Adding one node to a topology of five.  Every key keeps its first candidate or moves to the added node, and the whole candidate ordering is preserved as a subsequence.  The counts are golden, so a port reproduces them exactly.",
+  "requirements": [
+    "PROP-010",
+    "PROP-011",
+    "PROP-012",
+    "PROP-016",
+    "PROP-019"
+  ],
+  "topologyDocuments": {
+    "topologies/movement-ring-after.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "movement-ring",
+      "epoch": 2,
+      "replication": {
+        "factor": 3
+      },
+      "strategy": {
+        "kind": "ring",
+        "tokenAssignment": "derived",
+        "tokensPerWeightUnit": 16
+      },
+      "nodes": [
+        {
+          "id": "m1",
+          "weight": 1
+        },
+        {
+          "id": "m2",
+          "weight": 1
+        },
+        {
+          "id": "m3",
+          "weight": 1
+        },
+        {
+          "id": "m4",
+          "weight": 1
+        },
+        {
+          "id": "m5",
+          "weight": 1
+        },
+        {
+          "id": "m6",
+          "weight": 1
+        }
+      ]
+    },
+    "topologies/movement-ring-before.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "movement-ring",
+      "epoch": 1,
+      "replication": {
+        "factor": 3
+      },
+      "strategy": {
+        "kind": "ring",
+        "tokenAssignment": "derived",
+        "tokensPerWeightUnit": 16
+      },
+      "nodes": [
+        {
+          "id": "m1",
+          "weight": 1
+        },
+        {
+          "id": "m2",
+          "weight": 1
+        },
+        {
+          "id": "m3",
+          "weight": 1
+        },
+        {
+          "id": "m4",
+          "weight": 1
+        },
+        {
+          "id": "m5",
+          "weight": 1
+        }
+      ]
+    },
+    "topologies/movement-rv-after.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "movement-rv",
+      "epoch": 2,
+      "replication": {
+        "factor": 3
+      },
+      "strategy": {
+        "kind": "rendezvous",
+        "virtualNodesPerWeightUnit": 1
+      },
+      "nodes": [
+        {
+          "id": "m1",
+          "weight": 1
+        },
+        {
+          "id": "m2",
+          "weight": 1
+        },
+        {
+          "id": "m3",
+          "weight": 1
+        },
+        {
+          "id": "m4",
+          "weight": 1
+        },
+        {
+          "id": "m5",
+          "weight": 1
+        },
+        {
+          "id": "m6",
+          "weight": 1
+        }
+      ]
+    },
+    "topologies/movement-rv-before.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "movement-rv",
+      "epoch": 1,
+      "replication": {
+        "factor": 3
+      },
+      "strategy": {
+        "kind": "rendezvous",
+        "virtualNodesPerWeightUnit": 1
+      },
+      "nodes": [
+        {
+          "id": "m1",
+          "weight": 1
+        },
+        {
+          "id": "m2",
+          "weight": 1
+        },
+        {
+          "id": "m3",
+          "weight": 1
+        },
+        {
+          "id": "m4",
+          "weight": 1
+        },
+        {
+          "id": "m5",
+          "weight": 1
+        }
+      ]
+    }
+  },
+  "cases": [
+    {
+      "name": "ring",
+      "requirements": [
+        "PROP-010",
+        "PROP-011",
+        "PROP-012",
+        "PROP-016"
+      ],
+      "before": "topologies/movement-ring-before.topology.json",
+      "after": "topologies/movement-ring-after.topology.json",
+      "addedNode": "m6",
+      "expect": {
+        "sampleSize": 400,
+        "movedCount": 70,
+        "unmovedCount": 330,
+        "firstCandidates": [
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-0"
+            },
+            "before": "m3",
+            "after": "m3",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-1"
+            },
+            "before": "m2",
+            "after": "m2",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-2"
+            },
+            "before": "m4",
+            "after": "m4",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-3"
+            },
+            "before": "m2",
+            "after": "m2",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-4"
+            },
+            "before": "m2",
+            "after": "m2",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-5"
+            },
+            "before": "m1",
+            "after": "m1",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-6"
+            },
+            "before": "m4",
+            "after": "m4",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-7"
+            },
+            "before": "m1",
+            "after": "m1",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-8"
+            },
+            "before": "m3",
+            "after": "m3",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-9"
+            },
+            "before": "m5",
+            "after": "m6",
+            "moved": true
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-10"
+            },
+            "before": "m2",
+            "after": "m2",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-11"
+            },
+            "before": "m2",
+            "after": "m2",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-12"
+            },
+            "before": "m2",
+            "after": "m2",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-13"
+            },
+            "before": "m5",
+            "after": "m5",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-14"
+            },
+            "before": "m3",
+            "after": "m3",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-15"
+            },
+            "before": "m2",
+            "after": "m2",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-16"
+            },
+            "before": "m4",
+            "after": "m6",
+            "moved": true
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-17"
+            },
+            "before": "m3",
+            "after": "m3",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-18"
+            },
+            "before": "m1",
+            "after": "m6",
+            "moved": true
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-19"
+            },
+            "before": "m5",
+            "after": "m5",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-20"
+            },
+            "before": "m1",
+            "after": "m1",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-21"
+            },
+            "before": "m2",
+            "after": "m6",
+            "moved": true
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-22"
+            },
+            "before": "m5",
+            "after": "m5",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-23"
+            },
+            "before": "m5",
+            "after": "m6",
+            "moved": true
+          }
+        ],
+        "orderingSubsequence": [
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-0"
+            },
+            "beforeCandidates": [
+              "m3",
+              "m5",
+              "m4",
+              "m1",
+              "m2"
+            ],
+            "afterCandidates": [
+              "m3",
+              "m5",
+              "m6",
+              "m4",
+              "m1",
+              "m2"
+            ],
+            "afterWithoutAddedNode": [
+              "m3",
+              "m5",
+              "m4",
+              "m1",
+              "m2"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-1"
+            },
+            "beforeCandidates": [
+              "m2",
+              "m5",
+              "m1",
+              "m3",
+              "m4"
+            ],
+            "afterCandidates": [
+              "m2",
+              "m5",
+              "m1",
+              "m6",
+              "m3",
+              "m4"
+            ],
+            "afterWithoutAddedNode": [
+              "m2",
+              "m5",
+              "m1",
+              "m3",
+              "m4"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-2"
+            },
+            "beforeCandidates": [
+              "m4",
+              "m5",
+              "m3",
+              "m1",
+              "m2"
+            ],
+            "afterCandidates": [
+              "m4",
+              "m5",
+              "m3",
+              "m1",
+              "m6",
+              "m2"
+            ],
+            "afterWithoutAddedNode": [
+              "m4",
+              "m5",
+              "m3",
+              "m1",
+              "m2"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-3"
+            },
+            "beforeCandidates": [
+              "m2",
+              "m4",
+              "m3",
+              "m1",
+              "m5"
+            ],
+            "afterCandidates": [
+              "m2",
+              "m4",
+              "m3",
+              "m1",
+              "m5",
+              "m6"
+            ],
+            "afterWithoutAddedNode": [
+              "m2",
+              "m4",
+              "m3",
+              "m1",
+              "m5"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-4"
+            },
+            "beforeCandidates": [
+              "m2",
+              "m3",
+              "m4",
+              "m1",
+              "m5"
+            ],
+            "afterCandidates": [
+              "m2",
+              "m3",
+              "m4",
+              "m1",
+              "m5",
+              "m6"
+            ],
+            "afterWithoutAddedNode": [
+              "m2",
+              "m3",
+              "m4",
+              "m1",
+              "m5"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-5"
+            },
+            "beforeCandidates": [
+              "m1",
+              "m2",
+              "m5",
+              "m3",
+              "m4"
+            ],
+            "afterCandidates": [
+              "m1",
+              "m2",
+              "m5",
+              "m6",
+              "m3",
+              "m4"
+            ],
+            "afterWithoutAddedNode": [
+              "m1",
+              "m2",
+              "m5",
+              "m3",
+              "m4"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-6"
+            },
+            "beforeCandidates": [
+              "m4",
+              "m5",
+              "m3",
+              "m1",
+              "m2"
+            ],
+            "afterCandidates": [
+              "m4",
+              "m5",
+              "m3",
+              "m1",
+              "m6",
+              "m2"
+            ],
+            "afterWithoutAddedNode": [
+              "m4",
+              "m5",
+              "m3",
+              "m1",
+              "m2"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-7"
+            },
+            "beforeCandidates": [
+              "m1",
+              "m2",
+              "m5",
+              "m3",
+              "m4"
+            ],
+            "afterCandidates": [
+              "m1",
+              "m2",
+              "m5",
+              "m6",
+              "m3",
+              "m4"
+            ],
+            "afterWithoutAddedNode": [
+              "m1",
+              "m2",
+              "m5",
+              "m3",
+              "m4"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "rendezvous",
+      "requirements": [
+        "PROP-010",
+        "PROP-011",
+        "PROP-012",
+        "PROP-016"
+      ],
+      "before": "topologies/movement-rv-before.topology.json",
+      "after": "topologies/movement-rv-after.topology.json",
+      "addedNode": "m6",
+      "expect": {
+        "sampleSize": 400,
+        "movedCount": 61,
+        "unmovedCount": 339,
+        "firstCandidates": [
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-0"
+            },
+            "before": "m2",
+            "after": "m2",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-1"
+            },
+            "before": "m3",
+            "after": "m3",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-2"
+            },
+            "before": "m4",
+            "after": "m4",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-3"
+            },
+            "before": "m2",
+            "after": "m2",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-4"
+            },
+            "before": "m4",
+            "after": "m6",
+            "moved": true
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-5"
+            },
+            "before": "m4",
+            "after": "m4",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-6"
+            },
+            "before": "m4",
+            "after": "m4",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-7"
+            },
+            "before": "m4",
+            "after": "m4",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-8"
+            },
+            "before": "m3",
+            "after": "m3",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-9"
+            },
+            "before": "m2",
+            "after": "m2",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-10"
+            },
+            "before": "m5",
+            "after": "m5",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-11"
+            },
+            "before": "m2",
+            "after": "m2",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-12"
+            },
+            "before": "m3",
+            "after": "m3",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-13"
+            },
+            "before": "m5",
+            "after": "m6",
+            "moved": true
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-14"
+            },
+            "before": "m4",
+            "after": "m4",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-15"
+            },
+            "before": "m1",
+            "after": "m1",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-16"
+            },
+            "before": "m3",
+            "after": "m6",
+            "moved": true
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-17"
+            },
+            "before": "m5",
+            "after": "m5",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-18"
+            },
+            "before": "m5",
+            "after": "m5",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-19"
+            },
+            "before": "m5",
+            "after": "m5",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-20"
+            },
+            "before": "m3",
+            "after": "m3",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-21"
+            },
+            "before": "m2",
+            "after": "m2",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-22"
+            },
+            "before": "m2",
+            "after": "m2",
+            "moved": false
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-23"
+            },
+            "before": "m2",
+            "after": "m2",
+            "moved": false
+          }
+        ],
+        "orderingSubsequence": [
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-0"
+            },
+            "beforeCandidates": [
+              "m2",
+              "m3",
+              "m5",
+              "m1",
+              "m4"
+            ],
+            "afterCandidates": [
+              "m2",
+              "m3",
+              "m5",
+              "m1",
+              "m6",
+              "m4"
+            ],
+            "afterWithoutAddedNode": [
+              "m2",
+              "m3",
+              "m5",
+              "m1",
+              "m4"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-1"
+            },
+            "beforeCandidates": [
+              "m3",
+              "m5",
+              "m4",
+              "m2",
+              "m1"
+            ],
+            "afterCandidates": [
+              "m3",
+              "m6",
+              "m5",
+              "m4",
+              "m2",
+              "m1"
+            ],
+            "afterWithoutAddedNode": [
+              "m3",
+              "m5",
+              "m4",
+              "m2",
+              "m1"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-2"
+            },
+            "beforeCandidates": [
+              "m4",
+              "m5",
+              "m2",
+              "m3",
+              "m1"
+            ],
+            "afterCandidates": [
+              "m4",
+              "m5",
+              "m2",
+              "m3",
+              "m6",
+              "m1"
+            ],
+            "afterWithoutAddedNode": [
+              "m4",
+              "m5",
+              "m2",
+              "m3",
+              "m1"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-3"
+            },
+            "beforeCandidates": [
+              "m2",
+              "m4",
+              "m5",
+              "m1",
+              "m3"
+            ],
+            "afterCandidates": [
+              "m2",
+              "m4",
+              "m5",
+              "m6",
+              "m1",
+              "m3"
+            ],
+            "afterWithoutAddedNode": [
+              "m2",
+              "m4",
+              "m5",
+              "m1",
+              "m3"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-4"
+            },
+            "beforeCandidates": [
+              "m4",
+              "m2",
+              "m1",
+              "m3",
+              "m5"
+            ],
+            "afterCandidates": [
+              "m6",
+              "m4",
+              "m2",
+              "m1",
+              "m3",
+              "m5"
+            ],
+            "afterWithoutAddedNode": [
+              "m4",
+              "m2",
+              "m1",
+              "m3",
+              "m5"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-5"
+            },
+            "beforeCandidates": [
+              "m4",
+              "m1",
+              "m2",
+              "m3",
+              "m5"
+            ],
+            "afterCandidates": [
+              "m4",
+              "m1",
+              "m2",
+              "m3",
+              "m5",
+              "m6"
+            ],
+            "afterWithoutAddedNode": [
+              "m4",
+              "m1",
+              "m2",
+              "m3",
+              "m5"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-6"
+            },
+            "beforeCandidates": [
+              "m4",
+              "m3",
+              "m5",
+              "m1",
+              "m2"
+            ],
+            "afterCandidates": [
+              "m4",
+              "m3",
+              "m6",
+              "m5",
+              "m1",
+              "m2"
+            ],
+            "afterWithoutAddedNode": [
+              "m4",
+              "m3",
+              "m5",
+              "m1",
+              "m2"
+            ]
+          },
+          {
+            "key": {
+              "encoding": "utf8",
+              "value": "mv-7"
+            },
+            "beforeCandidates": [
+              "m4",
+              "m1",
+              "m3",
+              "m5",
+              "m2"
+            ],
+            "afterCandidates": [
+              "m4",
+              "m1",
+              "m3",
+              "m5",
+              "m6",
+              "m2"
+            ],
+            "afterWithoutAddedNode": [
+              "m4",
+              "m1",
+              "m3",
+              "m5",
+              "m2"
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

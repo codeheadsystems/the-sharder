@@ -1,0 +1,20 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "invalid-missing-tokens",
+  "epoch": 1,
+  "strategy": {
+    "kind": "ring",
+    "tokenAssignment": "explicit"
+  },
+  "nodes": [
+    {
+      "id": "n1",
+      "tokens": [
+        "0000000000000001"
+      ]
+    },
+    {
+      "id": "n2"
+    }
+  ]
+}

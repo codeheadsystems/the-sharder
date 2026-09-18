@@ -1,0 +1,310 @@
+{
+  "vectorSet": "adversarial-colliding-keys",
+  "kind": "collidingKeys",
+  "level": "place",
+  "description": "Distinct keys that collide at the transform, at the slot index, at the ring token range, and at the 64-bit key hash itself.",
+  "requirements": [
+    "KEY-030",
+    "PROP-003",
+    "RING-020",
+    "SEC-001",
+    "SLOT-001"
+  ],
+  "topologyDocuments": {
+    "topologies/rendezvous-cache.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "session-cache",
+      "epoch": 7,
+      "keyTransform": {
+        "kind": "braceTag"
+      },
+      "replication": {
+        "factor": 2
+      },
+      "strategy": {
+        "kind": "rendezvous",
+        "virtualNodesPerWeightUnit": 8,
+        "maxVirtualNodesPerNode": 512
+      },
+      "nodes": [
+        {
+          "id": "cache-01",
+          "weight": 1,
+          "address": "10.4.0.1:11211"
+        },
+        {
+          "id": "cache-02",
+          "weight": 1,
+          "address": "10.4.0.2:11211"
+        },
+        {
+          "id": "cache-03",
+          "weight": 1,
+          "address": "10.4.0.3:11211"
+        },
+        {
+          "id": "cache-04",
+          "weight": 1,
+          "address": "10.4.0.4:11211"
+        },
+        {
+          "id": "cache-05",
+          "weight": 2,
+          "address": "10.4.0.5:11211"
+        },
+        {
+          "id": "cache-06",
+          "weight": 2,
+          "address": "10.4.0.6:11211"
+        },
+        {
+          "id": "cache-07",
+          "weight": 2,
+          "address": "10.4.0.7:11211"
+        },
+        {
+          "id": "cache-08",
+          "weight": 0,
+          "state": "draining",
+          "address": "10.4.0.8:11211"
+        }
+      ]
+    },
+    "topologies/ring-plain.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "ring-plain",
+      "epoch": 1,
+      "strategy": {
+        "kind": "ring",
+        "tokenAssignment": "derived",
+        "tokensPerWeightUnit": 1,
+        "maxTokensPerNode": 4096
+      },
+      "nodes": [
+        {
+          "id": "n1"
+        },
+        {
+          "id": "n2"
+        },
+        {
+          "id": "n3"
+        },
+        {
+          "id": "n4"
+        }
+      ]
+    },
+    "topologies/slot-small.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "slot-small",
+      "epoch": 1,
+      "replication": {
+        "factor": 1
+      },
+      "strategy": {
+        "kind": "slot",
+        "slotCount": 7,
+        "assignment": "explicit",
+        "assignments": [
+          {
+            "slots": [
+              "0-2"
+            ],
+            "nodes": [
+              "a",
+              "b"
+            ]
+          },
+          {
+            "slots": [
+              "3-4"
+            ],
+            "nodes": [
+              "b",
+              "c"
+            ]
+          },
+          {
+            "slots": [
+              "5-6"
+            ],
+            "nodes": [
+              "c",
+              "a"
+            ]
+          }
+        ]
+      },
+      "nodes": [
+        {
+          "id": "a"
+        },
+        {
+          "id": "b"
+        },
+        {
+          "id": "c"
+        }
+      ]
+    }
+  },
+  "cases": [
+    {
+      "name": "transform-collision",
+      "requirements": [
+        "KEY-030",
+        "PLACE-010"
+      ],
+      "topology": "topologies/rendezvous-cache.topology.json",
+      "note": "distinct keys, one routing key, therefore one preference list",
+      "keys": [
+        {
+          "encoding": "utf8",
+          "value": "session:{u-9912}:profile"
+        },
+        {
+          "encoding": "utf8",
+          "value": "session:{u-9912}:cart"
+        }
+      ],
+      "expect": {
+        "routingKeys": [
+          "752d39393132",
+          "752d39393132"
+        ],
+        "candidates": [
+          [
+            "cache-07",
+            "cache-04",
+            "cache-06",
+            "cache-02",
+            "cache-05",
+            "cache-03",
+            "cache-01"
+          ],
+          [
+            "cache-07",
+            "cache-04",
+            "cache-06",
+            "cache-02",
+            "cache-05",
+            "cache-03",
+            "cache-01"
+          ]
+        ],
+        "identical": true
+      }
+    },
+    {
+      "name": "slot-collision",
+      "requirements": [
+        "SLOT-001",
+        "SLOT-030"
+      ],
+      "topology": "topologies/slot-small.topology.json",
+      "note": "distinct keys reduced to one slot index, found by enumeration",
+      "keys": [
+        {
+          "encoding": "utf8",
+          "value": "c0"
+        },
+        {
+          "encoding": "utf8",
+          "value": "c1"
+        }
+      ],
+      "expect": {
+        "slotIndex": 0,
+        "candidates": [
+          [
+            "a",
+            "b"
+          ],
+          [
+            "a",
+            "b"
+          ]
+        ],
+        "identical": true
+      }
+    },
+    {
+      "name": "ring-token-range-collision",
+      "requirements": [
+        "RING-020",
+        "RING-030"
+      ],
+      "topology": "topologies/ring-plain.topology.json",
+      "note": "distinct keys owned by one token range, found by enumeration",
+      "keys": [
+        {
+          "encoding": "utf8",
+          "value": "c0"
+        },
+        {
+          "encoding": "utf8",
+          "value": "c2"
+        }
+      ],
+      "expect": {
+        "shard": "1fc30855a7a85a61",
+        "candidates": [
+          [
+            "n3",
+            "n4",
+            "n2",
+            "n1"
+          ],
+          [
+            "n3",
+            "n4",
+            "n2",
+            "n1"
+          ]
+        ],
+        "identical": true
+      }
+    },
+    {
+      "name": "key-hash-collision",
+      "requirements": [
+        "SLOT-001",
+        "RING-020",
+        "SEC-001"
+      ],
+      "topology": "topologies/ring-plain.topology.json",
+      "note": "two distinct keys with an identical 64-bit key hash, found by a Pollard rho search over the `sharder/key/v1` domain.  Every strategy that consumes `keyHash` places them identically.",
+      "keys": [
+        {
+          "encoding": "utf8",
+          "value": "6b9b1719780493fd"
+        },
+        {
+          "encoding": "utf8",
+          "value": "9cba71daa13281ed"
+        }
+      ],
+      "expect": {
+        "keyHash": "eb8bf8ead80b3a87",
+        "shard": "1fc30855a7a85a61",
+        "candidates": [
+          [
+            "n3",
+            "n4",
+            "n2",
+            "n1"
+          ],
+          [
+            "n3",
+            "n4",
+            "n2",
+            "n1"
+          ]
+        ],
+        "identical": true,
+        "slotIndexAt7": 1
+      }
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "kt-brace",
+  "epoch": 1,
+  "keyTransform": {
+    "kind": "braceTag"
+  },
+  "strategy": {
+    "kind": "rendezvous"
+  },
+  "nodes": [
+    {
+      "id": "n1"
+    }
+  ]
+}

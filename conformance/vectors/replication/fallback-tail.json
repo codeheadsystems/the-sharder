@@ -1,0 +1,507 @@
+{
+  "vectorSet": "replication-fallback-tail",
+  "kind": "routing",
+  "level": "place",
+  "description": "The fallback tail is the candidate ordering with the replica prefix removed, in candidate ordering order, and carries no spread property.",
+  "requirements": [
+    "CORE-046",
+    "CORE-047",
+    "REPL-013",
+    "REPL-014",
+    "REPL-015",
+    "REPL-017",
+    "SPREAD-021"
+  ],
+  "topology": "topologies/ring-zoned.topology.json",
+  "topologyDigest": "d947c4aa45a782f32c422ce8bfdd6bef4f79186378ece4f0ed02e89686615ca2",
+  "topologyDocuments": {
+    "topologies/ring-zoned.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "ring-zoned",
+      "epoch": 12,
+      "domainLevels": [
+        "zone",
+        "rack"
+      ],
+      "replication": {
+        "factor": 3,
+        "spread": [
+          "zone"
+        ],
+        "spreadPolicy": "relaxed"
+      },
+      "strategy": {
+        "kind": "ring",
+        "tokenAssignment": "derived",
+        "tokensPerWeightUnit": 4,
+        "maxTokensPerNode": 4096
+      },
+      "nodes": [
+        {
+          "id": "store-a1",
+          "weight": 2,
+          "domains": {
+            "zone": "za",
+            "rack": "r01"
+          }
+        },
+        {
+          "id": "store-a2",
+          "weight": 1,
+          "domains": {
+            "zone": "za",
+            "rack": "r02"
+          }
+        },
+        {
+          "id": "store-b1",
+          "weight": 1,
+          "domains": {
+            "zone": "zb",
+            "rack": "r11"
+          }
+        },
+        {
+          "id": "store-b2",
+          "weight": 3,
+          "domains": {
+            "zone": "zb",
+            "rack": "r12"
+          }
+        },
+        {
+          "id": "store-c1",
+          "weight": 1,
+          "domains": {
+            "zone": "zc",
+            "rack": "r21"
+          }
+        },
+        {
+          "id": "store-c2",
+          "weight": 1,
+          "domains": {
+            "zone": "zc",
+            "rack": "r22"
+          }
+        }
+      ]
+    }
+  },
+  "cases": [
+    {
+      "name": "tail/0",
+      "requirements": [
+        "REPL-013",
+        "REPL-014",
+        "REPL-017",
+        "SPREAD-021"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "tail-0"
+      },
+      "note": "entries skipped for spread reappear in the tail at their original relative position",
+      "expect": {
+        "routingKey": "7461696c2d30",
+        "shard": "5dbbf6439ff2651e",
+        "token": {
+          "topologyId": "ring-zoned",
+          "epoch": 12
+        },
+        "factor": 3,
+        "replicaCount": 3,
+        "candidates": [
+          "store-a1",
+          "store-c1",
+          "store-b2",
+          "store-c2",
+          "store-a2",
+          "store-b1"
+        ],
+        "preferenceList": [
+          {
+            "node": "store-a1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "store-c1",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "store-b2",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "store-c2",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "store-a2",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "store-b1",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 5,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "tail/1",
+      "requirements": [
+        "REPL-013",
+        "REPL-014",
+        "REPL-017",
+        "SPREAD-021"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "tail-1"
+      },
+      "note": "entries skipped for spread reappear in the tail at their original relative position",
+      "expect": {
+        "routingKey": "7461696c2d31",
+        "shard": "23cce30d02f72ee6",
+        "token": {
+          "topologyId": "ring-zoned",
+          "epoch": 12
+        },
+        "factor": 3,
+        "replicaCount": 3,
+        "candidates": [
+          "store-b1",
+          "store-b2",
+          "store-a2",
+          "store-a1",
+          "store-c1",
+          "store-c2"
+        ],
+        "preferenceList": [
+          {
+            "node": "store-b1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "store-a2",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "store-c1",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "store-b2",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "store-a1",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "store-c2",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 5,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "tail/2",
+      "requirements": [
+        "REPL-013",
+        "REPL-014",
+        "REPL-017",
+        "SPREAD-021"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "tail-2"
+      },
+      "note": "entries skipped for spread reappear in the tail at their original relative position",
+      "expect": {
+        "routingKey": "7461696c2d32",
+        "shard": "9ac4817a376d2aee",
+        "token": {
+          "topologyId": "ring-zoned",
+          "epoch": 12
+        },
+        "factor": 3,
+        "replicaCount": 3,
+        "candidates": [
+          "store-b2",
+          "store-c1",
+          "store-c2",
+          "store-a1",
+          "store-a2",
+          "store-b1"
+        ],
+        "preferenceList": [
+          {
+            "node": "store-b2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "store-c1",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "store-a1",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "store-c2",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "store-a2",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "store-b1",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 5,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "tail/3",
+      "requirements": [
+        "REPL-013",
+        "REPL-014",
+        "REPL-017",
+        "SPREAD-021"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "tail-3"
+      },
+      "note": "entries skipped for spread reappear in the tail at their original relative position",
+      "expect": {
+        "routingKey": "7461696c2d33",
+        "shard": "e26f63a7d54b4759",
+        "token": {
+          "topologyId": "ring-zoned",
+          "epoch": 12
+        },
+        "factor": 3,
+        "replicaCount": 3,
+        "candidates": [
+          "store-a1",
+          "store-a2",
+          "store-b1",
+          "store-b2",
+          "store-c2",
+          "store-c1"
+        ],
+        "preferenceList": [
+          {
+            "node": "store-a1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "store-b1",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "store-c2",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "store-a2",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "store-b2",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "store-c1",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 5,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "tail/4",
+      "requirements": [
+        "REPL-013",
+        "REPL-014",
+        "REPL-017",
+        "SPREAD-021"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "tail-4"
+      },
+      "note": "entries skipped for spread reappear in the tail at their original relative position",
+      "expect": {
+        "routingKey": "7461696c2d34",
+        "shard": "ab62b6c7219e98c6",
+        "token": {
+          "topologyId": "ring-zoned",
+          "epoch": 12
+        },
+        "factor": 3,
+        "replicaCount": 3,
+        "candidates": [
+          "store-c1",
+          "store-c2",
+          "store-a1",
+          "store-a2",
+          "store-b1",
+          "store-b2"
+        ],
+        "preferenceList": [
+          {
+            "node": "store-c1",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "store-a1",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "store-b1",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "store-c2",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "store-a2",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "store-b2",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 5,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "tail/5",
+      "requirements": [
+        "REPL-013",
+        "REPL-014",
+        "REPL-017",
+        "SPREAD-021"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "tail-5"
+      },
+      "note": "entries skipped for spread reappear in the tail at their original relative position",
+      "expect": {
+        "routingKey": "7461696c2d35",
+        "shard": "1dfa5090512e0c22",
+        "token": {
+          "topologyId": "ring-zoned",
+          "epoch": 12
+        },
+        "factor": 3,
+        "replicaCount": 3,
+        "candidates": [
+          "store-c2",
+          "store-b2",
+          "store-b1",
+          "store-a2",
+          "store-a1",
+          "store-c1"
+        ],
+        "preferenceList": [
+          {
+            "node": "store-c2",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "store-b2",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "store-a2",
+            "position": 2,
+            "role": "replica"
+          },
+          {
+            "node": "store-b1",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "store-a1",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "store-c1",
+            "position": 5,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 5,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    }
+  ]
+}

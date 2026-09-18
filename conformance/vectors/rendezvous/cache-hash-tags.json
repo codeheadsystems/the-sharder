@@ -1,0 +1,947 @@
+{
+  "vectorSet": "rendezvous-cache-hash-tags",
+  "kind": "routing",
+  "level": "place",
+  "description": "The cache example of `20-topology-format.md`: Redis-compatible hash tags, mixed weights, and a draining node at weight 0.",
+  "requirements": [
+    "CORE-046",
+    "CORE-047",
+    "KEY-030",
+    "KEY-031",
+    "PLACE-042",
+    "PLACE-043",
+    "RV-001",
+    "RV-010"
+  ],
+  "topology": "topologies/rendezvous-cache.topology.json",
+  "topologyDigest": "5cd959daa09825e26e1d6cae5b0df890828c386566500fde3014d4f5a6bf78ad",
+  "topologyDocuments": {
+    "topologies/rendezvous-cache.topology.json": {
+      "formatVersion": "1.0",
+      "topologyId": "session-cache",
+      "epoch": 7,
+      "keyTransform": {
+        "kind": "braceTag"
+      },
+      "replication": {
+        "factor": 2
+      },
+      "strategy": {
+        "kind": "rendezvous",
+        "virtualNodesPerWeightUnit": 8,
+        "maxVirtualNodesPerNode": 512
+      },
+      "nodes": [
+        {
+          "id": "cache-01",
+          "weight": 1,
+          "address": "10.4.0.1:11211"
+        },
+        {
+          "id": "cache-02",
+          "weight": 1,
+          "address": "10.4.0.2:11211"
+        },
+        {
+          "id": "cache-03",
+          "weight": 1,
+          "address": "10.4.0.3:11211"
+        },
+        {
+          "id": "cache-04",
+          "weight": 1,
+          "address": "10.4.0.4:11211"
+        },
+        {
+          "id": "cache-05",
+          "weight": 2,
+          "address": "10.4.0.5:11211"
+        },
+        {
+          "id": "cache-06",
+          "weight": 2,
+          "address": "10.4.0.6:11211"
+        },
+        {
+          "id": "cache-07",
+          "weight": 2,
+          "address": "10.4.0.7:11211"
+        },
+        {
+          "id": "cache-08",
+          "weight": 0,
+          "state": "draining",
+          "address": "10.4.0.8:11211"
+        }
+      ]
+    }
+  },
+  "cases": [
+    {
+      "name": "cache/tag-profile",
+      "requirements": [
+        "KEY-030",
+        "PLACE-010"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "session:{u-9912}:profile"
+      },
+      "note": "co-located with the cart key below: both transform to `u-9912`",
+      "expect": {
+        "routingKey": "752d39393132",
+        "shard": "752d39393132",
+        "token": {
+          "topologyId": "session-cache",
+          "epoch": 7
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "cache-07",
+          "cache-04",
+          "cache-06",
+          "cache-02",
+          "cache-05",
+          "cache-03",
+          "cache-01"
+        ],
+        "preferenceList": [
+          {
+            "node": "cache-07",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "cache-04",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "cache-06",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-02",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-05",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-03",
+            "position": 5,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-01",
+            "position": 6,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 4,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "cache/tag-cart",
+      "requirements": [
+        "KEY-030",
+        "PLACE-010"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "session:{u-9912}:cart"
+      },
+      "note": "co-located with the profile key above",
+      "expect": {
+        "routingKey": "752d39393132",
+        "shard": "752d39393132",
+        "token": {
+          "topologyId": "session-cache",
+          "epoch": 7
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "cache-07",
+          "cache-04",
+          "cache-06",
+          "cache-02",
+          "cache-05",
+          "cache-03",
+          "cache-01"
+        ],
+        "preferenceList": [
+          {
+            "node": "cache-07",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "cache-04",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "cache-06",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-02",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-05",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-03",
+            "position": 5,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-01",
+            "position": 6,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 4,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "cache/no-tag",
+      "requirements": [
+        "KEY-031"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "session:u-9912"
+      },
+      "expect": {
+        "routingKey": "73657373696f6e3a752d39393132",
+        "shard": "73657373696f6e3a752d39393132",
+        "token": {
+          "topologyId": "session-cache",
+          "epoch": 7
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "cache-05",
+          "cache-01",
+          "cache-04",
+          "cache-06",
+          "cache-07",
+          "cache-03",
+          "cache-02"
+        ],
+        "preferenceList": [
+          {
+            "node": "cache-05",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "cache-01",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "cache-04",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-06",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-07",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-03",
+            "position": 5,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-02",
+            "position": 6,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 4,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "cache/draining-zero-weight",
+      "requirements": [
+        "PLACE-042",
+        "PLACE-043"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "anything"
+      },
+      "note": "cache-08 is draining at weight 0, so it is in the placement set and places nothing",
+      "expect": {
+        "routingKey": "616e797468696e67",
+        "shard": "616e797468696e67",
+        "token": {
+          "topologyId": "session-cache",
+          "epoch": 7
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "cache-06",
+          "cache-04",
+          "cache-05",
+          "cache-02",
+          "cache-03",
+          "cache-07",
+          "cache-01"
+        ],
+        "preferenceList": [
+          {
+            "node": "cache-06",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "cache-04",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "cache-05",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-02",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-03",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-07",
+            "position": 5,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-01",
+            "position": 6,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 4,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "cache/u-0",
+      "requirements": [
+        "KEY-030",
+        "RV-010"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "session:{u-0}:x"
+      },
+      "expect": {
+        "routingKey": "752d30",
+        "shard": "752d30",
+        "token": {
+          "topologyId": "session-cache",
+          "epoch": 7
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "cache-04",
+          "cache-07",
+          "cache-05",
+          "cache-03",
+          "cache-06",
+          "cache-01",
+          "cache-02"
+        ],
+        "preferenceList": [
+          {
+            "node": "cache-04",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "cache-07",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "cache-05",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-03",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-06",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-01",
+            "position": 5,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-02",
+            "position": 6,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 4,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "cache/u-1",
+      "requirements": [
+        "KEY-030",
+        "RV-010"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "session:{u-1}:x"
+      },
+      "expect": {
+        "routingKey": "752d31",
+        "shard": "752d31",
+        "token": {
+          "topologyId": "session-cache",
+          "epoch": 7
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "cache-03",
+          "cache-01",
+          "cache-07",
+          "cache-06",
+          "cache-05",
+          "cache-02",
+          "cache-04"
+        ],
+        "preferenceList": [
+          {
+            "node": "cache-03",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "cache-01",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "cache-07",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-06",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-05",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-02",
+            "position": 5,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-04",
+            "position": 6,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 4,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "cache/u-2",
+      "requirements": [
+        "KEY-030",
+        "RV-010"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "session:{u-2}:x"
+      },
+      "expect": {
+        "routingKey": "752d32",
+        "shard": "752d32",
+        "token": {
+          "topologyId": "session-cache",
+          "epoch": 7
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "cache-01",
+          "cache-02",
+          "cache-05",
+          "cache-06",
+          "cache-07",
+          "cache-03",
+          "cache-04"
+        ],
+        "preferenceList": [
+          {
+            "node": "cache-01",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "cache-02",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "cache-05",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-06",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-07",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-03",
+            "position": 5,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-04",
+            "position": 6,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 4,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "cache/u-3",
+      "requirements": [
+        "KEY-030",
+        "RV-010"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "session:{u-3}:x"
+      },
+      "expect": {
+        "routingKey": "752d33",
+        "shard": "752d33",
+        "token": {
+          "topologyId": "session-cache",
+          "epoch": 7
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "cache-04",
+          "cache-06",
+          "cache-05",
+          "cache-01",
+          "cache-02",
+          "cache-07",
+          "cache-03"
+        ],
+        "preferenceList": [
+          {
+            "node": "cache-04",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "cache-06",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "cache-05",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-01",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-02",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-07",
+            "position": 5,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-03",
+            "position": 6,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 4,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "cache/u-4",
+      "requirements": [
+        "KEY-030",
+        "RV-010"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "session:{u-4}:x"
+      },
+      "expect": {
+        "routingKey": "752d34",
+        "shard": "752d34",
+        "token": {
+          "topologyId": "session-cache",
+          "epoch": 7
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "cache-06",
+          "cache-07",
+          "cache-01",
+          "cache-02",
+          "cache-05",
+          "cache-03",
+          "cache-04"
+        ],
+        "preferenceList": [
+          {
+            "node": "cache-06",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "cache-07",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "cache-01",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-02",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-05",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-03",
+            "position": 5,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-04",
+            "position": 6,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 4,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "cache/u-5",
+      "requirements": [
+        "KEY-030",
+        "RV-010"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "session:{u-5}:x"
+      },
+      "expect": {
+        "routingKey": "752d35",
+        "shard": "752d35",
+        "token": {
+          "topologyId": "session-cache",
+          "epoch": 7
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "cache-01",
+          "cache-04",
+          "cache-05",
+          "cache-07",
+          "cache-06",
+          "cache-02",
+          "cache-03"
+        ],
+        "preferenceList": [
+          {
+            "node": "cache-01",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "cache-04",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "cache-05",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-07",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-06",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-02",
+            "position": 5,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-03",
+            "position": 6,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 4,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "cache/u-6",
+      "requirements": [
+        "KEY-030",
+        "RV-010"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "session:{u-6}:x"
+      },
+      "expect": {
+        "routingKey": "752d36",
+        "shard": "752d36",
+        "token": {
+          "topologyId": "session-cache",
+          "epoch": 7
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "cache-06",
+          "cache-05",
+          "cache-02",
+          "cache-04",
+          "cache-03",
+          "cache-07",
+          "cache-01"
+        ],
+        "preferenceList": [
+          {
+            "node": "cache-06",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "cache-05",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "cache-02",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-04",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-03",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-07",
+            "position": 5,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-01",
+            "position": 6,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 4,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    },
+    {
+      "name": "cache/u-7",
+      "requirements": [
+        "KEY-030",
+        "RV-010"
+      ],
+      "key": {
+        "encoding": "utf8",
+        "value": "session:{u-7}:x"
+      },
+      "expect": {
+        "routingKey": "752d37",
+        "shard": "752d37",
+        "token": {
+          "topologyId": "session-cache",
+          "epoch": 7
+        },
+        "factor": 2,
+        "replicaCount": 2,
+        "candidates": [
+          "cache-04",
+          "cache-05",
+          "cache-01",
+          "cache-03",
+          "cache-07",
+          "cache-06",
+          "cache-02"
+        ],
+        "preferenceList": [
+          {
+            "node": "cache-04",
+            "position": 0,
+            "role": "replica"
+          },
+          {
+            "node": "cache-05",
+            "position": 1,
+            "role": "replica"
+          },
+          {
+            "node": "cache-01",
+            "position": 2,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-03",
+            "position": 3,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-07",
+            "position": 4,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-06",
+            "position": 5,
+            "role": "fallback"
+          },
+          {
+            "node": "cache-02",
+            "position": 6,
+            "role": "fallback"
+          }
+        ],
+        "materialisedEntries": 4,
+        "relaxedLevels": [],
+        "spreadStage": 0,
+        "shortfall": "none",
+        "matchedOverride": null
+      }
+    }
+  ]
+}

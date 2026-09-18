@@ -1,0 +1,25 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "ring-plain",
+  "epoch": 1,
+  "strategy": {
+    "kind": "ring",
+    "tokenAssignment": "derived",
+    "tokensPerWeightUnit": 1,
+    "maxTokensPerNode": 4096
+  },
+  "nodes": [
+    {
+      "id": "n1"
+    },
+    {
+      "id": "n2"
+    },
+    {
+      "id": "n3"
+    },
+    {
+      "id": "n4"
+    }
+  ]
+}

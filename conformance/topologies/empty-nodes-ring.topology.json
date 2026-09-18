@@ -1,0 +1,12 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "empty-topology-ring",
+  "epoch": 1,
+  "replication": {
+    "factor": 1
+  },
+  "strategy": {
+    "kind": "ring"
+  },
+  "nodes": []
+}
