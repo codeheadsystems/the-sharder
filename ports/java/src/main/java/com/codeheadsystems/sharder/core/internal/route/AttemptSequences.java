@@ -1,6 +1,6 @@
 package com.codeheadsystems.sharder.core.internal.route;
 
-import com.codeheadsystems.sharder.core.internal.health.HealthView;
+import com.codeheadsystems.sharder.health.HealthView;
 
 /**
  * The attempt walk over one routing decision.
@@ -15,14 +15,15 @@ public final class AttemptSequences {
     }
 
     /** The walk a caller holding this decision and this health view performs. */
-    public static AttemptSequence of(PlacementDecision decision, HealthView health,
+    public static DefaultAttemptSequence of(PlacementDecision decision, HealthView health,
                                      RetryBudget budget) {
         return over(decision.preferenceList(), decision.attemptLimit(), health, budget);
     }
 
     /** The walk over a list a caller supplies, which a scenario confines to a prefix. */
-    public static AttemptSequence over(java.util.List<com.codeheadsystems.sharder.NodeId> list,
-                                       int attemptLimit, HealthView health, RetryBudget budget) {
-        return new AttemptSequence(list, health, budget, attemptLimit);
+    public static DefaultAttemptSequence over(java.util.List<com.codeheadsystems.sharder.NodeId> list,
+                                       int attemptLimit, HealthView health,
+                                       RetryBudget budget) {
+        return new DefaultAttemptSequence(list, health, budget, attemptLimit);
     }
 }

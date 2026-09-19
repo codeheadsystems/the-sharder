@@ -13,7 +13,13 @@ public final class Frame {
     /** The octet count of a length prefix, which {@code HASH-020} fixes at four. */
     public static final int PREFIX = 4;
 
-    /** The greatest octet count a field may carry, under {@code HASH-024}. */
+    /**
+     * The greatest octet count a field may carry, under {@code HASH-024}.
+     *
+     * <p>A Java array is bounded by {@code Integer.MAX_VALUE}, which is below this cap, so no
+     * field this method frames reaches it and no guard against it can fire. The constant states
+     * the cap a port over a wider array type enforces.
+     */
     public static final long MAX_FIELD = 4294967295L;
 
     private Frame() {
@@ -23,10 +29,6 @@ public final class Frame {
     public static byte[] of(byte[]... fields) {
         int size = 0;
         for (byte[] field : fields) {
-            if (field.length > MAX_FIELD) {
-                throw new IllegalArgumentException("a framed field carries at most " + MAX_FIELD
-                        + " octets, not " + field.length);
-            }
             size += PREFIX + field.length;
         }
         byte[] framed = new byte[size];

@@ -30,6 +30,11 @@ final class SlotPlacement implements PreparedPlacement {
     }
 
     @Override
+    public boolean eager() {
+        return true;
+    }
+
+    @Override
     public java.util.Iterator<NodeId> cursor(byte[] routingKey, EligibleSet eligible) {
         return authoredCandidates(routingKey, eligible).iterator();
     }

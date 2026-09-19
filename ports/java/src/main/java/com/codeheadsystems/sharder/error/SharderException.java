@@ -1,5 +1,7 @@
 package com.codeheadsystems.sharder.error;
 
+import com.codeheadsystems.sharder.ShardId;
+import com.codeheadsystems.sharder.topology.FencingToken;
 import java.util.Optional;
 
 /**
@@ -9,21 +11,30 @@ import java.util.Optional;
  * default and a binding cannot add a leaf of its own, which {@code ERR-062} forbids. Conditions are
  * unchecked, so a routing call composes inside a lambda without a wrapper at every call site.
  *
- * <p>The leaves land with the surfaces that raise them. The permitted list grows as they do, and
- * the closed set of sixteen is what it grows towards.
+ * <p>Four sealed groups carry the four numeric blocks of {@code ERR-010}, and the sixteen leaves
+ * under them are the whole condition set.
  */
 public sealed abstract class SharderException extends RuntimeException
-        permits RoutingException {
+        permits RoutingException, TopologyException, RecipientException, MigrationException {
 
     private static final long serialVersionUID = 1L;
 
     private final transient ErrorCode errorCode;
     private final transient String reason;
+    private final transient FencingToken token;
+    private final transient ShardId shard;
 
     SharderException(ErrorCode errorCode, String reason, String message) {
-        super(message);
+        this(errorCode, reason, message, null, null, null);
+    }
+
+    SharderException(ErrorCode errorCode, String reason, String message, FencingToken token,
+                     ShardId shard, Throwable original) {
+        super(message, original);
         this.errorCode = errorCode;
         this.reason = reason;
+        this.token = token;
+        this.shard = shard;
     }
 
     /** The condition of {@code ERR-010}. */
@@ -49,5 +60,15 @@ public sealed abstract class SharderException extends RuntimeException
     /** The closed sub-reason of {@code ERR-004}, where the condition defines a set of them. */
     public Optional<String> cause() {
         return Optional.ofNullable(reason);
+    }
+
+    /** The token the condition concerns, where the condition names one. */
+    public Optional<FencingToken> token() {
+        return Optional.ofNullable(token);
+    }
+
+    /** The shard the condition concerns, where the condition names one. */
+    public Optional<ShardId> shard() {
+        return Optional.ofNullable(shard);
     }
 }

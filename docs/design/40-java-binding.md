@@ -12,11 +12,12 @@ them, and a reviewer checking that the port has not quietly changed the contract
 Status: the Java binding is under way and is not complete. The Gradle build, the opaque identifier
 types, the error taxonomy, the hash construction, the JSON reader, the canonical form and the
 digest, document validation, the snapshot lifecycle, the four placement strategies, the override
-layer, the preference list builder, the observability inventory, and the conformance harness are
-written, and the port reaches every conformance level the suite carries, which it declares in
-[`../../conformance/declarations/java.json`](../../conformance/declarations/java.json). The public
-router, the provider contract, and the movement hook interface are not written, so no build check
-and no published artifact exists, and every type, task, module, gate, and benchmark
+layer, the preference list builder, the observability inventory, the conformance harness, the
+public router with its configuration and provider contracts, and the build gates are written, and
+the port reaches every conformance level the suite carries, which it declares in
+[`../../conformance/declarations/java.json`](../../conformance/declarations/java.json). The
+migration surface, the placement extension point, and the file provider are not written, and no
+published artifact exists, so every type, task, module, gate, and benchmark
 below that the port has not reached states what it will carry rather than what one did.
 [`../../ports/java/README.md`](../../ports/java/README.md) says what is written today. Where a
 figure below comes from a measurement, it comes from a prototype written to settle a decision
@@ -152,7 +153,7 @@ These quantities are unsigned 64-bit.
 
 | Quantity | Source |
 |---|---|
-| `keyHash(rk)` and every framed hash output | `10-specification.md` notation, STAGE1 hash specification |
+| `keyHash(rk)` and every framed hash output | `HASH-032`, `HASH-040` |
 | a ring token value, derived or decoded from `tokens` | `RING-003`, `RING-010` |
 | a rendezvous score | `RV-003` |
 | `bulkRemaining`, `residue`, `reTransferResidualThreshold` | `MOVE-111`, `CFG-050` |
@@ -1357,8 +1358,8 @@ needs one.
 `verifyDocLinks`, `verifyDocStyle`, `verifyUnsignedComparisons`, and the dependency check that
 fails a published POM
 carrying a compile or runtime dependency. Every one of them is chosen to run offline and without a
-container runtime, so `check` needs no network and no Docker daemon. Of those, the unit tests and
-the suite are written; the four checks are not.
+container runtime, so `check` needs no network and no Docker daemon. All of them are written, and
+`check` also runs the JaCoCo report against its line coverage floor and the allocation gate below.
 
 `verifyDocStyle` is the one task in that list whose finding does not fail `check`. It prints its
 findings and exits zero, under [`adr/0062`](adr/0062-documentation-style-check-as-a-warning.md).
@@ -1390,7 +1391,8 @@ the repository, two directories above the Gradle root, because the documents bel
 
 Failures are reported with file, line, and the unresolved reference, and every failure is reported
 rather than the first. `conformance/generator/verify_withdrawals.py` carries the last two checks
-until the Gradle task exists, and `run.sh` runs it.
+over the conformance suite as well, and `run.sh` runs it, because a suite regenerated on a machine
+with no Java toolchain is checked by the generator rather than by a port.
 
 `verifyDocStyle` reports four things and no more.
 

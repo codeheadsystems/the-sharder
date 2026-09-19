@@ -5,6 +5,7 @@ import com.codeheadsystems.sharder.core.internal.json.JcsWriter;
 import com.codeheadsystems.sharder.core.internal.json.JsonValue.JsonObject;
 import com.codeheadsystems.sharder.core.internal.route.PlacementEngine;
 import com.codeheadsystems.sharder.error.ErrorCode;
+import com.codeheadsystems.sharder.topology.ValidationError;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;

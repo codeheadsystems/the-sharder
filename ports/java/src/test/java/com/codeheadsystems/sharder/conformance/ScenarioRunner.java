@@ -10,12 +10,12 @@ import com.codeheadsystems.sharder.core.internal.json.JsonValue;
 import com.codeheadsystems.sharder.core.internal.json.JsonValue.JsonObject;
 import com.codeheadsystems.sharder.core.internal.fence.Recipient;
 import com.codeheadsystems.sharder.core.internal.fence.RedirectWalk;
-import com.codeheadsystems.sharder.core.internal.health.HealthSettings;
+import com.codeheadsystems.sharder.config.HealthSettings;
 import com.codeheadsystems.sharder.core.internal.migrate.Handoff;
 import com.codeheadsystems.sharder.core.internal.migrate.HandoffState;
 import com.codeheadsystems.sharder.core.internal.migrate.MigrationPlan;
-import com.codeheadsystems.sharder.core.internal.health.HealthState;
-import com.codeheadsystems.sharder.core.internal.health.HealthView;
+import com.codeheadsystems.sharder.health.HealthState;
+import com.codeheadsystems.sharder.core.internal.health.SlidingWindowHealthView;
 import com.codeheadsystems.sharder.core.internal.route.AttemptSequences;
 import com.codeheadsystems.sharder.core.internal.route.PlacementDecision;
 import com.codeheadsystems.sharder.core.internal.route.PlacementEngine;
@@ -43,7 +43,7 @@ final class ScenarioRunner {
     int run(String path) {
         JsonObject scenario = source.readObject(path);
         TopologyLoader loader = new TopologyLoader();
-        HealthView[] health = {new HealthView(HealthSettings.defaults())};
+        SlidingWindowHealthView[] health = {new SlidingWindowHealthView(HealthSettings.defaults())};
         RetryBudget budget = RetryBudget.defaults();
         int skipped = 0;
         java.util.Map<String, TopologyLoader> views = new java.util.LinkedHashMap<>();
@@ -92,7 +92,7 @@ final class ScenarioRunner {
                             install(loader, health[0], topology.asText()));
                     route(loader, step, index);
                 }
-                case "configureHealth" -> health[0] = new HealthView(
+                case "configureHealth" -> health[0] = new SlidingWindowHealthView(
                         settings(step.object("parameters")));
                 case "healthSnapshotInstalled" -> {
                     health[0].onSnapshotInstalled(
@@ -259,12 +259,12 @@ final class ScenarioRunner {
         return parameters.find(member).map(JsonValue::asLong).orElse(fallback);
     }
 
-    private void install(TopologyLoader loader, HealthView health, String topology) {
+    private void install(TopologyLoader loader, SlidingWindowHealthView health, String topology) {
         loader.accept(source.readObject(topology));
         loader.snapshot().ifPresent(health::onSnapshotInstalled);
     }
 
-    private void reportHealth(HealthView health, JsonObject step, int index) {
+    private void reportHealth(SlidingWindowHealthView health, JsonObject step, int index) {
         NodeId node = NodeId.of(step.text("node"));
         // A step may carry several observations at one instant, which `repeat` counts.
         int repeat = step.find("repeat").map(JsonValue::asInt).orElse(1);
@@ -277,7 +277,7 @@ final class ScenarioRunner {
         expectStates(health, step, index);
     }
 
-    private void reportHealthSeries(HealthView health, JsonObject step, int index) {
+    private void reportHealthSeries(SlidingWindowHealthView health, JsonObject step, int index) {
         NodeId node = NodeId.of(step.text("node"));
         long firstAt = step.get("firstAt").asLong();
         long stride = step.get("stepMillis").asLong();
@@ -296,7 +296,7 @@ final class ScenarioRunner {
         expectStates(health, step, index);
     }
 
-    private void probeAdmission(HealthView health, JsonObject step, int index) {
+    private void probeAdmission(SlidingWindowHealthView health, JsonObject step, int index) {
         NodeId node = NodeId.of(step.text("node"));
         List<Boolean> admitted = new java.util.ArrayList<>();
         for (int call = 0; call < step.get("calls").asInt(); call++) {
@@ -312,7 +312,7 @@ final class ScenarioRunner {
                         .as("step %d admittedCount", index).isEqualTo(value.asLong()));
     }
 
-    private void expectHealthCeiling(HealthView health, JsonObject step, int index) {
+    private void expectHealthCeiling(SlidingWindowHealthView health, JsonObject step, int index) {
         JsonObject expect = step.object("expect");
         expect.find("placementSetSize").ifPresent(value ->
                 assertThat(health.placementSetSize()).as("step %d placementSetSize", index)
@@ -329,7 +329,7 @@ final class ScenarioRunner {
         expectStates(health, step, index);
     }
 
-    private void expectComparisonSet(HealthView health, JsonObject step, int index) {
+    private void expectComparisonSet(SlidingWindowHealthView health, JsonObject step, int index) {
         long at = step.get("at").asLong();
         JsonObject expect = step.object("expect");
         expect.find("comparisonSet").ifPresent(value ->
@@ -341,7 +341,7 @@ final class ScenarioRunner {
         expectStates(health, step, index);
     }
 
-    private void attemptSequence(TopologyLoader loader, HealthView health, RetryBudget budget,
+    private void attemptSequence(TopologyLoader loader, SlidingWindowHealthView health, RetryBudget budget,
                                  JsonObject step, int index) {
         PlacementDecision decision = loader.engine().orElseThrow()
                 .route(PlaceVectors.octets(step.object("key")));
@@ -364,7 +364,7 @@ final class ScenarioRunner {
         expectStates(health, step, index);
     }
 
-    private void attemptWalk(TopologyLoader loader, HealthView health, RetryBudget budget,
+    private void attemptWalk(TopologyLoader loader, SlidingWindowHealthView health, RetryBudget budget,
                              JsonObject step, int index) {
         PlacementDecision decision = loader.engine().orElseThrow()
                 .route(PlaceVectors.octets(step.object("key")));
@@ -385,7 +385,7 @@ final class ScenarioRunner {
                         .as("step %d distinct", index).isEqualTo(value.asInt()));
     }
 
-    private void expectStates(HealthView health, JsonObject step, int index) {
+    private void expectStates(SlidingWindowHealthView health, JsonObject step, int index) {
         step.object("expect").find("states").ifPresent(value ->
                 value.asObject().members().forEach((node, state) ->
                         assertThat(health.stateOf(NodeId.of(node)).spelling())

@@ -1,8 +1,14 @@
 package com.codeheadsystems.sharder.core.internal.health;
 
 import com.codeheadsystems.sharder.NodeId;
-import com.codeheadsystems.sharder.core.internal.document.TopologyDocument;
+import com.codeheadsystems.sharder.config.HealthSettings;
 import com.codeheadsystems.sharder.core.internal.document.TopologyDocument.Node;
+import com.codeheadsystems.sharder.core.internal.document.TopologyDocument;
+import com.codeheadsystems.sharder.core.internal.snapshot.DocumentSnapshot;
+import com.codeheadsystems.sharder.health.HealthSignal;
+import com.codeheadsystems.sharder.health.HealthState;
+import com.codeheadsystems.sharder.health.HealthView;
+import com.codeheadsystems.sharder.topology.TopologySnapshot;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -23,7 +29,7 @@ import java.util.Set;
  * <p>Every computation here is unsigned integer arithmetic, and integer division truncates towards
  * zero, under {@code HEALTH-021}.
  */
-public final class HealthView {
+public final class SlidingWindowHealthView implements HealthView {
 
     /** One node's health entry, which survives an epoch change under {@code HEALTH-006}. */
     private static final class Entry {
@@ -53,7 +59,7 @@ public final class HealthView {
     private boolean placementSetKnown;
 
     /** A view under the given parameters, holding no entry. */
-    public HealthView(HealthSettings settings) {
+    public SlidingWindowHealthView(HealthSettings settings) {
         this.settings = settings;
     }
 
@@ -62,7 +68,27 @@ public final class HealthView {
         return settings;
     }
 
+    @Override
+    public void report(HealthSignal signal) {
+        report(signal.node(), signal.outcome().spelling(), signal.observed());
+    }
+
+    /**
+     * The placement set outlier ejection compares against, under {@code HEALTH-030}.
+     *
+     * <p>A snapshot this library did not produce carries no parsed document, so the view keeps the
+     * placement set it holds and runs no outlier ejection, which is what {@code HEALTH-016} makes
+     * of a view that ignores the call.
+     */
+    @Override
+    public void onSnapshotInstalled(TopologySnapshot snapshot) {
+        if (snapshot instanceof DocumentSnapshot document) {
+            onSnapshotInstalled(document.document());
+        }
+    }
+
     /** The state of a node, which is {@code unknown} where no signal has been ingested. */
+    @Override
     public HealthState stateOf(NodeId node) {
         Entry entry = entries.get(node);
         return entry == null ? HealthState.UNKNOWN : entry.state;
@@ -135,6 +161,7 @@ public final class HealthView {
     }
 
     /** {@code HEALTH-015}: timers evaluated for every node, in ascending node identity. */
+    @Override
     public void advance(long now) {
         List<NodeId> nodes = new ArrayList<>(entries.keySet());
         nodes.sort(NodeId::compareTo);
@@ -147,6 +174,7 @@ public final class HealthView {
      * {@code HEALTH-051}: the probe counter, incremented by each call, admitting the probe exactly
      * where the incremented value modulo the divisor is 1.
      */
+    @Override
     public boolean admitProbe(NodeId node) {
         Entry entry = entries.get(node);
         if (entry == null || entry.state != HealthState.PROBATION) {

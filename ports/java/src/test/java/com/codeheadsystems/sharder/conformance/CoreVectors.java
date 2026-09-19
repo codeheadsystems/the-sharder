@@ -6,7 +6,7 @@ import com.codeheadsystems.sharder.Digest;
 import com.codeheadsystems.sharder.NodeId;
 import com.codeheadsystems.sharder.core.internal.document.Digests;
 import com.codeheadsystems.sharder.core.internal.document.DocumentValidator;
-import com.codeheadsystems.sharder.core.internal.document.ValidationError;
+import com.codeheadsystems.sharder.topology.ValidationError;
 import com.codeheadsystems.sharder.core.internal.json.JcsWriter;
 import com.codeheadsystems.sharder.core.internal.json.JsonValue;
 import com.codeheadsystems.sharder.core.internal.json.JsonValue.JsonObject;

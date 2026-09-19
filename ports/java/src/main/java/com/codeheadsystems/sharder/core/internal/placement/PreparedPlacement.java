@@ -71,6 +71,19 @@ public interface PreparedPlacement {
         return shards().iterator();
     }
 
+    /**
+     * Whether the strategy computes its whole ordering to answer at all.
+     *
+     * <p>A rendezvous ordering is eager by nature, under {@code PLACE-070}: a node's score is not
+     * known until it is computed, so there is no prefix that costs less than scoring the set. An
+     * authored list is eager for the same reason at a lower price. A caller that walks the
+     * ordering more than once for one key, as the spread ladder of {@code SPREAD-017} does, reads
+     * this and walks a list it computed once instead.
+     */
+    default boolean eager() {
+        return false;
+    }
+
     /** The candidate ordering of a shard, as a cursor, under {@code PLACE-033}. */
     Iterator<NodeId> cursorForShard(String shard, EligibleSet eligible);
 
@@ -101,9 +114,9 @@ public interface PreparedPlacement {
      * <p>The product is computed in 64 bits before the cap is applied, under {@code PLACE-051}: it
      * reaches 4096000000 at the configured maxima, which overflows a signed 32-bit integer.
      */
-    static int virtualNodeCount(Node node, int perWeightUnit, int cap) {
+    public static int virtualNodeCount(Node node, int perWeightUnit, int cap) {
         long requested = (long) node.weight() * (long) perWeightUnit;
-        return (int) Math.min(requested, cap);
+        return (int) U64.min(requested, cap);
     }
 
     /** The unsigned 64-bit rendering of {@code HASH-044}, which names a ring shard. */

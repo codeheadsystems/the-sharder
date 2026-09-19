@@ -1,5 +1,7 @@
 package com.codeheadsystems.sharder.core.internal.health;
 
+import com.codeheadsystems.sharder.config.HealthSettings;
+
 /**
  * The sliding observation window of {@code HEALTH-020}.
  *

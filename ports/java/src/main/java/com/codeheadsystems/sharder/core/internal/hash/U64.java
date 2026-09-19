@@ -26,6 +26,18 @@ public final class U64 {
         return Long.compareUnsigned(left, right) >= 0 ? left : right;
     }
 
+    /**
+     * The lesser of two unsigned values.
+     *
+     * <p>{@code PLACE-051} caps a product that reaches 4096000000, and both operands there are
+     * non-negative, so the unsigned answer and the signed answer agree. The call is written here
+     * rather than as {@code Math.min} at the call site, because this class is the one place the
+     * comparison of a 64-bit value is written.
+     */
+    public static long min(long left, long right) {
+        return compare(left, right) <= 0 ? left : right;
+    }
+
     /** The unsigned remainder of {@code HASH-042}, the only division placement performs. */
     public static long mod(long value, long divisor) {
         return Long.remainderUnsigned(value, divisor);

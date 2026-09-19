@@ -130,9 +130,20 @@ class Snapshot:
         return {"topologyId": self.topology_id, "epoch": self.epoch}
 
 
+#: The members every document carries, which `topology-v1.schema.json` also requires.  A rule
+#: below reads each of them, so a document missing one is reported as missing rather than read.
+REQUIRED_MEMBERS = ("formatVersion", "topologyId", "epoch", "strategy", "nodes")
+
+
 def validate(document):
     """Return every validation error the document produces, or an empty list."""
     errors = []
+
+    missing = [name for name in REQUIRED_MEMBERS if name not in document]
+    if missing:
+        # Stage 2 of `TOPO-001` refuses the document whole, and the rules below read the members
+        # it is missing, so the absence is the whole answer rather than the first of several.
+        return [_err(name, "missingMember", "the member is absent") for name in missing]
 
     version = document.get("formatVersion")
     if not isinstance(version, str) or "." not in version:

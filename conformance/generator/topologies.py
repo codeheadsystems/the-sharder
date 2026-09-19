@@ -489,6 +489,14 @@ MOVEMENT_RV_BEFORE, MOVEMENT_RV_AFTER = _movement_pair(
 # --------------------------------------------------------------------- invalid documents
 
 INVALID_DOCUMENTS = {
+    "missing-nodes": {
+        "formatVersion": "1.0", "topologyId": "invalid-missing-nodes", "epoch": 1,
+        "strategy": {"kind": "rendezvous"},
+    },
+    "missing-strategy": {
+        "formatVersion": "1.0", "topologyId": "invalid-missing-strategy", "epoch": 1,
+        "nodes": [_node("n1")],
+    },
     "duplicate-node-id": {
         "formatVersion": "1.0", "topologyId": "invalid-duplicate-id", "epoch": 1,
         "strategy": {"kind": "rendezvous"},

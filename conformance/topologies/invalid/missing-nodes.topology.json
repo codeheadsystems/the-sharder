@@ -1,0 +1,8 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "invalid-missing-nodes",
+  "epoch": 1,
+  "strategy": {
+    "kind": "rendezvous"
+  }
+}

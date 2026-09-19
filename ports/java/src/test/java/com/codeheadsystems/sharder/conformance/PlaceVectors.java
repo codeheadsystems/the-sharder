@@ -8,8 +8,8 @@ import com.codeheadsystems.sharder.core.internal.document.TopologyDocument;
 import com.codeheadsystems.sharder.core.internal.json.JsonValue;
 import com.codeheadsystems.sharder.core.internal.json.JsonValue.JsonObject;
 import com.codeheadsystems.sharder.core.internal.hash.U64;
-import com.codeheadsystems.sharder.core.internal.health.HealthSettings;
-import com.codeheadsystems.sharder.core.internal.health.HealthView;
+import com.codeheadsystems.sharder.config.HealthSettings;
+import com.codeheadsystems.sharder.core.internal.health.SlidingWindowHealthView;
 import com.codeheadsystems.sharder.core.internal.route.RetryBudget;
 import com.codeheadsystems.sharder.core.internal.placement.PreparedPlacement;
 import com.codeheadsystems.sharder.core.internal.placement.RendezvousPlacement;
@@ -550,7 +550,7 @@ final class PlaceVectors {
                 assertThat(total == 0 ? 0L : failures * 100 / total)
                         .isEqualTo(testCase.get("expect").asLong());
             }
-            case "ejectionRefused" -> assertThat(HealthView.refused(
+            case "ejectionRefused" -> assertThat(SlidingWindowHealthView.refused(
                     inputs.get("ejected").asLong(),
                     inputs.get("maxEjectionPercent").asLong(),
                     inputs.get("placementSetSize").asLong()))

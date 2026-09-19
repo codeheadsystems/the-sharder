@@ -67,6 +67,28 @@ public final class DomainHash {
         return hash(Frame.of(RENDEZVOUS_TAG, routingKey, nodeId, Frame.u32be(index)));
     }
 
+    /**
+     * {@code RV-003}: the largest of a node's virtual node scores, compared as unsigned values.
+     *
+     * <p>The frame of {@code HASH-031} varies between two virtual nodes of one node in its last
+     * four octets alone, so it is built once and those four octets are rewritten per evaluation.
+     * At a summed virtual node count of 8000 a frame allocated per evaluation costs hundreds of
+     * kilobytes on one routing call, which surfaces as collector pressure rather than as latency.
+     */
+    public long rvBestScore(byte[] routingKey, byte[] nodeId, int count) {
+        if (count <= 0) {
+            return 0;
+        }
+        byte[] framed = Frame.of(RENDEZVOUS_TAG, routingKey, nodeId, Frame.u32be(0));
+        int index = framed.length - 4;
+        long best = 0;
+        for (int virtual = 0; virtual < count; virtual++) {
+            Frame.writeU32be(framed, index, virtual);
+            best = U64.max(best, hash(framed));
+        }
+        return best;
+    }
+
     /** The output of {@code H} over an already framed message. */
     public long hash(byte[] framed) {
         return SipHash24.hash(k0, k1, framed, 0, framed.length);

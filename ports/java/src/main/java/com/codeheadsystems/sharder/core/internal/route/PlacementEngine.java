@@ -36,6 +36,7 @@ public final class PlacementEngine {
     private final PreparedPlacement placement;
     private final SpreadLadder ladder;
     private final List<Node> placementSet;
+    private final EligibleSet placementEligible;
 
     /** The engine over one document, prepared once. */
     public PlacementEngine(TopologyDocument document) {
@@ -44,6 +45,7 @@ public final class PlacementEngine {
         this.placement = PreparedPlacement.of(document);
         this.ladder = new SpreadLadder(document);
         this.placementSet = document.placementSet();
+        this.placementEligible = EligibleSet.of(placementSet);
     }
 
     /** {@code keyHash(rk)} under this document's seed, which the collision vectors assert. */
@@ -93,13 +95,29 @@ public final class PlacementEngine {
         return KeyTransforms.apply(document.keyTransform(), key);
     }
 
-    /** The eligible node set of the placement set, which is what an unmatched key routes over. */
+    /**
+     * The eligible node set of the placement set, which is what an unmatched key routes over.
+     *
+     * <p>It is computed at preparation rather than per call, under {@code CORE-011}: the set is a
+     * property of the document, and rebuilding it on the routing path costs one allocation per
+     * node of the cluster on every routing call.
+     */
     public EligibleSet placementEligible() {
-        return EligibleSet.of(placementSet);
+        return placementEligible;
     }
 
-    /** The decision one key produces. */
+    /** The decision one key produces, at the attempt limit {@code CORE-048} resolves. */
     public PlacementDecision route(byte[] key) {
+        return route(key, OptionalInt.empty());
+    }
+
+    /**
+     * The decision one key produces, at the limit a caller or a configuration supplied.
+     *
+     * <p>{@code CORE-046} makes the length of the materialised prefix a function of the limit
+     * {@code CORE-048} resolves, so the limit reaches the decision here rather than at the walk.
+     */
+    public PlacementDecision route(byte[] key, OptionalInt configuredLimit) {
         byte[] routingKey = routingKey(key);
         Optional<OverrideEntry> override = Matchers.matched(
                 document.overrides(), OverrideEntry::match, routingKey);
@@ -114,9 +132,19 @@ public final class PlacementEngine {
         EligibleSet admitted = eligible;
         // OVR-010 to OVR-013: a pin is the candidate ordering, filtered and deduplicated, never
         // reordered and never extended by the strategy.
-        Supplier<Iterator<NodeId>> cursors = pin != null
-                ? () -> pinned(pin, admitted).iterator()
-                : () -> placement.cursor(routingKey, admitted);
+        Supplier<Iterator<NodeId>> cursors;
+        if (pin != null) {
+            cursors = () -> pinned(pin, admitted).iterator();
+        } else if (placement.eager()) {
+            // The ladder of SPREAD-017 walks the ordering once per stage, and the materialised
+            // prefix of CORE-046 walks it again. An eager strategy computes the whole ordering to
+            // answer at all, so each of those walks would rescore the set: at a summed virtual
+            // node count of 8000 that is a second 8000 hash evaluations for one routing call.
+            List<NodeId> ordering = PreparedPlacement.drain(placement.cursor(routingKey, admitted));
+            cursors = ordering::iterator;
+        } else {
+            cursors = () -> placement.cursor(routingKey, admitted);
+        }
 
         int factor = override.map(OverrideEntry::factor).orElseGet(OptionalInt::empty)
                 .orElseGet(() -> document.replication().factor());
@@ -124,7 +152,7 @@ public final class PlacementEngine {
         SpreadLadder.Stage stage = ladder.chosen(cursors, factor);
         List<NodeId> replicas = stage.selected();
 
-        int attemptLimit = factor + 2;
+        int attemptLimit = configuredLimit.orElse(factor + 2);
         int limit = Math.max(replicas.size(), attemptLimit);
         // CORE-046: the materialised prefix is the replica prefix and the attempts the resolved
         // limit permits, whichever is longer, and no routing call computes an entry beyond it.
