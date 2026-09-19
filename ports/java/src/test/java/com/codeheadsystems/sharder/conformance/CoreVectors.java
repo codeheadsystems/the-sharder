@@ -144,14 +144,17 @@ final class CoreVectors {
     /** {@code observabilityInventory}: the metrics, the events, and what every event carries. */
     void observabilityInventory(JsonObject testCase) {
         JsonObject expect = testCase.object("expect");
+        String surface = expect.find("surface").map(JsonValue::asText).orElse("routing");
+        List<Observability.Metric> metrics = Observability.metricsOf(surface);
+        List<Observability.Event> events = Observability.eventsOf(surface);
         if (expect.find("metricCount").isPresent()) {
-            assertThat(Observability.METRICS).as("metricCount")
+            assertThat(metrics).as("metricCount")
                     .hasSize(expect.get("metricCount").asInt());
-            assertThat(Observability.METRICS.stream().map(Observability.Metric::name).sorted()
+            assertThat(metrics.stream().map(Observability.Metric::name).sorted()
                     .toList()).as("names").isEqualTo(expect.array("names").texts());
             for (JsonValue row : expect.array("metrics").elements()) {
                 JsonObject entry = row.asObject();
-                Observability.Metric metric = Observability.METRICS.stream()
+                Observability.Metric metric = metrics.stream()
                         .filter(candidate -> candidate.name().equals(entry.text("name")))
                         .findFirst().orElseThrow();
                 assertThat(metric.instrument()).as("instrument of %s", metric.name())
@@ -159,6 +162,9 @@ final class CoreVectors {
                 assertThat(metric.labels().stream().sorted().toList())
                         .as("labels of %s", metric.name())
                         .isEqualTo(entry.array("labels").texts());
+            }
+            if (expect.find("labelValues").isEmpty()) {
+                return;
             }
             for (Map.Entry<String, JsonValue> row
                     : expect.object("labelValues").members().entrySet()) {
@@ -171,13 +177,13 @@ final class CoreVectors {
             return;
         }
         if (expect.find("eventCount").isPresent()) {
-            assertThat(Observability.EVENTS).as("eventCount")
+            assertThat(events).as("eventCount")
                     .hasSize(expect.get("eventCount").asInt());
-            assertThat(Observability.EVENTS.stream().map(Observability.Event::name).sorted()
+            assertThat(events.stream().map(Observability.Event::name).sorted()
                     .toList()).as("names").isEqualTo(expect.array("names").texts());
             for (JsonValue row : expect.array("events").elements()) {
                 JsonObject entry = row.asObject();
-                Observability.Event event = Observability.EVENTS.stream()
+                Observability.Event event = events.stream()
                         .filter(candidate -> candidate.name().equals(entry.text("name")))
                         .findFirst().orElseThrow();
                 assertThat(event.severity()).as("severity of %s", event.name())

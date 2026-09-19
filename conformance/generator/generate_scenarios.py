@@ -977,11 +977,24 @@ def build_failover_scenario():
                    "healthOfPrimary": health.state_of(primary)},
     })
 
-    # The second replica fails too, and the ejection ceiling refuses its ejection.
+    # The second replica fails too, and the ejection ceiling refuses its ejection.  Every signal
+    # below carries a step of its own: a scenario states what it depends on, and a driver replaying
+    # the steps reaches the state the expectations were computed against.
     for entry in preference[1:]:
         for index in range(5):
             health.report(entry["node"], "refused", at + 100 + index * 10)
+        steps.append({
+            "action": "reportHealthSeries", "node": entry["node"],
+            "outcomes": ["refused"] * 5, "firstAt": at + 100, "stepMillis": 10,
+            "note": "`HEALTH-022`: `refused` counts as a failure.",
+            "expect": {"state": health.state_of(entry["node"])},
+        })
     health.advance(at + 500)
+    steps.append({
+        "action": "advanceClock", "to": at + 500,
+        "note": "`HEALTH-047`: timers are evaluated on each advance as well as on each signal.",
+        "expect": {"states": {e["node"]: health.state_of(e["node"]) for e in preference}},
+    })
     sequence, failed_open = health.attempt_sequence(preference)
     steps.append({
         "action": "attemptSequence", "key": key_spec(PROBE_KEY, "base16"),
@@ -1105,8 +1118,12 @@ def build_ejection_ceiling_scenario():
     register("ejection-ceiling",
              "Every node of the placement set fails.  The ceiling refuses the third ejection so that a "
              "correlated failure cannot empty the cluster's attemptable set.",
-             ["HEALTH-025", "HEALTH-034", "HEALTH-043", "SEC-031"], steps)
-    _ = snapshot
+             ["HEALTH-025", "HEALTH-034", "HEALTH-043", "SEC-031"], steps,
+             # `HEALTH-034` counts the ejected against the placement set `HEALTH-016` delivers, and
+             # every step below turns on it.  No step of this scenario installs a snapshot, so the
+             # setup names the one the expectations were computed against; a driver that ignored it
+             # would hold no placement set and refuse no ejection.
+             setup={"topology": "topologies/migration-epoch-1.topology.json"})
 
 
 # ------------------------------------------------------------------- rebase across an epoch

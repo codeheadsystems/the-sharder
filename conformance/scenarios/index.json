@@ -1,7 +1,7 @@
 {
   "suite": "sharder simulation scenarios",
   "scenarioCount": 21,
-  "stepCount": 285,
+  "stepCount": 287,
   "requirementsCovered": [
     "CFG-030",
     "CFG-040",
@@ -444,7 +444,7 @@
       "scenario": "failover-and-recovery",
       "level": "failover",
       "description": "A replica fails, is ejected, is probed under probation, and returns.  The preference list never changes; only the attempt sequence does.",
-      "stepCount": 12,
+      "stepCount": 14,
       "requirements": [
         "FAIL-001",
         "FAIL-002",

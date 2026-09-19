@@ -8,6 +8,9 @@ import com.codeheadsystems.sharder.core.internal.document.TopologyDocument;
 import com.codeheadsystems.sharder.core.internal.json.JsonValue;
 import com.codeheadsystems.sharder.core.internal.json.JsonValue.JsonObject;
 import com.codeheadsystems.sharder.core.internal.hash.U64;
+import com.codeheadsystems.sharder.core.internal.health.HealthSettings;
+import com.codeheadsystems.sharder.core.internal.health.HealthView;
+import com.codeheadsystems.sharder.core.internal.route.RetryBudget;
 import com.codeheadsystems.sharder.core.internal.placement.PreparedPlacement;
 import com.codeheadsystems.sharder.core.internal.placement.RendezvousPlacement;
 import com.codeheadsystems.sharder.core.internal.placement.RingPlacement;
@@ -477,6 +480,67 @@ final class PlaceVectors {
             }
             case "shardIsHot", "keySkew" -> assertThat(
                     CoreVectors.skewFormula(testCase.text("formula"), inputs))
+                    .isEqualTo(testCase.get("expect").asBoolean());
+            case "retryPermitted" -> assertThat(RetryBudget.permitted(
+                    inputs.get("retries").asLong(), inputs.get("firstAttempts").asLong(),
+                    inputs.get("retryBudgetPercent").asLong(),
+                    inputs.get("retryBudgetMinimum").asLong()))
+                    .isEqualTo(testCase.get("expect").asBoolean());
+            case "defaultAttemptLimit" -> assertThat(Math.min(
+                    inputs.get("factor").asInt() + 2,
+                    inputs.get("attemptSequenceLength").asInt()))
+                    .isEqualTo(testCase.get("expect").asInt());
+            case "resolvedAttemptLimit" -> {
+                // CORE-048 resolves, FAIL-022 clamps to the length of the attempt sequence.
+                JsonValue supplied = inputs.get("routeOptionsAttemptLimit");
+                JsonValue configured = inputs.get("configuredAttemptLimit");
+                int resolved = !supplied.isNull() ? supplied.asInt()
+                        : !configured.isNull() ? configured.asInt()
+                        : inputs.get("factor").asInt() + 2;
+                assertThat(Math.min(resolved, inputs.get("attemptSequenceLength").asInt()))
+                        .isEqualTo(testCase.get("expect").asInt());
+            }
+            case "failurePercent" -> {
+                long successes = inputs.get("successes").asLong();
+                long failures = inputs.get("failures").asLong();
+                long total = successes + failures;
+                assertThat(total == 0 ? 0L : failures * 100 / total)
+                        .isEqualTo(testCase.get("expect").asLong());
+            }
+            case "ejectionRefused" -> assertThat(HealthView.refused(
+                    inputs.get("ejected").asLong(),
+                    inputs.get("maxEjectionPercent").asLong(),
+                    inputs.get("placementSetSize").asLong()))
+                    .isEqualTo(testCase.get("expect").asBoolean());
+            case "ejectionMillis" -> {
+                HealthSettings settings = HealthSettings.defaults();
+                long base = inputs.get("baseEjectionMillis").asLong();
+                long cap = inputs.get("maxEjectionMillis").asLong();
+                HealthSettings tuned = new HealthSettings(settings.windowMillis(),
+                        settings.bucketCount(), settings.minimumSamples(),
+                        settings.failureRatePercent(), settings.consecutiveFailureThreshold(),
+                        base, cap, settings.probationMillis(), settings.probationDivisor(),
+                        settings.outlierMarginPercent(), settings.outlierMinimumNodes(),
+                        settings.maxEjectionPercent(), settings.ejectionResetMillis(),
+                        settings.resetOnPlacementReentry());
+                assertThat(tuned.ejectionMillis(inputs.get("ejectionCount").asInt()))
+                        .isEqualTo(testCase.get("expect").asLong());
+            }
+            case "probeAdmitted" -> assertThat(
+                    inputs.get("probeCounterAfterIncrement").asInt()
+                            % inputs.get("probationDivisor").asInt() == 1)
+                    .isEqualTo(testCase.get("expect").asBoolean());
+            case "peerMedian" -> {
+                List<Integer> values = new java.util.ArrayList<>(
+                        inputs.array("values").elements().stream().map(JsonValue::asInt).toList());
+                values.sort(java.util.Comparator.naturalOrder());
+                assertThat(values.get((values.size() - 1) / 2))
+                        .isEqualTo(testCase.get("expect").asInt());
+            }
+            case "isOutlier" -> assertThat(
+                    inputs.get("failurePercent").asInt()
+                            >= inputs.get("peerMedian").asInt()
+                            + inputs.get("outlierMarginPercent").asInt())
                     .isEqualTo(testCase.get("expect").asBoolean());
             default -> throw new AssertionError(
                     "the driver implements no formula " + testCase.text("formula"));
