@@ -70,8 +70,24 @@ comparison of `topologyId`, reading no clock, no provider revision, and no docum
 document below the epoch in force is refused as stale, one at that epoch carrying the same digest is
 a no-op that refreshes freshness, one at that epoch carrying a different digest is refused as a
 conflict, and one above it is installed.
+Two settings are checked before any of that, and both hold when nothing is in force, which is the
+state a process is in after a restart. `expectedTopologyId` names the cluster this process routes
+for, so a document under any other identifier is refused as a conflict rather than adopted, which is
+what an unconfigured router does with the first document it accepts. `minEpoch` is a floor, and a
+document below it is refused as stale even where it is the first to arrive, which is how an operator
+stops a process coming back up on a document older than the one it was serving.
+
+```java
+RouterConfig config = RouterConfig.builder()
+        .provider(provider)
+        .expectedTopologyId("orders")
+        .minEpoch(41)
+        .build();
+```
+
 [`10-specification.md`](../../docs/design/10-specification.md#monotonicity-and-acceptance) carries
-the whole acceptance table.
+the whole acceptance table, including the order the rows are evaluated in: the identifier is checked
+before the floor, so a foreign document below the floor is a conflict and not stale.
 
 Installation replaces the snapshot in force whole, as a single atomic replacement of the reference a
 routing call reads. A routing call already under way read that reference at entry and computes its

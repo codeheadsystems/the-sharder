@@ -1317,6 +1317,7 @@
     ],
     "TOPO-061": [
       "properties/properties.json",
+      "scenarios/topology-acceptance-floor.json",
       "scenarios/topology-rollback.json",
       "vectors/digest/canonical-form.json"
     ],
@@ -2480,7 +2481,8 @@
       "scenarios/topology-rollback.json"
     ],
     "TOPO-071": [
-      "properties/properties.json"
+      "properties/properties.json",
+      "scenarios/topology-acceptance-floor.json"
     ],
     "TOPO-081": [
       "properties/properties.json",
@@ -2492,6 +2494,7 @@
     ],
     "ERR-031": [
       "properties/properties.json",
+      "scenarios/topology-acceptance-floor.json",
       "scenarios/topology-rollback.json"
     ],
     "ERR-034": [
@@ -2598,6 +2601,7 @@
       "properties/properties.json"
     ],
     "ERR-032": [
+      "scenarios/topology-acceptance-floor.json",
       "scenarios/topology-rollback.json"
     ],
     "ERR-040": [

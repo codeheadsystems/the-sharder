@@ -42,7 +42,17 @@ final class ScenarioRunner {
     /** One scenario's steps, replayed in order, answering the count this driver skipped. */
     int run(String path) {
         JsonObject scenario = source.readObject(path);
-        TopologyLoader loader = new TopologyLoader();
+        // TOPO-061 and TOPO-071: a scenario states the identifier and the epoch floor its process
+        // was configured with, both of which the pipeline checks before it installs anything.
+        JsonObject loaderSetup = scenario.object("setup").find("loader")
+                .map(JsonValue::asObject).orElse(null);
+        TopologyLoader loader = loaderSetup == null
+                ? new TopologyLoader()
+                : new TopologyLoader(java.util.Map.of(),
+                        loaderSetup.find("expectedTopologyId").map(JsonValue::asText),
+                        loaderSetup.find("minEpoch")
+                                .map(value -> java.util.OptionalLong.of(value.asLong()))
+                                .orElseGet(java.util.OptionalLong::empty));
         SlidingWindowHealthView[] health = {new SlidingWindowHealthView(HealthSettings.defaults())};
         RetryBudget budget = RetryBudget.defaults();
         int skipped = 0;

@@ -37,6 +37,7 @@ SCENARIO_TOPOLOGIES = {}
 # absent from this table.
 LEVEL_OF_SCENARIO = {
     "topology-rollback": "core",
+    "topology-acceptance-floor": "core",
     "caller-three-epochs-stale": "fencing",
     "split-topology-view": "fencing",
     "redirect-walk-depth-limit": "fencing",
@@ -279,6 +280,56 @@ def build_rollback_scenario():
              "the revert arrives as a higher epoch carrying the former assignment.  The "
              "scenario also covers the equal-epoch digest conflict and the foreign identifier.",
              ["TOPO-051", "TOPO-061", "TOPO-081", "TOPO-091", "ERR-031", "ERR-032"], steps)
+
+
+def build_acceptance_floor_scenario():
+    """`TOPO-071` and the first row of `TOPO-061`: the floor and the configured identifier.
+
+    Both are checked before the row that installs a first document, so both hold with nothing in
+    force, which is the state a process is in after a restart.  The rest of the acceptance table
+    is covered by `topology-rollback`, which runs with neither configured.
+    """
+    from sharder_ref.topology import accept as accept_document
+
+    setup = {"loader": {"expectedTopologyId": "migration", "minEpoch": 3}}
+    steps = []
+    for name, document, note in [
+        ("migration-epoch-2", EPOCH2,
+         "`TOPO-071`: the floor is below the first document, and nothing is in force, so the "
+         "row that installs a first document is never reached"),
+        ("migration-epoch-3", EPOCH3, None),
+    ]:
+        outcome, condition = accept_document(Snapshot(document), None, min_epoch=3,
+                                             expected_topology_id="migration")
+        step = {"action": "installTopology",
+                "topology": "topologies/%s.topology.json" % name,
+                "expect": {"outcome": outcome, "condition": condition,
+                           "digest": jcs_digest(document)}}
+        if note:
+            step["note"] = note
+        if outcome == "installed":
+            step["expect"]["epochInForce"] = document["epoch"]
+        steps.insert(len(steps) if name != "migration-epoch-3" else len(steps), step)
+
+    # The identifier row precedes the floor row, so a foreign document below the floor is a
+    # conflict rather than stale.  Ordering is the whole point of this step.
+    foreign = copy.deepcopy(EPOCH1)
+    foreign["topologyId"] = "some-other-cluster"
+    outcome, condition = accept_document(Snapshot(foreign), None, min_epoch=3,
+                                         expected_topology_id="migration")
+    steps.insert(1, {
+        "action": "installTopology", "document": foreign,
+        "note": "`TOPO-061`: the identifier row precedes the floor row, so a foreign document "
+                "below `minEpoch` is a conflict and not stale",
+        "expect": {"outcome": outcome, "condition": condition, "digest": jcs_digest(foreign)},
+    })
+
+    register("topology-acceptance-floor",
+             "A process configured with an identifier and an epoch floor, with nothing in force. "
+             "The floor refuses a document below it, the configured identifier refuses a foreign "
+             "one before the floor is reached, and the first document at or above the floor "
+             "installs.",
+             ["TOPO-061", "TOPO-071", "ERR-031", "ERR-032"], steps, setup=setup)
 
 
 def build_stale_caller_scenario():
@@ -1825,6 +1876,7 @@ def main():
     build_redirect_scenario()
     build_happy_path_scenario()
     build_local_step_scenarios()
+    build_acceptance_floor_scenario()
     build_quiesce_lease_scenario()
     build_node_dies_scenario()
     build_abort_during_catchup_scenario()

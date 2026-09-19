@@ -1,7 +1,7 @@
 {
   "port": "java",
   "version": "unreleased",
-  "revision": "62fee56e23bddee56e5b186d465b8b4e6f936d851785af47ba0e30f8ce178db5",
+  "revision": "c29e6a8f3facafa56414e46851ada1610db5e64c016714a8dba915e08875d57c",
   "strategySurfaces": [
     "directory",
     "rendezvous",
@@ -42,8 +42,8 @@
     "failures": 0
   },
   "scale": {
-    "wallTimeMs": 865,
-    "peakResidentBytes": 597741568,
+    "wallTimeMs": 869,
+    "peakResidentBytes": 614211584,
     "machine": "AMD Ryzen 7 7840U w/ Radeon  780M Graphics, Linux 6.8.0-138-generic",
     "runtime": "OpenJDK 64-Bit Server VM 25.0.4, compiled against the Java 21 API"
   },

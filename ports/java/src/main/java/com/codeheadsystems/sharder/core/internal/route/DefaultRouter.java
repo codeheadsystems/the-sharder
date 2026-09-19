@@ -101,7 +101,12 @@ public final class DefaultRouter implements Router {
     public DefaultRouter(RouterConfig config) {
         this.config = config;
         this.provider = config.provider().provider();
-        this.pipeline = new TopologyLoader(config.strategies());
+        // TOPO-061 and TOPO-071: the configured identifier and the epoch floor belong to the
+        // pipeline that installs, because both are refused before the row that installs a first
+        // document. The standalone loader of `loader()` checks one document in isolation and
+        // applies neither.
+        this.pipeline = new TopologyLoader(config.strategies(),
+                config.provider().expectedTopologyId(), config.provider().minEpoch());
         this.health = config.healthView().orElseGet(
                 () -> new SlidingWindowHealthView(config.health(),
                         config.hintObserver().orElse(null)));

@@ -1,7 +1,7 @@
 {
   "suite": "sharder simulation scenarios",
-  "scenarioCount": 25,
-  "stepCount": 313,
+  "scenarioCount": 26,
+  "stepCount": 316,
   "requirementsCovered": [
     "CFG-030",
     "CFG-040",
@@ -142,6 +142,7 @@
     "SEC-031",
     "TOPO-051",
     "TOPO-061",
+    "TOPO-071",
     "TOPO-081",
     "TOPO-091",
     "TOPO-111",
@@ -303,6 +304,19 @@
         "LIN-056",
         "MOVE-021",
         "MOVE-421"
+      ]
+    },
+    {
+      "file": "scenarios/topology-acceptance-floor.json",
+      "scenario": "topology-acceptance-floor",
+      "level": "core",
+      "description": "A process configured with an identifier and an epoch floor, with nothing in force. The floor refuses a document below it, the configured identifier refuses a foreign one before the floor is reached, and the first document at or above the floor installs.",
+      "stepCount": 3,
+      "requirements": [
+        "ERR-031",
+        "ERR-032",
+        "TOPO-061",
+        "TOPO-071"
       ]
     },
     {

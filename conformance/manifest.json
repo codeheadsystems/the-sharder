@@ -1,9 +1,9 @@
 {
   "suite": "sharder conformance suite",
   "revision": {
-    "id": "62fee56e23bddee56e5b186d465b8b4e6f936d851785af47ba0e30f8ce178db5",
+    "id": "c29e6a8f3facafa56414e46851ada1610db5e64c016714a8dba915e08875d57c",
     "basis": "sha256 of the RFC 8785 canonical form of the file digests, the level table, and the strategy surfaces",
-    "fileCount": 205,
+    "fileCount": 206,
     "trees": [
       "vectors",
       "topologies",
@@ -18,8 +18,8 @@
     "vectorFiles": 69,
     "vectorCases": 609,
     "topologyDocuments": 109,
-    "scenarios": 25,
-    "scenarioSteps": 313,
+    "scenarios": 26,
+    "scenarioSteps": 316,
     "properties": 28,
     "requirementsNamed": 474
   },
@@ -530,7 +530,7 @@
       "surface": "the document pipeline, the snapshot lifecycle, and what is reported",
       "vectorFiles": 8,
       "vectorCases": 135,
-      "scenarios": 1,
+      "scenarios": 2,
       "properties": 22,
       "requirementsNamed": 126
     },
@@ -3319,6 +3319,19 @@
         "LIN-056",
         "MOVE-021",
         "MOVE-421"
+      ]
+    },
+    {
+      "file": "scenarios/topology-acceptance-floor.json",
+      "scenario": "topology-acceptance-floor",
+      "level": "core",
+      "description": "A process configured with an identifier and an epoch floor, with nothing in force. The floor refuses a document below it, the configured identifier refuses a foreign one before the floor is reached, and the first document at or above the floor installs.",
+      "stepCount": 3,
+      "requirements": [
+        "ERR-031",
+        "ERR-032",
+        "TOPO-061",
+        "TOPO-071"
       ]
     },
     {

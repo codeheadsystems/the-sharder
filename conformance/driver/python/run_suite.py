@@ -637,6 +637,7 @@ def run_scenarios(root, levels, known, verbose):
         scenario = json.loads((root / entry["file"]).read_text())
         retained = {}
         in_force = None
+        loader_setup = scenario.get("setup", {}).get("loader", {})
         for step in scenario["steps"]:
             action = step["action"]
             try:
@@ -648,15 +649,25 @@ def run_scenarios(root, levels, known, verbose):
                         compare(action + ".digest", jcs_digest(document),
                                 step["expect"]["digest"])
                     candidate = Snapshot(document)
-                    outcome, condition = accept(candidate, in_force)
+                    # `TOPO-061` and `TOPO-071`: a scenario states the identifier and the epoch
+                    # floor its process was configured with, and both are checked before the row
+                    # that installs a first document.
+                    outcome, condition = accept(
+                        candidate, in_force,
+                        min_epoch=loader_setup.get("minEpoch"),
+                        expected_topology_id=loader_setup.get("expectedTopologyId"))
                     compare(action + ".outcome", outcome, step["expect"]["outcome"])
                     compare(action + ".condition", condition, step["expect"]["condition"])
                     if outcome == "installed":
                         if in_force is not None:
                             retained[in_force.epoch] = in_force
                         in_force = candidate
-                    compare(action + ".epochInForce", in_force.epoch,
-                            step["expect"]["epochInForce"])
+                    # A scenario whose first document is refused has nothing in force, so the
+                    # expectation states no epoch and there is none to compare.
+                    if "epochInForce" in step["expect"]:
+                        compare(action + ".epochInForce",
+                                None if in_force is None else in_force.epoch,
+                                step["expect"]["epochInForce"])
                     checked += 1
                 elif action == "recipientCheck":
                     snapshot = None if step.get("noSnapshot") else in_force
