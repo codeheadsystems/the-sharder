@@ -40,9 +40,7 @@ public final class RetryBudget {
      * evaluated exactly under {@code CORE-005} whatever the window totals reach.
      */
     public boolean permitted(long now) {
-        long retries = count(now, true);
-        long firstAttempts = count(now, false);
-        return permitted(retries + 1, firstAttempts, percent, minimum);
+        return permitted(count(now, true), count(now, false), percent, minimum);
     }
 
     /** The comparison over explicit operands, which the formula vectors assert directly. */

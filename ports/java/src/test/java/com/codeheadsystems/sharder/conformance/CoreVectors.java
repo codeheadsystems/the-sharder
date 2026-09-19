@@ -123,8 +123,13 @@ final class CoreVectors {
             return;
         }
         if (expect.find("order").isPresent()) {
-            assertThat(ErrorCode.REPORT_ORDER.stream().map(ErrorCode::errorName).toList())
-                    .as("report order").isEqualTo(expect.array("order").texts());
+            List<String> order = expect.array("order").texts();
+            // ERR-008 orders the routing conditions; ERR-045 orders the recipient ones, which it
+            // does not cover.
+            assertThat(order.contains("notOwner") ? ErrorCode.RECIPIENT_REPORT_ORDER.stream()
+                            .map(ErrorCode::errorName).toList()
+                            : ErrorCode.REPORT_ORDER.stream().map(ErrorCode::errorName).toList())
+                    .as("report order").isEqualTo(order);
             return;
         }
         if (expect.find("raisesCondition").isPresent()) {

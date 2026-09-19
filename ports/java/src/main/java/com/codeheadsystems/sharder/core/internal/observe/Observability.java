@@ -32,13 +32,30 @@ public final class Observability {
 
     /** Every metric of one surface, in the order the specification tables them. */
     public static List<Metric> metricsOf(String surface) {
-        return "failover".equals(surface) ? FAILOVER_METRICS : METRICS;
+        return switch (surface) {
+            case "failover" -> FAILOVER_METRICS;
+            case "fencing" -> FENCING_METRICS;
+            default -> METRICS;
+        };
     }
 
     /** Every event of one surface, in the order the specification tables them. */
     public static List<Event> eventsOf(String surface) {
-        return "failover".equals(surface) ? FAILOVER_EVENTS : EVENTS;
+        return switch (surface) {
+            case "failover" -> FAILOVER_EVENTS;
+            case "fencing" -> FENCING_EVENTS;
+            default -> EVENTS;
+        };
     }
+
+    /** The metrics of the {@code fencing} surface, which are the ones named {@code fencing.}. */
+    public static final List<Metric> FENCING_METRICS = List.of(
+            counter("fencing.verdicts", "relation", "ownership", "served"),
+            counter("fencing.redirects", "topology_id"));
+
+    /** The events of the {@code fencing} surface. */
+    public static final List<Event> FENCING_EVENTS = List.of(
+            event("fencing.refused", "warning", "relation", "ownership", "currentOwner", "token"));
 
     /** The metrics of the {@code failover} surface, which are the ones named {@code health.}. */
     public static final List<Metric> FAILOVER_METRICS = List.of(

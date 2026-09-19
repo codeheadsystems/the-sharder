@@ -28,8 +28,7 @@
       "state": "reached"
     },
     "fencing": {
-      "state": "excluded",
-      "surface": "fencing"
+      "state": "reached"
     },
     "migration": {
       "state": "excluded",
@@ -39,13 +38,13 @@
   "run": {
     "command": "cd ports/java && ./gradlew test",
     "report": "ports/java/conformance/report.txt",
-    "vectorFiles": 61,
-    "vectorCases": 571,
+    "vectorFiles": 64,
+    "vectorCases": 579,
     "failures": 0
   },
   "scale": {
-    "wallTimeMs": 830,
-    "peakResidentBytes": 574242816,
+    "wallTimeMs": 815,
+    "peakResidentBytes": 544038912,
     "machine": "AMD Ryzen 7 7840U w/ Radeon  780M Graphics, Linux 6.8.0-138-generic",
     "runtime": "OpenJDK 64-Bit Server VM 25.0.4, compiled against the Java 21 API"
   },

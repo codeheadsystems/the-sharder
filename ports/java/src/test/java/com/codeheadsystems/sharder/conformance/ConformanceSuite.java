@@ -42,7 +42,8 @@ import org.junit.jupiter.api.TestFactory;
 class ConformanceSuite {
 
     /** The levels this port runs, each carrying the levels it requires. */
-    private static final Set<String> DECLARED = Set.of("scale", "failover", "readAffinity");
+    private static final Set<String> DECLARED =
+            Set.of("scale", "failover", "readAffinity", "fencing");
 
     private static final HexFormat HEX = HexFormat.of();
 

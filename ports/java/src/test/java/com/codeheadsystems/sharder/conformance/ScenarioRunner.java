@@ -8,6 +8,8 @@ import com.codeheadsystems.sharder.core.internal.document.TopologyLoader;
 import com.codeheadsystems.sharder.core.internal.json.JcsWriter;
 import com.codeheadsystems.sharder.core.internal.json.JsonValue;
 import com.codeheadsystems.sharder.core.internal.json.JsonValue.JsonObject;
+import com.codeheadsystems.sharder.core.internal.fence.Recipient;
+import com.codeheadsystems.sharder.core.internal.fence.RedirectWalk;
 import com.codeheadsystems.sharder.core.internal.health.HealthSettings;
 import com.codeheadsystems.sharder.core.internal.health.HealthState;
 import com.codeheadsystems.sharder.core.internal.health.HealthView;
@@ -40,6 +42,7 @@ final class ScenarioRunner {
         HealthView[] health = {new HealthView(HealthSettings.defaults())};
         RetryBudget budget = RetryBudget.defaults();
         int skipped = 0;
+        java.util.Map<String, TopologyLoader> views = new java.util.LinkedHashMap<>();
         // A scenario whose steps turn on a placement set no step installs names it in the setup.
         scenario.object("setup").find("topology").ifPresent(topology ->
                 install(loader, health[0], topology.asText()));
@@ -79,6 +82,30 @@ final class ScenarioRunner {
                 case "expectComparisonSet" -> expectComparisonSet(health[0], step, index);
                 case "attemptSequence" -> attemptSequence(loader, health[0], budget, step, index);
                 case "attemptWalk" -> attemptWalk(loader, health[0], budget, step, index);
+                case "setRetentionDepth" -> {
+                    // TOPO-161: the snapshot in force and this many previous ones, each keeping
+                    // its own prepared placement.
+                    assertThat(TopologyLoader.RETENTION_DEPTH).as("step %d depth", index)
+                            .isEqualTo(step.get("depth").asInt());
+                    step.object("expect").find("retainedEpochs").ifPresent(value ->
+                            assertThat(loader.retained().keySet().stream()
+                                    .sorted(java.util.Comparator.reverseOrder()).toList())
+                                    .as("step %d retainedEpochs", index)
+                                    .isEqualTo(value.asArray().elements().stream()
+                                            .map(JsonValue::asLong).toList()));
+                }
+                case "recipientCheck" -> recipientCheck(
+                        step.find("recipientView").or(() -> step.find("view"))
+                                .map(view -> views.get(view.asText())).orElse(loader),
+                        step, index);
+                case "redirectWalk" -> redirectWalk(loader, step, index);
+                case "declareView" -> {
+                    TopologyLoader view = new TopologyLoader();
+                    view.accept(source.readObject(step.text("topology")));
+                    views.put(step.text("view"), view);
+                }
+                case "routeInView" -> route(views.get(step.text("view")), step, index);
+                case "compareOwnership" -> compareOwnership(views, step, index);
                 default -> skipped++;
             }
         }
@@ -301,5 +328,152 @@ final class ScenarioRunner {
                         assertThat(health.stateOf(NodeId.of(node)).spelling())
                                 .as("step %d state of %s", index, node)
                                 .isEqualTo(state.asText())));
+    }
+
+    /** {@code recipientCheck}: the verdict a recipient reaches, and what its policy does. */
+    private void recipientCheck(TopologyLoader loader, JsonObject step, int index) {
+        boolean noSnapshot = step.find("noSnapshot").map(JsonValue::asBoolean).orElse(false);
+        JsonValue token = step.get("token");
+        boolean fenced = !token.isNull();
+        String topologyId = fenced ? token.asObject().text("topologyId")
+                : loader.expectedTopologyId().orElse("");
+        long epoch = fenced ? token.asObject().get("epoch").asLong()
+                : loader.epochInForce().orElse(0L);
+
+        // A step may state which epochs the recipient still retains, which FENCE-091 evaluates
+        // stable ownership against.
+        java.util.Map<Long, com.codeheadsystems.sharder.core.internal.route.PlacementEngine>
+                retained = loader.retained();
+        if (step.find("retainedEpochs").isPresent()) {
+            java.util.List<Long> epochs = step.array("retainedEpochs").elements().stream()
+                    .map(JsonValue::asLong).toList();
+            java.util.Map<Long, com.codeheadsystems.sharder.core.internal.route.PlacementEngine>
+                    named = new java.util.LinkedHashMap<>();
+            for (Long kept : epochs) {
+                if (retained.containsKey(kept)) {
+                    named.put(kept, retained.get(kept));
+                }
+            }
+            retained = named;
+        }
+
+        Recipient.Verdict verdict = Recipient.check(
+                noSnapshot ? java.util.Optional.empty() : loader.engine(),
+                noSnapshot ? java.util.Map.of() : retained,
+                topologyId, epoch, PlaceVectors.octets(step.object("key")),
+                NodeId.of(step.text("selfId")));
+
+        JsonObject expected = step.object("expect").object("verdict");
+        assertThat(verdict.relation()).as("step %d relation", index)
+                .isEqualTo(expected.text("relation"));
+        assertThat(verdict.ownership()).as("step %d ownership", index)
+                .isEqualTo(expected.text("ownership"));
+        assertThat(verdict.ownershipStable()).as("step %d ownershipStable", index)
+                .isEqualTo(expected.get("ownershipStable").asBoolean());
+        JsonValue owner = expected.get("currentOwner");
+        assertThat(verdict.currentOwner().map(NodeId::asText))
+                .as("step %d currentOwner", index)
+                .isEqualTo(owner.isNull() ? java.util.Optional.empty()
+                        : java.util.Optional.of(owner.asText()));
+
+        step.object("expect").find("condition").ifPresent(value -> {
+            java.util.Optional<String> refusal = Recipient.refusal(verdict,
+                    step.find("recipientPolicy").map(JsonValue::asText).orElse("strict"), fenced);
+            if (value.isNull()) {
+                assertThat(refusal).as("step %d condition", index).isEmpty();
+                return;
+            }
+            JsonObject condition = value.asObject();
+            assertThat(refusal).as("step %d condition", index)
+                    .contains(condition.text("name"));
+            assertThat(ErrorCode.ofName(condition.text("name")).code())
+                    .as("step %d condition code", index)
+                    .isEqualTo(condition.get("code").asInt());
+        });
+    }
+
+    /** {@code redirectWalk}: how far a caller follows refusals naming a current owner. */
+    private void redirectWalk(TopologyLoader loader, JsonObject step, int index) {
+        JsonObject refusals = step.object("refusals");
+        int maxRedirects = step.get("maxRedirects").asInt();
+        // A step may carry the caller's own node list. Where it carries none, every identity the
+        // refusals name is one the caller's snapshot holds, so FENCE-171 refuses nothing.
+        java.util.Optional<List<NodeId>> known = step.find("nodes")
+                .map(value -> value.asArray().texts().stream().map(NodeId::of).toList());
+
+        // A step may carry the budget window the walk starts from.
+        long firstAttempts = 0;
+        long retries = 0;
+        long percent = 20;
+        long minimum = 3;
+        if (step.find("budget").isPresent()) {
+            JsonObject configured = step.object("budget");
+            firstAttempts = configured.get("firstAttempts").asLong();
+            retries = configured.get("retries").asLong();
+            percent = configured.get("percent").asLong();
+            minimum = configured.get("minimum").asLong();
+        }
+
+        java.util.LinkedHashSet<NodeId> attempted = new java.util.LinkedHashSet<>();
+        NodeId at = NodeId.of(step.text("start"));
+        attempted.add(at);
+        int followed = 0;
+        String outcome = "served";
+        String cause = null;
+        while (true) {
+            JsonValue next = refusals.find(at.asText()).orElse(null);
+            if (next == null || next.isNull()) {
+                break;
+            }
+            NodeId owner = NodeId.of(next.asText());
+            boolean permitted = RetryBudget.permitted(retries + followed, firstAttempts,
+                    percent, minimum);
+            var refusal = RedirectWalk.refusal(followed, maxRedirects, attempted, owner,
+                    known.orElse(List.of(owner)), permitted);
+            if (refusal.isPresent()) {
+                outcome = "redirectExhausted";
+                cause = refusal.get().cause();
+                break;
+            }
+            // FENCE-231: a followed redirect is a retry against the budget and counts against no
+            // attempt limit.
+            attempted.add(owner);
+            at = owner;
+            followed++;
+        }
+
+        JsonObject expect = step.object("expect");
+        assertThat(attempted.stream().map(NodeId::asText).toList())
+                .as("step %d attempted", index).isEqualTo(expect.array("attempted").texts());
+        assertThat(outcome).as("step %d outcome", index).isEqualTo(expect.text("outcome"));
+        assertThat(followed).as("step %d redirectsFollowed", index)
+                .isEqualTo(expect.get("redirectsFollowed").asInt());
+        String raised = cause;
+        expect.find("cause").ifPresent(value ->
+                assertThat(raised).as("step %d cause", index).isEqualTo(value.asText()));
+        long spent = retries + followed;
+        expect.find("budgetRetries").ifPresent(value ->
+                assertThat(spent).as("step %d budgetRetries", index).isEqualTo(value.asLong()));
+    }
+
+    /** {@code compareOwnership}: two views of one key, which is what fencing detects. */
+    private void compareOwnership(java.util.Map<String, TopologyLoader> views, JsonObject step,
+                                  int index) {
+        byte[] key = PlaceVectors.octets(step.object("key"));
+        List<String> old = replicaSet(views.get("old"), key);
+        List<String> current = replicaSet(views.get("new"), key);
+        JsonObject expect = step.object("expect");
+        assertThat(old).as("step %d oldReplicaSet", index)
+                .isEqualTo(expect.array("oldReplicaSet").texts());
+        assertThat(current).as("step %d newReplicaSet", index)
+                .isEqualTo(expect.array("newReplicaSet").texts());
+        assertThat(!old.equals(current)).as("step %d disagree", index)
+                .isEqualTo(expect.get("disagree").asBoolean());
+    }
+
+    private List<String> replicaSet(TopologyLoader view, byte[] key) {
+        PlacementDecision decision = view.engine().orElseThrow().route(key);
+        return decision.preferenceList().subList(0, decision.replicaCount()).stream()
+                .map(NodeId::asText).toList();
     }
 }
