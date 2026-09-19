@@ -1,4 +1,4 @@
-package com.codeheadsystems.sharder.core.internal.health;
+package com.codeheadsystems.sharder.health;
 
 /**
  * The health state of a node, under {@code HEALTH-001}.

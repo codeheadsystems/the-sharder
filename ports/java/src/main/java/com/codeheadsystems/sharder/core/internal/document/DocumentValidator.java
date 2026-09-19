@@ -1,7 +1,8 @@
 package com.codeheadsystems.sharder.core.internal.document;
 
-import com.codeheadsystems.sharder.core.internal.json.JsonValue;
 import com.codeheadsystems.sharder.core.internal.json.JsonValue.JsonObject;
+import com.codeheadsystems.sharder.core.internal.json.JsonValue;
+import com.codeheadsystems.sharder.topology.ValidationError;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,9 +35,24 @@ public final class DocumentValidator {
     private DocumentValidator() {
     }
 
+    /** The members a document carries under every rule below, which the schema also requires. */
+    private static final List<String> REQUIRED =
+            List.of("formatVersion", "topologyId", "epoch", "strategy", "nodes");
+
     /** Every rule the document breaks, in the order the rules are stated. */
     public static List<ValidationError> validate(JsonObject root) {
         List<ValidationError> errors = new ArrayList<>();
+        // A rule below reads each of these, so a document missing one is refused here rather than
+        // read: an absent member is a validation error the operator repairs, not a failure of the
+        // reader.
+        REQUIRED.forEach(member -> {
+            if (root.find(member).isEmpty()) {
+                errors.add(new ValidationError(member, "missingMember", "the member is absent"));
+            }
+        });
+        if (!errors.isEmpty()) {
+            return List.copyOf(errors);
+        }
         version(root, errors);
         hash(root, errors);
         List<String> levels = levels(root);

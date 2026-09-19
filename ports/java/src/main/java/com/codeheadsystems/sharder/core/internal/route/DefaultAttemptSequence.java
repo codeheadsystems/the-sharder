@@ -1,7 +1,13 @@
 package com.codeheadsystems.sharder.core.internal.route;
 
 import com.codeheadsystems.sharder.NodeId;
-import com.codeheadsystems.sharder.core.internal.health.HealthView;
+import com.codeheadsystems.sharder.AttemptSequence;
+import com.codeheadsystems.sharder.MonotonicClock;
+import com.codeheadsystems.sharder.core.internal.fence.RedirectWalk;
+import com.codeheadsystems.sharder.error.RedirectExhaustedException;
+import com.codeheadsystems.sharder.health.HealthView;
+import com.codeheadsystems.sharder.health.Outcome;
+import com.codeheadsystems.sharder.health.HealthState;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -18,7 +24,7 @@ import java.util.Optional;
  * under {@code FAIL-014}, so an entry the filter skips is replaced from further down the list
  * without changing what the decision materialised.
  */
-public final class AttemptSequence {
+public final class DefaultAttemptSequence implements AttemptSequence {
 
     private final List<NodeId> sequence;
     private final HealthView health;
@@ -27,11 +33,25 @@ public final class AttemptSequence {
     private final List<NodeId> attempted = new ArrayList<>();
     private int position;
     private boolean failedOpen;
+    private final List<NodeId> known;
+    private final MonotonicClock clock;
+    private final int maxRedirects;
+    private int followed;
 
-    AttemptSequence(List<NodeId> preferenceList, HealthView health, RetryBudget budget, int limit) {
+    DefaultAttemptSequence(List<NodeId> preferenceList, HealthView health,
+                           RetryBudget budget, int limit) {
+        this(preferenceList, health, budget, limit, List.of(), MonotonicClock.systemNanoTime(), 2);
+    }
+
+    /** The walk a router builds, which follows a redirect as well as an attempt. */
+    DefaultAttemptSequence(List<NodeId> preferenceList, HealthView health, RetryBudget budget,
+                           int limit, List<NodeId> known, MonotonicClock clock, int maxRedirects) {
+        this.known = List.copyOf(known);
+        this.clock = clock;
+        this.maxRedirects = maxRedirects;
         List<NodeId> attemptable = new ArrayList<>();
         for (NodeId node : preferenceList) {
-            if (health.attemptable(node)) {
+            if (health.stateOf(node).attemptable()) {
                 attemptable.add(node);
             }
         }
@@ -90,8 +110,8 @@ public final class AttemptSequence {
         }
         while (position < sequence.size()) {
             NodeId candidate = sequence.get(position++);
-            if (health.stateOf(candidate) == com.codeheadsystems.sharder.core.internal.health
-                    .HealthState.PROBATION && !health.admitProbe(candidate)) {
+            if (health.stateOf(candidate) == HealthState.PROBATION
+                    && !health.admitProbe(candidate)) {
                 continue;
             }
             budget.account(at, retry);
@@ -109,6 +129,48 @@ public final class AttemptSequence {
 
     /** {@code FAIL-023}: the outcome of one attempt, forwarded to the health view. */
     public void recordOutcome(NodeId node, String outcome, long at) {
-        health.report(node, outcome, at);
+        health.report(new com.codeheadsystems.sharder.health.HealthSignal(
+                node, Outcome.of(outcome), at));
+    }
+
+    @Override
+    public Optional<NodeId> next() {
+        return next(clock.millis());
+    }
+
+    @Override
+    public void recordOutcome(NodeId node, Outcome outcome, long at) {
+        recordOutcome(node, outcome.spelling(), at);
+    }
+
+    @Override
+    public void recordOutcome(NodeId node, Outcome outcome) {
+        recordOutcome(node, outcome.spelling(), clock.millis());
+    }
+
+    /**
+     * The redirect walk of {@code FENCE-221}.
+     *
+     * <p>The refusals are evaluated in the order {@code FENCE-221} writes them, and the first that
+     * holds is the cause the condition carries. A followed redirect is a retry against the budget,
+     * under {@code FENCE-231}, and is an attempt against the limit.
+     */
+    @Override
+    public NodeId followRedirect(NodeId owner, long at) {
+        Optional<RedirectWalk.Refusal> refusal = RedirectWalk.refusal(followed, maxRedirects,
+                new java.util.LinkedHashSet<>(attempted), owner, known, budget.permitted(at));
+        if (refusal.isPresent()) {
+            throw new RedirectExhaustedException(
+                    RedirectExhaustedException.Cause.of(refusal.get().cause()));
+        }
+        followed++;
+        budget.account(at, true);
+        attempted.add(owner);
+        return owner;
+    }
+
+    @Override
+    public NodeId followRedirect(NodeId owner) {
+        return followRedirect(owner, clock.millis());
     }
 }

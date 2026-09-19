@@ -51,14 +51,14 @@ public final class RendezvousPlacement implements PreparedPlacement {
             if (!placementSet.get(index).id().equals(id)) {
                 continue;
             }
-            byte[] octets = id.toBytes();
-            long best = 0;
-            for (int virtual = 0; virtual < counts.get(index); virtual++) {
-                best = U64.max(best, hash.rvScore(routingKey, octets, virtual));
-            }
-            return best;
+            return hash.rvBestScore(routingKey, id.toBytes(), counts.get(index));
         }
         throw new IllegalArgumentException("no node named " + id.asText());
+    }
+
+    @Override
+    public boolean eager() {
+        return true;
     }
 
     @Override
@@ -82,12 +82,8 @@ public final class RendezvousPlacement implements PreparedPlacement {
             if (count == 0 || !eligible.contains(node.id())) {
                 continue;
             }
-            byte[] id = node.id().toBytes();
-            long best = 0;
-            for (int virtual = 0; virtual < count; virtual++) {
-                best = U64.max(best, hash.rvScore(routingKey, id, virtual));
-            }
-            scored.add(new Scored(best, node.id()));
+            scored.add(new Scored(hash.rvBestScore(routingKey, node.id().toBytes(), count),
+                    node.id()));
         }
         scored.sort((left, right) -> {
             int byScore = U64.compare(right.score(), left.score());

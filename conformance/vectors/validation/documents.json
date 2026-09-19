@@ -189,6 +189,64 @@
       }
     },
     {
+      "name": "missing-nodes",
+      "requirements": [
+        "TOPO-001",
+        "TOPO-011",
+        "TOPO-191",
+        "ERR-030"
+      ],
+      "document": "topologies/invalid/missing-nodes.topology.json",
+      "stage": "schema",
+      "note": "rejected at stage 2, schema validation of TOPO-001",
+      "expect": {
+        "valid": false,
+        "condition": {
+          "code": 201,
+          "name": "invalidTopology"
+        },
+        "rules": [
+          "missingMember"
+        ],
+        "errors": [
+          {
+            "path": "nodes",
+            "rule": "missingMember",
+            "detail": "the member is absent"
+          }
+        ]
+      }
+    },
+    {
+      "name": "missing-strategy",
+      "requirements": [
+        "TOPO-001",
+        "TOPO-011",
+        "TOPO-191",
+        "ERR-030"
+      ],
+      "document": "topologies/invalid/missing-strategy.topology.json",
+      "stage": "schema",
+      "note": "rejected at stage 2, schema validation of TOPO-001",
+      "expect": {
+        "valid": false,
+        "condition": {
+          "code": 201,
+          "name": "invalidTopology"
+        },
+        "rules": [
+          "missingMember"
+        ],
+        "errors": [
+          {
+            "path": "strategy",
+            "rule": "missingMember",
+            "detail": "the member is absent"
+          }
+        ]
+      }
+    },
+    {
       "name": "node-missing-domain-level",
       "requirements": [
         "TOPO-001",

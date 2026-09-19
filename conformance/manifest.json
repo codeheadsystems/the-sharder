@@ -1,9 +1,9 @@
 {
   "suite": "sharder conformance suite",
   "revision": {
-    "id": "c52b38664564edbf1fe59c4a0f018032783ba9f336c737907a3eae57f3716e51",
+    "id": "98f9143e9497b46f41037cf86aeb5aeed6d6b4359efe8e9a73476ad494000531",
     "basis": "sha256 of the RFC 8785 canonical form of the file digests, the level table, and the strategy surfaces",
-    "fileCount": 190,
+    "fileCount": 192,
     "trees": [
       "vectors",
       "topologies",
@@ -16,8 +16,8 @@
   "generator": "conformance/generator",
   "counts": {
     "vectorFiles": 67,
-    "vectorCases": 594,
-    "topologyDocuments": 100,
+    "vectorCases": 596,
+    "topologyDocuments": 102,
     "scenarios": 21,
     "scenarioSteps": 287,
     "properties": 28,
@@ -509,7 +509,7 @@
       ],
       "surface": "the document pipeline, the snapshot lifecycle, and what is reported",
       "vectorFiles": 8,
-      "vectorCases": 131,
+      "vectorCases": 133,
       "scenarios": 1,
       "properties": 22,
       "requirementsNamed": 125
@@ -837,6 +837,22 @@
       "strategy": "rendezvous",
       "nodeCount": 1,
       "digest": "4cf0f12ca6ae69788569d1fb41707ae7faafd07a57e9f0cb54b66fa36548dc0b",
+      "valid": false
+    },
+    "topologies/invalid/missing-nodes.topology.json": {
+      "topologyId": "invalid-missing-nodes",
+      "epoch": 1,
+      "strategy": "rendezvous",
+      "nodeCount": 0,
+      "digest": "34e6df8077fd8aa867f613c527d9ce15bddac1f268f35d55ae067c1a1cf1740b",
+      "valid": false
+    },
+    "topologies/invalid/missing-strategy.topology.json": {
+      "topologyId": "invalid-missing-strategy",
+      "epoch": 1,
+      "strategy": null,
+      "nodeCount": 1,
+      "digest": "3c17c7b566ae572ff2381fddaffc922fe960741ccf6367d41886b16eb2124604",
       "valid": false
     },
     "topologies/invalid/node-missing-domain-level.topology.json": {
@@ -3000,7 +3016,7 @@
       ],
       "description": "Documents that fail a load-time rule, each with the rules it breaks, and every valid document in the suite as a negative control.  A port reports every error rather than the first, under `ERR-030`.",
       "topology": null,
-      "caseCount": 55,
+      "caseCount": 57,
       "requirements": [
         "ERR-030",
         "OVR-015",
@@ -3011,7 +3027,7 @@
         "TOPO-011",
         "TOPO-191"
       ],
-      "sha256": "4c6a9ca1d288ac873f4fcfc57b4a21b5bab6baefc5bdf4d6bab2779c59f3f3c2"
+      "sha256": "11a290a3abfd5da6f79c0caf9c53a8277b03890ade007650f40222d4fe024d15"
     }
   ],
   "scenarios": [

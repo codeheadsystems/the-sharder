@@ -7,32 +7,38 @@ artifact, `sharder`, under
 Status: the port reaches every conformance level the suite carries and exposes all four placement
 strategy surfaces. It declares them in
 [`../../conformance/declarations/java.json`](../../conformance/declarations/java.json), against the
-suite revision that declaration names, with no deviations and no exclusions.
+suite revision that declaration names, with no deviations and no exclusions. An integrator reaches
+it through `Sharder.router(config)`, and the build gates the binding fixes run in `check`.
 
-What remains is the surface an integrator calls rather than the behaviour a vector asserts: the
-public `Router`, the configuration surface, the provider contract, and the movement hook interface,
-each of which the conformance suite reaches through the engine rather than through the types
-[`../../docs/design/40-java-binding.md`](../../docs/design/40-java-binding.md) fixes for them.
+What remains is the migration surface an integrator drives, the placement extension point, and the
+file provider. The conformance suite reaches the handoff coordinator through the engine rather than
+through the types
+[`../../docs/design/40-java-binding.md`](../../docs/design/40-java-binding.md) fixes for it.
 
 | Written | Not written |
 |---|---|
-| the Gradle build, `module-info.java`, and the wrapper | the public `Router`, `RoutingDecision`, and the configuration surface |
-| `NodeId`, `ShardId`, `RoutingKey`, and `Digest` | the topology provider contract and the poll schedule |
-| SipHash-2-4, the framing, and the three domain-tagged functions | the health view, the attempt walk, and the retry budget |
-| the three key transforms and the matcher precedence | the recipient check and the redirect walk |
-| `ring`, `rendezvous`, `slot`, and `directory` | the handoff coordinator and rate control |
-| the override layer: pins, constraints, and per-entry factor | the explain record and the metrics registry |
-| the preference list builder and the spread relaxation ladder | the exception leaves no surface here raises |
+| the Gradle build, `module-info.java`, and the wrapper | the migration surface an integrator drives: `HandoffCoordinator`, `MovementHooks`, and `MigrationPolicy` |
+| `Router`, `RoutingDecision`, `RouteOptions`, and `Sharder` | the placement extension point, by which an integrator registers a strategy |
+| `RouterConfig`, its five settings records, and `ConfigurationView` | `FileTopologyProvider` |
+| the provider contract, the in-memory provider, and the poll schedule | the shard report of `OBS-036` and the hint observer |
+| `TopologySnapshot`, `Node`, `FencingToken`, and the ownership delta | the JMH benchmarks |
+| `NodeId`, `ShardId`, `RoutingKey`, `Digest`, and `NodeSet` | |
+| SipHash-2-4, the framing, and the three domain-tagged functions | |
+| the three key transforms and the matcher precedence | |
+| `ring`, `rendezvous`, `slot`, and `directory` | |
+| the override layer: pins, constraints, and per-entry factor | |
+| the preference list builder and the spread relaxation ladder | |
 | the five-state health machine, ejection, and probation | |
-| the attempt walk, the health filter, and the retry budget | |
+| the attempt walk, the health filter, the retry budget, and the redirect walk | |
 | `routeForRead` and the bounded reordering of `READ-013` | |
-| the recipient check, the redirect walk, and snapshot retention | |
+| the recipient check and snapshot retention | |
 | the eleven-state handoff machine, rebase, and re-observation | |
-| the RFC 8785 canonical form, the digest, and document validation | the levels above `core` |
+| the RFC 8785 canonical form, the digest, and document validation | |
 | the snapshot lifecycle and the acceptance table of `TOPO-061` | |
-| the ownership delta, skew detection, and the observability inventory | |
-| `ErrorCode`, the closed condition set of `ERR-010` | |
+| the explain record, the metrics view, and the observability inventory | |
+| `ErrorCode` and the sixteen leaves of `ERR-010` | |
 | the conformance harness, the scenario runner, and the run report | |
+| the build gates and the allocation gate | |
 
 The candidate ordering is a cursor rather than a list, under `PLACE-015`: a routing call consumes
 the prefix `CORE-046` bounds it at, and the whole ordering and the whole preference list are
@@ -43,7 +49,8 @@ about `T / N` entries per candidate rather than a walk of every token.
 directory renders. It fixes the package layout, the public type set, the JDK floor, the dependency
 policy, the thread-safety contracts, the harness, and the build gates.
 [`../../docs/design/99-roadmap.md`](../../docs/design/99-roadmap.md#implementation-stages) gives
-the stages, of which this port has finished the first, and
+the stages, of which this port has finished every one that carries a conformance level and the one
+that carries the build gates instead, and
 [`#release-v01`](../../docs/design/99-roadmap.md#release-v01) gives what the release after them
 publishes. Nothing is published before that release, under
 [`adr/0083`](../../docs/design/adr/0083-publication-as-the-last-stage.md).
@@ -56,7 +63,10 @@ cd ports/java
 ```
 
 The build compiles against the Java 21 API whatever JDK runs it, treats a warning as an error, and
-runs the unit tests and the conformance suite. Nothing it needs is published: the dependencies are
+runs the unit tests and the conformance suite. `check` adds the gates: the unsigned comparison
+check over the compiled hash and placement classes, the two documentation checks over the
+repository, the dependency check over the published descriptor, the coverage floor, and the
+allocation gate over a routing call. Nothing it needs is published: the dependencies are
 JUnit, AssertJ, and Bouncy Castle, all at test scope, and the artifact requires `java.base` alone.
 
 ## Running the conformance suite

@@ -57,6 +57,11 @@ public record TopologyDocument(
             return placeable;
         }
 
+        /** The spelling the document carries. */
+        public String spelling() {
+            return spelling;
+        }
+
         /** The state the document spells. */
         public static State of(String spelling) {
             for (State state : values()) {

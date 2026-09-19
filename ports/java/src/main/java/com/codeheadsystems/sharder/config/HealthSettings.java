@@ -1,4 +1,6 @@
-package com.codeheadsystems.sharder.core.internal.health;
+package com.codeheadsystems.sharder.config;
+
+import com.codeheadsystems.sharder.error.InvalidArgumentException;
 
 /**
  * The parameters of the built-in health state machine, with the defaults of {@code HEALTH-055}.
@@ -22,6 +24,34 @@ public record HealthSettings(
         int maxEjectionPercent,
         long ejectionResetMillis,
         boolean resetOnPlacementReentry) {
+
+    /**
+     * Every parameter is validated at build time, under {@code CFG-031}.
+     *
+     * <p>No value is clamped: a setting outside its range is a configuration defect the integrator
+     * repairs rather than one the library quietly rewrites.
+     */
+    public HealthSettings {
+        if (bucketCount <= 0) {
+            throw new InvalidArgumentException("bucketCount is at least 1, not " + bucketCount);
+        }
+        if (windowMillis < bucketCount) {
+            throw new InvalidArgumentException(
+                    "windowMillis is at least bucketCount, not " + windowMillis);
+        }
+        if (maxEjectionPercent > 100 || maxEjectionPercent < 0) {
+            throw new InvalidArgumentException(
+                    "maxEjectionPercent is from 0 through 100, not " + maxEjectionPercent);
+        }
+        if (probationDivisor <= 0) {
+            throw new InvalidArgumentException(
+                    "probationDivisor is at least 1, not " + probationDivisor);
+        }
+        if (maxEjectionMillis < baseEjectionMillis) {
+            throw new InvalidArgumentException(
+                    "maxEjectionMillis is at least baseEjectionMillis, not " + maxEjectionMillis);
+        }
+    }
 
     /** The defaults of {@code HEALTH-055}. */
     public static HealthSettings defaults() {

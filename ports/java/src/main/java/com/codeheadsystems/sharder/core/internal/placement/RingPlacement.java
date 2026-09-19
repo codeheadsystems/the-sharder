@@ -131,7 +131,7 @@ public final class RingPlacement implements PreparedPlacement {
                     throw new java.util.NoSuchElementException();
                 }
                 long token = ring.get(index).token();
-                while (index < ring.size() && ring.get(index).token() == token) {
+                while (index < ring.size() && U64.compare(ring.get(index).token(), token) == 0) {
                     index++;
                 }
                 return U64.toHex(token);

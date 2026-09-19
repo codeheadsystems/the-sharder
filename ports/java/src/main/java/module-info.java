@@ -7,5 +7,12 @@
  */
 module com.codeheadsystems.sharder {
     exports com.codeheadsystems.sharder;
+    exports com.codeheadsystems.sharder.config;
+    exports com.codeheadsystems.sharder.core;
     exports com.codeheadsystems.sharder.error;
+    exports com.codeheadsystems.sharder.fence;
+    exports com.codeheadsystems.sharder.health;
+    exports com.codeheadsystems.sharder.observe;
+    exports com.codeheadsystems.sharder.placement;
+    exports com.codeheadsystems.sharder.topology;
 }

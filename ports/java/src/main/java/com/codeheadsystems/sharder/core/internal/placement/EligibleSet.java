@@ -29,6 +29,11 @@ public final class EligibleSet {
         return new EligibleSet(identities);
     }
 
+    /** The eligible set holding exactly these identities. */
+    public static EligibleSet ofIdentities(java.util.Collection<NodeId> identities) {
+        return new EligibleSet(new LinkedHashSet<>(identities));
+    }
+
     /** Whether the identity is eligible. */
     public boolean contains(NodeId id) {
         return identities.contains(id);
