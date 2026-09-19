@@ -10,9 +10,9 @@ port.
 The reader is a contributor starting a port, and a reviewer checking that a port has not quietly
 changed a contract the suite does not reach.
 
-Status: one port exists. `ports/java/` reaches `hash`, `place`, `core`, `scale`, and `failover`,
-exposes the four placement strategy surfaces, and declares them; it exposes `readAffinity`,
-`fencing`, and `migration` not at all. No other port has been started, so much of what follows still
+Status: one port exists. `ports/java/` reaches `hash`, `place`, `core`, `scale`, `failover`, and
+`readAffinity`, exposes the four placement strategy surfaces, and declares them; it exposes
+`fencing` and `migration` not at all. No other port has been started, so much of what follows still
 states what a port does rather than what one has done.
 
 ## Port identifier

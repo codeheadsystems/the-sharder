@@ -5,11 +5,11 @@ artifact, `sharder`, under
 [`adr/0081`](../../docs/design/adr/0081-single-java-module.md).
 
 Status: the port reaches `hash`, `place`, `core`, and `scale`, which `CORE-110` makes mandatory of
-every port, and `failover` above them, and exposes all four placement strategy surfaces. It declares
-them in
+every port, and `failover` and `readAffinity` above them, and exposes all four placement strategy
+surfaces. It declares them in
 [`../../conformance/declarations/java.json`](../../conformance/declarations/java.json), against the
-suite revision that declaration names, with no deviations. It exposes `readAffinity`, `fencing`, and
-`migration` not at all, so it declares none of their levels.
+suite revision that declaration names, with no deviations. It exposes `fencing` and `migration` not
+at all, so it declares neither of their levels.
 
 | Written | Not written |
 |---|---|
@@ -22,6 +22,7 @@ suite revision that declaration names, with no deviations. It exposes `readAffin
 | the preference list builder and the spread relaxation ladder | the exception leaves no surface here raises |
 | the five-state health machine, ejection, and probation | |
 | the attempt walk, the health filter, and the retry budget | |
+| `routeForRead` and the bounded reordering of `READ-013` | |
 | the RFC 8785 canonical form, the digest, and document validation | the levels above `core` |
 | the snapshot lifecycle and the acceptance table of `TOPO-061` | |
 | the ownership delta, skew detection, and the observability inventory | |
