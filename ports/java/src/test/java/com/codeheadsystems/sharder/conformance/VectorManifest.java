@@ -13,10 +13,14 @@ import java.util.Set;
  * the tree and listed in the manifest runs without a change here.
  */
 record VectorManifest(String revision, List<Level> levels, List<String> strategySurfaces,
-                      List<FileEntry> files) {
+                      List<FileEntry> files, List<ScenarioEntry> scenarios) {
 
     /** One conformance level, with the levels it requires and the artefacts it carries. */
     record Level(String name, List<String> requires, int vectorFiles, int vectorCases) {
+    }
+
+    /** One simulation scenario, as the manifest indexes it. */
+    record ScenarioEntry(String file, String scenario, String level, int stepCount) {
     }
 
     /** One vector file, as the manifest indexes it. */
@@ -48,7 +52,15 @@ record VectorManifest(String revision, List<Level> levels, List<String> strategy
                         entry.array("requirements").texts(),
                         entry.text("sha256")))
                 .toList();
-        return new VectorManifest(revision, levels, surfaces, files);
+        List<ScenarioEntry> scenarios = root.array("scenarios").elements().stream()
+                .map(JsonValue::asObject)
+                .map(entry -> new ScenarioEntry(
+                        entry.text("file"),
+                        entry.text("scenario"),
+                        entry.text("level"),
+                        entry.get("stepCount").asInt()))
+                .toList();
+        return new VectorManifest(revision, levels, surfaces, files, scenarios);
     }
 
     /** The level of that name. */
@@ -74,6 +86,11 @@ record VectorManifest(String revision, List<Level> levels, List<String> strategy
         for (String required : level(name).requires()) {
             collect(required, reached);
         }
+    }
+
+    /** Every scenario of the suite at one level, in manifest order. */
+    List<ScenarioEntry> scenariosAt(String level) {
+        return scenarios.stream().filter(entry -> entry.level().equals(level)).toList();
     }
 
     /** Every file of the suite at one level, in manifest order. */

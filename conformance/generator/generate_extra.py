@@ -70,15 +70,17 @@ CONDITIONS = [
     (303, "identityMismatch", "no", "the two topologyId values differ",
      "operator action; epochs under two identifiers are incomparable", []),
     (304, "redirectExhausted", "no", "a redirect walk reached its bound or revisited a node",
-     "surface the failure; do not fall back to an arbitrary node", []),
+     "surface the failure; a retryBudget cause means the cluster is shedding",
+     ["boundReached", "revisitedNode", "unknownNode", "retryBudget"]),
     (401, "planRefused", "no", "a plan cannot be built from the two snapshots and the policy",
      "correct the snapshots or the policy member named in cause",
      ["incomparableShards", "epochNotAdvancing", "strategyUnsupported",
-      "destinationOutsidePlacementSet", "policyInvalid"]),
+      "destinationOutsidePlacementSet", "policyInvalid", "topologyMismatch"]),
     (402, "quiesced", "yes", "the shard is inside the cutover window",
      "retry after the window, which commitDeadlineMillis bounds", []),
     (403, "handoffFailed", "no", "a handoff reached failed",
-     "operator action, directed by the failure kind in cause",
+     "operator action, directed by the failure kind in cause; undetermined takes a"
+     " re-observation",
      ["unverified", "residue", "undetermined", "rollbackFailed"]),
 ]
 

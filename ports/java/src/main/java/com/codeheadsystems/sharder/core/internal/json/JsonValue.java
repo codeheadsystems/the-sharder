@@ -94,6 +94,11 @@ public sealed interface JsonValue {
         public int asInt() {
             return Integer.parseInt(literal);
         }
+
+        /** The value as an unsigned 64-bit integer, whose bit pattern a {@code long} holds. */
+        public long asUnsignedLong() {
+            return Long.parseUnsignedLong(literal);
+        }
     }
 
     /** A boolean. */
@@ -150,6 +155,14 @@ public sealed interface JsonValue {
             return value.value();
         }
         throw new IllegalStateException("not a boolean: " + this);
+    }
+
+    /** The value as an unsigned 64-bit integer, or a failure where it is another kind. */
+    default long asUnsignedLong() {
+        if (this instanceof JsonNumber number) {
+            return number.asUnsignedLong();
+        }
+        throw new IllegalStateException("not a number: " + this);
     }
 
     /** Whether the value is the null literal. */

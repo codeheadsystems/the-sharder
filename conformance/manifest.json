@@ -1,7 +1,7 @@
 {
   "suite": "sharder conformance suite",
   "revision": {
-    "id": "40ac96a0e8239f43d7c541dca3476c7c1894ce6a19d1d7fc29248720efe499fe",
+    "id": "adbe49553dbd893976ce24249b8114c528aee786c1053dd7fe9df3219f8ee4a5",
     "basis": "sha256 of the RFC 8785 canonical form of the file digests, the level table, and the strategy surfaces",
     "fileCount": 190,
     "trees": [
@@ -1666,7 +1666,7 @@
         "ERR-021",
         "REPL-025"
       ],
-      "sha256": "a5eb6135bbbde37b8e638420cce7d189ad9473139963dd0add6f2d7af2f59a34"
+      "sha256": "0c944ea2e167f309384f731a76f7d3ff8407094bb6d7fdab7f1401276ae2cd8a"
     },
     {
       "file": "vectors/formulas/attempt-limit.json",

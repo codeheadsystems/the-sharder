@@ -146,7 +146,7 @@ conformance suite through its generator.
 
 ### Contributing to the Java implementation
 
-The port is under way and reaches the `hash` and `place` conformance levels.
+The port is under way and reaches the `hash`, `place`, and `core` conformance levels.
 [`design/40-java-binding.md`](design/40-java-binding.md) is the design it renders, and its opening
 status line says what has and has not been written. The port's directory is
 [`../ports/java/`](../ports/java/), whose README says how to build it and what is written, and

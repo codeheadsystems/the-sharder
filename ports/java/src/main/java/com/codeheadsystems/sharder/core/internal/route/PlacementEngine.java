@@ -54,6 +54,16 @@ public final class PlacementEngine {
         return placement;
     }
 
+    /** The document the engine was prepared over. */
+    public TopologyDocument document() {
+        return document;
+    }
+
+    /** The document's replication factor, which an override supersedes per routing key. */
+    public int factor() {
+        return document.replication().factor();
+    }
+
     /** The spread ladder, for the vectors that assert every stage. */
     public SpreadLadder ladder() {
         return ladder;

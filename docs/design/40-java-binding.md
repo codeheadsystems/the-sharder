@@ -10,12 +10,13 @@ The reader is an implementer writing the Java port, an integrator reading the ty
 them, and a reviewer checking that the port has not quietly changed the contract.
 
 Status: the Java binding is under way and is not complete. The Gradle build, the opaque identifier
-types, the error code enumeration, the hash construction, the JSON reader, the four placement
-strategies, the override layer, the preference list builder, and the conformance harness are
-written, and the port reaches the `hash` and `place` conformance levels and no other. The public
-router, the document pipeline, and the surfaces above `place` are not written, so no build check and
-no published artifact exists, and every type, task, module, gate, and benchmark below that the port
-has not reached states what it will carry rather than what one did.
+types, the error taxonomy, the hash construction, the JSON reader, the canonical form and the
+digest, document validation, the snapshot lifecycle, the four placement strategies, the override
+layer, the preference list builder, the observability inventory, and the conformance harness are
+written, and the port reaches the `hash`, `place`, and `core` conformance levels and no other. The
+public router, the provider contract, and the surfaces above `core` are not written, so no build
+check and no published artifact exists, and every type, task, module, gate, and benchmark below that
+the port has not reached states what it will carry rather than what one did.
 [`../../ports/java/README.md`](../../ports/java/README.md) says what is written today. Where a
 figure below comes from a measurement, it comes from a prototype written to settle a decision
 record, and it names the record that states the conditions the measurement was taken under.
