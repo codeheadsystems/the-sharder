@@ -9,7 +9,9 @@
     "SEC-031"
   ],
   "deterministic": true,
-  "setup": {},
+  "setup": {
+    "topology": "topologies/migration-epoch-1.topology.json"
+  },
   "steps": [
     {
       "action": "reportHealth",

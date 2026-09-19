@@ -4,8 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The metrics of {@code OBS-010} and the events of {@code OBS-020} that belong to the
- * {@code routing} surface.
+ * The metrics of {@code OBS-010} and the events of {@code OBS-020}, by the surface each belongs to.
  *
  * <p>A metric and an event each belong to the surface the first segment of its name gives:
  * {@code health.} is `failover`, {@code fencing.} is `fencing`, {@code migration.} is `migration`,
@@ -30,6 +29,29 @@ public final class Observability {
 
     private Observability() {
     }
+
+    /** Every metric of one surface, in the order the specification tables them. */
+    public static List<Metric> metricsOf(String surface) {
+        return "failover".equals(surface) ? FAILOVER_METRICS : METRICS;
+    }
+
+    /** Every event of one surface, in the order the specification tables them. */
+    public static List<Event> eventsOf(String surface) {
+        return "failover".equals(surface) ? FAILOVER_EVENTS : EVENTS;
+    }
+
+    /** The metrics of the {@code failover} surface, which are the ones named {@code health.}. */
+    public static final List<Metric> FAILOVER_METRICS = List.of(
+            counter("health.transitions", "topology_id", "from", "to"),
+            counter("health.ejections", "node"),
+            counter("health.ejections_refused", "topology_id"),
+            gauge("health.nodes", "topology_id", "state"),
+            gauge("health.failure_percent", "node"));
+
+    /** The events of the {@code failover} surface. */
+    public static final List<Event> FAILOVER_EVENTS = List.of(
+            event("health.transition", "info", "node", "from", "to", "trigger"),
+            event("health.ejection_refused", "warning", "node", "ejected", "setSize"));
 
     /** Every metric of the {@code routing} surface, in the order the specification tables them. */
     public static final List<Metric> METRICS = List.of(

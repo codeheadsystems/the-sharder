@@ -124,6 +124,34 @@
       }
     },
     {
+      "action": "reportHealthSeries",
+      "node": "n3",
+      "outcomes": [
+        "refused",
+        "refused",
+        "refused",
+        "refused",
+        "refused"
+      ],
+      "firstAt": 1900,
+      "stepMillis": 10,
+      "note": "`HEALTH-022`: `refused` counts as a failure.",
+      "expect": {
+        "state": "suspect"
+      }
+    },
+    {
+      "action": "advanceClock",
+      "to": 2300,
+      "note": "`HEALTH-047`: timers are evaluated on each advance as well as on each signal.",
+      "expect": {
+        "states": {
+          "n2": "unavailable",
+          "n3": "suspect"
+        }
+      }
+    },
+    {
       "action": "attemptSequence",
       "key": {
         "encoding": "base16",

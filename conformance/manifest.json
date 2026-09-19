@@ -1,7 +1,7 @@
 {
   "suite": "sharder conformance suite",
   "revision": {
-    "id": "adbe49553dbd893976ce24249b8114c528aee786c1053dd7fe9df3219f8ee4a5",
+    "id": "775c3f4b93c146a0f1ffcfc5ab84f5bd7451fc29bca15157e3d5f677b36f0b9e",
     "basis": "sha256 of the RFC 8785 canonical form of the file digests, the level table, and the strategy surfaces",
     "fileCount": 190,
     "trees": [
@@ -19,7 +19,7 @@
     "vectorCases": 594,
     "topologyDocuments": 100,
     "scenarios": 21,
-    "scenarioSteps": 285,
+    "scenarioSteps": 287,
     "properties": 28,
     "requirementsNamed": 454
   },
@@ -3309,7 +3309,7 @@
       "scenario": "failover-and-recovery",
       "level": "failover",
       "description": "A replica fails, is ejected, is probed under probation, and returns.  The preference list never changes; only the attempt sequence does.",
-      "stepCount": 12,
+      "stepCount": 14,
       "requirements": [
         "FAIL-001",
         "FAIL-002",

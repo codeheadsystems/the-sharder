@@ -2,12 +2,18 @@ package com.codeheadsystems.sharder.conformance;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.codeheadsystems.sharder.NodeId;
 import com.codeheadsystems.sharder.core.internal.document.Digests;
 import com.codeheadsystems.sharder.core.internal.document.TopologyLoader;
 import com.codeheadsystems.sharder.core.internal.json.JcsWriter;
 import com.codeheadsystems.sharder.core.internal.json.JsonValue;
 import com.codeheadsystems.sharder.core.internal.json.JsonValue.JsonObject;
+import com.codeheadsystems.sharder.core.internal.health.HealthSettings;
+import com.codeheadsystems.sharder.core.internal.health.HealthState;
+import com.codeheadsystems.sharder.core.internal.health.HealthView;
+import com.codeheadsystems.sharder.core.internal.route.AttemptSequences;
 import com.codeheadsystems.sharder.core.internal.route.PlacementDecision;
+import com.codeheadsystems.sharder.core.internal.route.RetryBudget;
 import com.codeheadsystems.sharder.error.ErrorCode;
 import java.util.List;
 
@@ -31,13 +37,48 @@ final class ScenarioRunner {
     int run(String path) {
         JsonObject scenario = source.readObject(path);
         TopologyLoader loader = new TopologyLoader();
+        HealthView[] health = {new HealthView(HealthSettings.defaults())};
+        RetryBudget budget = RetryBudget.defaults();
         int skipped = 0;
+        // A scenario whose steps turn on a placement set no step installs names it in the setup.
+        scenario.object("setup").find("topology").ifPresent(topology ->
+                install(loader, health[0], topology.asText()));
         List<JsonValue> steps = scenario.array("steps").elements();
-        for (int index = 0; index < steps.size(); index++) {
+        for (int step_index = 0; step_index < steps.size(); step_index++) {
+            final int index = step_index;
             JsonObject step = steps.get(index).asObject();
             switch (step.text("action")) {
-                case "installTopology" -> installTopology(loader, step, index);
-                case "route" -> route(loader, step, index);
+                case "installTopology" -> {
+                    installTopology(loader, step, index);
+                    loader.snapshot().ifPresent(health[0]::onSnapshotInstalled);
+                }
+                case "route" -> {
+                    step.find("topology").ifPresent(topology ->
+                            install(loader, health[0], topology.asText()));
+                    route(loader, step, index);
+                }
+                case "configureHealth" -> health[0] = new HealthView(
+                        settings(step.object("parameters")));
+                case "healthSnapshotInstalled" -> {
+                    health[0].onSnapshotInstalled(
+                            com.codeheadsystems.sharder.core.internal.document.TopologyDocument
+                                    .parse(source.readObject(step.text("topology"))));
+                    step.object("expect").find("placementSetSize").ifPresent(value ->
+                            assertThat(step.array("placementSet").size())
+                                    .as("step %d placementSetSize", index)
+                                    .isEqualTo(value.asInt()));
+                }
+                case "reportHealth" -> reportHealth(health[0], step, index);
+                case "reportHealthSeries" -> reportHealthSeries(health[0], step, index);
+                case "advanceClock" -> {
+                    health[0].advance(step.get("to").asLong());
+                    expectStates(health[0], step, index);
+                }
+                case "probeAdmission" -> probeAdmission(health[0], step, index);
+                case "expectHealthCeiling" -> expectHealthCeiling(health[0], step, index);
+                case "expectComparisonSet" -> expectComparisonSet(health[0], step, index);
+                case "attemptSequence" -> attemptSequence(loader, health[0], budget, step, index);
+                case "attemptWalk" -> attemptWalk(loader, health[0], budget, step, index);
                 default -> skipped++;
             }
         }
@@ -100,5 +141,165 @@ final class ScenarioRunner {
         expect.find("replicaCount").ifPresent(value ->
                 assertThat(decision.replicaCount()).as("step %d replicaCount", index)
                         .isEqualTo(value.asInt()));
+    }
+
+    /** The parameters of {@code HEALTH-055} a scenario configures, over the defaults. */
+    private static HealthSettings settings(JsonObject parameters) {
+        HealthSettings defaults = HealthSettings.defaults();
+        return new HealthSettings(
+                longOf(parameters, "windowMillis", defaults.windowMillis()),
+                (int) longOf(parameters, "bucketCount", defaults.bucketCount()),
+                (int) longOf(parameters, "minimumSamples", defaults.minimumSamples()),
+                (int) longOf(parameters, "failureRatePercent", defaults.failureRatePercent()),
+                (int) longOf(parameters, "consecutiveFailureThreshold",
+                        defaults.consecutiveFailureThreshold()),
+                longOf(parameters, "baseEjectionMillis", defaults.baseEjectionMillis()),
+                longOf(parameters, "maxEjectionMillis", defaults.maxEjectionMillis()),
+                longOf(parameters, "probationMillis", defaults.probationMillis()),
+                (int) longOf(parameters, "probationDivisor", defaults.probationDivisor()),
+                (int) longOf(parameters, "outlierMarginPercent", defaults.outlierMarginPercent()),
+                (int) longOf(parameters, "outlierMinimumNodes", defaults.outlierMinimumNodes()),
+                (int) longOf(parameters, "maxEjectionPercent", defaults.maxEjectionPercent()),
+                longOf(parameters, "ejectionResetMillis", defaults.ejectionResetMillis()),
+                parameters.find("resetOnPlacementReentry").map(JsonValue::asBoolean)
+                        .orElse(defaults.resetOnPlacementReentry()));
+    }
+
+    private static long longOf(JsonObject parameters, String member, long fallback) {
+        return parameters.find(member).map(JsonValue::asLong).orElse(fallback);
+    }
+
+    private void install(TopologyLoader loader, HealthView health, String topology) {
+        loader.accept(source.readObject(topology));
+        loader.snapshot().ifPresent(health::onSnapshotInstalled);
+    }
+
+    private void reportHealth(HealthView health, JsonObject step, int index) {
+        NodeId node = NodeId.of(step.text("node"));
+        // A step may carry several observations at one instant, which `repeat` counts.
+        int repeat = step.find("repeat").map(JsonValue::asInt).orElse(1);
+        for (int observation = 0; observation < repeat; observation++) {
+            health.report(node, step.text("outcome"), step.get("at").asLong());
+        }
+        step.object("expect").find("state").ifPresent(value ->
+                assertThat(health.stateOf(node).spelling())
+                        .as("step %d state", index).isEqualTo(value.asText()));
+        expectStates(health, step, index);
+    }
+
+    private void reportHealthSeries(HealthView health, JsonObject step, int index) {
+        NodeId node = NodeId.of(step.text("node"));
+        long firstAt = step.get("firstAt").asLong();
+        long stride = step.get("stepMillis").asLong();
+        long at = firstAt;
+        for (String outcome : step.array("outcomes").texts()) {
+            health.report(node, outcome, at);
+            at += stride;
+        }
+        final long last = at - stride;
+        step.object("expect").find("state").ifPresent(value ->
+                assertThat(health.stateOf(node).spelling()).as("step %d state", index)
+                        .isEqualTo(value.asText()));
+        step.object("expect").find("failurePercent").ifPresent(value ->
+                assertThat(health.failurePercent(node, last))
+                        .as("step %d failurePercent", index).isEqualTo(value.asInt()));
+        expectStates(health, step, index);
+    }
+
+    private void probeAdmission(HealthView health, JsonObject step, int index) {
+        NodeId node = NodeId.of(step.text("node"));
+        List<Boolean> admitted = new java.util.ArrayList<>();
+        for (int call = 0; call < step.get("calls").asInt(); call++) {
+            admitted.add(health.admitProbe(node));
+        }
+        JsonObject expect = step.object("expect");
+        expect.find("admitted").ifPresent(value ->
+                assertThat(admitted).as("step %d admitted", index)
+                        .isEqualTo(value.asArray().elements().stream()
+                                .map(JsonValue::asBoolean).toList()));
+        expect.find("admittedCount").ifPresent(value ->
+                assertThat(admitted.stream().filter(Boolean::booleanValue).count())
+                        .as("step %d admittedCount", index).isEqualTo(value.asLong()));
+    }
+
+    private void expectHealthCeiling(HealthView health, JsonObject step, int index) {
+        JsonObject expect = step.object("expect");
+        expect.find("placementSetSize").ifPresent(value ->
+                assertThat(health.placementSetSize()).as("step %d placementSetSize", index)
+                        .isEqualTo(value.asInt()));
+        expect.find("maxEjectionPercent").ifPresent(value ->
+                assertThat(health.settings().maxEjectionPercent())
+                        .as("step %d maxEjectionPercent", index).isEqualTo(value.asInt()));
+        expect.find("ejectedCount").ifPresent(value ->
+                assertThat(health.ejectedCount()).as("step %d ejectedCount", index)
+                        .isEqualTo(value.asInt()));
+        expect.find("refused").ifPresent(value ->
+                assertThat(health.ejectionRefused()).as("step %d refused", index)
+                        .isEqualTo(value.asBoolean()));
+        expectStates(health, step, index);
+    }
+
+    private void expectComparisonSet(HealthView health, JsonObject step, int index) {
+        long at = step.get("at").asLong();
+        JsonObject expect = step.object("expect");
+        expect.find("comparisonSet").ifPresent(value ->
+                assertThat(health.comparisonSet(at).stream().map(NodeId::asText).toList())
+                        .as("step %d comparisonSet", index).isEqualTo(value.asArray().texts()));
+        expect.find("peerMedian").ifPresent(value ->
+                assertThat(health.peerMedian(at).orElseThrow()).as("step %d peerMedian", index)
+                        .isEqualTo(value.asInt()));
+        expectStates(health, step, index);
+    }
+
+    private void attemptSequence(TopologyLoader loader, HealthView health, RetryBudget budget,
+                                 JsonObject step, int index) {
+        PlacementDecision decision = loader.engine().orElseThrow()
+                .route(PlaceVectors.octets(step.object("key")));
+        // A step may confine the walk to a prefix of the preference list, which is the caller
+        // walking its replicas rather than the whole list.
+        List<com.codeheadsystems.sharder.NodeId> over = step.find("preferenceListPrefix")
+                .map(value -> decision.preferenceList().subList(0, value.asInt()))
+                .orElseGet(decision::preferenceList);
+        var attempts = AttemptSequences.over(over, decision.attemptLimit(), health, budget);
+        JsonObject expect = step.object("expect");
+        expect.find("attemptSequence").ifPresent(value ->
+                assertThat(attempts.sequence().stream().map(NodeId::asText).toList())
+                        .as("step %d attemptSequence", index).isEqualTo(value.asArray().texts()));
+        expect.find("filterFailedOpen").ifPresent(value ->
+                assertThat(attempts.filterFailedOpen()).as("step %d filterFailedOpen", index)
+                        .isEqualTo(value.asBoolean()));
+        expect.find("placementSetSize").ifPresent(value ->
+                assertThat(health.placementSetSize()).as("step %d placementSetSize", index)
+                        .isEqualTo(value.asInt()));
+        expectStates(health, step, index);
+    }
+
+    private void attemptWalk(TopologyLoader loader, HealthView health, RetryBudget budget,
+                             JsonObject step, int index) {
+        PlacementDecision decision = loader.engine().orElseThrow()
+                .route(PlaceVectors.octets(step.object("key")));
+        JsonObject expect = step.object("expect");
+        List<String> answered = new java.util.ArrayList<>();
+        for (int call = 0; call < step.get("calls").asInt(); call++) {
+            // Each call is a walk of its own, because HEALTH-017 consumes one probe for each
+            // attempt a caller places rather than for each entry a routing call examines.
+            var attempts = AttemptSequences.of(decision, health, budget);
+            answered.add(attempts.next(step.find("at").map(JsonValue::asLong).orElse(0L))
+                    .map(NodeId::asText).orElse("exhausted"));
+        }
+        expect.find("answered").ifPresent(value ->
+                assertThat(answered).as("step %d answered", index)
+                        .isEqualTo(value.asArray().texts()));
+        expect.find("distinct").ifPresent(value ->
+                assertThat(new java.util.LinkedHashSet<>(answered).size())
+                        .as("step %d distinct", index).isEqualTo(value.asInt()));
+    }
+
+    private void expectStates(HealthView health, JsonObject step, int index) {
+        step.object("expect").find("states").ifPresent(value ->
+                value.asObject().members().forEach((node, state) ->
+                        assertThat(health.stateOf(NodeId.of(node)).spelling())
+                                .as("step %d state of %s", index, node)
+                                .isEqualTo(state.asText())));
     }
 }
