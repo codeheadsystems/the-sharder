@@ -1,7 +1,7 @@
 package com.codeheadsystems.sharder.migrate;
 
 /**
- * The eleven handoff states of {@code MOVE-001}.
+ * The twelve handoff states of {@code MOVE-001}.
  *
  * <p>{@code complete}, {@code aborted}, and {@code failed} are terminal, and nothing transitions
  * out of one except the re-observation of {@code MOVE-233}, which the integrator calls for one
@@ -10,6 +10,8 @@ package com.codeheadsystems.sharder.migrate;
 public enum HandoffState {
     /** Admitted to the plan, no hook called. */
     PLANNED("planned"),
+    /** A node holding both the parent and the child is dividing or folding its own copy. */
+    DIVIDING("dividing"),
     /** The destination is being made ready to receive. */
     PREPARING("preparing"),
     /** The bulk contents are being copied. */

@@ -41,6 +41,28 @@ public interface MovementHooks {
     /** Compensates an abort, under {@code MOVE-191}. */
     HookResult rollback(HandoffContext context);
 
+    /**
+     * Divides the copy this node holds so that it matches the extent of {@code shardId}.
+     *
+     * <p>A local step under {@code LIN-051}: the node holds {@code sourceShardId} under the earlier
+     * snapshot and {@code shardId} under the later one, and nothing moves between nodes. The
+     * default refuses, because a storage that has not implemented it declares
+     * {@code supportsLineage} of false and {@code LIN-053} refuses the plan before a call is made.
+     */
+    default HookResult divide(HandoffContext context) {
+        return new HookResult.Permanent("divide is not implemented");
+    }
+
+    /**
+     * Folds the copies this node holds into one that matches the extent of {@code shardId}.
+     *
+     * <p>The inverse of {@link #divide}, and what {@code LIN-056} calls to undo a division that was
+     * aborted, which is why a storage declares support for the pair rather than for either alone.
+     */
+    default HookResult combine(HandoffContext context) {
+        return new HookResult.Permanent("combine is not implemented");
+    }
+
     /** Reads the durable state, under {@code MOVE-201}. */
     ObserveResult observe(HandoffContext context);
 }

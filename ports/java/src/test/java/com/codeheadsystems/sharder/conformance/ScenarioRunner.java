@@ -62,7 +62,19 @@ final class ScenarioRunner {
                         new java.util.ArrayList<>();
                 for (JsonValue row : spec.array("handoffs").elements()) {
                     JsonObject entry = row.asObject();
-                    named.add(MigrationPlan.handoffOf(entry.text("id"), entry.text("shard"),
+                    String shard = entry.text("shard");
+                    String sourceShard = entry.find("sourceShard")
+                            .map(JsonValue::asText).orElse(shard);
+                    com.codeheadsystems.sharder.core.internal.migrate.Handoff.Kind kind =
+                            switch (entry.find("kind").map(JsonValue::asText).orElse("handoff")) {
+                                case "divide" -> com.codeheadsystems.sharder.core.internal.migrate
+                                        .Handoff.Kind.DIVIDE;
+                                case "combine" -> com.codeheadsystems.sharder.core.internal.migrate
+                                        .Handoff.Kind.COMBINE;
+                                default -> com.codeheadsystems.sharder.core.internal.migrate
+                                        .Handoff.Kind.HANDOFF;
+                            };
+                    named.add(MigrationPlan.handoffOf(entry.text("id"), shard, sourceShard, kind,
                             NodeId.of(entry.text("source")), NodeId.of(entry.text("destination")),
                             spec.get("fromEpoch").asLong(), spec.get("toEpoch").asLong()));
                 }

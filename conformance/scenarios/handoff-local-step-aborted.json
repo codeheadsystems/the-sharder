@@ -1,0 +1,89 @@
+{
+  "scenario": "handoff-local-step-aborted",
+  "level": "migration",
+  "description": "`LIN-056`: a division that is aborted is undone by the inverse hook, so the local step is reversible and leaves the node holding the extent it held before.",
+  "requirements": [
+    "LIN-056",
+    "MOVE-021",
+    "MOVE-421"
+  ],
+  "deterministic": true,
+  "setup": {
+    "plan": {
+      "topologyId": "migration",
+      "fromEpoch": 1,
+      "toEpoch": 2,
+      "policy": {
+        "maxConcurrentHandoffs": 4,
+        "maxConcurrentPerSourceNode": 1,
+        "maxConcurrentPerDestinationNode": 1,
+        "initialStepBudget": 1,
+        "commitDeadlineMillis": 30000,
+        "quiesceLeaseMarginMillis": 1000
+      },
+      "handoffs": [
+        {
+          "id": "l-1",
+          "shard": "1",
+          "sourceShard": "2",
+          "kind": "divide",
+          "source": "n2",
+          "destination": "n2"
+        }
+      ]
+    }
+  },
+  "steps": [
+    {
+      "action": "handoffStep",
+      "handoff": "l-1",
+      "trigger": "admittedByRatePolicyLocal",
+      "at": 1000,
+      "expect": {
+        "outcome": {
+          "outcome": "advanced",
+          "id": "l-1",
+          "fromState": "planned",
+          "toState": "dividing"
+        },
+        "state": "dividing"
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "l-1",
+      "trigger": "abort",
+      "at": 2000,
+      "expect": {
+        "outcome": {
+          "outcome": "advanced",
+          "id": "l-1",
+          "fromState": "dividing",
+          "toState": "aborting"
+        },
+        "state": "aborting"
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "l-1",
+      "trigger": "rollbackSuccess",
+      "at": 3000,
+      "expect": {
+        "outcome": {
+          "outcome": "settled",
+          "id": "l-1",
+          "terminalState": "aborted",
+          "failureKind": null
+        },
+        "state": "aborted"
+      }
+    },
+    {
+      "action": "expectSummary",
+      "expect": {
+        "aborted": 1
+      }
+    }
+  ]
+}

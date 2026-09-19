@@ -171,7 +171,7 @@ class MigrationTest {
     void hooksThatDeclareNoVerificationReachCleanupFromTheRecord() {
         Pair pair = snapshots(slots(1, "a", "b"), slots(2, "a", "c"));
         RecordingHooks hooks = new RecordingHooks()
-                .declaring(new HookDeclaration("rows", true, false));
+                .declaring(new HookDeclaration("rows", true, false, false));
         MigrationPlan plan = Sharder.coordinator()
                 .plan(pair.from(), pair.to(), hooks, MigrationPolicy.defaults());
         for (int step = 0; step < 12; step++) {

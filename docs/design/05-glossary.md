@@ -38,6 +38,9 @@ the design states, and the Java port renders each one.
   next epoch. The authority publishes the change; the library classifies it and plans it.
 - **merge**. A change in which the extents of two or more shards become the extent of one shard of
   the next epoch. A merge is the reverse of a split.
+- **local step**. The part of a split or a merge that happens on one node, where that node holds
+  the parent under the earlier snapshot and the child under the later one. Nothing moves between
+  nodes; the node divides or folds its own copy so that what it holds matches the extent it owns.
 - **partition**. A synonym for shard in external literature. The corpus uses shard.
 - **slot**. A shard produced by dividing the keyspace into a fixed count of numbered parts by
   modular arithmetic over the key hash.

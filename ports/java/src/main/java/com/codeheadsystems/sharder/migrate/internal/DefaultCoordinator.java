@@ -1,6 +1,7 @@
 package com.codeheadsystems.sharder.migrate.internal;
 
 import com.codeheadsystems.sharder.NodeId;
+import com.codeheadsystems.sharder.core.internal.placement.ShardExtents;
 import com.codeheadsystems.sharder.core.internal.route.OwnershipDelta;
 import com.codeheadsystems.sharder.core.internal.snapshot.DocumentSnapshot;
 import com.codeheadsystems.sharder.error.InvalidArgumentException;
@@ -41,8 +42,10 @@ public final class DefaultCoordinator implements HandoffCoordinator {
         if (!target.engine().supportsOrchestratedMigration()) {
             throw new PlanRefusedException(PlanRefusedException.Cause.STRATEGY_UNSUPPORTED);
         }
-        var machine = com.codeheadsystems.sharder.core.internal.migrate.MigrationPlan.of(
-                source.engine(), target.engine(), policy.quiesceLeaseMarginMillis());
+        // LIN-022: a boundary that neither divides nor folds an extent whole has no lineage to
+        // name, and LIN-013 refuses a directory pair whose shard sets differ until its extents are
+        // defined. Both surface here, before any handoff is admitted.
+        var machine = planOver(source, target, policy);
         machine.policy(policy.maxConcurrentHandoffs(), policy.maxConcurrentPerSourceNode(),
                 policy.maxConcurrentPerDestinationNode());
         // MOVE-333 and MOVE-336 both read the deadline, so the policy's value reaches the machine
@@ -55,7 +58,30 @@ public final class DefaultCoordinator implements HandoffCoordinator {
                         PlanRefusedException.Cause.DESTINATION_OUTSIDE_PLACEMENT_SET);
             }
         }
+        // LIN-053: whether the storage can divide a copy in place is the integrator's statement,
+        // so a plan needing a local step is refused rather than calling a hook that is not there.
+        boolean needsLocalStep = machine.handoffs().stream()
+                .anyMatch(id -> machine.handoff(id).kind().local());
+        if (needsLocalStep && !hooks.declare().supportsLineage()) {
+            throw new PlanRefusedException(PlanRefusedException.Cause.LINEAGE_UNSUPPORTED);
+        }
         return new DefaultMigrationPlan(machine, source, target, hooks, policy);
+    }
+
+    /** The plan, with a lineage refusal reported as the condition {@code ERR-050} names. */
+    private static com.codeheadsystems.sharder.core.internal.migrate.MigrationPlan planOver(
+            DocumentSnapshot source, DocumentSnapshot target, MigrationPolicy policy) {
+        try {
+            return com.codeheadsystems.sharder.core.internal.migrate.MigrationPlan.of(
+                    source.engine(), target.engine(), policy.quiesceLeaseMarginMillis());
+        } catch (ShardExtents.Refused refusal) {
+            throw new PlanRefusedException(switch (refusal.cause()) {
+                case "unalignedLineage" -> PlanRefusedException.Cause.UNALIGNED_LINEAGE;
+                case "lineageUnsupported" -> PlanRefusedException.Cause.LINEAGE_UNSUPPORTED;
+                case "strategyUnsupported" -> PlanRefusedException.Cause.STRATEGY_UNSUPPORTED;
+                default -> PlanRefusedException.Cause.INCOMPARABLE_SHARDS;
+            });
+        }
     }
 
     private static DocumentSnapshot snapshot(TopologySnapshot snapshot, String name) {

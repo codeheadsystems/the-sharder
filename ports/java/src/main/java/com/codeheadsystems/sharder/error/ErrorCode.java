@@ -170,7 +170,7 @@ public enum ErrorCode {
                     "strategyUnsupported", "destinationOutsidePlacementSet", "policyInvalid",
                     "topologyMismatch", "unalignedLineage", "lineageUnsupported");
             case HANDOFF_FAILED -> List.of("unverified", "residue", "undetermined",
-                    "rollbackFailed");
+                    "rollbackFailed", "undivided");
             default -> List.of();
         };
     }

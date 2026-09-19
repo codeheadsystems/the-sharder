@@ -1,16 +1,16 @@
 {
   "specification": "docs/design/10-specification.md",
-  "statedRequirements": 680,
-  "coveredRequirements": 468,
-  "uncoveredRequirements": 212,
+  "statedRequirements": 688,
+  "coveredRequirements": 472,
+  "uncoveredRequirements": 216,
   "coveragePercent": 68,
   "identifiersNamedButNotStated": [],
   "byPrefix": [
     {
       "prefix": "LIN",
       "section": "",
-      "stated": 24,
-      "covered": 14,
+      "stated": 32,
+      "covered": 18,
       "uncovered": [
         "LIN-001",
         "LIN-002",
@@ -21,9 +21,13 @@
         "LIN-031",
         "LIN-032",
         "LIN-034",
-        "LIN-043"
+        "LIN-043",
+        "LIN-053",
+        "LIN-054",
+        "LIN-055",
+        "LIN-058"
       ],
-      "percent": 58
+      "percent": 56
     },
     {
       "prefix": "CFG",
@@ -998,6 +1002,10 @@
         "LIN-042",
         "LIN-044",
         "LIN-045",
+        "LIN-051",
+        "LIN-052",
+        "LIN-056",
+        "LIN-057",
         "MOVE-001",
         "MOVE-011",
         "MOVE-021",
@@ -1069,8 +1077,8 @@
         "TOPO-221",
         "TOPO-231"
       ],
-      "requirementsAtLevel": 94,
-      "requirementsWhenDeclared": 418
+      "requirementsAtLevel": 98,
+      "requirementsWhenDeclared": 422
     }
   ],
   "coveredBy": {
@@ -1718,6 +1726,21 @@
       "vectors/migration/plan-construction.json"
     ],
     "LIN-045": [
+      "vectors/migration/plan-construction.json"
+    ],
+    "LIN-051": [
+      "scenarios/handoff-local-division.json",
+      "scenarios/handoff-local-fold.json",
+      "vectors/migration/plan-construction.json"
+    ],
+    "LIN-052": [
+      "scenarios/handoff-local-division.json",
+      "scenarios/handoff-local-fold.json",
+      "vectors/migration/plan-construction.json"
+    ],
+    "LIN-057": [
+      "scenarios/handoff-local-division.json",
+      "scenarios/handoff-local-fold.json",
       "vectors/migration/plan-construction.json"
     ],
     "PROP-010": [
@@ -2497,6 +2520,9 @@
       "scenarios/abort-during-catching-up.json",
       "scenarios/handoff-failure-kinds.json",
       "scenarios/handoff-happy-path.json",
+      "scenarios/handoff-local-division.json",
+      "scenarios/handoff-local-fold.json",
+      "scenarios/handoff-local-step-aborted.json",
       "scenarios/node-dies-mid-migration.json",
       "scenarios/quiesce-lease-expiry.json",
       "scenarios/undetermined-resolves-both-ways.json"
@@ -2505,6 +2531,8 @@
       "properties/properties.json",
       "scenarios/handoff-failure-kinds.json",
       "scenarios/handoff-happy-path.json",
+      "scenarios/handoff-local-division.json",
+      "scenarios/handoff-local-fold.json",
       "scenarios/undetermined-resolves-both-ways.json"
     ],
     "MOVE-441": [
@@ -2650,7 +2678,9 @@
       "scenarios/redirect-walk-depth-limit.json"
     ],
     "MOVE-001": [
-      "scenarios/handoff-happy-path.json"
+      "scenarios/handoff-happy-path.json",
+      "scenarios/handoff-local-division.json",
+      "scenarios/handoff-local-fold.json"
     ],
     "MOVE-041": [
       "scenarios/handoff-happy-path.json"
@@ -2685,6 +2715,15 @@
       "scenarios/handoff-happy-path.json",
       "scenarios/quiesce-lease-expiry.json"
     ],
+    "LIN-056": [
+      "scenarios/handoff-local-step-aborted.json"
+    ],
+    "MOVE-421": [
+      "scenarios/abort-during-catching-up.json",
+      "scenarios/handoff-local-step-aborted.json",
+      "scenarios/node-dies-mid-migration.json",
+      "scenarios/rebase-drops-a-handoff.json"
+    ],
     "CFG-055": [
       "scenarios/quiesce-lease-expiry.json"
     ],
@@ -2713,11 +2752,6 @@
     ],
     "HEALTH-048": [
       "scenarios/node-dies-mid-migration.json"
-    ],
-    "MOVE-421": [
-      "scenarios/abort-during-catching-up.json",
-      "scenarios/node-dies-mid-migration.json",
-      "scenarios/rebase-drops-a-handoff.json"
     ],
     "MOVE-481": [
       "scenarios/node-dies-mid-migration.json",

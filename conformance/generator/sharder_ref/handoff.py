@@ -14,12 +14,21 @@ STATES = ["planned", "preparing", "transferring", "catchingUp", "cutover", "veri
 
 TERMINAL = ("complete", "aborted", "failed")
 
-FAILURE_KINDS = ("unverified", "residue", "undetermined", "rollbackFailed")
+FAILURE_KINDS = ("unverified", "residue", "undetermined", "rollbackFailed",
+                 "undivided")
 
 # `MOVE-021`, exactly.  (from, trigger) -> to
 TRANSITIONS = {
     ("planned", "admittedByRatePolicy"): "preparing",
     ("planned", "abort"): "aborted",
+    # `LIN-051`: a local step moves nothing between nodes, so it runs the short sequence.  The
+    # admission trigger is the same one; which state it reaches is the handoff's kind.
+    ("planned", "admittedByRatePolicyLocal"): "dividing",
+    ("dividing", "divideSuccess"): "complete",
+    ("dividing", "combineSuccess"): "complete",
+    ("dividing", "abort"): "aborting",
+    ("dividing", "attemptsExhausted"): "aborting",
+    ("dividing", "dividePermanent"): "failed",
     ("preparing", "prepareSuccess"): "transferring",
     ("preparing", "abort"): "aborting",
     ("preparing", "attemptsExhausted"): "aborting",
@@ -99,6 +108,8 @@ FAILURE_KIND_FOR_TRIGGER = {
     ("cutover", "commitUndetermined"): "undetermined",
     ("cleanup", "attemptsExhausted"): "residue",
     ("aborting", "attemptsExhausted"): "rollbackFailed",
+    # `MOVE-011`: a copy that matches neither the parent's extent nor the child's.
+    ("dividing", "dividePermanent"): "undivided",
 }
 
 
@@ -107,9 +118,14 @@ class HandoffError(Exception):
 
 
 class Handoff:
-    def __init__(self, handoff_id, shard, source, destination, target_epoch=None):
+    def __init__(self, handoff_id, shard, source, destination, target_epoch=None,
+                 kind="handoff", source_shard=None):
         self.id = handoff_id
         self.shard = shard
+        self.kind = kind
+        # `LIN-041`: the shard the contents come from, which differs from `shard` only where a
+        # lineage divided or folded an extent.
+        self.source_shard = source_shard or shard
         self.source = source
         self.destination = destination
         self.state = "planned"

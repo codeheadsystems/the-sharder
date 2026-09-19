@@ -342,15 +342,23 @@ final class CoreVectors {
             assertThat(handoff).as("handoffs[%d] named %s", index, entry.text("id")).isNotNull();
             assertThat(handoff.shard()).as("handoffs[%d].shard", index)
                     .isEqualTo(entry.text("shard"));
+            assertThat(handoff.kind().spelling()).as("handoffs[%d].kind", index)
+                    .isEqualTo(entry.text("kind"));
             assertThat(handoff.sourceShard()).as("handoffs[%d].sourceShard", index)
                     .isEqualTo(entry.text("sourceShard"));
             assertThat(handoff.source().asText()).as("handoffs[%d].source", index)
                     .isEqualTo(entry.text("source"));
             assertThat(handoff.destination().asText()).as("handoffs[%d].destination", index)
                     .isEqualTo(entry.text("destination"));
-            // LIN-042: a node cannot both hold the contents and be the node they move to.
-            assertThat(handoff.source()).as("handoffs[%d] source is not the destination", index)
-                    .isNotEqualTo(handoff.destination());
+            if (handoff.kind().local()) {
+                // LIN-051: a local step moves nothing between nodes, so it names one node twice.
+                assertThat(handoff.source()).as("handoffs[%d] is local", index)
+                        .isEqualTo(handoff.destination());
+            } else {
+                // LIN-042: a node cannot both hold the contents and be the node they move to.
+                assertThat(handoff.source()).as("handoffs[%d] source is not the destination", index)
+                        .isNotEqualTo(handoff.destination());
+            }
         }
     }
 

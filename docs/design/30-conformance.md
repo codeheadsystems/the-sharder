@@ -770,6 +770,13 @@ what a lineage costs, which is the case `Placement cost` describes.
 `LIN-015` binds a registered strategy outside the core set. The suite carries core-set documents, so
 no data file can present one, and the same is true of every requirement about a registered strategy.
 
+`LIN-053`, `LIN-054`, and `LIN-058` each read something outside the two snapshots: a hook
+declaration, an attempt count, and the concurrency a policy admits. The first is the case
+`Movement hooks` describes, and the other two are the case `Rate control and measurement`
+describes. The state sequence a local step runs is an output, so
+`scenarios/handoff-local-division.json`, `scenarios/handoff-local-fold.json`, and
+`scenarios/handoff-local-step-aborted.json` carry `LIN-051`, `LIN-052`, `LIN-056`, and `LIN-057`.
+
 `LIN-043` states that a plan emits no handoff for a shard with no parent. A fresh extent arises only
 where a later snapshot admits routing keys that the earlier one matched to no shard, which is the
 `directory` no-match of `DIR-010`, and `LIN-013` refuses a `directory` pair whose shard sets differ

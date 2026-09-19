@@ -14,9 +14,37 @@ import java.util.OptionalLong;
  */
 public final class Handoff {
 
+    /**
+     * Whether contents cross the network, or the node divides or folds a copy it already holds.
+     *
+     * <p>A local step under {@code LIN-051} names one node as both its source and its destination
+     * and runs the shorter sequence through {@code dividing}, because there is no second party to
+     * prepare, quiesce, or cut over to.
+     */
+    public enum Kind {
+        HANDOFF("handoff"), DIVIDE("divide"), COMBINE("combine");
+
+        private final String spelling;
+
+        Kind(String spelling) {
+            this.spelling = spelling;
+        }
+
+        /** The spelling a vector joins on. */
+        public String spelling() {
+            return spelling;
+        }
+
+        /** Whether this is a local step rather than a move between nodes. */
+        public boolean local() {
+            return this != HANDOFF;
+        }
+    }
+
     private final String id;
     private final String shard;
     private final String sourceShard;
+    private final Kind kind;
     private final NodeId source;
     private final NodeId destination;
     private final long fromEpoch;
@@ -33,9 +61,15 @@ public final class Handoff {
 
     Handoff(String id, String shard, String sourceShard, NodeId source, NodeId destination,
             long fromEpoch, long toEpoch) {
+        this(id, shard, sourceShard, Kind.HANDOFF, source, destination, fromEpoch, toEpoch);
+    }
+
+    Handoff(String id, String shard, String sourceShard, Kind kind, NodeId source,
+            NodeId destination, long fromEpoch, long toEpoch) {
         this.id = id;
         this.shard = shard;
         this.sourceShard = sourceShard;
+        this.kind = kind;
         this.source = source;
         this.destination = destination;
         this.fromEpoch = fromEpoch;
@@ -62,6 +96,11 @@ public final class Handoff {
      */
     public String sourceShard() {
         return sourceShard;
+    }
+
+    /** Whether contents move between nodes, or a node divides a copy it holds. */
+    public Kind kind() {
+        return kind;
     }
 
     /** The node that owns the shard before the cutover. */

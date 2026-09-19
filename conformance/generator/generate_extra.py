@@ -83,7 +83,7 @@ CONDITIONS = [
     (403, "handoffFailed", "no", "a handoff reached failed",
      "operator action, directed by the failure kind in cause; undetermined takes a"
      " re-observation",
-     ["unverified", "residue", "undetermined", "rollbackFailed"]),
+     ["unverified", "residue", "undetermined", "rollbackFailed", "undivided"]),
 ]
 
 
@@ -520,13 +520,13 @@ def build_lineage(root):
     plans = []
     for label, before, after, requirements, note in [
         ("divided-source-from-the-parent", "delta-ring-before", "delta-ring-added",
-         ["LIN-041", "LIN-042", "LIN-045"],
+         ["LIN-041", "LIN-042", "LIN-045", "LIN-051", "LIN-052", "LIN-057"],
          "`LIN-041`: the contents of the divided shard `0000000000002000` are held by the "
          "replicas of its parent `0000000000003000`, so the handoff names one of them as its "
          "source. A plan built over the ownership delta alone has no entry for the parent, whose "
          "replica set did not change, and names a source equal to the destination."),
         ("folded-destination-outside-the-delta", "delta-ring-added", "delta-ring-removed",
-         ["LIN-041", "LIN-044", "LIN-045"],
+         ["LIN-041", "LIN-044", "LIN-045", "LIN-051", "LIN-052", "LIN-057"],
          "`LIN-044`: the shard that absorbs the folded extent keeps its replica set, so the "
          "ownership delta reports no entry for it, and a plan built over the delta alone moves "
          "nothing to the replica that does not hold the folded parent."),
@@ -544,9 +544,10 @@ def build_lineage(root):
     emit(root, "vectors/migration/plan-construction.json", "migration-plan-construction",
          "planConstruction",
          "How a plan derives a handoff from a lineage: the source of a divided shard, the "
-         "destination of a fold that the ownership delta does not report, and the plan under the "
-         "identity lineage.",
-         ["LIN-041", "LIN-042", "LIN-044", "LIN-045"], plans, level="migration")
+         "destination of a fold that the ownership delta does not report, the local steps beside "
+         "them and their order, and the plan under the identity lineage.",
+         ["LIN-041", "LIN-042", "LIN-044", "LIN-045", "LIN-051", "LIN-052", "LIN-057"], plans,
+         level="migration")
 
 
 

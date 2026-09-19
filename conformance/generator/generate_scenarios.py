@@ -57,6 +57,9 @@ LEVEL_OF_SCENARIO = {
     "ejection-ceiling": "failover",
     "probation-ramp": "failover",
     "outlier-comparison-set": "failover",
+    "handoff-local-division": "migration",
+    "handoff-local-fold": "migration",
+    "handoff-local-step-aborted": "migration",
     "health-reset-on-reentry": "failover",
 }
 
@@ -538,7 +541,8 @@ def plan_setup(plan):
             "toEpoch": plan.initial_target_epoch,
             "policy": dict(plan.policy),
             "handoffs": [
-                {"id": handoff.id, "shard": handoff.shard,
+                {"id": handoff.id, "shard": handoff.shard, "sourceShard": handoff.source_shard,
+                 "kind": handoff.kind,
                  "source": handoff.source, "destination": handoff.destination}
                 for handoff in plan.handoffs.values()
             ],
@@ -611,6 +615,49 @@ def build_happy_path_scenario():
              ["TOPO-211", "TOPO-221", "MOVE-001", "MOVE-021", "MOVE-031", "MOVE-041",
               "MOVE-051", "MOVE-071", "MOVE-121", "MOVE-131", "MOVE-181", "MOVE-241",
               "MOVE-331", "MOVE-332", "MOVE-333"], steps)
+
+
+def build_local_step_scenarios():
+    """`LIN-051` through `LIN-058`: a division and a fold that happen on one node."""
+    for name, kind, trigger, description in [
+        ("handoff-local-division", "divide", "divideSuccess",
+         "A node that holds the parent under the earlier snapshot and the child under the later "
+         "one divides its own copy. Nothing crosses the network, so the handoff runs `planned` to "
+         "`dividing` to `complete` rather than the sequence of `MOVE-021`."),
+        ("handoff-local-fold", "combine", "combineSuccess",
+         "The inverse: a node folds the copies it holds into one that matches the extent it now "
+         "owns, which is the step a merge ends with under `LIN-057`."),
+    ]:
+        plan = Plan(1, 2, "migration", [Handoff("l-1", "1", "n2", "n2", kind=kind,
+                                                source_shard="2")])
+        steps = []
+        for index, step_trigger in enumerate(["admittedByRatePolicyLocal", trigger]):
+            at = 1000 + index * 1000
+            outcome = plan.step("l-1", step_trigger, at=at)
+            steps.append({"action": "handoffStep", "handoff": "l-1", "trigger": step_trigger,
+                          "at": at,
+                          "expect": {"outcome": outcome, "state": plan.state("l-1")}})
+        steps.append({"action": "expectSummary", "expect": plan.summary()})
+        register(name, description,
+                 ["LIN-051", "LIN-052", "LIN-057", "MOVE-001", "MOVE-021", "MOVE-031"], steps,
+                 setup=plan_setup(plan))
+
+    # `LIN-056`: an aborted local step is undone by the inverse hook, so `dividing` reaches
+    # `aborting` like every other state that does and `MOVE-233` keeps its unconditional form.
+    plan = Plan(1, 2, "migration", [Handoff("l-1", "1", "n2", "n2", kind="divide",
+                                            source_shard="2")])
+    steps = []
+    for index, step_trigger in enumerate(["admittedByRatePolicyLocal", "abort",
+                                          "rollbackSuccess"]):
+        at = 1000 + index * 1000
+        outcome = plan.step("l-1", step_trigger, at=at)
+        steps.append({"action": "handoffStep", "handoff": "l-1", "trigger": step_trigger,
+                      "at": at, "expect": {"outcome": outcome, "state": plan.state("l-1")}})
+    steps.append({"action": "expectSummary", "expect": plan.summary()})
+    register("handoff-local-step-aborted",
+             "`LIN-056`: a division that is aborted is undone by the inverse hook, so the local "
+             "step is reversible and leaves the node holding the extent it held before.",
+             ["LIN-056", "MOVE-021", "MOVE-421"], steps, setup=plan_setup(plan))
 
 
 def build_quiesce_lease_scenario():
@@ -1777,6 +1824,7 @@ def main():
     build_split_view_scenario()
     build_redirect_scenario()
     build_happy_path_scenario()
+    build_local_step_scenarios()
     build_quiesce_lease_scenario()
     build_node_dies_scenario()
     build_abort_during_catchup_scenario()

@@ -191,12 +191,35 @@ def parents_of(before, after):
 
 
 def plan_handoffs(before, after, replicas_of):
-    """`LIN-041` through `LIN-045`: one handoff per parent a destination does not already hold."""
+    """`LIN-041` through `LIN-058`: the handoffs of a plan and the local steps beside them.
+
+    `LIN-057` fixes the order within one shard: a division is sequenced before every handoff that
+    draws from the divided parent, and a fold after every handoff that draws into the folded shard.
+    """
     parents = parents_of(before, after)
+    kind = before.strategy["kind"]
+    identity = kind != "ring" or placement.shards(before) == placement.shards(after)
+    earlier = {} if identity else extents(before)
+    later = {} if identity else extents(after)
+
     out = []
     for shard in placement.shards(after):
         destinations = replicas_of(after, shard)
-        for parent in parents[shard]:
+        mine = parents[shard]
+        divisions, folds, moves = [], [], []
+        if not identity and len(mine) == 1 and not equal(earlier[mine[0]], later[shard]):
+            # `LIN-052`: the extent narrowed, so a node holding both divides its own copy.
+            for node in destinations:
+                if node in replicas_of(before, mine[0]):
+                    divisions.append({"shard": shard, "sourceShard": mine[0], "kind": "divide",
+                                      "source": node, "destination": node})
+        if not identity and len(mine) > 1:
+            # `LIN-052`: the extent widened, so a node holding a parent folds what it holds.
+            for node in destinations:
+                if any(node in replicas_of(before, parent) for parent in mine):
+                    folds.append({"shard": shard, "sourceShard": shard, "kind": "combine",
+                                  "source": node, "destination": node})
+        for parent in mine:
             held = replicas_of(before, parent)
             if not held:
                 continue
@@ -205,10 +228,13 @@ def plan_handoffs(before, after, replicas_of):
             for position, destination in enumerate(needing):
                 # `LIN-045`: a replica giving the shard up is drained before one keeping it.
                 source = departing[position] if position < len(departing) else held[0]
-                out.append({"shard": shard, "sourceShard": parent,
-                            "source": source, "destination": destination})
-    for position, handoff in enumerate(out):
-        same = [h for h in out[:position] if h["shard"] == handoff["shard"]]
-        handoff["id"] = "h-%s" % handoff["shard"] if not same \
-            else "h-%s-%d" % (handoff["shard"], len(same))
+                moves.append({"shard": shard, "sourceShard": parent, "kind": "handoff",
+                              "source": source, "destination": destination})
+        out.extend(divisions + moves + folds)
+
+    for position, entry in enumerate(out):
+        same = [e for e in out[:position] if e["shard"] == entry["shard"]]
+        prefix = "l-" if entry["kind"] != "handoff" else "h-"
+        entry["id"] = "%s%s" % (prefix, entry["shard"]) if not same \
+            else "%s%s-%d" % (prefix, entry["shard"], len(same))
     return out

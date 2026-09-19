@@ -1,7 +1,7 @@
 {
   "suite": "sharder simulation scenarios",
-  "scenarioCount": 22,
-  "stepCount": 303,
+  "scenarioCount": 25,
+  "stepCount": 313,
   "requirementsCovered": [
     "CFG-030",
     "CFG-040",
@@ -77,6 +77,10 @@
     "HEALTH-052",
     "HEALTH-053",
     "HEALTH-055",
+    "LIN-051",
+    "LIN-052",
+    "LIN-056",
+    "LIN-057",
     "MOVE-001",
     "MOVE-011",
     "MOVE-021",
@@ -257,6 +261,48 @@
         "MOVE-333",
         "TOPO-211",
         "TOPO-221"
+      ]
+    },
+    {
+      "file": "scenarios/handoff-local-division.json",
+      "scenario": "handoff-local-division",
+      "level": "migration",
+      "description": "A node that holds the parent under the earlier snapshot and the child under the later one divides its own copy. Nothing crosses the network, so the handoff runs `planned` to `dividing` to `complete` rather than the sequence of `MOVE-021`.",
+      "stepCount": 3,
+      "requirements": [
+        "LIN-051",
+        "LIN-052",
+        "LIN-057",
+        "MOVE-001",
+        "MOVE-021",
+        "MOVE-031"
+      ]
+    },
+    {
+      "file": "scenarios/handoff-local-fold.json",
+      "scenario": "handoff-local-fold",
+      "level": "migration",
+      "description": "The inverse: a node folds the copies it holds into one that matches the extent it now owns, which is the step a merge ends with under `LIN-057`.",
+      "stepCount": 3,
+      "requirements": [
+        "LIN-051",
+        "LIN-052",
+        "LIN-057",
+        "MOVE-001",
+        "MOVE-021",
+        "MOVE-031"
+      ]
+    },
+    {
+      "file": "scenarios/handoff-local-step-aborted.json",
+      "scenario": "handoff-local-step-aborted",
+      "level": "migration",
+      "description": "`LIN-056`: a division that is aborted is undone by the inverse hook, so the local step is reversible and leaves the node holding the extent it held before.",
+      "stepCount": 4,
+      "requirements": [
+        "LIN-056",
+        "MOVE-021",
+        "MOVE-421"
       ]
     },
     {

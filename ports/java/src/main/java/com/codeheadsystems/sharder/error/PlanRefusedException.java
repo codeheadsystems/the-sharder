@@ -23,7 +23,11 @@ public final class PlanRefusedException extends MigrationException {
         /** The policy carries a value outside its range. */
         POLICY_INVALID("policyInvalid"),
         /** The plan names a topology the router does not hold. */
-        TOPOLOGY_MISMATCH("topologyMismatch");
+        TOPOLOGY_MISMATCH("topologyMismatch"),
+        /** The change moves a boundary without dividing or folding an extent, {@code LIN-022}. */
+        UNALIGNED_LINEAGE("unalignedLineage"),
+        /** A local step is needed and the storage declares none, under {@code LIN-053}. */
+        LINEAGE_UNSUPPORTED("lineageUnsupported");
 
         private final String spelling;
 

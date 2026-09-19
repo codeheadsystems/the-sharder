@@ -1,9 +1,9 @@
 {
   "suite": "sharder conformance suite",
   "revision": {
-    "id": "3f56d0a573f1aaf7f364802e43a2bb0d7682eb08a8e7632eb89b86728c682070",
+    "id": "0cbfa051871dc2e6467163cc79a276dc19769add35ba8e5c5fd14e5b6cab2312",
     "basis": "sha256 of the RFC 8785 canonical form of the file digests, the level table, and the strategy surfaces",
-    "fileCount": 201,
+    "fileCount": 204,
     "trees": [
       "vectors",
       "topologies",
@@ -18,10 +18,10 @@
     "vectorFiles": 69,
     "vectorCases": 608,
     "topologyDocuments": 108,
-    "scenarios": 22,
-    "scenarioSteps": 303,
+    "scenarios": 25,
+    "scenarioSteps": 313,
     "properties": 28,
-    "requirementsNamed": 468
+    "requirementsNamed": 472
   },
   "requirementsNamed": [
     "CFG-014",
@@ -203,6 +203,10 @@
     "LIN-042",
     "LIN-044",
     "LIN-045",
+    "LIN-051",
+    "LIN-052",
+    "LIN-056",
+    "LIN-057",
     "MOVE-001",
     "MOVE-011",
     "MOVE-021",
@@ -584,9 +588,9 @@
       "surface": "the handoff coordinator and rate control",
       "vectorFiles": 5,
       "vectorCases": 25,
-      "scenarios": 12,
+      "scenarios": 15,
       "properties": 3,
-      "requirementsNamed": 94
+      "requirementsNamed": 98
     }
   ],
   "strategySurfaces": [
@@ -1744,7 +1748,7 @@
         "ERR-021",
         "REPL-025"
       ],
-      "sha256": "16468a36a940a2a1fe2028e57b2da665f2800a403f2cee3552832d8822ae2373"
+      "sha256": "8e923beb7e6e5d839a6df17d214722e7ce37f960b70fb0f21e0e9591b9a5dcec"
     },
     {
       "file": "vectors/formulas/attempt-limit.json",
@@ -2080,16 +2084,19 @@
         "ring",
         "slot"
       ],
-      "description": "How a plan derives a handoff from a lineage: the source of a divided shard, the destination of a fold that the ownership delta does not report, and the plan under the identity lineage.",
+      "description": "How a plan derives a handoff from a lineage: the source of a divided shard, the destination of a fold that the ownership delta does not report, the local steps beside them and their order, and the plan under the identity lineage.",
       "topology": null,
       "caseCount": 3,
       "requirements": [
         "LIN-041",
         "LIN-042",
         "LIN-044",
-        "LIN-045"
+        "LIN-045",
+        "LIN-051",
+        "LIN-052",
+        "LIN-057"
       ],
-      "sha256": "c19f77e44d8c9a6c686e0c6b508c666c3718fb2266f7755c63cee21d55aae2de"
+      "sha256": "97e1e1999b409306aa3ec272c8aad95aaeef61164012416a2e82f8eec034afbf"
     },
     {
       "file": "vectors/movement/add-one-node.json",
@@ -3255,6 +3262,48 @@
         "MOVE-333",
         "TOPO-211",
         "TOPO-221"
+      ]
+    },
+    {
+      "file": "scenarios/handoff-local-division.json",
+      "scenario": "handoff-local-division",
+      "level": "migration",
+      "description": "A node that holds the parent under the earlier snapshot and the child under the later one divides its own copy. Nothing crosses the network, so the handoff runs `planned` to `dividing` to `complete` rather than the sequence of `MOVE-021`.",
+      "stepCount": 3,
+      "requirements": [
+        "LIN-051",
+        "LIN-052",
+        "LIN-057",
+        "MOVE-001",
+        "MOVE-021",
+        "MOVE-031"
+      ]
+    },
+    {
+      "file": "scenarios/handoff-local-fold.json",
+      "scenario": "handoff-local-fold",
+      "level": "migration",
+      "description": "The inverse: a node folds the copies it holds into one that matches the extent it now owns, which is the step a merge ends with under `LIN-057`.",
+      "stepCount": 3,
+      "requirements": [
+        "LIN-051",
+        "LIN-052",
+        "LIN-057",
+        "MOVE-001",
+        "MOVE-021",
+        "MOVE-031"
+      ]
+    },
+    {
+      "file": "scenarios/handoff-local-step-aborted.json",
+      "scenario": "handoff-local-step-aborted",
+      "level": "migration",
+      "description": "`LIN-056`: a division that is aborted is undone by the inverse hook, so the local step is reversible and leaves the node holding the extent it held before.",
+      "stepCount": 4,
+      "requirements": [
+        "LIN-056",
+        "MOVE-021",
+        "MOVE-421"
       ]
     },
     {

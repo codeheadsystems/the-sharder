@@ -230,6 +230,7 @@ public final class DefaultMigrationPlan implements MigrationPlan {
         HandoffState from = handoff.state();
         return switch (from) {
             case PLANNED -> admit(id, handoff, level, at);
+            case DIVIDING -> divide(id, handoff, state, at);
             case PREPARING -> afterHook(id, state, at, from,
                     hooks.prepare(context(handoff, state)), "prepareSuccess",
                     "attemptsExhausted");
@@ -261,7 +262,25 @@ public final class DefaultMigrationPlan implements MigrationPlan {
             return null;
         }
         return new StepOutcome.Advanced(HandoffId.of(id), HandoffState.PLANNED,
-                HandoffState.PREPARING);
+                handoff.kind().local() ? HandoffState.DIVIDING : HandoffState.PREPARING);
+    }
+
+    /**
+     * {@code LIN-052}: the local step, which divides a copy or folds several into one.
+     *
+     * <p>Nothing moves between nodes, so there is no destination to prepare and no cutover to
+     * commit. A permanent answer is the one case that reaches {@code failed} directly, with the
+     * kind {@code undivided} of {@code MOVE-011}, because the copy matches neither extent.
+     */
+    private StepOutcome divide(String id, Handoff handoff, Driving state, long at) {
+        boolean folding = handoff.kind() == Handoff.Kind.COMBINE;
+        HandoffContext context = context(handoff, state);
+        HookResult answer = folding ? hooks.combine(context) : hooks.divide(context);
+        if (answer instanceof HookResult.Permanent) {
+            return advanced(id, HandoffState.DIVIDING, stepMachine(id, "dividePermanent", at));
+        }
+        return afterHook(id, state, at, HandoffState.DIVIDING, answer,
+                folding ? "combineSuccess" : "divideSuccess", "attemptsExhausted");
     }
 
     private StepOutcome transfer(String id, Handoff handoff, Driving state, long at) {
@@ -465,9 +484,9 @@ public final class DefaultMigrationPlan implements MigrationPlan {
 
     /** The context one hook call reads, under {@code MOVE-111}. */
     private HandoffContext context(Handoff handoff, Driving state) {
-        return new HandoffContext(ShardId.of(handoff.shard()), source.topologyId(),
-                handoff.fromEpoch(), handoff.toEpoch(), handoff.source(), handoff.destination(),
-                state.attempts + 1, policy.stepDeadlineMillis());
+        return new HandoffContext(ShardId.of(handoff.shard()), ShardId.of(handoff.sourceShard()),
+                source.topologyId(), handoff.fromEpoch(), handoff.toEpoch(), handoff.source(),
+                handoff.destination(), state.attempts + 1, policy.stepDeadlineMillis());
     }
 
     @Override

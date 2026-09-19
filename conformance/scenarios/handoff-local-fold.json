@@ -1,0 +1,77 @@
+{
+  "scenario": "handoff-local-fold",
+  "level": "migration",
+  "description": "The inverse: a node folds the copies it holds into one that matches the extent it now owns, which is the step a merge ends with under `LIN-057`.",
+  "requirements": [
+    "LIN-051",
+    "LIN-052",
+    "LIN-057",
+    "MOVE-001",
+    "MOVE-021",
+    "MOVE-031"
+  ],
+  "deterministic": true,
+  "setup": {
+    "plan": {
+      "topologyId": "migration",
+      "fromEpoch": 1,
+      "toEpoch": 2,
+      "policy": {
+        "maxConcurrentHandoffs": 4,
+        "maxConcurrentPerSourceNode": 1,
+        "maxConcurrentPerDestinationNode": 1,
+        "initialStepBudget": 1,
+        "commitDeadlineMillis": 30000,
+        "quiesceLeaseMarginMillis": 1000
+      },
+      "handoffs": [
+        {
+          "id": "l-1",
+          "shard": "1",
+          "sourceShard": "2",
+          "kind": "combine",
+          "source": "n2",
+          "destination": "n2"
+        }
+      ]
+    }
+  },
+  "steps": [
+    {
+      "action": "handoffStep",
+      "handoff": "l-1",
+      "trigger": "admittedByRatePolicyLocal",
+      "at": 1000,
+      "expect": {
+        "outcome": {
+          "outcome": "advanced",
+          "id": "l-1",
+          "fromState": "planned",
+          "toState": "dividing"
+        },
+        "state": "dividing"
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "l-1",
+      "trigger": "combineSuccess",
+      "at": 2000,
+      "expect": {
+        "outcome": {
+          "outcome": "settled",
+          "id": "l-1",
+          "terminalState": "complete",
+          "failureKind": null
+        },
+        "state": "complete"
+      }
+    },
+    {
+      "action": "expectSummary",
+      "expect": {
+        "complete": 1
+      }
+    }
+  ]
+}

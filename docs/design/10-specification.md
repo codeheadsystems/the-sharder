@@ -3079,6 +3079,54 @@ up is drained in preference to one that is keeping it, and a plan is a pure func
 snapshots and the policy under `MOVE-221`, so the choice MUST be stated rather than left to an
 implementation.
 
+#### The local division step
+
+`LIN-051`. Where a shard `s` of the later snapshot has a parent `p` whose extent differs from
+`s`'s, and a node holds `p` under the earlier snapshot and `s` under the later one, a plan MUST
+carry one local step for that node. The node already holds the contents, so nothing moves
+between nodes, and what it has to do is divide or fold its own copy so that what it holds matches
+the extent of `s`. A local step names the same node as its source and its destination, which is the one
+case `LIN-042` does not govern, because no handoff of contents is described.
+
+`LIN-052`. A local step MUST call `divide` where the extent of `s` is strictly contained in the
+extent of `p`, and `combine` where the extent of `s` contains the extents of two or more parents.
+An implementation MUST call one local hook per local step and MUST NOT call both.
+
+`LIN-053`. An implementation MUST refuse a plan that requires a local step where `declare` answers
+`supportsLineage` of false, reporting `planRefused` under `ERR-050` with the cause
+`lineageUnsupported`. Whether an integrator's storage can divide a copy in place is a property of
+that storage, which the library cannot observe, so `MOVE-111` declares it beside `supportsRollback`
+and `supportsVerify` and the plan is refused rather than calling a hook that was never implemented.
+A refusal at planning is the only useful moment: a plan that reached `dividing` and found no hook
+would have no way forward and no way back.
+
+`LIN-054`. A local step MUST be retried under the same attempt rules as any other hook, and an
+implementation MUST pass the attempt number in the context so a hook that already divided its copy
+can answer success rather than dividing twice. An implementation MUST NOT require a local hook to
+be idempotent beyond answering success for work it has already done.
+
+`LIN-055`. An implementation MUST NOT sequence a local step onto a node that does not hold every
+shard the step names under the snapshot the step names it. A local step for `s` drawn from `p` is
+sequenced only where the node's replica set membership holds under both snapshots, which is the
+condition `LIN-051` states, and a plan MUST NOT admit one otherwise.
+
+`LIN-056`. A local step in `dividing` that is aborted MUST be undone by the inverse hook: a
+division is undone by `combine` and a fold by `divide`, called through `rollback` under
+`MOVE-421`. A local step is therefore reversible like every other state that reaches `aborting`,
+and `MOVE-233` keeps the unconditional form it has. Where the inverse fails and its attempts are
+exhausted, the handoff reaches `failed` with the kind `undivided` under `MOVE-011`.
+
+`LIN-057`. An implementation MUST order a local step against the handoffs of the same shard: a
+division MUST be sequenced before any handoff that draws from the divided parent, and a fold MUST be
+sequenced after every handoff that draws into the folded shard. A destination copying from a parent
+that is being divided underneath it would copy an extent that is changing, and a node folding a copy
+before the other parents have arrived would fold an incomplete one.
+
+`LIN-058`. A local step MUST count against the concurrency the migration policy of `RATE-011`
+admits, in the same way a handoff does. A local step performs storage work on a node, which is the
+thing the policy exists to bound, and an implementation MUST NOT admit one outside
+`maxConcurrentHandoffs`.
+
 ### Shard ownership handoff
 
 A handoff moves ownership of one shard from a source node to a destination node. The library
@@ -3097,6 +3145,7 @@ storage protocol.
 | `catchingUp` | the residue accumulated during the copy is being closed |
 | `cutover` | the source is quiescing and the cutover record is being committed |
 | `verifying` | the destination copy is being checked against the source |
+| `dividing` | a node that holds both the parent and the child is dividing or folding its own copy |
 | `cleanup` | the source copy is being released |
 | `complete` | terminal, ownership moved and the source released |
 | `aborting` | compensation is running after an abort |
@@ -3104,7 +3153,10 @@ storage protocol.
 | `failed` | terminal, operator action is required |
 
 `MOVE-011`. A handoff in `failed` MUST carry exactly one failure kind from the set `unverified`,
-`residue`, `undetermined`, and `rollbackFailed`.
+`residue`, `undetermined`, `rollbackFailed`, and `undivided`. A kind of `undivided` states that a
+local step under `LIN-051` neither completed nor was undone, so the node holds a copy that matches
+neither the parent's extent nor the child's. None of the other four describes that state: each names
+a condition of a copy that moved between nodes, and this one never left the node it is on.
 
 #### Transitions
 
@@ -3115,6 +3167,10 @@ storage protocol.
 | none | `planned` | plan construction admits the shard |
 | `planned` | `preparing` | the rate policy admits the handoff |
 | `planned` | `aborted` | abort requested, the plan is superseded, or a rebase drops the handoff |
+| `planned` | `dividing` | the rate policy admits a local step under `LIN-051` |
+| `dividing` | `complete` | `divide` or `combine` returns success |
+| `dividing` | `aborting` | abort requested, plan superseded or rebased past it, or attempts exhausted |
+| `dividing` | `failed` | `divide` or `combine` reports a permanent failure |
 | `preparing` | `transferring` | `prepare` returns success |
 | `preparing` | `aborting` | abort requested, plan superseded or rebased past it, or attempts exhausted |
 | `transferring` | `catchingUp` | `transfer` reports no bulk remaining |
@@ -3300,9 +3356,11 @@ interface MovementHooks:
     cleanup(ctx)                     -> HookResult
     rollback(ctx)                    -> HookResult
     observe(ctx)                     -> ObserveResult
+    divide(ctx)                      -> HookResult
+    combine(ctx)                     -> HookResult
 
 HandoffContext ctx = {
-    shardId, topologyId, fromEpoch, toEpoch,
+    shardId, sourceShardId, topologyId, fromEpoch, toEpoch,
     source: NodeId, destination: NodeId,
     attempt: u32, deadlineMillis: u32
 }
@@ -3310,7 +3368,8 @@ HandoffContext ctx = {
 HookDeclaration = {
     budgetUnit:       string,          # opaque to the library
     supportsRollback: boolean,
-    supportsVerify:   boolean
+    supportsVerify:   boolean,
+    supportsLineage:  boolean
 }
 
 HookResult      = one of { success, deferred(retryAfterMillis), retryable(reason),
@@ -3579,9 +3638,12 @@ guarantees.
 `MOVE-411`. An abort requested in `planned` MUST move the handoff directly to `aborted` without
 calling a hook. No hook has run, so nothing is to compensate.
 
-`MOVE-421`. An abort requested in `preparing`, `transferring`, or `catchingUp` MUST move the handoff
-to `aborting` and MUST call `rollback`, whose duty is to release the destination's partial copy and
-any scratch state `prepare` created. The source is untouched throughout, so the abort loses nothing.
+`MOVE-421`. An abort requested in `preparing`, `transferring`, `catchingUp`, or `dividing` MUST move
+the handoff to `aborting` and MUST call `rollback`, whose duty is to release the destination's
+partial copy and any scratch state `prepare` created. From the first three the source is untouched
+throughout, so the abort loses nothing. From `dividing` there is no second copy to release, and
+`rollback` MUST restore the extent the node held before the step, which `LIN-056` states is the
+inverse hook.
 
 `MOVE-431`. An abort requested in `cutover` MUST be admitted only while no cutover record
 belonging to the handoff exists under `MOVE-102`. The coordinator MUST call `observe` before
