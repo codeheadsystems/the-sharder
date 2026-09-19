@@ -4,11 +4,15 @@ Java is the first implementation of the sharder library, and it is one Gradle mo
 artifact, `sharder`, under
 [`adr/0081`](../../docs/design/adr/0081-single-java-module.md).
 
-Status: the port reaches every conformance level but `migration`, and exposes all four placement
+Status: the port reaches every conformance level the suite carries and exposes all four placement
 strategy surfaces. It declares them in
 [`../../conformance/declarations/java.json`](../../conformance/declarations/java.json), against the
-suite revision that declaration names, with no deviations. It exposes `migration` not at all, so it
-declares that level alone as excluded.
+suite revision that declaration names, with no deviations and no exclusions.
+
+What remains is the surface an integrator calls rather than the behaviour a vector asserts: the
+public `Router`, the configuration surface, the provider contract, and the movement hook interface,
+each of which the conformance suite reaches through the engine rather than through the types
+[`../../docs/design/40-java-binding.md`](../../docs/design/40-java-binding.md) fixes for them.
 
 | Written | Not written |
 |---|---|
@@ -23,6 +27,7 @@ declares that level alone as excluded.
 | the attempt walk, the health filter, and the retry budget | |
 | `routeForRead` and the bounded reordering of `READ-013` | |
 | the recipient check, the redirect walk, and snapshot retention | |
+| the eleven-state handoff machine, rebase, and re-observation | |
 | the RFC 8785 canonical form, the digest, and document validation | the levels above `core` |
 | the snapshot lifecycle and the acceptance table of `TOPO-061` | |
 | the ownership delta, skew detection, and the observability inventory | |

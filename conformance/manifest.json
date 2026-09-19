@@ -1,7 +1,7 @@
 {
   "suite": "sharder conformance suite",
   "revision": {
-    "id": "775c3f4b93c146a0f1ffcfc5ab84f5bd7451fc29bca15157e3d5f677b36f0b9e",
+    "id": "c52b38664564edbf1fe59c4a0f018032783ba9f336c737907a3eae57f3716e51",
     "basis": "sha256 of the RFC 8785 canonical form of the file digests, the level table, and the strategy surfaces",
     "fileCount": 190,
     "trees": [

@@ -478,6 +478,28 @@ final class PlaceVectors {
                 long count = Math.min(product, inputs.get("cap").asInt());
                 assertThat(count).isEqualTo(testCase.get("expect").asLong());
             }
+            case "retryBackoffMillis" -> {
+                // RATE-051: the base doubled per attempt, capped, with the shift clamped first.
+                long base = inputs.get("retryBackoffBaseMillis").asLong();
+                long cap = inputs.get("retryBackoffCapMillis").asLong();
+                int attempt = inputs.get("attempt").asInt();
+                long backoff = Math.min(base << Math.min(Math.max(attempt - 1, 0), 20), cap);
+                assertThat(backoff).isEqualTo(testCase.get("expect").asLong());
+            }
+            case "policyRefused" -> {
+                // RATE-021: a zero step budget, and a re-transfer threshold at or below the
+                // catch-up threshold, are each a refusal of the policy.
+                List<String> refusals = new java.util.ArrayList<>();
+                if (inputs.get("initialStepBudget").asLong() == 0) {
+                    refusals.add("initialStepBudgetZero");
+                }
+                if (Long.compareUnsigned(inputs.get("reTransferResidualThreshold")
+                        .asUnsignedLong(), inputs.get("catchUpResidualThreshold")
+                        .asUnsignedLong()) <= 0) {
+                    refusals.add("retransferThresholdNotAboveCatchUp");
+                }
+                assertThat(refusals).isEqualTo(testCase.array("expect").texts());
+            }
             case "tokenBytes" -> {
                 // FENCE-021: u32be(len(topologyId)) || topologyId || u64be(epoch).
                 byte[] id = inputs.text("topologyId")

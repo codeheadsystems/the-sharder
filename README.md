@@ -16,7 +16,7 @@ The specification, the topology document format and its schema, the conformance 
 reference generator, the Java binding design, and the decision records are written. Java is the
 first implementation and is under way: the hash construction, the four placement strategies, the
 document pipeline, the canonical form and the digest, and the conformance harness are written, and
-the port reaches every conformance level but `migration`, and declares them in
+the port reaches every conformance level the suite carries, and declares them all in
 [`conformance/declarations/java.json`](conformance/declarations/java.json). Every implementation
 sits under [`ports/`](ports/), and
 [`docs/design/35-port-conventions.md`](docs/design/35-port-conventions.md) states what each one

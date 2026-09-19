@@ -16,7 +16,35 @@
     "TOPO-231"
   ],
   "deterministic": true,
-  "setup": {},
+  "setup": {
+    "plan": {
+      "topologyId": "rebalance",
+      "fromEpoch": 10,
+      "toEpoch": 11,
+      "policy": {
+        "maxConcurrentHandoffs": 4,
+        "maxConcurrentPerSourceNode": 1,
+        "maxConcurrentPerDestinationNode": 1,
+        "initialStepBudget": 1,
+        "commitDeadlineMillis": 30000,
+        "quiesceLeaseMarginMillis": 1000
+      },
+      "handoffs": [
+        {
+          "id": "h-0",
+          "shard": "0",
+          "source": "n1",
+          "destination": "n5"
+        },
+        {
+          "id": "h-1",
+          "shard": "1",
+          "source": "n3",
+          "destination": "n6"
+        }
+      ]
+    }
+  },
   "steps": [
     {
       "action": "handoffStep",

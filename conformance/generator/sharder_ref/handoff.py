@@ -157,6 +157,9 @@ class Plan:
     def __init__(self, source_epoch, target_epoch, topology_id, handoffs, policy=None):
         self.source_epoch = source_epoch
         self.target_epoch = target_epoch
+        # The target the plan was built against.  `target_epoch` moves as a rebase advances the
+        # plan, and a scenario's setup states where the plan began.
+        self.initial_target_epoch = target_epoch
         self.topology_id = topology_id
         # `MOVE-092`: the snapshot a later install recorded, and nothing else.
         self.rebase_pending = None
