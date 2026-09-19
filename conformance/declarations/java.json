@@ -25,8 +25,7 @@
       "state": "reached"
     },
     "readAffinity": {
-      "state": "excluded",
-      "surface": "readAffinity"
+      "state": "reached"
     },
     "fencing": {
       "state": "excluded",
@@ -40,13 +39,13 @@
   "run": {
     "command": "cd ports/java && ./gradlew test",
     "report": "ports/java/conformance/report.txt",
-    "vectorFiles": 60,
-    "vectorCases": 525,
+    "vectorFiles": 61,
+    "vectorCases": 571,
     "failures": 0
   },
   "scale": {
-    "wallTimeMs": 826,
-    "peakResidentBytes": 554733568,
+    "wallTimeMs": 830,
+    "peakResidentBytes": 574242816,
     "machine": "AMD Ryzen 7 7840U w/ Radeon  780M Graphics, Linux 6.8.0-138-generic",
     "runtime": "OpenJDK 64-Bit Server VM 25.0.4, compiled against the Java 21 API"
   },

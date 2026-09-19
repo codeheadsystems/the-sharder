@@ -32,9 +32,11 @@ import java.util.Map;
 final class CoreVectors {
 
     private final VectorSource source;
+    private final JsonObject file;
 
-    CoreVectors(VectorSource source) {
+    CoreVectors(VectorSource source, JsonObject file) {
         this.source = source;
+        this.file = file;
     }
 
     /** The engine over a document the case names by path or carries inline. */
@@ -461,6 +463,73 @@ final class CoreVectors {
                 assertThat(decision.roleAt(index)).as("preferenceListPrefix[%d].role", index)
                         .isEqualTo(expected.text("role"));
             }
+        }
+    }
+
+    /** {@code readAffinity}: the preference list, and the reordering within the replica prefix. */
+    void readAffinity(JsonObject testCase) {
+        PlacementEngine engine = new PlacementEngine(
+                com.codeheadsystems.sharder.core.internal.document.TopologyDocument.parse(
+                        source.readObject(file.text("topology"))));
+        byte[] key = PlaceVectors.octets(testCase.object("key"));
+        JsonObject affinity = testCase.object("affinity");
+        com.codeheadsystems.sharder.core.internal.route.ReadAffinity.Request request =
+                new com.codeheadsystems.sharder.core.internal.route.ReadAffinity.Request(
+                        affinity.text("level"),
+                        affinity.array("path").texts(),
+                        affinity.get("window").isNull()
+                                ? java.util.OptionalInt.empty()
+                                : java.util.OptionalInt.of(affinity.get("window").asInt()));
+
+        if (testCase.find("expectError").isPresent()) {
+            JsonObject error = testCase.object("expectError");
+            org.assertj.core.api.Assertions.assertThatThrownBy(() ->
+                            com.codeheadsystems.sharder.core.internal.route.ReadAffinity.reorder(
+                                    engine.document(), engine.route(key).preferenceList(),
+                                    engine.route(key).replicaCount(), request))
+                    .isInstanceOfSatisfying(
+                            com.codeheadsystems.sharder.error.InvalidArgumentException.class,
+                            raised -> {
+                                assertThat(raised.code()).as("code")
+                                        .isEqualTo(error.get("code").asInt());
+                                assertThat(raised.errorName()).as("name")
+                                        .isEqualTo(error.text("name"));
+                            });
+            return;
+        }
+
+        var decision = engine.route(key);
+        JsonObject expect = testCase.object("expect");
+        List<com.codeheadsystems.sharder.NodeId> preference = decision.preferenceList();
+        assertPositions(preference, expect.array("preferenceList"), decision.replicaCount(),
+                "preferenceList");
+        List<com.codeheadsystems.sharder.NodeId> ordered =
+                com.codeheadsystems.sharder.core.internal.route.ReadAffinity.reorder(
+                        engine.document(), preference, decision.replicaCount(), request);
+        assertPositions(ordered, expect.array("ordered"), decision.replicaCount(), "ordered");
+        expect.find("materialisedEntries").ifPresent(value ->
+                assertThat(decision.materialisedEntries()).as("materialisedEntries")
+                        .isEqualTo(value.asInt()));
+        expect.find("replicaCount").ifPresent(value ->
+                assertThat(decision.replicaCount()).as("replicaCount").isEqualTo(value.asInt()));
+        expect.find("shard").ifPresent(value ->
+                assertThat(decision.shard()).as("shard").contains(value.asText()));
+    }
+
+    /** One list against its expectation, entry by entry, with the role each position carries. */
+    private void assertPositions(List<com.codeheadsystems.sharder.NodeId> actual,
+                                 JsonValue.JsonArray expected, int replicaCount, String what) {
+        assertThat(actual).as("%s length", what).hasSize(expected.size());
+        for (int index = 0; index < expected.size(); index++) {
+            JsonObject entry = expected.get(index).asObject();
+            assertThat(actual.get(index).asText()).as("%s[%d].node", what, index)
+                    .isEqualTo(entry.text("node"));
+            assertThat(index).as("%s[%d].position", what, index)
+                    .isEqualTo(entry.get("position").asInt());
+            // READ-016: the roles follow the positions of the unreordered list, so a reordering
+            // inside the replica prefix leaves every role where it was.
+            assertThat(index < replicaCount ? "replica" : "fallback")
+                    .as("%s[%d].role", what, index).isEqualTo(entry.text("role"));
         }
     }
 }

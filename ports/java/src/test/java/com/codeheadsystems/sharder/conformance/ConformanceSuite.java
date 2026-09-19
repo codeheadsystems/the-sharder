@@ -42,7 +42,7 @@ import org.junit.jupiter.api.TestFactory;
 class ConformanceSuite {
 
     /** The levels this port runs, each carrying the levels it requires. */
-    private static final Set<String> DECLARED = Set.of("scale", "failover");
+    private static final Set<String> DECLARED = Set.of("scale", "failover", "readAffinity");
 
     private static final HexFormat HEX = HexFormat.of();
 
@@ -92,7 +92,7 @@ class ConformanceSuite {
     private DynamicNode vectorFile(FileEntry entry) {
         JsonObject file = source.readObject(entry.file());
         PlaceVectors place = new PlaceVectors(file);
-        CoreVectors core = new CoreVectors(source);
+        CoreVectors core = new CoreVectors(source, file);
         List<JsonValue> cases = file.array("cases").elements();
         Stream<DynamicNode> integrity = Stream.of(
                 dynamicTest("the file matches the digest the manifest holds",
@@ -144,6 +144,7 @@ class ConformanceSuite {
             case "ownershipDelta" -> core.ownershipDelta(testCase);
             case "propertyWitness" -> core.propertyWitness(testCase);
             case "scale" -> core.scale(testCase);
+            case "readAffinity" -> core.readAffinity(testCase);
             default -> throw new AssertionError(
                     "the driver implements no vector kind " + kind);
         }
