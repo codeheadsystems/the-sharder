@@ -76,8 +76,9 @@ The Java port is one Gradle module. It needs a JDK of 21 or above, and the depen
 resolves are test scope:
 
 ```sh
-cd ports/java && ./gradlew build     # compile, unit tests, and the conformance suite
+cd ports/java && ./gradlew build     # compile, unit tests, the suite, and the build gates
 cd ports/java && ./gradlew test --tests '*ConformanceSuite'
+cd ports/java && ./gradlew verifyDocLinks verifyDocStyle
 ```
 
 The harness reads `conformance/` directly, which the build points it at with
@@ -143,9 +144,12 @@ levels, not a percentage, against the suite revision in `manifest.json`.
 
 The Java build is Gradle with the Kotlin DSL rooted at `ports/java/`, group `com.codeheadsystems`,
 one artifact `sharder`, and one module `com.codeheadsystems.sharder`, under
-[`docs/design/adr/0081-single-java-module.md`](docs/design/adr/0081-single-java-module.md). The
-build checks `verifyDocLinks`, `verifyDocStyle`, and `verifyUnsignedComparisons` do not exist yet,
-so every rule they would enforce is enforced at review.
+[`docs/design/adr/0081-single-java-module.md`](docs/design/adr/0081-single-java-module.md). Its
+`check` runs the gates `40-java-binding.md` fixes: `verifyUnsignedComparisons` over the compiled
+hash and placement classes, `verifyDocLinks` and `verifyDocStyle` over the repository two
+directories above the Gradle root, the dependency check over the published descriptor, the coverage
+floor, and the allocation gate over a routing call. Only `verifyDocStyle` reports without failing,
+under [`adr/0062`](docs/design/adr/0062-documentation-style-check-as-a-warning.md).
 
 ## Rules a change obeys
 
