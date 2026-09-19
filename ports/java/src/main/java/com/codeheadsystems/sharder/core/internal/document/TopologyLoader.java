@@ -5,7 +5,9 @@ import com.codeheadsystems.sharder.core.internal.json.JcsWriter;
 import com.codeheadsystems.sharder.core.internal.json.JsonValue.JsonObject;
 import com.codeheadsystems.sharder.core.internal.route.PlacementEngine;
 import com.codeheadsystems.sharder.error.ErrorCode;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalLong;
 
@@ -49,6 +51,7 @@ public final class TopologyLoader {
                           Digest digest, List<ValidationError> errors) {
     }
 
+    private final Map<Long, PlacementEngine> retained = new LinkedHashMap<>();
     private String topologyId;
     private TopologyDocument inForce;
     private Digest digestInForce;
@@ -105,7 +108,29 @@ public final class TopologyLoader {
         return install(parsed, digest);
     }
 
+    /**
+     * The snapshots retained under {@code TOPO-161}, by epoch.
+     *
+     * <p>Each keeps its own prepared placement, because {@code FENCE-091} evaluates a recipient
+     * against the preference list at the token's epoch.
+     */
+    public Map<Long, PlacementEngine> retained() {
+        return Map.copyOf(retained);
+    }
+
+    /** The previous snapshots retained beside the one in force, under {@code CFG-010}. */
+    public static final int RETENTION_DEPTH = 3;
+
     private Arrival install(TopologyDocument document, Digest digest) {
+        if (engine != null) {
+            retained.put(inForce.epoch(), engine);
+            // TOPO-161 retains the snapshot in force together with `retentionDepth` previous
+            // ones, so an epoch older than that is not retained and FENCE-091 reports no stable
+            // ownership against it.
+            while (retained.size() > RETENTION_DEPTH) {
+                retained.remove(retained.keySet().iterator().next());
+            }
+        }
         topologyId = document.topologyId();
         inForce = document;
         digestInForce = digest;

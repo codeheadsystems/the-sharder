@@ -478,6 +478,27 @@ final class PlaceVectors {
                 long count = Math.min(product, inputs.get("cap").asInt());
                 assertThat(count).isEqualTo(testCase.get("expect").asLong());
             }
+            case "tokenBytes" -> {
+                // FENCE-021: u32be(len(topologyId)) || topologyId || u64be(epoch).
+                byte[] id = inputs.text("topologyId")
+                        .getBytes(java.nio.charset.StandardCharsets.UTF_8);
+                long epoch = inputs.get("epoch").asLong();
+                byte[] encoded = new byte[4 + id.length + 8];
+                com.codeheadsystems.sharder.core.internal.hash.Frame.writeU32be(encoded, 0,
+                        id.length);
+                System.arraycopy(id, 0, encoded, 4, id.length);
+                for (int octet = 0; octet < 8; octet++) {
+                    encoded[4 + id.length + octet] = (byte) (epoch >>> (56 - 8 * octet));
+                }
+                JsonObject expect = testCase.object("expect");
+                assertThat(HEX.formatHex(encoded)).as("tokenBytes")
+                        .isEqualTo(expect.text("tokenBytes"));
+                JsonObject fields = expect.object("textFields");
+                assertThat(inputs.text("topologyId")).as("sharder-topology-id")
+                        .isEqualTo(fields.text("sharder-topology-id"));
+                assertThat(Long.toString(epoch)).as("sharder-epoch")
+                        .isEqualTo(fields.text("sharder-epoch"));
+            }
             case "shardIsHot", "keySkew" -> assertThat(
                     CoreVectors.skewFormula(testCase.text("formula"), inputs))
                     .isEqualTo(testCase.get("expect").asBoolean());

@@ -146,8 +146,7 @@ conformance suite through its generator.
 
 ### Contributing to the Java implementation
 
-The port reaches the four mandatory conformance levels, `failover`, and `readAffinity`, and
-declares them.
+The port reaches every conformance level but `migration`, and declares them.
 [`design/40-java-binding.md`](design/40-java-binding.md) is the design it renders, and its opening
 status line says what has and has not been written. The port's directory is
 [`../ports/java/`](../ports/java/), whose README says how to build it and what is written, and

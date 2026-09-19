@@ -87,6 +87,13 @@ public enum ErrorCode {
     public static final List<ErrorCode> REPORT_ORDER = List.of(
             INVALID_ARGUMENT, UNREADY, STALE_SNAPSHOT, NO_CANDIDATE, EXHAUSTED);
 
+    /**
+     * The order {@code ERR-045} reports in where more than one recipient condition holds for one
+     * request, which {@code ERR-008} does not cover.
+     */
+    public static final List<ErrorCode> RECIPIENT_REPORT_ORDER = List.of(
+            IDENTITY_MISMATCH, UNREADY, NOT_OWNER, EPOCH_MISMATCH);
+
     /** The members a condition carries, under {@code ERR-004} and {@code ERR-061}. */
     public static final List<String> MEMBERS = List.of(
             "code", "name", "retryable", "detail", "token", "shard", "cause", "currentOwner");

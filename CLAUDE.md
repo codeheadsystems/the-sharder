@@ -14,11 +14,10 @@ computed by a Python reference implementation.
 
 Three kinds of change are possible today: a change to a Markdown document, a change to the
 conformance suite through its generator, and a change to the Java port under `ports/java/`, which is
-under way and reaches the four mandatory conformance levels, `failover`, and `readAffinity`, which
-it declares.
+under way and reaches every conformance level but `migration`, which it declares.
 Nothing is published, and nothing is until every
 port passes the suite in its own harness, under
-[`docs/design/adr/0083-publication-as-the-last-stage.md`](docs/design/adr/0083-publication-as-the-last-stage.md);
+[`adr/0083`](docs/design/adr/0083-publication-as-the-last-stage.md);
 [`docs/design/99-roadmap.md`](docs/design/99-roadmap.md) gives the stages.
 
 ## Commands
@@ -180,4 +179,4 @@ repairs and why, at length where the change is a specification repair.
 
 A change lands through a pull request, and the `every port built` and suite checks pass before it
 merges. A Dependabot update approves and merges itself once those checks pass, under
-[`docs/design/adr/0082-continuous-integration-and-dependency-updates.md`](docs/design/adr/0082-continuous-integration-and-dependency-updates.md).
+[`adr/0082`](docs/design/adr/0082-continuous-integration-and-dependency-updates.md).

@@ -4,12 +4,11 @@ Java is the first implementation of the sharder library, and it is one Gradle mo
 artifact, `sharder`, under
 [`adr/0081`](../../docs/design/adr/0081-single-java-module.md).
 
-Status: the port reaches `hash`, `place`, `core`, and `scale`, which `CORE-110` makes mandatory of
-every port, and `failover` and `readAffinity` above them, and exposes all four placement strategy
-surfaces. It declares them in
+Status: the port reaches every conformance level but `migration`, and exposes all four placement
+strategy surfaces. It declares them in
 [`../../conformance/declarations/java.json`](../../conformance/declarations/java.json), against the
-suite revision that declaration names, with no deviations. It exposes `fencing` and `migration` not
-at all, so it declares neither of their levels.
+suite revision that declaration names, with no deviations. It exposes `migration` not at all, so it
+declares that level alone as excluded.
 
 | Written | Not written |
 |---|---|
@@ -23,6 +22,7 @@ at all, so it declares neither of their levels.
 | the five-state health machine, ejection, and probation | |
 | the attempt walk, the health filter, and the retry budget | |
 | `routeForRead` and the bounded reordering of `READ-013` | |
+| the recipient check, the redirect walk, and snapshot retention | |
 | the RFC 8785 canonical form, the digest, and document validation | the levels above `core` |
 | the snapshot lifecycle and the acceptance table of `TOPO-061` | |
 | the ownership delta, skew detection, and the observability inventory | |
