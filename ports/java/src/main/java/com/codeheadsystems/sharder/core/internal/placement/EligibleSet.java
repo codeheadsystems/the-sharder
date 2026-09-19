@@ -2,6 +2,7 @@ package com.codeheadsystems.sharder.core.internal.placement;
 
 import com.codeheadsystems.sharder.NodeId;
 import com.codeheadsystems.sharder.core.internal.document.TopologyDocument.Node;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -17,9 +18,11 @@ import java.util.Set;
 public final class EligibleSet {
 
     private final Set<NodeId> identities;
+    private final List<NodeId> ordered;
 
     private EligibleSet(Set<NodeId> identities) {
         this.identities = identities;
+        this.ordered = List.copyOf(identities);
     }
 
     /** The eligible set holding exactly these nodes. */
@@ -32,6 +35,11 @@ public final class EligibleSet {
     /** The eligible set holding exactly these identities. */
     public static EligibleSet ofIdentities(java.util.Collection<NodeId> identities) {
         return new EligibleSet(new LinkedHashSet<>(identities));
+    }
+
+    /** The eligible identities, which a registered strategy takes as a node set. */
+    public Collection<NodeId> identities() {
+        return ordered;
     }
 
     /** Whether the identity is eligible. */

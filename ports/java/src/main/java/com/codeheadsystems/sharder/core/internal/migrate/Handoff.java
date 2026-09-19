@@ -1,6 +1,7 @@
 package com.codeheadsystems.sharder.core.internal.migrate;
 
 import com.codeheadsystems.sharder.NodeId;
+import com.codeheadsystems.sharder.migrate.HandoffState;
 import java.util.Optional;
 import java.util.OptionalLong;
 
@@ -18,11 +19,11 @@ public final class Handoff {
     private final NodeId source;
     private final NodeId destination;
     private final long fromEpoch;
-    private long toEpoch;
-    private HandoffState state = HandoffState.PLANNED;
-    private String failureKind;
-    private long quiesceInstant = -1;
-    private long leaseMillis;
+    private volatile long toEpoch;
+    private volatile HandoffState state = HandoffState.PLANNED;
+    private volatile String failureKind;
+    private volatile long quiesceInstant = -1;
+    private volatile long leaseMillis;
 
     Handoff(String id, String shard, NodeId source, NodeId destination, long fromEpoch,
             long toEpoch) {
@@ -94,6 +95,12 @@ public final class Handoff {
     void fail(String kind) {
         this.state = HandoffState.FAILED;
         this.failureKind = kind;
+    }
+
+    /** Forgets the quiesce, so that {@code MOVE-331} takes a fresh one. */
+    void clearQuiesce() {
+        this.quiesceInstant = -1;
+        this.leaseMillis = 0;
     }
 
     void quiesced(long at, long lease) {

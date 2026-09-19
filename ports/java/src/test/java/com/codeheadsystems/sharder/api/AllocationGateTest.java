@@ -55,7 +55,8 @@ class AllocationGateTest {
 
     @Test
     void oneRoutingCallOverEightThousandVirtualNodesStaysUnderTheCeiling() {
-        assertThat(perCall("rendezvous-8000", Topologies.rendezvous("gate-rendezvous", 1, 1000, 8, 3)))
+        assertThat(perCall("rendezvous-8000",
+                Topologies.rendezvous("gate-rendezvous", 1, 1000, 8, 3)))
                 .as("bytes per route over a summed virtual node count of 8000")
                 .isLessThanOrEqualTo(RENDEZVOUS_CEILING);
     }

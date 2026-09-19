@@ -71,6 +71,7 @@ public final class InMemoryTopologyProvider implements TopologyProvider {
     }
 
     private static SourceVersion version(long value) {
-        return SourceVersion.of(Long.toString(value).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        return SourceVersion.of(
+                Long.toString(value).getBytes(java.nio.charset.StandardCharsets.UTF_8));
     }
 }

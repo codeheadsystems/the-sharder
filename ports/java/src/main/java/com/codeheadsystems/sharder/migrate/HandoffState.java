@@ -1,4 +1,4 @@
-package com.codeheadsystems.sharder.core.internal.migrate;
+package com.codeheadsystems.sharder.migrate;
 
 /**
  * The eleven handoff states of {@code MOVE-001}.

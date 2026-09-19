@@ -3,24 +3,24 @@ package com.codeheadsystems.sharder.conformance;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.codeheadsystems.sharder.NodeId;
+import com.codeheadsystems.sharder.config.HealthSettings;
 import com.codeheadsystems.sharder.core.internal.document.Digests;
 import com.codeheadsystems.sharder.core.internal.document.TopologyLoader;
-import com.codeheadsystems.sharder.core.internal.json.JcsWriter;
-import com.codeheadsystems.sharder.core.internal.json.JsonValue;
-import com.codeheadsystems.sharder.core.internal.json.JsonValue.JsonObject;
 import com.codeheadsystems.sharder.core.internal.fence.Recipient;
 import com.codeheadsystems.sharder.core.internal.fence.RedirectWalk;
-import com.codeheadsystems.sharder.config.HealthSettings;
-import com.codeheadsystems.sharder.core.internal.migrate.Handoff;
-import com.codeheadsystems.sharder.core.internal.migrate.HandoffState;
-import com.codeheadsystems.sharder.core.internal.migrate.MigrationPlan;
-import com.codeheadsystems.sharder.health.HealthState;
 import com.codeheadsystems.sharder.core.internal.health.SlidingWindowHealthView;
+import com.codeheadsystems.sharder.core.internal.json.JcsWriter;
+import com.codeheadsystems.sharder.core.internal.json.JsonValue.JsonObject;
+import com.codeheadsystems.sharder.core.internal.json.JsonValue;
+import com.codeheadsystems.sharder.core.internal.migrate.Handoff;
+import com.codeheadsystems.sharder.core.internal.migrate.MigrationPlan;
 import com.codeheadsystems.sharder.core.internal.route.AttemptSequences;
 import com.codeheadsystems.sharder.core.internal.route.PlacementDecision;
 import com.codeheadsystems.sharder.core.internal.route.PlacementEngine;
 import com.codeheadsystems.sharder.core.internal.route.RetryBudget;
 import com.codeheadsystems.sharder.error.ErrorCode;
+import com.codeheadsystems.sharder.health.HealthState;
+import com.codeheadsystems.sharder.migrate.HandoffState;
 import java.util.List;
 
 /**
@@ -341,7 +341,8 @@ final class ScenarioRunner {
         expectStates(health, step, index);
     }
 
-    private void attemptSequence(TopologyLoader loader, SlidingWindowHealthView health, RetryBudget budget,
+    private void attemptSequence(TopologyLoader loader, SlidingWindowHealthView health,
+                                 RetryBudget budget,
                                  JsonObject step, int index) {
         PlacementDecision decision = loader.engine().orElseThrow()
                 .route(PlaceVectors.octets(step.object("key")));
@@ -364,7 +365,8 @@ final class ScenarioRunner {
         expectStates(health, step, index);
     }
 
-    private void attemptWalk(TopologyLoader loader, SlidingWindowHealthView health, RetryBudget budget,
+    private void attemptWalk(TopologyLoader loader, SlidingWindowHealthView health,
+                             RetryBudget budget,
                              JsonObject step, int index) {
         PlacementDecision decision = loader.engine().orElseThrow()
                 .route(PlaceVectors.octets(step.object("key")));
@@ -756,15 +758,30 @@ final class ScenarioRunner {
                 replicaSets.put(shard, nodes.asArray().texts()));
         long toEpoch = engineOf(step.text("to")).document().epoch();
         MigrationPlan.RebaseReport report = plan.rebase(toEpoch, replicaSets);
-        expect.find("report").ifPresent(value -> {
-            JsonObject expected = value.asObject();
-            expected.find("rebased").ifPresent(list ->
-                    assertThat(report.rebased()).as("step %d rebased", index)
-                            .isEqualTo(list.asArray().texts()));
-            expected.find("aborted").ifPresent(list ->
-                    assertThat(report.aborted()).as("step %d aborted", index)
-                            .isEqualTo(list.asArray().texts()));
-        });
+        // The report sits inside the result of a rebase that happened, and directly under
+        // `expect` where a scenario states it on its own.
+        expect.find("result").map(JsonValue::asObject).flatMap(result -> result.find("report"))
+                .or(() -> expect.find("report"))
+                .ifPresent(value -> {
+                    JsonObject expected = value.asObject();
+                    expected.find("rebased").ifPresent(list ->
+                            assertThat(report.rebased()).as("step %d rebased", index)
+                                    .isEqualTo(list.asArray().texts()));
+                    expected.find("aborted").ifPresent(list ->
+                            assertThat(report.aborted()).as("step %d aborted", index)
+                                    .isEqualTo(list.asArray().texts()));
+                    // MOVE-099: a handoff at the cutover or beyond is reported unchanged.
+                    expected.find("unchanged").ifPresent(list ->
+                            assertThat(report.unchanged()).as("step %d unchanged", index)
+                                    .isEqualTo(list.asArray().texts()));
+                });
+        expect.find("targetEpochs").ifPresent(value ->
+                value.asObject().members().forEach((id, epoch) ->
+                        // MOVE-097 and MOVE-099: a rebased handoff takes the newer epoch and one
+                        // past the cutover keeps the epoch it held at that transition.
+                        assertThat(plan.handoff(id).toEpoch())
+                                .as("step %d target epoch of %s", index, id)
+                                .isEqualTo(epoch.asLong())));
         expectHandoffStates(plan, step, index);
     }
 

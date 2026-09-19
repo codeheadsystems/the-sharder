@@ -1,7 +1,7 @@
 {
   "suite": "sharder simulation scenarios",
-  "scenarioCount": 21,
-  "stepCount": 287,
+  "scenarioCount": 22,
+  "stepCount": 303,
   "requirementsCovered": [
     "CFG-030",
     "CFG-040",
@@ -397,6 +397,22 @@
         "MOVE-421",
         "MOVE-481",
         "TOPO-231"
+      ]
+    },
+    {
+      "file": "scenarios/rebase-past-the-cutover.json",
+      "scenario": "rebase-past-the-cutover",
+      "level": "migration",
+      "description": "An epoch arrives while one handoff is verifying and another is transferring.  The handoff past the cutover is reported unchanged and keeps its own target epoch, and the one before it rebases.  A second epoch arrives once the first handoff is complete, and a terminal handoff is reported unchanged as well.",
+      "stepCount": 16,
+      "requirements": [
+        "MOVE-091",
+        "MOVE-094",
+        "MOVE-096",
+        "MOVE-097",
+        "MOVE-098",
+        "MOVE-099",
+        "MOVE-102"
       ]
     },
     {

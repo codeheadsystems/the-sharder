@@ -3,9 +3,12 @@ package com.codeheadsystems.sharder.core.internal.migrate;
 import com.codeheadsystems.sharder.NodeId;
 import com.codeheadsystems.sharder.core.internal.route.OwnershipDelta;
 import com.codeheadsystems.sharder.core.internal.route.PlacementEngine;
+import com.codeheadsystems.sharder.migrate.HandoffState;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
@@ -57,12 +60,17 @@ public final class MigrationPlan {
                                List<String> aborted, List<String> unchanged) {
     }
 
+    /** The states {@code MOVE-096} classifies, which are the states a rebase may move. */
+    private static final Set<HandoffState> REBASABLE = EnumSet.of(
+            HandoffState.PLANNED, HandoffState.PREPARING, HandoffState.TRANSFERRING,
+            HandoffState.CATCHING_UP);
+
     private final Map<String, Handoff> handoffs = new LinkedHashMap<>();
     private int maxConcurrentHandoffs = 4;
     private int maxConcurrentPerSourceNode = 1;
     private int maxConcurrentPerDestinationNode = 1;
     private final long quiesceLeaseMarginMillis;
-    private final long commitDeadlineMillis = 30000L;
+    private long commitDeadlineMillis = 30000L;
     private Long rebasePending;
     private long targetEpoch;
 
@@ -142,6 +150,28 @@ public final class MigrationPlan {
         this.maxConcurrentPerDestinationNode = perDestination;
     }
 
+    /**
+     * The commit deadline of {@code CFG-050}, which {@code MOVE-333} and {@code MOVE-336} read.
+     *
+     * <p>It is a setting rather than a constant: a deployment whose commit is a single write to a
+     * store it already holds open sets it far below the default, and the lease a source grants is
+     * compared against whatever it holds.
+     */
+    public void commitDeadlineMillis(long millis) {
+        this.commitDeadlineMillis = millis;
+    }
+
+    /**
+     * Forgets a quiesce, which {@code MOVE-331} takes a fresh one after.
+     *
+     * <p>{@code MOVE-333} stops a commit whose deadline runs past the horizon the lease leaves.
+     * The handoff stays in {@code cutover} and the next step quiesces again, so the instant the
+     * expired lease was measured from is cleared here rather than compared against a second time.
+     */
+    public void clearQuiesce(String id) {
+        handoff(id).clearQuiesce();
+    }
+
     /** Returns one handoff to {@code planned}, which a scenario driving it twice needs. */
     public void reset(String id) {
         handoff(id).moveTo(HandoffState.PLANNED);
@@ -196,9 +226,11 @@ public final class MigrationPlan {
                         bound, null);
             }
         }
-        if (rebasePending != null && !"abortRequested".equals(trigger)) {
-            // MOVE-093: a rebase-pending plan advances no handoff, because the plan in force is
-            // about to be rebuilt against a newer snapshot.
+        if (rebasePending != null && ("admittedByRatePolicy".equals(trigger)
+                || "residueAtOrBelowThreshold".equals(trigger))) {
+            // MOVE-093: while a rebase is pending no handoff leaves `planned` and none reaches
+            // `cutover`. Every other transition stays available, so work already begun finishes,
+            // and `abort`, `abortAll`, `recover`, and `reobserve` stay admissible.
             return new StepOutcome("idle", id, from.spelling(), from.spelling(), null, null,
                     "rebasePending", null);
         }
@@ -421,9 +453,23 @@ public final class MigrationPlan {
     public RebaseReport rebase(long toEpochValue, Map<String, List<String>> replicaSets) {
         List<String> rebased = new ArrayList<>();
         List<String> aborted = new ArrayList<>();
+        List<String> unchanged = new ArrayList<>();
         long from = targetEpoch;
         for (Handoff handoff : handoffs.values()) {
+            // MOVE-099 reports a terminal handoff as unchanged as well: it is in no group
+            // MOVE-096 classifies, and an integrator reconciling the three lists against the
+            // plan's handoffs would otherwise find it in none of them.
             if (handoff.state().terminal()) {
+                unchanged.add(handoff.id());
+                continue;
+            }
+            // MOVE-096 classifies `planned`, `preparing`, `transferring`, and `catchingUp` and no
+            // other state. MOVE-099 reports the rest as unchanged: a handoff that entered the
+            // cutover keeps the target epoch it held at that transition and runs to a terminal
+            // state under it, because ownership has moved or is moving and compensation after a
+            // cutover is a new plan rather than a rebase.
+            if (!REBASABLE.contains(handoff.state())) {
+                unchanged.add(handoff.id());
                 continue;
             }
             List<String> replicas = replicaSets.get(handoff.shard());
@@ -440,8 +486,11 @@ public final class MigrationPlan {
             }
         }
         targetEpoch = toEpochValue;
-        rebasePending = null;
+        // MOVE-094: the mark stands where it names an epoch this rebase did not reach.
+        if (rebasePending != null && rebasePending <= toEpochValue) {
+            rebasePending = null;
+        }
         return new RebaseReport(from, toEpochValue, List.copyOf(rebased), List.copyOf(aborted),
-                List.of());
+                List.copyOf(unchanged));
     }
 }

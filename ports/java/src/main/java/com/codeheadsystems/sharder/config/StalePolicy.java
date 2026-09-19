@@ -1,6 +1,9 @@
 package com.codeheadsystems.sharder.config;
 
-/** What a routing call does against a snapshot older than the freshness bound, under {@code CFG-010}. */
+/**
+ * What a routing call does against a snapshot older than the freshness bound, under
+ * {@code CFG-010}.
+ */
 public enum StalePolicy {
 
     /** The call routes against the stale snapshot. */

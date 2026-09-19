@@ -4,8 +4,11 @@ import com.codeheadsystems.sharder.MonotonicClock;
 import com.codeheadsystems.sharder.error.InvalidArgumentException;
 import com.codeheadsystems.sharder.fence.RecipientPolicy;
 import com.codeheadsystems.sharder.health.HealthView;
+import com.codeheadsystems.sharder.health.HintObserver;
 import com.codeheadsystems.sharder.observe.EventSink;
 import com.codeheadsystems.sharder.observe.MetricsRegistry;
+import com.codeheadsystems.sharder.observe.ShardMetricsSource;
+import com.codeheadsystems.sharder.placement.PlacementStrategy;
 import com.codeheadsystems.sharder.topology.TopologyProvider;
 import java.time.Duration;
 import java.util.LinkedHashMap;
@@ -39,6 +42,9 @@ public final class RouterConfig implements ConfigurationView {
     private final MonotonicClock clock;
     private final HealthView healthView;
     private final ScheduledExecutorService executor;
+    private final Map<String, PlacementStrategy> strategies;
+    private final ShardMetricsSource shardMetricsSource;
+    private final HintObserver hintObserver;
 
     private RouterConfig(Builder builder) {
         this.provider = new ProviderSettings(builder.provider, builder.expectedTopologyId,
@@ -55,12 +61,16 @@ public final class RouterConfig implements ConfigurationView {
         this.fencing = new FencingSettings(builder.recipientPolicy, builder.maxRedirects,
                 builder.refreshWaitMillis, builder.tokenDigest);
         this.observability = new ObservabilitySettings(
-                Optional.ofNullable(builder.metricsRegistry), Optional.ofNullable(builder.eventSink),
+                Optional.ofNullable(builder.metricsRegistry),
+                Optional.ofNullable(builder.eventSink),
                 builder.shardLabelLimit, builder.nodeLabelLimit, builder.hotShardFactorPercent,
                 builder.keySkewPercent, builder.includeKeysInDiagnostics);
         this.clock = builder.clock;
         this.healthView = builder.healthView;
         this.executor = builder.executor;
+        this.strategies = Map.copyOf(builder.strategies);
+        this.shardMetricsSource = builder.shardMetricsSource;
+        this.hintObserver = builder.hintObserver;
     }
 
     /** A builder carrying every default. */
@@ -116,6 +126,26 @@ public final class RouterConfig implements ConfigurationView {
      */
     public Optional<ScheduledExecutorService> executor() {
         return Optional.ofNullable(executor);
+    }
+
+    /**
+     * The strategies registered by name, under {@code CORE-010}.
+     *
+     * <p>A registered strategy replaces the built-in of the same name. Nothing is discovered
+     * through {@code ServiceLoader}, so what is on a classpath never changes how a key routes.
+     */
+    public Map<String, PlacementStrategy> strategies() {
+        return strategies;
+    }
+
+    /** Where the shard counters of {@code OBS-036} come from. */
+    public Optional<ShardMetricsSource> shardMetricsSource() {
+        return Optional.ofNullable(shardMetricsSource);
+    }
+
+    /** Where a health transition is reported beside the event of {@code HEALTH-048}. */
+    public Optional<HintObserver> hintObserver() {
+        return Optional.ofNullable(hintObserver);
     }
 
     @Override
@@ -181,6 +211,10 @@ public final class RouterConfig implements ConfigurationView {
         values.put("includeKeysInDiagnostics",
                 Boolean.toString(observability.includeKeysInDiagnostics()));
         values.put("executor", executor == null ? "unset" : "supplied");
+        values.put("strategies", strategies.isEmpty() ? "the four built in"
+                : String.join(", ", new java.util.TreeSet<>(strategies.keySet())));
+        values.put("shardMetricsSource", shardMetricsSource == null ? "unset" : "supplied");
+        values.put("hintObserver", hintObserver == null ? "unset" : "supplied");
         return Map.copyOf(values);
     }
 
@@ -223,6 +257,9 @@ public final class RouterConfig implements ConfigurationView {
         private boolean includeKeysInDiagnostics;
         private MonotonicClock clock = MonotonicClock.systemNanoTime();
         private ScheduledExecutorService executor;
+        private final Map<String, PlacementStrategy> strategies = new LinkedHashMap<>();
+        private ShardMetricsSource shardMetricsSource;
+        private HintObserver hintObserver;
 
         private Builder() {
         }
@@ -454,6 +491,32 @@ public final class RouterConfig implements ConfigurationView {
         /** The instant source every elapsed-interval rule reads. */
         public Builder clock(MonotonicClock value) {
             this.clock = value;
+            return this;
+        }
+
+        /**
+         * Registers one placement strategy by its own name, under {@code CORE-010}.
+         *
+         * <p>A strategy whose name is one of the four built-in kinds replaces that built-in for
+         * every document this router installs.
+         */
+        public Builder strategy(PlacementStrategy value) {
+            if (value == null || value.name() == null || value.name().isEmpty()) {
+                throw new InvalidArgumentException("a strategy carries a name of its own");
+            }
+            strategies.put(value.name(), value);
+            return this;
+        }
+
+        /** Where the shard counters of {@code OBS-036} come from. */
+        public Builder shardMetricsSource(ShardMetricsSource value) {
+            this.shardMetricsSource = value;
+            return this;
+        }
+
+        /** Where a health transition is reported, beside the event of {@code HEALTH-048}. */
+        public Builder hintObserver(HintObserver value) {
+            this.hintObserver = value;
             return this;
         }
 
