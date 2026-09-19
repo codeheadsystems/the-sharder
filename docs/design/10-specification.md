@@ -2978,10 +2978,20 @@ owning ring entry. Containment and equality MUST be decided by comparing interva
 enumerate the same slots and every extent is equal to its counterpart. The lineage under `slot` MUST
 therefore be the identity of `LIN-007`.
 
-`LIN-013`. Under `directory`, an implementation MUST refuse to compute a lineage where the two
-snapshots enumerate different shard sets, and MUST report the refusal under `ERR-050` with the cause
-`unalignedLineage`. A directory extent is a matcher narrowed by the precedence of `DIR-002`, so it
-is decidable, and this requirement states the refusal that stands until it is defined.
+`LIN-013`. Under `directory`, the extent of a shard MUST be the keys its entry wins under the
+precedence of `PLACE-065`, which is its matcher narrowed by every entry of the same table that
+outranks it. An implementation MUST decide equality, containment, and disjointness of two directory
+extents over the prefix trie of the two tables' decoded matcher values, and MUST NOT decide them by
+evaluating the tables over generated keys.
+
+`LIN-016`. The trie of `LIN-013` MUST be read as follows. Every decoded matcher value of either
+table is a node, and the empty value is a node. Each node contributes two regions of the keyspace:
+the key equal to that node, and the keys strictly extending it that no deeper node is a prefix of.
+Two keys of one region match the same entries of either table, so a region is the finest distinction
+either table draws, and the regions together admit every key. The extent of a shard is the set of
+regions its entry wins, and an implementation MUST compare two extents as those sets. An `exact`
+matcher wins only the region that is its own key, because a region of keys strictly extending a node
+contains no node and every matcher value is one.
 
 `LIN-014`. Under `rendezvous`, `PLACE-032` makes `shards` empty and `MOVE-241` excludes the kind
 from orchestrated migration, so there is no extent and no lineage. An implementation MUST refuse a

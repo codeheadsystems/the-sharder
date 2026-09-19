@@ -593,9 +593,10 @@ Publish it as two epochs instead: the first divides every extent the change cros
 folds the pieces into their destinations. Each is plannable on its own, and each leaves a topology
 that routes correctly if the second is delayed.
 
-Under `directory` a pair whose entry sets differ is refused for now with the same cause, until
-directory extents are defined. A directory topology whose entries are unchanged plans as it always
-did.
+Under `directory` an extent is a matcher narrowed by the entries that outrank it, so refining
+`prefix:ab` into `ab0` and `ab1` is a division and dropping the two back to `ab` is a fold. An entry
+that wins keys the earlier table matched to nothing names a shard with no parent, which moves no
+contents and needs no handoff.
 
 ### A new epoch
 

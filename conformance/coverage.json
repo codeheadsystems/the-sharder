@@ -1,7 +1,7 @@
 {
   "specification": "docs/design/10-specification.md",
-  "statedRequirements": 688,
-  "coveredRequirements": 472,
+  "statedRequirements": 689,
+  "coveredRequirements": 473,
   "uncoveredRequirements": 216,
   "coveragePercent": 68,
   "identifiersNamedButNotStated": [],
@@ -9,8 +9,8 @@
     {
       "prefix": "LIN",
       "section": "",
-      "stated": 32,
-      "covered": 18,
+      "stated": 33,
+      "covered": 19,
       "uncovered": [
         "LIN-001",
         "LIN-002",
@@ -27,7 +27,7 @@
         "LIN-055",
         "LIN-058"
       ],
-      "percent": 56
+      "percent": 57
     },
     {
       "prefix": "CFG",
@@ -981,6 +981,8 @@
         "CFG-050",
         "CFG-052",
         "CFG-055",
+        "DIR-002",
+        "DIR-010",
         "ERR-050",
         "ERR-052",
         "ERR-053",
@@ -995,6 +997,7 @@
         "LIN-012",
         "LIN-013",
         "LIN-014",
+        "LIN-016",
         "LIN-021",
         "LIN-022",
         "LIN-033",
@@ -1062,6 +1065,7 @@
         "OBS-010",
         "OBS-020",
         "OBS-021",
+        "PLACE-065",
         "RATE-001",
         "RATE-011",
         "RATE-021",
@@ -1077,8 +1081,8 @@
         "TOPO-221",
         "TOPO-231"
       ],
-      "requirementsAtLevel": 98,
-      "requirementsWhenDeclared": 422
+      "requirementsAtLevel": 102,
+      "requirementsWhenDeclared": 423
     }
   ],
   "coveredBy": {
@@ -1320,7 +1324,8 @@
       "vectors/directory/matcher-precedence.json"
     ],
     "DIR-002": [
-      "vectors/directory/matcher-precedence.json"
+      "vectors/directory/matcher-precedence.json",
+      "vectors/migration/lineage.json"
     ],
     "DIR-003": [
       "vectors/directory/matcher-precedence.json",
@@ -1358,11 +1363,13 @@
     ],
     "PLACE-065": [
       "vectors/directory/matcher-precedence.json",
+      "vectors/migration/lineage.json",
       "vectors/overrides/precedence-and-composition.json",
       "vectors/rendezvous/tenant-router.json"
     ],
     "DIR-010": [
-      "vectors/directory/no-match.json"
+      "vectors/directory/no-match.json",
+      "vectors/migration/lineage.json"
     ],
     "DIR-011": [
       "vectors/directory/no-match.json"
@@ -1694,6 +1701,9 @@
       "vectors/migration/lineage.json"
     ],
     "LIN-014": [
+      "vectors/migration/lineage.json"
+    ],
+    "LIN-016": [
       "vectors/migration/lineage.json"
     ],
     "LIN-021": [

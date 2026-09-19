@@ -2,8 +2,10 @@
   "vectorSet": "migration-lineage",
   "kind": "lineage",
   "level": "migration",
-  "description": "The lineage classification over pairs of documents: a ring extent divided, a ring extent folded, the identity lineage under `slot`, the unaligned boundary that is refused, the `directory` pair whose shard sets differ, the incomparable pair, and the kind that enumerates no shard.",
+  "description": "The lineage classification over pairs of documents: a ring extent divided, a ring extent folded, the identity lineage under `slot`, the unaligned boundary that is refused, the `directory` prefix refined and the fresh extent beside it, the incomparable pair, and the kind that enumerates no shard.",
   "requirements": [
+    "DIR-002",
+    "DIR-010",
     "ERR-050",
     "LIN-004",
     "LIN-006",
@@ -12,10 +14,12 @@
     "LIN-012",
     "LIN-013",
     "LIN-014",
+    "LIN-016",
     "LIN-021",
     "LIN-022",
     "LIN-033",
     "MOVE-241",
+    "PLACE-065",
     "TOPO-231"
   ],
   "cases": [
@@ -123,6 +127,86 @@
       }
     },
     {
+      "name": "directory-prefix-refined",
+      "requirements": [
+        "LIN-013",
+        "LIN-016",
+        "LIN-021",
+        "DIR-002",
+        "PLACE-065"
+      ],
+      "before": "topologies/lineage-directory-before.topology.json",
+      "after": "topologies/lineage-directory-refined.topology.json",
+      "note": "`LIN-016`: refining `prefix:ab` into `ab0` and `ab1` leaves `ab` winning the keys neither longer prefix claims, so all three shards of the later table are `divided` from the one entry and the untouched `cd` is `unchanged`.",
+      "expect": {
+        "lineage": [
+          {
+            "shard": "prefix:616230",
+            "class": "divided",
+            "parents": [
+              "prefix:6162"
+            ]
+          },
+          {
+            "shard": "prefix:616231",
+            "class": "divided",
+            "parents": [
+              "prefix:6162"
+            ]
+          },
+          {
+            "shard": "prefix:6162",
+            "class": "divided",
+            "parents": [
+              "prefix:6162"
+            ]
+          },
+          {
+            "shard": "prefix:6364",
+            "class": "unchanged",
+            "parents": [
+              "prefix:6364"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "directory-fresh-extent",
+      "requirements": [
+        "LIN-013",
+        "LIN-016",
+        "LIN-021",
+        "DIR-010"
+      ],
+      "before": "topologies/lineage-directory-before.topology.json",
+      "after": "topologies/lineage-directory-fresh.topology.json",
+      "note": "`LIN-021`: the added entry wins keys the earlier table matched to no shard under `DIR-010`, so the shard it names is `fresh` and has no parent to draw from.",
+      "expect": {
+        "lineage": [
+          {
+            "shard": "prefix:6162",
+            "class": "unchanged",
+            "parents": [
+              "prefix:6162"
+            ]
+          },
+          {
+            "shard": "prefix:6364",
+            "class": "unchanged",
+            "parents": [
+              "prefix:6364"
+            ]
+          },
+          {
+            "shard": "prefix:6566",
+            "class": "fresh",
+            "parents": []
+          }
+        ]
+      }
+    },
+    {
       "name": "slot-identity",
       "requirements": [
         "LIN-007",
@@ -189,24 +273,6 @@
       "before": "topologies/delta-ring-before.topology.json",
       "after": "topologies/delta-ring-unaligned.topology.json",
       "note": "`LIN-022`: a boundary that moves without dividing or folding an extent whole has no correspondence to name, so the plan is refused and the authority publishes the change as a division epoch followed by a fold epoch.",
-      "expect": {
-        "lineageComputed": false,
-        "condition": {
-          "code": 401,
-          "name": "planRefused",
-          "cause": "unalignedLineage"
-        }
-      }
-    },
-    {
-      "name": "directory-differing-shard-sets",
-      "requirements": [
-        "LIN-013",
-        "ERR-050"
-      ],
-      "before": "topologies/lineage-directory-before.topology.json",
-      "after": "topologies/lineage-directory-refined.topology.json",
-      "note": "`LIN-013`: a `directory` extent is a matcher narrowed by the precedence of `DIR-002`. It is decidable and not yet defined, so a pair whose shard sets differ is refused.",
       "expect": {
         "lineageComputed": false,
         "condition": {

@@ -1,9 +1,11 @@
 package com.codeheadsystems.sharder.core.internal.placement;
 
+import com.codeheadsystems.sharder.core.internal.document.TopologyDocument;
 import com.codeheadsystems.sharder.core.internal.hash.U64;
 import com.codeheadsystems.sharder.core.internal.route.OwnershipDelta;
 import com.codeheadsystems.sharder.core.internal.route.PlacementEngine;
 import java.util.ArrayList;
+import java.util.HexFormat;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -148,24 +150,157 @@ public final class ShardExtents {
     }
 
     /**
+     * One region of the keyspace the two directory tables cut it into, under {@code LIN-016}.
+     *
+     * <p>{@code exact} is the key equal to {@code node}; otherwise it is the keys strictly
+     * extending {@code node} that no deeper node of the combined trie is a prefix of.
+     */
+    private record Region(boolean exact, String node) {
+    }
+
+    /** Every decoded matcher value of either table, rendered as hexadecimal, and the empty one. */
+    private static List<Region> regions(TopologyDocument before, TopologyDocument after) {
+        Set<String> nodes = new java.util.TreeSet<>();
+        nodes.add("");
+        for (TopologyDocument document : List.of(before, after)) {
+            for (TopologyDocument.DirectoryEntry entry : document.strategy().entries()) {
+                nodes.add(HexFormat.of().formatHex(entry.match().value()));
+            }
+        }
+        List<Region> out = new ArrayList<>();
+        nodes.stream().filter(node -> !node.isEmpty())
+                .forEach(node -> out.add(new Region(true, node)));
+        nodes.forEach(node -> out.add(new Region(false, node)));
+        return List.copyOf(out);
+    }
+
+    /**
+     * {@code PLACE-065}: the entry index winning a region, or {@code -1} where none matches it.
+     *
+     * <p>An {@code exact} matcher wins only the region that is its own key, because a region of
+     * keys strictly extending a node contains no node and every matcher value is one.
+     */
+    private static int winner(TopologyDocument document, Region region) {
+        List<TopologyDocument.DirectoryEntry> entries = document.strategy().entries();
+        HexFormat hex = HexFormat.of();
+        if (region.exact()) {
+            for (int index = 0; index < entries.size(); index++) {
+                TopologyDocument.Matcher matcher = entries.get(index).match();
+                if ("exact".equals(matcher.kind())
+                        && hex.formatHex(matcher.value()).equals(region.node())) {
+                    return index;
+                }
+            }
+        }
+        int best = -1;
+        int bestLength = -1;
+        for (int index = 0; index < entries.size(); index++) {
+            TopologyDocument.Matcher matcher = entries.get(index).match();
+            if (!"prefix".equals(matcher.kind())) {
+                continue;
+            }
+            String value = hex.formatHex(matcher.value());
+            if (!region.node().startsWith(value)) {
+                continue;
+            }
+            if (value.length() > bestLength) {
+                best = index;
+                bestLength = value.length();
+            }
+        }
+        return best;
+    }
+
+    /** {@code LIN-013}: each shard's extent as the set of regions its entry wins. */
+    private static Map<String, Set<Region>> directoryExtents(PlacementEngine engine,
+                                                             List<Region> regions) {
+        List<String> shards = engine.placement().shards();
+        Map<String, Set<Region>> out = new LinkedHashMap<>();
+        shards.forEach(shard -> out.put(shard, new LinkedHashSet<>()));
+        for (Region region : regions) {
+            int index = winner(engine.document(), region);
+            if (index >= 0) {
+                out.get(shards.get(index)).add(region);
+            }
+        }
+        return out;
+    }
+
+    /**
+     * A shard's extent, whichever geometry decides it.
+     *
+     * <p>Under {@code ring} it is a set of intervals of the hash space; under {@code directory} it
+     * is a set of regions of the prefix trie. The three predicates below are what the
+     * classification reads, so nothing above this point depends on which kind is in play.
+     */
+    private sealed interface Extent permits RingExtent, DirExtent {
+    }
+
+    private record RingExtent(List<Segment> segments) implements Extent {
+    }
+
+    private record DirExtent(Set<Region> regions) implements Extent {
+    }
+
+    private static boolean meetsExtent(Extent first, Extent second) {
+        if (first instanceof RingExtent left && second instanceof RingExtent right) {
+            return meets(left.segments(), right.segments());
+        }
+        Set<Region> left = ((DirExtent) first).regions();
+        Set<Region> right = ((DirExtent) second).regions();
+        return left.stream().anyMatch(right::contains);
+    }
+
+    private static boolean containsExtent(Extent outer, Extent inner) {
+        if (outer instanceof RingExtent left && inner instanceof RingExtent right) {
+            return contains(left.segments(), right.segments());
+        }
+        return ((DirExtent) outer).regions().containsAll(((DirExtent) inner).regions());
+    }
+
+    private static boolean equalExtent(Extent first, Extent second) {
+        if (first instanceof RingExtent left && second instanceof RingExtent right) {
+            return equal(left.segments(), right.segments());
+        }
+        return ((DirExtent) first).regions().equals(((DirExtent) second).regions());
+    }
+
+    /** The two extent maps, decided by the geometry the strategy kind gives. */
+    private static List<Map<String, Extent>> geometry(PlacementEngine before,
+                                                      PlacementEngine after) {
+        Map<String, Extent> earlier = new LinkedHashMap<>();
+        Map<String, Extent> later = new LinkedHashMap<>();
+        if ("directory".equals(after.document().strategy().kind())) {
+            List<Region> regions = regions(before.document(), after.document());
+            directoryExtents(before, regions).forEach((k, v) -> earlier.put(k, new DirExtent(v)));
+            directoryExtents(after, regions).forEach((k, v) -> later.put(k, new DirExtent(v)));
+        } else {
+            ringExtents(before.placement().shards())
+                    .forEach((k, v) -> earlier.put(k, new RingExtent(v)));
+            ringExtents(after.placement().shards())
+                    .forEach((k, v) -> later.put(k, new RingExtent(v)));
+        }
+        return List.of(earlier, later);
+    }
+
+    /**
      * For each shard the later snapshot names, the shards of the earlier one its extent draws from,
      * under {@code LIN-004}.
      */
     public static Map<String, List<String>> parents(PlacementEngine before, PlacementEngine after) {
         List<String> earlier = before.placement().shards();
         List<String> later = after.placement().shards();
-        if (earlier.equals(later) || !"ring".equals(after.document().strategy().kind())) {
+        if (earlier.equals(later) || "slot".equals(after.document().strategy().kind())) {
             Map<String, List<String>> identity = new LinkedHashMap<>();
             later.forEach(shard -> identity.put(shard, List.of(shard)));
             return identity;
         }
-        Map<String, List<Segment>> earlierExtents = ringExtents(earlier);
-        Map<String, List<Segment>> laterExtents = ringExtents(later);
+        List<Map<String, Extent>> extents = geometry(before, after);
         Map<String, List<String>> out = new LinkedHashMap<>();
         for (String shard : later) {
             List<String> drawn = new ArrayList<>();
             for (String candidate : earlier) {
-                if (meets(earlierExtents.get(candidate), laterExtents.get(shard))) {
+                if (meetsExtent(extents.get(0).get(candidate), extents.get(1).get(shard))) {
                     drawn.add(candidate);
                 }
             }
@@ -193,30 +328,26 @@ public final class ShardExtents {
         }
         List<String> earlier = before.placement().shards();
         List<String> later = after.placement().shards();
-        if (!"ring".equals(kind)) {
-            if (!earlier.equals(later)) {
-                throw new Refused("unalignedLineage",
-                        "the two snapshots enumerate different shards");
-            }
-            return identity(later, before, after, replicaSet);
-        }
-        if (earlier.equals(later)) {
+        if ("slot".equals(kind) || earlier.equals(later)) {
+            // LIN-007 and LIN-012: an equal shard set is an equal extent set, and TOPO-231 has
+            // already refused a slot pair whose slotCount differs.
             return identity(later, before, after, replicaSet);
         }
 
-        Map<String, List<Segment>> earlierExtents = ringExtents(earlier);
-        Map<String, List<Segment>> laterExtents = ringExtents(later);
+        List<Map<String, Extent>> extents = geometry(before, after);
+        Map<String, Extent> earlierExtents = extents.get(0);
+        Map<String, Extent> laterExtents = extents.get(1);
         Set<String> enumeratedLater = new LinkedHashSet<>(later);
         List<Entry> entries = new ArrayList<>();
         for (String shard : later) {
-            List<Segment> mine = laterExtents.get(shard);
+            Extent mine = laterExtents.get(shard);
             List<String> drawn = new ArrayList<>();
             for (String candidate : earlier) {
-                List<Segment> theirs = earlierExtents.get(candidate);
-                if (!meets(theirs, mine)) {
+                Extent theirs = earlierExtents.get(candidate);
+                if (!meetsExtent(theirs, mine)) {
                     continue;
                 }
-                if (!contains(theirs, mine) && !contains(mine, theirs)) {
+                if (!containsExtent(theirs, mine) && !containsExtent(mine, theirs)) {
                     throw new Refused("unalignedLineage", shard);
                 }
                 drawn.add(candidate);
@@ -225,7 +356,7 @@ public final class ShardExtents {
                 entries.add(new Entry(shard, Lineage.FRESH, List.of()));
             } else if (drawn.size() > 1) {
                 entries.add(new Entry(shard, Lineage.MERGED, List.copyOf(drawn)));
-            } else if (equal(earlierExtents.get(drawn.get(0)), mine)) {
+            } else if (equalExtent(earlierExtents.get(drawn.get(0)), mine)) {
                 entries.add(new Entry(shard, moved(shard, before, after, replicaSet),
                         List.copyOf(drawn)));
             } else {
@@ -236,10 +367,10 @@ public final class ShardExtents {
             if (enumeratedLater.contains(shard)) {
                 continue;
             }
-            List<Segment> mine = earlierExtents.get(shard);
+            Extent mine = earlierExtents.get(shard);
             List<String> children = new ArrayList<>();
             for (String candidate : later) {
-                if (meets(laterExtents.get(candidate), mine)) {
+                if (meetsExtent(laterExtents.get(candidate), mine)) {
                     children.add(candidate);
                 }
             }

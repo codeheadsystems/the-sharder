@@ -1,9 +1,9 @@
 {
   "suite": "sharder conformance suite",
   "revision": {
-    "id": "0cbfa051871dc2e6467163cc79a276dc19769add35ba8e5c5fd14e5b6cab2312",
+    "id": "e7b47c5f5ee68e66304d7b7524ac620f0b362a889208613f7cf4b001b87bcc49",
     "basis": "sha256 of the RFC 8785 canonical form of the file digests, the level table, and the strategy surfaces",
-    "fileCount": 204,
+    "fileCount": 205,
     "trees": [
       "vectors",
       "topologies",
@@ -16,12 +16,12 @@
   "generator": "conformance/generator",
   "counts": {
     "vectorFiles": 69,
-    "vectorCases": 608,
-    "topologyDocuments": 108,
+    "vectorCases": 609,
+    "topologyDocuments": 109,
     "scenarios": 25,
     "scenarioSteps": 313,
     "properties": 28,
-    "requirementsNamed": 472
+    "requirementsNamed": 473
   },
   "requirementsNamed": [
     "CFG-014",
@@ -196,6 +196,7 @@
     "LIN-012",
     "LIN-013",
     "LIN-014",
+    "LIN-016",
     "LIN-021",
     "LIN-022",
     "LIN-033",
@@ -587,10 +588,10 @@
       ],
       "surface": "the handoff coordinator and rate control",
       "vectorFiles": 5,
-      "vectorCases": 25,
+      "vectorCases": 26,
       "scenarios": 15,
       "properties": 3,
-      "requirementsNamed": 98
+      "requirementsNamed": 102
     }
   ],
   "strategySurfaces": [
@@ -1063,6 +1064,14 @@
       "strategy": "directory",
       "nodeCount": 2,
       "digest": "202c08ccc95f89693fff2411d987ea83bf6e54536b0ff0434d7b77027cf2588d",
+      "valid": true
+    },
+    "topologies/lineage-directory-fresh.topology.json": {
+      "topologyId": "lineage-directory",
+      "epoch": 3,
+      "strategy": "directory",
+      "nodeCount": 2,
+      "digest": "3ef0ed21f04db339d03aac9c12d7d6693578cb72df336c453716e77030559697",
       "valid": true
     },
     "topologies/lineage-directory-refined.topology.json": {
@@ -2054,10 +2063,12 @@
         "ring",
         "slot"
       ],
-      "description": "The lineage classification over pairs of documents: a ring extent divided, a ring extent folded, the identity lineage under `slot`, the unaligned boundary that is refused, the `directory` pair whose shard sets differ, the incomparable pair, and the kind that enumerates no shard.",
+      "description": "The lineage classification over pairs of documents: a ring extent divided, a ring extent folded, the identity lineage under `slot`, the unaligned boundary that is refused, the `directory` prefix refined and the fresh extent beside it, the incomparable pair, and the kind that enumerates no shard.",
       "topology": null,
-      "caseCount": 7,
+      "caseCount": 8,
       "requirements": [
+        "DIR-002",
+        "DIR-010",
         "ERR-050",
         "LIN-004",
         "LIN-006",
@@ -2066,13 +2077,15 @@
         "LIN-012",
         "LIN-013",
         "LIN-014",
+        "LIN-016",
         "LIN-021",
         "LIN-022",
         "LIN-033",
         "MOVE-241",
+        "PLACE-065",
         "TOPO-231"
       ],
-      "sha256": "39281cb0f3216695062075b0935328864baf6aede3a19b3df5033c36e10a1182"
+      "sha256": "1e13da445183131e15811f7b28046afd0094a7bc21692f6ecf2aff6e0007e9b2"
     },
     {
       "file": "vectors/migration/plan-construction.json",

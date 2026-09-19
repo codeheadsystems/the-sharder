@@ -777,10 +777,9 @@ describes. The state sequence a local step runs is an output, so
 `scenarios/handoff-local-division.json`, `scenarios/handoff-local-fold.json`, and
 `scenarios/handoff-local-step-aborted.json` carry `LIN-051`, `LIN-052`, `LIN-056`, and `LIN-057`.
 
-`LIN-043` states that a plan emits no handoff for a shard with no parent. A fresh extent arises only
+`LIN-043` states that a plan emits no handoff for a shard with no parent. A fresh extent arises
 where a later snapshot admits routing keys that the earlier one matched to no shard, which is the
-`directory` no-match of `DIR-010`, and `LIN-013` refuses a `directory` pair whose shard sets differ
-until directory extents are defined. The case arrives with them.
+`directory` no-match of `DIR-010`, and `vectors/migration/lineage.json` carries that case.
 
 ### Configuration and security
 

@@ -425,6 +425,17 @@ LINEAGE_DIR_BEFORE = {
     "nodes": [{"id": "d1"}, {"id": "d2"}],
 }
 
+# `LIN-043`: `ef` matched no entry of the earlier table, so the shard it names has no parent and
+# no contents to move.  A `directory` table is the only place a fresh extent arises, because it is
+# the only kind whose `shardOf` answers with no shard under `DIR-010`.
+LINEAGE_DIR_FRESH = copy.deepcopy(LINEAGE_DIR_BEFORE)
+LINEAGE_DIR_FRESH["epoch"] = 3
+LINEAGE_DIR_FRESH["strategy"]["entries"] = [
+    {"match": {"kind": "prefix", "value": "ab"}, "nodes": ["d1"]},
+    {"match": {"kind": "prefix", "value": "cd"}, "nodes": ["d2"]},
+    {"match": {"kind": "prefix", "value": "ef"}, "nodes": ["d1"]},
+]
+
 LINEAGE_DIR_REFINED = copy.deepcopy(LINEAGE_DIR_BEFORE)
 LINEAGE_DIR_REFINED["epoch"] = 2
 LINEAGE_DIR_REFINED["strategy"]["entries"] = [
@@ -439,6 +450,7 @@ def build_lineage(root):
     """`LIN-*`: the classification over pairs of documents, and the plan built over it."""
     documents = {"lineage-directory-before": LINEAGE_DIR_BEFORE,
                  "lineage-directory-refined": LINEAGE_DIR_REFINED,
+                 "lineage-directory-fresh": LINEAGE_DIR_FRESH,
                  "delta-ring-unaligned": DELTA_RING_UNALIGNED}
     for name, document in documents.items():
         write_json(root / ("topologies/%s.topology.json" % name), document)
@@ -470,6 +482,15 @@ def build_lineage(root):
          "`LIN-021`: removing the token folds `(1000, 2000]` into the extent that follows it, so "
          "the later shard is `merged` from two parents and the shard only the earlier snapshot "
          "enumerates is `folded` and follows every later entry under `LIN-033`."),
+        ("directory-prefix-refined", "lineage-directory-before", "lineage-directory-refined",
+         ["LIN-013", "LIN-016", "LIN-021", "DIR-002", "PLACE-065"],
+         "`LIN-016`: refining `prefix:ab` into `ab0` and `ab1` leaves `ab` winning the keys "
+         "neither longer prefix claims, so all three shards of the later table are `divided` from "
+         "the one entry and the untouched `cd` is `unchanged`."),
+        ("directory-fresh-extent", "lineage-directory-before", "lineage-directory-fresh",
+         ["LIN-013", "LIN-016", "LIN-021", "DIR-010"],
+         "`LIN-021`: the added entry wins keys the earlier table matched to no shard under "
+         "`DIR-010`, so the shard it names is `fresh` and has no parent to draw from."),
         ("slot-identity", "delta-before", "delta-moved",
          ["LIN-007", "LIN-012", "LIN-021"],
          "`LIN-012`: `TOPO-231` holds `slotCount` equal, so the two snapshots enumerate the same "
@@ -488,10 +509,6 @@ def build_lineage(root):
          "`LIN-022`: a boundary that moves without dividing or folding an extent whole has no "
          "correspondence to name, so the plan is refused and the authority publishes the change "
          "as a division epoch followed by a fold epoch."),
-        ("directory-differing-shard-sets", "lineage-directory-before", "lineage-directory-refined",
-         ["LIN-013", "ERR-050"], "unalignedLineage",
-         "`LIN-013`: a `directory` extent is a matcher narrowed by the precedence of `DIR-002`. "
-         "It is decidable and not yet defined, so a pair whose shard sets differ is refused."),
         ("incomparable-shard-identity", "delta-before", "delta-other-seed",
          ["LIN-006", "TOPO-231", "ERR-050"], "incomparableShards",
          "`LIN-006`: a lineage joins two snapshots on their extents and an ownership delta joins "
@@ -512,10 +529,11 @@ def build_lineage(root):
     emit(root, "vectors/migration/lineage.json", "migration-lineage", "lineage",
          "The lineage classification over pairs of documents: a ring extent divided, a ring extent "
          "folded, the identity lineage under `slot`, the unaligned boundary that is refused, the "
-         "`directory` pair whose shard sets differ, the incomparable pair, and the kind that "
-         "enumerates no shard.",
-         ["LIN-004", "LIN-006", "LIN-007", "LIN-011", "LIN-012", "LIN-013", "LIN-014", "LIN-021",
-          "LIN-022", "LIN-033", "TOPO-231", "MOVE-241", "ERR-050"], cases, level="migration")
+         "`directory` prefix refined and the fresh extent beside it, the incomparable pair, and "
+         "the kind that enumerates no shard.",
+         ["LIN-004", "LIN-006", "LIN-007", "LIN-011", "LIN-012", "LIN-013", "LIN-014", "LIN-016",
+          "LIN-021", "LIN-022", "LIN-033", "DIR-002", "DIR-010", "PLACE-065", "TOPO-231",
+          "MOVE-241", "ERR-050"], cases, level="migration")
 
     plans = []
     for label, before, after, requirements, note in [

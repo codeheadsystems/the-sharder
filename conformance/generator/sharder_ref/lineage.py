@@ -77,6 +77,80 @@ def equal(first, second):
     return _measure(first) == _measure(second) == _measure(_intersection(first, second))
 
 
+# ------------------------------------------------------- extents under `directory`
+
+def _matchers(snapshot):
+    """Each entry's matcher as `(kind, decoded octets)`, in `entries` array order."""
+    from .topology import decode_matcher_value
+
+    out = []
+    for entry in snapshot.strategy["entries"]:
+        match = entry["match"]
+        out.append((match["kind"], decode_matcher_value(match)))
+    return out
+
+
+def _regions(first, second):
+    """The regions the two tables' matcher values cut the keyspace into.
+
+    Every node of the combined prefix trie contributes two regions: the key equal to that node, and
+    the keys strictly extending it that no deeper node is a prefix of.  The root contributes the
+    second of those for the keys no matcher value is a prefix of.  Two keys in one region match
+    exactly the same matchers of either table, so a region is the finest distinction either table
+    can draw and the regions together cover the keyspace.
+    """
+    nodes = {b""}
+    for kind, value in list(first) + list(second):
+        nodes.add(value)
+    ordered = sorted(nodes)
+    return ([("exact", node) for node in ordered if node]
+            + [("open", node) for node in ordered])
+
+
+def _winner(matchers, region):
+    """`PLACE-065`: the entry index that wins a region, or `None` where no entry matches it.
+
+    An `exact` matcher can only win the region that is its own key, because a region of keys
+    strictly extending a node contains no node of the trie and every matcher value is one.
+    """
+    shape, node = region
+    if shape == "exact":
+        for index, (kind, value) in enumerate(matchers):
+            if kind == "exact" and value == node:
+                return index
+    best = None
+    for index, (kind, value) in enumerate(matchers):
+        if kind != "prefix" or not node.startswith(value):
+            continue
+        if best is None or len(value) > len(matchers[best][1]):
+            best = index
+    return best
+
+
+def directory_extents(before, after):
+    """`LIN-013`: each shard's extent as the set of regions its entry wins."""
+    first, second = _matchers(before), _matchers(after)
+    regions = _regions(first, second)
+    out = []
+    for snapshot, matchers in ((before, first), (after, second)):
+        shards = placement.shards(snapshot)
+        extents = {shard: set() for shard in shards}
+        for region in regions:
+            index = _winner(matchers, region)
+            if index is not None:
+                extents[shards[index]].add(region)
+        out.append({shard: frozenset(region) for shard, region in extents.items()})
+    return out[0], out[1]
+
+
+def _region_meets(first, second):
+    return bool(first & second)
+
+
+def _region_contains(outer, inner):
+    return inner <= outer
+
+
 # ------------------------------------------------------------------------------- the lineage
 
 def extents(snapshot):
@@ -134,31 +208,28 @@ def classify(before, after, replicas_of):
         raise Refused("strategyUnsupported", "rendezvous enumerates no shard")
 
     shards_before, shards_after = placement.shards(before), placement.shards(after)
-    if kind in ("slot", "directory"):
-        if shards_before != shards_after:
-            # `LIN-013`: a directory extent is decidable and not yet defined, so the pair is
-            # refused rather than guessed.  Under `slot` `TOPO-231` has already refused a differing
-            # `slotCount`, so an unequal shard set cannot arise.
-            raise Refused("unalignedLineage", "the two snapshots enumerate different shards")
+    if kind == "slot":
+        # `LIN-012`: `TOPO-231` has already refused a differing `slotCount`, so the two snapshots
+        # enumerate the same slots and every extent equals its counterpart.
         return _identity_lineage(before, after, replicas_of)
 
     # `LIN-007`: an equal shard set is an equal extent set, so the lineage is the identity.
     if shards_before == shards_after:
         return _identity_lineage(before, after, replicas_of)
 
-    earlier, later = extents(before), extents(after)
+    earlier, later, meets_, contains_, equal_ = _geometry(before, after, kind)
     rows = []
     for shard in shards_after:
         mine = later[shard]
-        parents = [s for s in shards_before if meets(earlier[s], mine)]
+        parents = [s for s in shards_before if meets_(earlier[s], mine)]
         for parent in parents:
-            if not contains(earlier[parent], mine) and not contains(mine, earlier[parent]):
+            if not contains_(earlier[parent], mine) and not contains_(mine, earlier[parent]):
                 raise Refused("unalignedLineage", shard)
         if not parents:
             rows.append({"shard": shard, "class": "fresh", "parents": []})
         elif len(parents) > 1:
             rows.append({"shard": shard, "class": "merged", "parents": parents})
-        elif equal(earlier[parents[0]], mine):
+        elif equal_(earlier[parents[0]], mine):
             was, now = replicas_of(before, shard), replicas_of(after, shard)
             rows.append({"shard": shard, "class": "unchanged" if was == now else "moved",
                          "parents": parents})
@@ -169,7 +240,7 @@ def classify(before, after, replicas_of):
         if shard in later:
             continue
         mine = earlier[shard]
-        children = [s for s in shards_after if meets(later[s], mine)]
+        children = [s for s in shards_after if meets_(later[s], mine)]
         if not children:
             rows.append({"shard": shard, "class": "vacated", "parents": []})
         elif len(children) > 1:
@@ -179,14 +250,22 @@ def classify(before, after, replicas_of):
     return rows
 
 
+def _geometry(before, after, kind):
+    """The two extent maps and the three predicates that decide them, per strategy kind."""
+    if kind == "directory":
+        earlier, later = directory_extents(before, after)
+        return earlier, later, _region_meets, _region_contains, lambda a, b: a == b
+    return ring_extents(before), ring_extents(after), meets, contains, equal
+
+
 def parents_of(before, after):
     """For each shard of the later snapshot, the shards of the earlier one its extent draws from."""
     kind = before.strategy["kind"]
     shards_before, shards_after = placement.shards(before), placement.shards(after)
-    if kind in ("slot", "directory") or shards_before == shards_after:
+    if kind == "slot" or shards_before == shards_after:
         return {shard: [shard] for shard in shards_after}
-    earlier, later = extents(before), extents(after)
-    return {shard: [s for s in shards_before if meets(earlier[s], later[shard])]
+    earlier, later, meets_, _, _ = _geometry(before, after, kind)
+    return {shard: [s for s in shards_before if meets_(earlier[s], later[shard])]
             for shard in shards_after}
 
 
@@ -198,16 +277,18 @@ def plan_handoffs(before, after, replicas_of):
     """
     parents = parents_of(before, after)
     kind = before.strategy["kind"]
-    identity = kind != "ring" or placement.shards(before) == placement.shards(after)
-    earlier = {} if identity else extents(before)
-    later = {} if identity else extents(after)
+    identity = kind == "slot" or placement.shards(before) == placement.shards(after)
+    if identity:
+        earlier, later, equal_ = {}, {}, None
+    else:
+        earlier, later, _, _, equal_ = _geometry(before, after, kind)
 
     out = []
     for shard in placement.shards(after):
         destinations = replicas_of(after, shard)
         mine = parents[shard]
         divisions, folds, moves = [], [], []
-        if not identity and len(mine) == 1 and not equal(earlier[mine[0]], later[shard]):
+        if not identity and len(mine) == 1 and not equal_(earlier[mine[0]], later[shard]):
             # `LIN-052`: the extent narrowed, so a node holding both divides its own copy.
             for node in destinations:
                 if node in replicas_of(before, mine[0]):
