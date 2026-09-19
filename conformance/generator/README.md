@@ -1,9 +1,8 @@
 # Conformance vector generator
 
 Every expected value under `conformance/` is computed by running the reference implementation in
-this directory. Nothing is hand-written. A vector file containing an ordering that somebody reasoned
-their way to rather than executed is worse than no vector at all, because no correct implementation
-can pass it and every implementer assumes the defect is theirs.
+this directory. Nothing is hand-written. An ordering that was reasoned to rather than executed is a
+defect no correct implementation can pass.
 
 The reference is not a binding and is not a library. It exists so that the suite has a second
 implementation to compute against, and so that a maintainer can regenerate the suite and diff it.

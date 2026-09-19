@@ -38,12 +38,13 @@ ports/<port>/
 └── conformance/               the port's driver, run by the port's own test command
 ```
 
-`build.sh` is the only thing the repository asks of a port's build, and it asks one question: build
-yourself, and exit non-zero where you failed. [`../../build.sh`](../../build.sh) at the repository
-root runs every port's script, and continuous integration runs the root one over a matrix it
-discovers from the tree, so a port that carries its script is built by both without either one
-changing. [`adr/0082`](adr/0082-continuous-integration-and-dependency-updates.md) records that
-arrangement and the dependency updates that ride on it.
+`build.sh` is the only thing the repository asks of a port's build, and it asks one question: does
+the port build, and does it exit non-zero where it failed. [`../../build.sh`](../../build.sh) at
+the repository root runs every port's script, and continuous integration runs the root one over a
+matrix it discovers from the tree, so a port that carries its script is built by both without
+either one changing.
+[`adr/0082`](adr/0082-continuous-integration-and-dependency-updates.md) records that arrangement
+and the dependency updates that ride on it.
 
 Nothing above `ports/<port>/` belongs to the port's build except the conformance suite it reads and
 the documents it renders. [`adr/0079`](adr/0079-repository-layout-for-multiple-ports.md) records the

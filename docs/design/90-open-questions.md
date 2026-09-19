@@ -202,6 +202,12 @@ Evidence that settles it: the Java implementation, written from
 forcing a vector to move. Every vector it does force to move names a place where the reference and
 the specification disagreed.
 
+That port has since reached every level, and it did force vectors to move.
+[`adr/0084`](adr/0084-missing-member-as-a-validation-error.md) and
+[`adr/0085`](adr/0085-hook-declarations-and-refused-aborts.md) each name a place the reference and
+the specification disagreed. The question stays open because the release column asks for v0.1, and
+a second port is what shows the specification reads the same way twice.
+
 ### OQ-13. Requirement coverage below full
 
 The suite names some of the requirements the specification states and not all of them.
