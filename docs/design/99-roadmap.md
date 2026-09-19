@@ -11,7 +11,7 @@ Publication comes last, under [`adr/0083`](adr/0083-publication-as-the-last-stag
 published until every port passes the conformance suite at the levels its surfaces commit it to, in
 its own test harness, so every stage below is a milestone rather than a release.
 
-Status: nothing is published and no release has been made. The Java port is under way and reaches
+Status: nothing is published and no release has been made. The Java port is finished, reaches
 every stage, and declares every level; no other port has been started, and no date is attached to
 anything below.
 
@@ -231,12 +231,11 @@ classes, and `Optional` for the specification's `X | none` shapes, are binary in
 one with an array or a nullable reference breaks every compiled consumer.
 [`adr/0033`](adr/0033-opaque-identifier-value-types.md).
 
-The near-zero dependency policy. `sharder-api`, `sharder-core`, `sharder-migrate`, and
-`sharder-provider-file` require `java.base` and nothing else, and a build check fails a published
-POM that gains a compile or runtime dependency. Adding one later puts it in every consumer's
-dependency graph, and removing it again is a breaking change for anyone who came to rely on it
-transitively. A test or build dependency sits outside the policy and outside this door, because it
-reaches no consumer; the Bouncy Castle oracle of
+The near-zero dependency policy. `sharder` requires `java.base` and nothing else, and a build
+check fails a published POM that gains a compile or runtime dependency. Adding one later puts it in
+every consumer's dependency graph, and removing it again is a breaking change for anyone who came
+to rely on it transitively. A test or build dependency sits outside the policy and outside this
+door, because it reaches no consumer; the Bouncy Castle oracle of
 [`adr/0040`](adr/0040-cryptographic-primitive-sourcing-policy.md) is one.
 [`adr/0032`](adr/0032-dependency-free-json-and-canonicalisation.md).
 

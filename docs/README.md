@@ -5,8 +5,8 @@ that key, in what order, and what happens when those nodes are unavailable. It c
 decisions and sequences ownership changes. It moves no data, elects no leader, opens no connection,
 and speaks no wire protocol.
 
-The library is designed and not yet implemented. Every document here describes the design, and
-nothing here describes a running system.
+The library is designed, and `ports/java/` implements it. Every document here describes the
+design, which the Java port renders and no other port has rendered yet.
 
 ## Reading paths
 
@@ -153,12 +153,13 @@ status line says what has and has not been written. The port's directory is
 [`design/35-port-conventions.md`](design/35-port-conventions.md) states what it carries that every
 other port carries too.
 
-1. [`design/40-java-binding.md`](design/40-java-binding.md#artifacts-and-modules). The Gradle
-   projects, what each carries, and what each split lets a consumer avoid.
+1. [`design/40-java-binding.md`](design/40-java-binding.md#artifacts-and-modules). The one
+   artifact and the one module, and the package boundaries that carry what an artifact split
+   would have carried.
 2. [`design/40-java-binding.md`](design/40-java-binding.md#public-interface-set). The public types,
    in the order the specification introduces them.
 3. [`design/40-java-binding.md`](design/40-java-binding.md#integer-widths). The unsigned discipline
-   and the build check that is to enforce it.
+   and the build check that enforces it.
 4. [`design/40-java-binding.md`](design/40-java-binding.md#conformance-harness). How the vectors
    reach JUnit.
 5. [`design/40-java-binding.md`](design/40-java-binding.md#build-and-quality-gates). The `check`

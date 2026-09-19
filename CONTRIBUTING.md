@@ -1,9 +1,9 @@
 # Contributing to sharder
 
-The sharder library is designed and is being implemented. Three kinds of change are possible today:
-a change to a document, a change to the conformance suite through its generator, and a change to a
-port. The Java port under [`ports/java/`](ports/java/) is the one that exists, and it reaches the
-every conformance level the suite carries, and declares them all.
+The sharder library is designed and one port implements it. Three kinds of change are possible
+today: a change to a document, a change to the conformance suite through its generator, and a
+change to a port. The Java port under [`ports/java/`](ports/java/) is the one that exists, and it
+reaches every conformance level the suite carries, and declares them all.
 [`docs/design/99-roadmap.md`](docs/design/99-roadmap.md) gives the staging.
 
 [`docs/maintain/style.md`](docs/maintain/style.md) is binding on every Markdown file in this
@@ -174,8 +174,9 @@ A change lands through a pull request, and the checks pass before it merges.
 
 ## Review and checks
 
-Two checks are specified to run inside the Gradle `check` task, and neither exists yet, because
-`check` arrives with the first Java implementation. Until then every rule is enforced at review.
+Two checks run inside the Gradle `check` task of the Java port, and they carry different
+authority. Both read every Markdown file in the repository, so a change to any document is checked
+by the Java build whatever part of the tree it touches.
 
 | Check | On a finding |
 |---|---|

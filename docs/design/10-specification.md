@@ -11,9 +11,10 @@ a conformance author turning a requirement into a test. A term carries the meani
 in [`05-glossary.md`](05-glossary.md) gives it, and a quoted document member names a member of the
 format that [`20-topology-format.md`](20-topology-format.md) states.
 
-Status: no implementation of this specification exists. Every requirement below states what a
-conforming implementation does, and none reports what one did. The conformance
-suite of [`30-conformance.md`](30-conformance.md) runs against the reference generator alone.
+Status: one implementation of this specification exists, `ports/java/`. Every requirement below
+states what a conforming implementation does, and none reports what one did. The conformance suite
+of [`30-conformance.md`](30-conformance.md) runs against the reference generator and against that
+port.
 
 ## Conventions
 

@@ -7,23 +7,23 @@ repository.
 
 `sharder` is a language-agnostic sharding and routing library: given a key and a view of the world,
 it answers which nodes handle that key, in what order, and what happens when those nodes are
-unavailable. The design is complete and no implementation exists. What is here is the normative
+unavailable. The design is complete and one implementation exists. What is here is the normative
 specification, the topology document format and its JSON Schema, the decision records, the port
 conventions and the Java binding design, and a conformance suite of language-neutral data files
 computed by a Python reference implementation.
 
 Three kinds of change are possible today: a change to a Markdown document, a change to the
-conformance suite through its generator, and a change to the Java port under `ports/java/`, which is
-under way and reaches every conformance level, all of which it declares.
-Nothing is published, and nothing is until every
-port passes the suite in its own harness, under
+conformance suite through its generator, and a change to the Java port under `ports/java/`, which
+is finished and reaches every conformance level, all of which it declares. Nothing is published,
+and nothing is until every port passes the suite in its own harness, under
 [`adr/0083`](docs/design/adr/0083-publication-as-the-last-stage.md);
 [`docs/design/99-roadmap.md`](docs/design/99-roadmap.md) gives the stages.
 
 ## Commands
 
-Regenerating the conformance suite is the only build in the repository. It needs `python3` and
-`openssl` on the path; `jsonschema` is optional and its absence is reported rather than fatal.
+The repository carries two builds: the conformance suite's generator, and the Java port.
+Regenerating the suite needs `python3` and `openssl` on the path; `jsonschema` is optional and its
+absence is reported rather than fatal.
 
 ```sh
 cd conformance/generator

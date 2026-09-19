@@ -23,9 +23,9 @@ Three things stood in the way of carrying them.
 an operator alerting on severity would have got different answers from each.
 
 `OBS-020` stated its payload column in prose: "digest, node counts, prepare duration", "the epoch",
-"node, prior state, new state, trigger". The requirement said an implementation "MUST carry at least
-the payload given", and what was given was a description rather than a set of names. Two ports would
-have spelled the members differently and both would have conformed.
+"node, prior state, new state, trigger". The requirement said an implementation "`MUST` carry at
+least the payload given", and what was given was a description rather than a set of names. Two
+ports would have spelled the members differently and both would have conformed.
 
 Three rows disagreed with the requirements that state the same event. `REPL-022`, `SPREAD-016`, and
 `FAIL-026` each require the fencing token on the event they name, and the row for each omitted it,

@@ -15,4 +15,4 @@ A declaration is written by hand and is a claim the port's maintainer makes.
 naming an earlier revision than the manifest holds is reported as lagging rather than failed.
 
 A port carries no declaration until it reaches `hash`, `place`, `core`, and `scale`, which
-`CORE-110` makes mandatory. Until then the port's own README states which levels pass.
+`CORE-110` makes mandatory. Before that, the port's own README states which levels pass.

@@ -10,9 +10,9 @@ answered from a running deployment. The release is the one
 [`99-roadmap.md`](99-roadmap.md#release-v01) describes, which publishes the whole surface once every
 port passes the conformance suite in its own test harness.
 
-Status: no implementation of the sharder library exists. Several questions below name a running
-deployment, a benchmark, or a second port as the evidence that settles them, and none of those has
-been produced.
+Status: one implementation of the sharder library exists, `ports/java/`. Several questions below
+name a running deployment, a benchmark, or a second port as the evidence that settles them, and
+none of those has been produced.
 
 | Identifier | Question | Release |
 |---|---|---|
@@ -202,6 +202,12 @@ Evidence that settles it: the Java implementation, written from
 forcing a vector to move. Every vector it does force to move names a place where the reference and
 the specification disagreed.
 
+That port has since reached every level, and it did force vectors to move.
+[`adr/0084`](adr/0084-missing-member-as-a-validation-error.md) and
+[`adr/0085`](adr/0085-hook-declarations-and-refused-aborts.md) each name a place the reference and
+the specification disagreed. The question stays open because the release column asks for v0.1, and
+a second port is what shows the specification reads the same way twice.
+
 ### OQ-13. Requirement coverage below full
 
 The suite names some of the requirements the specification states and not all of them.
@@ -233,8 +239,11 @@ incremented once per attempt that reaches it rather than once per entry a routin
 [`adr/0067`](adr/0067-probe-admission-at-the-attempt.md) records that decision. The budget window
 was already accounted at the attempt, so the two counters contend under the same rate.
 
-Recommended default: no change to the specification. The Java binding uses an atomic increment for
-the probe counter and an array of adders for the budget window, and neither takes a lock.
+Recommended default: no change to the specification. The Java binding designs an atomic increment
+for the probe counter and an array of adders for the budget window, and `ports/java/` takes the
+atomic increment and holds the budget window under one lock instead, because `FAIL-031` counts
+over the window to the millisecond and a bucketed counter answers differently at a bucket
+boundary. [`../../ports/java/README.md`](../../ports/java/README.md) records that difference.
 
 Evidence that settles it: a benchmark in which attempt latency at high concurrency is dominated by
 one of the two counters. The same benchmark shows whether a requirement forbidding a lock on them

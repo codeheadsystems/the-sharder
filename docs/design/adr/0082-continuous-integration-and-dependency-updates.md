@@ -17,8 +17,8 @@ small investigation.
 
 The ports do not share a build tool and will not. A Gradle invocation, a `go test`, a `cargo test`,
 and a `rake` are four commands, and a workflow that knows all four is a workflow edited by every
-port that lands. What the repository needs from a port is an answer to one question: build yourself,
-and say whether you succeeded.
+port that lands. What the repository needs from a port is an answer to one question: does the port
+build, and does it report whether it succeeded.
 
 ## Decision
 

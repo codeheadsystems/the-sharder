@@ -6,8 +6,8 @@ as defined here and does not redefine them in passing. A term that also appears 
 names a member of a topology document is given its syntax in
 [`20-topology-format.md`](20-topology-format.md).
 
-Status: the library is designed and not implemented. Every term here names something the design
-states, not something that has run.
+Status: the library is designed, and `ports/java/` implements it. Every term here names something
+the design states, and the Java port renders each one.
 
 ## Terms
 
