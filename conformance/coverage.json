@@ -2670,7 +2670,8 @@
     ],
     "MOVE-091": [
       "scenarios/plan-superseded-by-new-epoch.json",
-      "scenarios/rebalance-survives-unrelated-epoch.json"
+      "scenarios/rebalance-survives-unrelated-epoch.json",
+      "scenarios/rebase-past-the-cutover.json"
     ],
     "MOVE-092": [
       "scenarios/plan-superseded-by-new-epoch.json",
@@ -2692,19 +2693,23 @@
     ],
     "MOVE-094": [
       "scenarios/rebalance-survives-unrelated-epoch.json",
-      "scenarios/rebase-drops-a-handoff.json"
+      "scenarios/rebase-drops-a-handoff.json",
+      "scenarios/rebase-past-the-cutover.json"
     ],
     "MOVE-096": [
       "scenarios/rebalance-survives-unrelated-epoch.json",
-      "scenarios/rebase-drops-a-handoff.json"
+      "scenarios/rebase-drops-a-handoff.json",
+      "scenarios/rebase-past-the-cutover.json"
     ],
     "MOVE-097": [
       "scenarios/rebalance-survives-unrelated-epoch.json",
-      "scenarios/rebase-drops-a-handoff.json"
+      "scenarios/rebase-drops-a-handoff.json",
+      "scenarios/rebase-past-the-cutover.json"
     ],
     "MOVE-102": [
       "scenarios/rebalance-survives-unrelated-epoch.json",
       "scenarios/rebase-drops-a-handoff.json",
+      "scenarios/rebase-past-the-cutover.json",
       "scenarios/undetermined-resolves-both-ways.json"
     ],
     "MOVE-103": [
@@ -2718,10 +2723,12 @@
       "scenarios/rebase-drops-a-handoff.json"
     ],
     "MOVE-098": [
-      "scenarios/rebase-drops-a-handoff.json"
+      "scenarios/rebase-drops-a-handoff.json",
+      "scenarios/rebase-past-the-cutover.json"
     ],
     "MOVE-099": [
-      "scenarios/rebase-drops-a-handoff.json"
+      "scenarios/rebase-drops-a-handoff.json",
+      "scenarios/rebase-past-the-cutover.json"
     ],
     "MOVE-233": [
       "scenarios/undetermined-resolves-both-ways.json"

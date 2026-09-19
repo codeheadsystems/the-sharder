@@ -10,6 +10,7 @@ import com.codeheadsystems.sharder.topology.FencingToken;
 import com.codeheadsystems.sharder.topology.Node;
 import com.codeheadsystems.sharder.topology.TopologySnapshot;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -29,6 +30,7 @@ public final class DocumentSnapshot implements TopologySnapshot {
     private final List<Node> nodes;
     private final NodeSet placementSet;
     private final PreparedPlacement placement;
+    private volatile long shardCount = -1;
 
     /** The snapshot over an engine, its digest, and when it was installed. */
     public DocumentSnapshot(PlacementEngine engine, Digest digest, OptionalLong installedAt) {
@@ -42,6 +44,33 @@ public final class DocumentSnapshot implements TopologySnapshot {
         this.placementSet = NodeSet.of(document.placementSet().stream()
                 .map(TopologyDocument.Node::id).toList());
         this.placement = new PlacementFacade(engine.placement());
+        // A registered strategy prepares against this snapshot, which cannot exist before the
+        // engine it reads, so the binding is completed here and read no earlier. The preparation
+        // itself happens now rather than on the first routing call, under CORE-011: a snapshot
+        // reaches nobody until its placement is ready, and no routing call waits on a strategy.
+        engine.bind(this);
+        engine.placement().prepare();
+    }
+
+    /**
+     * The number of shards the strategy enumerates, counted once.
+     *
+     * <p>{@code OBS-031} compares against it, and a ring of a million tokens names a million
+     * shards, so the count is taken on the first call that needs one and held. The enumeration is
+     * a pure function of the snapshot, so a second count would answer what the first did.
+     */
+    public long shardCount() {
+        long counted = shardCount;
+        if (counted < 0) {
+            counted = 0;
+            Iterator<String> shards = engine.placement().shardCursor();
+            while (shards.hasNext()) {
+                shards.next();
+                counted++;
+            }
+            shardCount = counted;
+        }
+        return counted;
     }
 
     /** The engine the snapshot was prepared over, which no exported package names. */

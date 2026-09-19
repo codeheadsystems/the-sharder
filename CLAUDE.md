@@ -108,7 +108,7 @@ cd bench && cc -O2 -o hash-short-input hash-short-input.c && ./hash-short-input
 | `conformance/declarations/` | one declaration per port, hand-written, checked against the manifest |
 | `conformance/driver/python/run_suite.py` | the worked example driver a port copies |
 | `ports/<port>/` | one implementation, rooted in the build its ecosystem expects |
-| `ports/java/src/main/java/` | the Java port: the public packages, and `core.internal` below them |
+| `ports/java/src/main/java/` | the Java port: the public packages, and the unexported `core.internal` and `migrate.internal` below them |
 | `ports/<port>/build.sh`, `build.sh` | how a port is built, and how every port is built |
 | `.github/workflows/` | the port matrix, the suite checks, and the Dependabot auto-merge |
 

@@ -11,14 +11,14 @@ them, and a reviewer checking that the port has not quietly changed the contract
 
 Status: the Java binding is under way and is not complete. The Gradle build, the opaque identifier
 types, the error taxonomy, the hash construction, the JSON reader, the canonical form and the
-digest, document validation, the snapshot lifecycle, the four placement strategies, the override
-layer, the preference list builder, the observability inventory, the conformance harness, the
-public router with its configuration and provider contracts, and the build gates are written, and
-the port reaches every conformance level the suite carries, which it declares in
+digest, document validation, the snapshot lifecycle, the four placement strategies and the
+extension point that registers a fifth, the override layer, the preference list builder, the
+observability inventory, the conformance harness, the public router with its configuration and
+provider contracts, the migration surface, and the build gates are written, and the port reaches
+every conformance level the suite carries, which it declares in
 [`../../conformance/declarations/java.json`](../../conformance/declarations/java.json). The
-migration surface, the placement extension point, and the file provider are not written, and no
-published artifact exists, so every type, task, module, gate, and benchmark
-below that the port has not reached states what it will carry rather than what one did.
+benchmarks below are not written and are outside this module under
+[`adr/0081`](adr/0081-single-java-module.md), and no published artifact exists.
 [`../../ports/java/README.md`](../../ports/java/README.md) says what is written today. Where a
 figure below comes from a measurement, it comes from a prototype written to settle a decision
 record, and it names the record that states the conditions the measurement was taken under.

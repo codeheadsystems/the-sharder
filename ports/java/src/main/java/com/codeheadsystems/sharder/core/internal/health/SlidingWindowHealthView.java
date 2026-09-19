@@ -8,15 +8,18 @@ import com.codeheadsystems.sharder.core.internal.snapshot.DocumentSnapshot;
 import com.codeheadsystems.sharder.health.HealthSignal;
 import com.codeheadsystems.sharder.health.HealthState;
 import com.codeheadsystems.sharder.health.HealthView;
+import com.codeheadsystems.sharder.health.HintObserver;
 import com.codeheadsystems.sharder.topology.TopologySnapshot;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Queue;
 import java.util.Set;
 
 /**
@@ -61,6 +64,8 @@ public final class SlidingWindowHealthView implements HealthView {
     }
 
     private final HealthSettings settings;
+    private final HintObserver observer;
+    private final Queue<Transition> pending = new ConcurrentLinkedQueue<>();
     private final Map<NodeId, Entry> entries = new ConcurrentHashMap<>();
     private final List<Transition> transitions = new ArrayList<>();
     private Set<NodeId> placementSet = Set.of();
@@ -68,7 +73,13 @@ public final class SlidingWindowHealthView implements HealthView {
 
     /** A view under the given parameters, holding no entry. */
     public SlidingWindowHealthView(HealthSettings settings) {
+        this(settings, null);
+    }
+
+    /** A view that reports every transition to an observer as well. */
+    public SlidingWindowHealthView(HealthSettings settings, HintObserver observer) {
         this.settings = settings;
+        this.observer = observer;
     }
 
     /** The parameters in force. */
@@ -77,7 +88,7 @@ public final class SlidingWindowHealthView implements HealthView {
     }
 
     @Override
-    public synchronized void report(HealthSignal signal) {
+    public void report(HealthSignal signal) {
         report(signal.node(), signal.outcome().spelling(), signal.observed());
     }
 
@@ -89,7 +100,7 @@ public final class SlidingWindowHealthView implements HealthView {
      * of a view that ignores the call.
      */
     @Override
-    public synchronized void onSnapshotInstalled(TopologySnapshot snapshot) {
+    public void onSnapshotInstalled(TopologySnapshot snapshot) {
         if (snapshot instanceof DocumentSnapshot document) {
             onSnapshotInstalled(document.document());
         }
@@ -121,7 +132,14 @@ public final class SlidingWindowHealthView implements HealthView {
      * <p>A view that is never given one runs no outlier ejection and refuses no transition, which
      * is why the call is the only way it learns either.
      */
-    public synchronized void onSnapshotInstalled(TopologyDocument document) {
+    public void onSnapshotInstalled(TopologyDocument document) {
+        synchronized (this) {
+            install(document);
+        }
+        notifyObserver();
+    }
+
+    private void install(TopologyDocument document) {
         Set<NodeId> installed = new LinkedHashSet<>();
         for (Node node : document.placementSet()) {
             installed.add(node.id());
@@ -146,13 +164,22 @@ public final class SlidingWindowHealthView implements HealthView {
      * and a signal older than the newest already ingested for that node is ignored under
      * {@code HEALTH-012}. Timers are evaluated first, under {@code HEALTH-047}.
      */
-    public synchronized void report(NodeId node, String outcome, long observed) {
+    public void report(NodeId node, String outcome, long observed) {
+        synchronized (this) {
+            ingest(node, outcome, observed);
+        }
+        notifyObserver();
+    }
+
+    private void ingest(NodeId node, String outcome, long observed) {
         Entry entry = entries.computeIfAbsent(node, ignored -> new Entry(settings));
         if (observed < entry.newestSignal) {
             return;
         }
         entry.newestSignal = observed;
-        advance(observed);
+        // The timers run under the lock this ingestion already holds, so the observer is notified
+        // once, by the public call, rather than from inside the lock.
+        timers(observed);
 
         // HEALTH-022: `cancelled` counts as neither a success nor a failure.
         if ("cancelled".equals(outcome)) {
@@ -170,7 +197,14 @@ public final class SlidingWindowHealthView implements HealthView {
 
     /** {@code HEALTH-015}: timers evaluated for every node, in ascending node identity. */
     @Override
-    public synchronized void advance(long now) {
+    public void advance(long now) {
+        synchronized (this) {
+            timers(now);
+        }
+        notifyObserver();
+    }
+
+    private void timers(long now) {
         List<NodeId> nodes = new ArrayList<>(entries.keySet());
         nodes.sort(NodeId::compareTo);
         for (NodeId node : nodes) {
@@ -364,7 +398,37 @@ public final class SlidingWindowHealthView implements HealthView {
         if (entry.state == to) {
             return;
         }
-        transitions.add(new Transition(node, entry.state, to, trigger));
+        HealthState from = entry.state;
+        transitions.add(new Transition(node, from, to, trigger));
         entry.state = to;
+        if (observer != null) {
+            // CORE-063: the observer is an extension point, so it is called after the lock is
+            // released rather than under it. The transition is queued here and drained by the
+            // public call that produced it.
+            pending.add(new Transition(node, from, to, trigger));
+        }
+    }
+
+    /**
+     * Reports every queued transition to the observer, with no lock held.
+     *
+     * <p>{@code HEALTH-048} states the event; an observer is the second place the same transition
+     * is reported, for an integrator whose health lives outside this process. A defective observer
+     * is not permitted to fail the signal that produced the transition, so it is called inside a
+     * {@code catch}.
+     */
+    private void notifyObserver() {
+        if (observer == null) {
+            return;
+        }
+        Transition queued;
+        while ((queued = pending.poll()) != null) {
+            try {
+                observer.onTransition(queued.node(), queued.from(), queued.to(),
+                        queued.trigger());
+            } catch (RuntimeException ignored) {
+                // The transition stands whatever the observer did with it.
+            }
+        }
     }
 }

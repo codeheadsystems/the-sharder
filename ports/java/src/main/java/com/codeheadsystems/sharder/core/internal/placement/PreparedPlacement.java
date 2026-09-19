@@ -72,6 +72,16 @@ public interface PreparedPlacement {
     }
 
     /**
+     * Prepares whatever the strategy computes once, before the snapshot is installed.
+     *
+     * <p>{@code CORE-011} requires preparation before installation, and {@code CORE-052} forbids a
+     * lock on the routing path, so a placement that has work to do does it here. A built-in
+     * strategy prepared itself at construction and does nothing.
+     */
+    default void prepare() {
+    }
+
+    /**
      * Whether the strategy computes its whole ordering to answer at all.
      *
      * <p>A rendezvous ordering is eager by nature, under {@code PLACE-070}: a node's score is not

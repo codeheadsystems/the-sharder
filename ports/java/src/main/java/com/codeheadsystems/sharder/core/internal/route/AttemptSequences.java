@@ -21,7 +21,8 @@ public final class AttemptSequences {
     }
 
     /** The walk over a list a caller supplies, which a scenario confines to a prefix. */
-    public static DefaultAttemptSequence over(java.util.List<com.codeheadsystems.sharder.NodeId> list,
+    public static DefaultAttemptSequence over(
+            java.util.List<com.codeheadsystems.sharder.NodeId> list,
                                        int attemptLimit, HealthView health,
                                        RetryBudget budget) {
         return new DefaultAttemptSequence(list, health, budget, attemptLimit);

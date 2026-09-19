@@ -1,0 +1,362 @@
+{
+  "scenario": "rebase-past-the-cutover",
+  "level": "migration",
+  "description": "An epoch arrives while one handoff is verifying and another is transferring.  The handoff past the cutover is reported unchanged and keeps its own target epoch, and the one before it rebases.  A second epoch arrives once the first handoff is complete, and a terminal handoff is reported unchanged as well.",
+  "requirements": [
+    "MOVE-091",
+    "MOVE-094",
+    "MOVE-096",
+    "MOVE-097",
+    "MOVE-098",
+    "MOVE-099",
+    "MOVE-102"
+  ],
+  "deterministic": true,
+  "setup": {
+    "plan": {
+      "topologyId": "rebalance",
+      "fromEpoch": 10,
+      "toEpoch": 11,
+      "policy": {
+        "maxConcurrentHandoffs": 4,
+        "maxConcurrentPerSourceNode": 1,
+        "maxConcurrentPerDestinationNode": 1,
+        "initialStepBudget": 1,
+        "commitDeadlineMillis": 30000,
+        "quiesceLeaseMarginMillis": 1000
+      },
+      "handoffs": [
+        {
+          "id": "h-0",
+          "shard": "0",
+          "source": "n1",
+          "destination": "n5"
+        },
+        {
+          "id": "h-1",
+          "shard": "1",
+          "source": "n3",
+          "destination": "n6"
+        }
+      ]
+    }
+  },
+  "steps": [
+    {
+      "action": "handoffStep",
+      "handoff": "h-0",
+      "trigger": "admittedByRatePolicy",
+      "at": 1000,
+      "expect": {
+        "outcome": {
+          "outcome": "advanced",
+          "id": "h-0",
+          "fromState": "planned",
+          "toState": "preparing"
+        },
+        "state": "preparing"
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-0",
+      "trigger": "prepareSuccess",
+      "at": 1100,
+      "expect": {
+        "outcome": {
+          "outcome": "advanced",
+          "id": "h-0",
+          "fromState": "preparing",
+          "toState": "transferring"
+        },
+        "state": "transferring"
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-0",
+      "trigger": "noBulkRemaining",
+      "at": 1200,
+      "expect": {
+        "outcome": {
+          "outcome": "advanced",
+          "id": "h-0",
+          "fromState": "transferring",
+          "toState": "catchingUp"
+        },
+        "state": "catchingUp"
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-0",
+      "trigger": "residueAtOrBelowThreshold",
+      "at": 1300,
+      "expect": {
+        "outcome": {
+          "outcome": "advanced",
+          "id": "h-0",
+          "fromState": "catchingUp",
+          "toState": "cutover"
+        },
+        "state": "cutover"
+      }
+    },
+    {
+      "action": "handoffQuiesce",
+      "handoff": "h-0",
+      "leaseMillis": 60000,
+      "at": 1350,
+      "expect": {
+        "outcome": {
+          "outcome": "quiesced",
+          "quiesceInstant": 1350,
+          "leaseMillis": 60000,
+          "commitHorizon": 60350,
+          "state": "cutover"
+        },
+        "state": "cutover"
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-0",
+      "trigger": "cutoverCommitted",
+      "at": 1400,
+      "expect": {
+        "outcome": {
+          "outcome": "advanced",
+          "id": "h-0",
+          "fromState": "cutover",
+          "toState": "verifying"
+        },
+        "state": "verifying"
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-1",
+      "trigger": "admittedByRatePolicy",
+      "at": 2000,
+      "expect": {
+        "outcome": {
+          "outcome": "advanced",
+          "id": "h-1",
+          "fromState": "planned",
+          "toState": "preparing"
+        },
+        "state": "preparing"
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-1",
+      "trigger": "prepareSuccess",
+      "at": 2100,
+      "expect": {
+        "outcome": {
+          "outcome": "advanced",
+          "id": "h-1",
+          "fromState": "preparing",
+          "toState": "transferring"
+        },
+        "state": "transferring"
+      }
+    },
+    {
+      "action": "snapshotInstalled",
+      "topology": "topologies/rebalance-epoch-12.topology.json",
+      "topologyId": "rebalance",
+      "epoch": 12,
+      "at": 6000,
+      "note": "`MOVE-091`: a comparable epoch above the plan's target marks it rebase pending, whatever state its handoffs are in",
+      "expect": {
+        "result": {
+          "superseded": false,
+          "aborted": [],
+          "finishing": [],
+          "rebasePending": 12
+        },
+        "states": {
+          "h-0": "verifying",
+          "h-1": "transferring"
+        }
+      }
+    },
+    {
+      "action": "rebase",
+      "to": "topologies/rebalance-epoch-12.topology.json",
+      "at": 7000,
+      "replicaSets": {
+        "0": [
+          "n5",
+          "n2"
+        ],
+        "1": [
+          "n2",
+          "n6"
+        ],
+        "2": [
+          "n3",
+          "n4"
+        ],
+        "3": [
+          "n4",
+          "n1"
+        ]
+      },
+      "note": "`MOVE-099`: the handoff in `verifying` is reported unchanged and keeps the target epoch it held at the cutover, so the plan's target epoch and that handoff's are distinct afterwards; the transferring handoff rebases",
+      "expect": {
+        "result": {
+          "outcome": "rebased",
+          "report": {
+            "fromEpoch": 11,
+            "toEpoch": 12,
+            "rebased": [
+              "h-1"
+            ],
+            "aborted": [],
+            "unchanged": [
+              "h-0"
+            ]
+          },
+          "rebaseInterval": {
+            "above": 10,
+            "throughInclusive": 12
+          }
+        },
+        "states": {
+          "h-0": "verifying",
+          "h-1": "transferring"
+        },
+        "targetEpochs": {
+          "h-0": 11,
+          "h-1": 12
+        }
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-0",
+      "trigger": "verifySuccess",
+      "at": 8000,
+      "expect": {
+        "outcome": {
+          "outcome": "advanced",
+          "id": "h-0",
+          "fromState": "verifying",
+          "toState": "cleanup"
+        },
+        "state": "cleanup"
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-0",
+      "trigger": "cleanupSuccess",
+      "at": 8100,
+      "expect": {
+        "outcome": {
+          "outcome": "settled",
+          "id": "h-0",
+          "terminalState": "complete",
+          "failureKind": null
+        },
+        "state": "complete"
+      }
+    },
+    {
+      "action": "snapshotInstalled",
+      "topology": "topologies/rebalance-epoch-13.topology.json",
+      "topologyId": "rebalance",
+      "epoch": 13,
+      "at": 10000,
+      "expect": {
+        "result": {
+          "superseded": false,
+          "aborted": [],
+          "finishing": [],
+          "rebasePending": 13
+        },
+        "states": {
+          "h-0": "complete",
+          "h-1": "transferring"
+        }
+      }
+    },
+    {
+      "action": "rebase",
+      "to": "topologies/rebalance-epoch-13.topology.json",
+      "at": 11000,
+      "replicaSets": {
+        "0": [
+          "n5",
+          "n2"
+        ],
+        "1": [
+          "n2",
+          "n3"
+        ],
+        "2": [
+          "n3",
+          "n4"
+        ],
+        "3": [
+          "n4",
+          "n1"
+        ]
+      },
+      "note": "`MOVE-099`: the completed handoff is unchanged, and `MOVE-096` classifies the one still transferring, whose triple epoch 13 no longer holds",
+      "expect": {
+        "result": {
+          "outcome": "rebased",
+          "report": {
+            "fromEpoch": 12,
+            "toEpoch": 13,
+            "rebased": [],
+            "aborted": [
+              "h-1"
+            ],
+            "unchanged": [
+              "h-0"
+            ]
+          },
+          "rebaseInterval": {
+            "above": 10,
+            "throughInclusive": 13
+          }
+        },
+        "states": {
+          "h-0": "complete",
+          "h-1": "aborting"
+        },
+        "targetEpochs": {
+          "h-0": 11,
+          "h-1": 12
+        }
+      }
+    },
+    {
+      "action": "handoffStep",
+      "handoff": "h-1",
+      "trigger": "rollbackSuccess",
+      "at": 12000,
+      "expect": {
+        "outcome": {
+          "outcome": "settled",
+          "id": "h-1",
+          "terminalState": "aborted",
+          "failureKind": null
+        },
+        "state": "aborted"
+      }
+    },
+    {
+      "action": "expectSummary",
+      "expect": {
+        "complete": 1,
+        "aborted": 1
+      }
+    }
+  ]
+}

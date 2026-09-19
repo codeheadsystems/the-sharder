@@ -37,12 +37,14 @@ public final class MetricsHolder implements MetricsView {
         this.sink = sink.orElse(null);
     }
 
-    /** Adds {@code delta} to a counter, and forwards it to a supplied registry. */
-    public void counter(String name, Labels labels, long delta) {
-        counters.computeIfAbsent(key(name, labels), ignored -> new AtomicLong()).addAndGet(delta);
+    /** Adds {@code delta} to a counter, answers its total, and forwards it to a registry. */
+    public long counter(String name, Labels labels, long delta) {
+        long total = counters.computeIfAbsent(key(name, labels), ignored -> new AtomicLong())
+                .addAndGet(delta);
         if (registry != null) {
             registry.counter(name, labels, delta);
         }
+        return total;
     }
 
     /** Emits one event, counting it by name where no sink is supplied. */

@@ -68,9 +68,10 @@ public final class ExplainBuilder {
         };
         eligible.forEach(node -> {
             if (!candidates.contains(node)) {
-                exclusions.add(new Exclusion(node, unreached, unreached == Exclusion.Stage.VIRTUAL_NODES
-                        ? "the node carries no virtual node"
-                        : "the authored list the key matched does not name the node"));
+                exclusions.add(new Exclusion(node, unreached,
+                        unreached == Exclusion.Stage.VIRTUAL_NODES
+                                ? "the node carries no virtual node"
+                                : "the authored list the key matched does not name the node"));
             }
         });
 

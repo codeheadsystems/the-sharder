@@ -78,7 +78,7 @@ public final class OwnershipDelta {
     }
 
     /** The replica prefix of one shard: the first entries the factor and the spread admit. */
-    private static List<NodeId> replicas(PlacementEngine engine, String shard) {
+    public static List<NodeId> replicas(PlacementEngine engine, String shard) {
         List<String> shards = engine.placement().shards();
         if (!shards.contains(shard)) {
             return List.of();

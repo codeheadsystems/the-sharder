@@ -5,6 +5,7 @@ import com.codeheadsystems.sharder.core.internal.json.JcsWriter;
 import com.codeheadsystems.sharder.core.internal.json.JsonValue.JsonObject;
 import com.codeheadsystems.sharder.core.internal.route.PlacementEngine;
 import com.codeheadsystems.sharder.error.ErrorCode;
+import com.codeheadsystems.sharder.placement.PlacementStrategy;
 import com.codeheadsystems.sharder.topology.ValidationError;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -52,12 +53,23 @@ public final class TopologyLoader {
                           Digest digest, List<ValidationError> errors) {
     }
 
+    private final Map<String, PlacementStrategy> strategies;
     private final Map<Long, PlacementEngine> retained = new LinkedHashMap<>();
     private String topologyId;
     private TopologyDocument inForce;
     private Digest digestInForce;
     private PlacementEngine engine;
     private OptionalLong epochInForce = OptionalLong.empty();
+
+    /** A pipeline under the four built-in strategies. */
+    public TopologyLoader() {
+        this(Map.of());
+    }
+
+    /** A pipeline under the strategies a configuration registered, under {@code CORE-010}. */
+    public TopologyLoader(Map<String, PlacementStrategy> strategies) {
+        this.strategies = Map.copyOf(strategies);
+    }
 
     /** The snapshot in force, where one is. */
     public Optional<TopologyDocument> snapshot() {
@@ -135,7 +147,7 @@ public final class TopologyLoader {
         topologyId = document.topologyId();
         inForce = document;
         digestInForce = digest;
-        engine = new PlacementEngine(document);
+        engine = new PlacementEngine(document, strategies);
         epochInForce = OptionalLong.of(document.epoch());
         return new Arrival(Outcome.INSTALLED, Optional.empty(), Optional.empty(), digest,
                 List.of());

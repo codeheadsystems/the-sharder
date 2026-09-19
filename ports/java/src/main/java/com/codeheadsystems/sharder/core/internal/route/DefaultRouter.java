@@ -23,6 +23,7 @@ import com.codeheadsystems.sharder.core.internal.health.SlidingWindowHealthView;
 import com.codeheadsystems.sharder.core.internal.json.JsonReader;
 import com.codeheadsystems.sharder.core.internal.json.JsonValue.JsonObject;
 import com.codeheadsystems.sharder.core.internal.observe.MetricsHolder;
+import com.codeheadsystems.sharder.core.internal.observe.SkewDetection;
 import com.codeheadsystems.sharder.core.internal.snapshot.DocumentSnapshot;
 import com.codeheadsystems.sharder.error.ErrorCode;
 import com.codeheadsystems.sharder.error.InvalidArgumentException;
@@ -40,6 +41,8 @@ import com.codeheadsystems.sharder.observe.ExplainRecord;
 import com.codeheadsystems.sharder.observe.Labels;
 import com.codeheadsystems.sharder.observe.MetricsView;
 import com.codeheadsystems.sharder.observe.Severity;
+import com.codeheadsystems.sharder.observe.ShardMetricsSource;
+import com.codeheadsystems.sharder.observe.ShardReport;
 import com.codeheadsystems.sharder.topology.Loaded;
 import com.codeheadsystems.sharder.topology.SourceVersion;
 import com.codeheadsystems.sharder.topology.Subscription;
@@ -53,6 +56,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -71,11 +77,19 @@ public final class DefaultRouter implements Router {
 
     private final RouterConfig config;
     private final TopologyProvider provider;
-    private final TopologyLoader pipeline = new TopologyLoader();
+    private final TopologyLoader pipeline;
     private final HealthView health;
     private final RetryBudget budget;
     private final MetricsHolder metrics;
     private final Object loadLock = new Object();
+
+    private final ShardMetricsSource shardMetrics;
+    private final Set<String> reportedSkew = ConcurrentHashMap.newKeySet();
+    private final Map<String, Long> evaluatedAt = new ConcurrentHashMap<>();
+    private final AtomicLong intervalDecisions = new AtomicLong();
+
+    private volatile long intervalStart;
+    private volatile long interval = 60000;
 
     private volatile DocumentSnapshot inForce;
     private volatile long installedAt;
@@ -87,12 +101,15 @@ public final class DefaultRouter implements Router {
     public DefaultRouter(RouterConfig config) {
         this.config = config;
         this.provider = config.provider().provider();
+        this.pipeline = new TopologyLoader(config.strategies());
         this.health = config.healthView().orElseGet(
-                () -> new SlidingWindowHealthView(config.health()));
+                () -> new SlidingWindowHealthView(config.health(),
+                        config.hintObserver().orElse(null)));
         this.budget = new RetryBudget(config.routing().retryBudgetWindowMillis(),
                 config.routing().retryBudgetPercent(), config.routing().retryBudgetMinimum());
         this.metrics = new MetricsHolder(config.observability().metricsRegistry(),
                 config.observability().eventSink());
+        this.shardMetrics = config.shardMetricsSource().orElse(null);
         start();
     }
 
@@ -203,12 +220,14 @@ public final class DefaultRouter implements Router {
             switch (arrival.outcome()) {
                 case INSTALLED -> {
                     long at = config.clock().millis();
-                    DocumentSnapshot snapshot = new DocumentSnapshot(pipeline.engine().orElseThrow(),
-                            arrival.digest(), OptionalLong.of(at));
+                    DocumentSnapshot snapshot = new DocumentSnapshot(
+                            pipeline.engine().orElseThrow(), arrival.digest(), OptionalLong.of(at));
                     inForce = snapshot;
                     installedAt = at;
                     known = version;
                     health.onSnapshotInstalled(snapshot);
+                    reportedSkew.clear();
+                    evaluatedAt.clear();
                     metrics.emit(new Event("sharder.topology.installed", at, snapshot.topologyId(),
                             snapshot.epoch(), Severity.INFO,
                             Map.of("digest", snapshot.digest().toHex())));
@@ -302,6 +321,10 @@ public final class DefaultRouter implements Router {
         }
         metrics.counter("sharder.routing.decisions",
                 Labels.of("strategy", snapshot.document().strategy().kind()), 1);
+        if (shardMetrics != null) {
+            intervalDecisions.incrementAndGet();
+            decision.shard().ifPresent(shard -> detect(snapshot, shard));
+        }
         if (!"none".equals(decision.shortfall())) {
             metrics.counter("sharder.routing.shortfalls",
                     Labels.of("cause", decision.shortfall()), 1);
@@ -325,6 +348,81 @@ public final class DefaultRouter implements Router {
                                 config.fencing().tokenDigest()))
                         : Optional.empty(),
                 snapshot);
+    }
+
+    /**
+     * Hot shard and key skew detection, under {@code OBS-031} and {@code OBS-032}.
+     *
+     * <p>It runs only where the integrator supplied a source, under {@code OBS-035}, and reads
+     * that source and the library's own decision counter and nothing else, under {@code OBS-030}.
+     * It emits an event and changes no decision, snapshot, preference list, or plan, under
+     * {@code OBS-034}, and each shard is reported at most once per epoch, as {@code REPL-024}
+     * bounds the shortfall event.
+     */
+    private void detect(DocumentSnapshot snapshot, String shard) {
+        if (shardMetrics == null) {
+            return;
+        }
+        long now = config.clock().millis();
+        // A shard is evaluated once per interval rather than once per decision: the source is the
+        // integrator's own counter, and asking it on every routing call would put their store on
+        // the routing path.
+        Long evaluated = evaluatedAt.get(shard);
+        if (evaluated != null && now - evaluated < interval) {
+            return;
+        }
+        Optional<ShardReport> report = shardMetrics.report(ShardId.of(shard));
+        if (report.isEmpty()) {
+            return;
+        }
+        interval = Math.max(1, report.get().intervalMillis());
+        evaluatedAt.put(shard, now);
+        // OBS-031 compares over one interval, so the library's own count is the decisions it took
+        // inside the interval the report declares rather than every decision since construction.
+        long totalRequests = decisionsThisInterval(now);
+        if (totalRequests == 0) {
+            return;
+        }
+        long requests = report.get().requests();
+        long shardCount = snapshot.shardCount();
+        if (SkewDetection.shardIsHot(requests, shardCount, totalRequests,
+                config.observability().hotShardFactorPercent())
+                && reportedSkew.add("hot:" + shard)) {
+            // OBS-033 keeps the payload in unsigned integer arithmetic as the comparison is: the
+            // observed share is this shard's own count and the expected share is an even division
+            // of the interval's decisions, so neither is a product that can overflow.
+            long expected = shardCount == 0 ? 0 : Long.divideUnsigned(totalRequests, shardCount);
+            metrics.emit(new Event("sharder.shard.hot", now,
+                    snapshot.topologyId(), snapshot.epoch(), Severity.WARNING,
+                    Map.of("shard", shard, "observedShare", Long.toUnsignedString(requests),
+                            "expectedShare", Long.toUnsignedString(expected))));
+        }
+        if (SkewDetection.keySkew(report.get().hottestKeyRequests(), requests,
+                config.observability().keySkewPercent()) && reportedSkew.add("skew:" + shard)) {
+            metrics.emit(new Event("sharder.shard.key_skew", now,
+                    snapshot.topologyId(), snapshot.epoch(), Severity.WARNING,
+                    Map.of("shard", shard,
+                            "hottestKeyRequests",
+                            Long.toUnsignedString(report.get().hottestKeyRequests()),
+                            "requests", Long.toUnsignedString(requests))));
+        }
+    }
+
+    /**
+     * The decisions this router took inside the interval in force.
+     *
+     * <p>The library holds no timer, under {@code CORE-060}, so the window turns over on the
+     * reading a routing call already took: the count restarts when the interval has elapsed since
+     * it last did.
+     */
+    private long decisionsThisInterval(long now) {
+        long started = intervalStart;
+        if (now - started >= interval) {
+            intervalStart = now;
+            long taken = intervalDecisions.getAndSet(0);
+            return taken == 0 ? 0 : taken;
+        }
+        return intervalDecisions.get();
     }
 
     /** The snapshot a call routes against, or the condition that stops it. */
@@ -446,7 +544,7 @@ public final class DefaultRouter implements Router {
     @Override
     public com.codeheadsystems.sharder.core.TopologyLoader loader() {
         return document -> {
-            TopologyLoader standalone = new TopologyLoader();
+            TopologyLoader standalone = new TopologyLoader(config.strategies());
             JsonObject parsed = JsonReader.read(
                     new String(document, StandardCharsets.UTF_8)).asObject();
             TopologyLoader.Arrival arrival = standalone.accept(parsed);

@@ -49,6 +49,7 @@ LEVEL_OF_SCENARIO = {
     "plan-superseded-by-new-epoch": "migration",
     "rebalance-survives-unrelated-epoch": "migration",
     "rebase-drops-a-handoff": "migration",
+    "rebase-past-the-cutover": "migration",
     "undetermined-resolves-both-ways": "migration",
     "migration-rate-control": "migration",
     "failover-and-recovery": "failover",
@@ -1248,6 +1249,79 @@ def build_rebase_survives_scenario():
               "MOVE-097", "MOVE-101", "MOVE-102", "MOVE-103", "RATE-001"], steps)
 
 
+def build_rebase_past_cutover_scenario():
+    """`MOVE-099`: a handoff that entered the cutover is reported unchanged and keeps its epoch."""
+    plan, _ = fleet_plan()
+    steps = []
+    # One handoff reaches `verifying`, which is past the point a rebase may move it.
+    fleet_step(plan, steps, "h-0", ["admittedByRatePolicy", "prepareSuccess", "noBulkRemaining",
+                                    "residueAtOrBelowThreshold", "cutoverCommitted"], 1000)
+    # The other is still transferring, which is a state `MOVE-096` classifies.
+    fleet_step(plan, steps, "h-1", ["admittedByRatePolicy", "prepareSuccess"], 2000)
+
+    result = plan.on_snapshot_installed("rebalance", 12, at=6000)
+    steps.append({
+        "action": "snapshotInstalled",
+        "topology": FLEET_PATH % 12, "topologyId": "rebalance", "epoch": 12, "at": 6000,
+        "note": "`MOVE-091`: a comparable epoch above the plan's target marks it rebase pending, "
+                "whatever state its handoffs are in",
+        "expect": {"result": result, "states": {k: v.state for k, v in
+                                                sorted(plan.handoffs.items())}},
+    })
+
+    sets = replica_sets(FLEET["rebalance-epoch-12"])
+    result = plan.rebase("rebalance", 12, sets, at=7000)
+    steps.append({
+        "action": "rebase",
+        "to": FLEET_PATH % 12, "at": 7000,
+        "replicaSets": sets,
+        "note": "`MOVE-099`: the handoff in `verifying` is reported unchanged and keeps the "
+                "target epoch it held at the cutover, so the plan's target epoch and that "
+                "handoff's are distinct afterwards; the transferring handoff rebases",
+        "expect": {"result": result,
+                   "states": {k: v.state for k, v in sorted(plan.handoffs.items())},
+                   "targetEpochs": {k: v.target_epoch
+                                    for k, v in sorted(plan.handoffs.items())}},
+    })
+
+    # The handoff past the cutover finishes under its own target epoch.
+    fleet_step(plan, steps, "h-0", ["verifySuccess", "cleanupSuccess"], 8000)
+
+    # A second epoch arrives, and now one handoff is terminal.  MOVE-099 reports a terminal
+    # handoff as unchanged as well, so an integrator reconciling the three lists against the
+    # plan's handoffs finds every one of them in exactly one list.
+    result = plan.on_snapshot_installed("rebalance", 13, at=10000)
+    steps.append({
+        "action": "snapshotInstalled",
+        "topology": FLEET_PATH % 13, "topologyId": "rebalance", "epoch": 13, "at": 10000,
+        "expect": {"result": result, "states": {k: v.state for k, v in
+                                                sorted(plan.handoffs.items())}},
+    })
+    sets = replica_sets(FLEET["rebalance-epoch-13"])
+    result = plan.rebase("rebalance", 13, sets, at=11000)
+    steps.append({
+        "action": "rebase",
+        "to": FLEET_PATH % 13, "at": 11000,
+        "replicaSets": sets,
+        "note": "`MOVE-099`: the completed handoff is unchanged, and `MOVE-096` classifies the "
+                "one still transferring, whose triple epoch 13 no longer holds",
+        "expect": {"result": result,
+                   "states": {k: v.state for k, v in sorted(plan.handoffs.items())},
+                   "targetEpochs": {k: v.target_epoch
+                                    for k, v in sorted(plan.handoffs.items())}},
+    })
+    fleet_step(plan, steps, "h-1", ["rollbackSuccess"], 12000)
+    steps.append({"action": "expectSummary", "expect": plan.summary()})
+    register("rebase-past-the-cutover",
+             "An epoch arrives while one handoff is verifying and another is transferring.  The "
+             "handoff past the cutover is reported unchanged and keeps its own target epoch, and "
+             "the one before it rebases.  A second epoch arrives once the first handoff is "
+             "complete, and a terminal handoff is reported unchanged as well.",
+             ["MOVE-091", "MOVE-094", "MOVE-096", "MOVE-097", "MOVE-098", "MOVE-099",
+              "MOVE-102"], steps,
+             setup=plan_setup(plan))
+
+
 def build_rebase_drops_handoff_scenario():
     plan, _ = fleet_plan()
     steps = []
@@ -1711,6 +1785,7 @@ def main():
     build_supersession_scenario()
     build_rebase_survives_scenario()
     build_rebase_drops_handoff_scenario()
+    build_rebase_past_cutover_scenario()
     build_undetermined_recovery_scenario()
     build_concurrency_scenario()
     build_failover_scenario()

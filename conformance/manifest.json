@@ -1,9 +1,9 @@
 {
   "suite": "sharder conformance suite",
   "revision": {
-    "id": "98f9143e9497b46f41037cf86aeb5aeed6d6b4359efe8e9a73476ad494000531",
+    "id": "e91417161ae0de0002cf3748a9ecd969e82c6233f0d8ab97fd3e908492b24204",
     "basis": "sha256 of the RFC 8785 canonical form of the file digests, the level table, and the strategy surfaces",
-    "fileCount": 192,
+    "fileCount": 193,
     "trees": [
       "vectors",
       "topologies",
@@ -18,8 +18,8 @@
     "vectorFiles": 67,
     "vectorCases": 596,
     "topologyDocuments": 102,
-    "scenarios": 21,
-    "scenarioSteps": 287,
+    "scenarios": 22,
+    "scenarioSteps": 303,
     "properties": 28,
     "requirementsNamed": 454
   },
@@ -570,7 +570,7 @@
       "surface": "the handoff coordinator and rate control",
       "vectorFiles": 3,
       "vectorCases": 15,
-      "scenarios": 11,
+      "scenarios": 12,
       "properties": 3,
       "requirementsNamed": 80
     }
@@ -3278,6 +3278,22 @@
         "MOVE-421",
         "MOVE-481",
         "TOPO-231"
+      ]
+    },
+    {
+      "file": "scenarios/rebase-past-the-cutover.json",
+      "scenario": "rebase-past-the-cutover",
+      "level": "migration",
+      "description": "An epoch arrives while one handoff is verifying and another is transferring.  The handoff past the cutover is reported unchanged and keeps its own target epoch, and the one before it rebases.  A second epoch arrives once the first handoff is complete, and a terminal handoff is reported unchanged as well.",
+      "stepCount": 16,
+      "requirements": [
+        "MOVE-091",
+        "MOVE-094",
+        "MOVE-096",
+        "MOVE-097",
+        "MOVE-098",
+        "MOVE-099",
+        "MOVE-102"
       ]
     },
     {

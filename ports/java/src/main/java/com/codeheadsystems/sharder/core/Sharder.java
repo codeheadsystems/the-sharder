@@ -3,6 +3,8 @@ package com.codeheadsystems.sharder.core;
 import com.codeheadsystems.sharder.Router;
 import com.codeheadsystems.sharder.config.RouterConfig;
 import com.codeheadsystems.sharder.core.internal.route.DefaultRouter;
+import com.codeheadsystems.sharder.migrate.HandoffCoordinator;
+import com.codeheadsystems.sharder.migrate.internal.DefaultCoordinator;
 
 /**
  * Where a caller starts.
@@ -19,6 +21,17 @@ public final class Sharder {
     /** The router over one configuration, which begins loading as it is constructed. */
     public static Router router(RouterConfig config) {
         return new DefaultRouter(config);
+    }
+
+    /**
+     * The coordinator a migration is planned through, under {@code MOVE-061}.
+     *
+     * <p>It holds nothing between calls and installs nothing: a plan is a pure function of the two
+     * snapshots and the policy, which is what lets a restarted coordinator rebuild the same plan
+     * under {@code MOVE-221}.
+     */
+    public static HandoffCoordinator coordinator() {
+        return new DefaultCoordinator();
     }
 
     /**

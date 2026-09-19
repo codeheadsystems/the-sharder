@@ -14,8 +14,8 @@ import java.util.Objects;
  * {@code java.util.Set} hands a caller {@code stream}, {@code iterator}, and {@code parallelStream}
  * in hash order, which is an invitation to exactly that defect, so this class is purpose-built and
  * iterates in a defined total order instead. An implementation that leans on the order accidentally
- * produces the same result on every virtual machine and in every run, and the permuted-{@code nodes}
- * vectors of {@code PROP-005} are what catch the lean.
+ * produces the same result on every virtual machine and in every run, and the permuted
+ * {@code nodes} vectors of {@code PROP-005} are what catch the lean.
  */
 public final class NodeSet implements Iterable<NodeId> {
 

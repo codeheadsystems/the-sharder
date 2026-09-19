@@ -10,11 +10,15 @@ import com.codeheadsystems.sharder.core.internal.placement.EligibleSet;
 import com.codeheadsystems.sharder.core.internal.placement.KeyTransforms;
 import com.codeheadsystems.sharder.core.internal.placement.Matchers;
 import com.codeheadsystems.sharder.core.internal.placement.PreparedPlacement;
+import com.codeheadsystems.sharder.core.internal.placement.RegisteredPlacement;
 import com.codeheadsystems.sharder.error.NoCandidateException;
+import com.codeheadsystems.sharder.placement.PlacementStrategy;
+import com.codeheadsystems.sharder.topology.TopologySnapshot;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Set;
@@ -31,21 +35,77 @@ import java.util.function.Supplier;
  */
 public final class PlacementEngine {
 
+    /**
+     * The snapshot built around this engine, which a registered strategy prepares against.
+     *
+     * <p>The snapshot cannot exist before the engine it reads, so the binding is set once by the
+     * snapshot's constructor and read only by a registered strategy's first preparation. A
+     * built-in strategy never reads it.
+     */
+    public static final class SnapshotBinding
+            implements java.util.function.Supplier<TopologySnapshot> {
+
+        private volatile TopologySnapshot snapshot;
+
+        @Override
+        public TopologySnapshot get() {
+            return snapshot;
+        }
+
+        void bind(TopologySnapshot bound) {
+            this.snapshot = bound;
+        }
+    }
+
     private final TopologyDocument document;
     private final DomainHash hash;
     private final PreparedPlacement placement;
     private final SpreadLadder ladder;
     private final List<Node> placementSet;
     private final EligibleSet placementEligible;
+    private final SnapshotBinding binding = new SnapshotBinding();
 
-    /** The engine over one document, prepared once. */
+    /** The engine over one document, prepared once, under the four built-in strategies. */
     public PlacementEngine(TopologyDocument document) {
+        this(document, Map.of());
+    }
+
+    /**
+     * The engine over one document, under the strategies the configuration registered.
+     *
+     * <p>A registered strategy whose name is the document's {@code strategy.kind} replaces the
+     * built-in of that name, under {@code CORE-010}: nothing is discovered through
+     * {@code ServiceLoader}, so what is on a classpath never changes how a key routes.
+     */
+    public PlacementEngine(TopologyDocument document,
+                           Map<String, PlacementStrategy> strategies) {
         this.document = document;
         this.hash = DomainHash.ofKey(document.hashSeed());
-        this.placement = PreparedPlacement.of(document);
+        PlacementStrategy registered = strategies.get(document.strategy().kind());
+        this.placement = registered == null
+                ? PreparedPlacement.of(document)
+                : new RegisteredPlacement(registered, binding);
         this.ladder = new SpreadLadder(document);
         this.placementSet = document.placementSet();
         this.placementEligible = EligibleSet.of(placementSet);
+    }
+
+    /** Binds the snapshot a registered strategy prepares against, called once by the snapshot. */
+    public void bind(TopologySnapshot snapshot) {
+        binding.bind(snapshot);
+    }
+
+    /**
+     * Whether the strategy in force supports orchestrated migration, under {@code MOVE-241}.
+     *
+     * <p>A registered strategy declares its own support under {@code MOVE-261}, which forbids
+     * inferring the answer from the strategy's name.
+     */
+    public boolean supportsOrchestratedMigration() {
+        if (placement instanceof RegisteredPlacement registered) {
+            return registered.strategy().supportsOrchestratedMigration();
+        }
+        return !"rendezvous".equals(document.strategy().kind());
     }
 
     /** {@code keyHash(rk)} under this document's seed, which the collision vectors assert. */

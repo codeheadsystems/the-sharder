@@ -4,35 +4,41 @@ Java is the first implementation of the sharder library, and it is one Gradle mo
 artifact, `sharder`, under
 [`adr/0081`](../../docs/design/adr/0081-single-java-module.md).
 
-Status: the port reaches every conformance level the suite carries and exposes all four placement
-strategy surfaces. It declares them in
+Status: the port reaches every conformance level the suite carries, exposes all four placement
+strategy surfaces, and renders every public type
+[`../../docs/design/40-java-binding.md`](../../docs/design/40-java-binding.md) fixes. It declares
+its levels in
 [`../../conformance/declarations/java.json`](../../conformance/declarations/java.json), against the
 suite revision that declaration names, with no deviations and no exclusions. An integrator reaches
-it through `Sharder.router(config)`, and the build gates the binding fixes run in `check`.
+routing through `Sharder.router(config)` and a migration through `Sharder.coordinator()`, and the
+build gates the binding fixes run in `check`.
 
-What remains is the migration surface an integrator drives, the placement extension point, and the
-file provider. The conformance suite reaches the handoff coordinator through the engine rather than
-through the types
-[`../../docs/design/40-java-binding.md`](../../docs/design/40-java-binding.md) fixes for it.
+What remains is the JMH benchmarks, which
+[`adr/0081`](../../docs/design/adr/0081-single-java-module.md) puts outside this module and which
+gate no merge under the binding. The release before them is what
+[`adr/0083`](../../docs/design/adr/0083-publication-as-the-last-stage.md) stages.
 
 | Written | Not written |
 |---|---|
-| the Gradle build, `module-info.java`, and the wrapper | the migration surface an integrator drives: `HandoffCoordinator`, `MovementHooks`, and `MigrationPolicy` |
-| `Router`, `RoutingDecision`, `RouteOptions`, and `Sharder` | the placement extension point, by which an integrator registers a strategy |
-| `RouterConfig`, its five settings records, and `ConfigurationView` | `FileTopologyProvider` |
-| the provider contract, the in-memory provider, and the poll schedule | the shard report of `OBS-036` and the hint observer |
-| `TopologySnapshot`, `Node`, `FencingToken`, and the ownership delta | the JMH benchmarks |
+| the Gradle build, `module-info.java`, and the wrapper | the JMH benchmarks, which `adr/0081` puts outside this module |
+| `Router`, `RoutingDecision`, `RouteOptions`, and `Sharder` | |
+| `RouterConfig`, its five settings records, and `ConfigurationView` | |
+| the provider contract, the in-memory provider, and `FileTopologyProvider` | |
+| `TopologySnapshot`, `Node`, `FencingToken`, and the ownership delta | |
 | `NodeId`, `ShardId`, `RoutingKey`, `Digest`, and `NodeSet` | |
 | SipHash-2-4, the framing, and the three domain-tagged functions | |
 | the three key transforms and the matcher precedence | |
 | `ring`, `rendezvous`, `slot`, and `directory` | |
+| the placement extension point and the registry of `CORE-010` | |
 | the override layer: pins, constraints, and per-entry factor | |
 | the preference list builder and the spread relaxation ladder | |
 | the five-state health machine, ejection, and probation | |
 | the attempt walk, the health filter, the retry budget, and the redirect walk | |
 | `routeForRead` and the bounded reordering of `READ-013` | |
 | the recipient check and snapshot retention | |
-| the eleven-state handoff machine, rebase, and re-observation | |
+| `HandoffCoordinator`, `MigrationPlan`, `MovementHooks`, and `MigrationPolicy` | |
+| the eleven-state handoff machine, rebase, recovery, and re-observation | |
+| the pressure gauge and the concurrency bounds of `RATE-011` | |
 | the RFC 8785 canonical form, the digest, and document validation | |
 | the snapshot lifecycle and the acceptance table of `TOPO-061` | |
 | the explain record, the metrics view, and the observability inventory | |
