@@ -17,6 +17,7 @@
     "LIN-016",
     "LIN-021",
     "LIN-022",
+    "LIN-031",
     "LIN-033",
     "MOVE-241",
     "PLACE-065",
@@ -29,6 +30,7 @@
         "LIN-004",
         "LIN-011",
         "LIN-021",
+        "LIN-031",
         "LIN-033"
       ],
       "before": "topologies/delta-ring-before.topology.json",

@@ -473,7 +473,7 @@ def build_lineage(root):
     cases = []
     for label, before, after, requirements, note in [
         ("ring-extent-divided", "delta-ring-before", "delta-ring-added",
-         ["LIN-004", "LIN-011", "LIN-021", "LIN-033"],
+         ["LIN-004", "LIN-011", "LIN-021", "LIN-031", "LIN-033"],
          "`LIN-011`: the added token divides `(1000, 3000]` into `(1000, 2000]` and "
          "`(2000, 3000]`, so both shards of the later snapshot are `divided` from one parent and "
          "the shard whose extent did not move is `moved` because its replica set did."),
@@ -532,8 +532,8 @@ def build_lineage(root):
          "`directory` prefix refined and the fresh extent beside it, the incomparable pair, and "
          "the kind that enumerates no shard.",
          ["LIN-004", "LIN-006", "LIN-007", "LIN-011", "LIN-012", "LIN-013", "LIN-014", "LIN-016",
-          "LIN-021", "LIN-022", "LIN-033", "DIR-002", "DIR-010", "PLACE-065", "TOPO-231",
-          "MOVE-241", "ERR-050"], cases, level="migration")
+          "LIN-021", "LIN-022", "LIN-031", "LIN-033", "DIR-002", "DIR-010", "PLACE-065",
+          "TOPO-231", "MOVE-241", "ERR-050"], cases, level="migration")
 
     plans = []
     for label, before, after, requirements, note in [

@@ -19,7 +19,13 @@ import com.codeheadsystems.sharder.core.internal.migrate.MigrationPlan;
 import com.codeheadsystems.sharder.core.internal.placement.ShardExtents;
 import com.codeheadsystems.sharder.core.internal.route.OwnershipDelta;
 import com.codeheadsystems.sharder.core.internal.route.PlacementEngine;
+import com.codeheadsystems.sharder.ShardId;
+import com.codeheadsystems.sharder.core.Sharder;
 import com.codeheadsystems.sharder.error.ErrorCode;
+import com.codeheadsystems.sharder.error.PlanRefusedException;
+import com.codeheadsystems.sharder.migrate.HandoffCoordinator;
+import com.codeheadsystems.sharder.migrate.ShardLineage;
+import com.codeheadsystems.sharder.topology.TopologySnapshot;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HexFormat;
@@ -295,38 +301,51 @@ final class CoreVectors {
 
     /** {@code lineage}: the classification of two snapshots' extents, under {@code LIN-021}. */
     void lineage(JsonObject testCase) {
-        PlacementEngine before = engine(testCase, "before");
-        PlacementEngine after = engine(testCase, "after");
+        // LIN-031 requires the lineage to be an operation the integrator calls, so the harness
+        // reaches it through the exported surface rather than through the class behind it. A port
+        // that computed a lineage it could not expose would pass the one and fail the other.
+        HandoffCoordinator coordinator = Sharder.coordinator();
+        TopologySnapshot from = snapshotOf(testCase, "before");
+        TopologySnapshot to = snapshotOf(testCase, "after");
         JsonObject expect = testCase.object("expect");
-        ShardExtents.ReplicaSet replicas = OwnershipDelta::replicas;
         if (expect.find("lineageComputed").isPresent()) {
             JsonObject condition = expect.object("condition");
             ErrorCode code = ErrorCode.ofName(condition.text("name"));
             assertThat(code.code()).as("condition code").isEqualTo(condition.get("code").asInt());
-            assertThatThrownBy(() -> ShardExtents.classify(before, after, replicas))
-                    .as("refusal").isInstanceOf(ShardExtents.Refused.class);
+            assertThatThrownBy(() -> coordinator.lineage(from, to))
+                    .as("refusal").isInstanceOf(PlanRefusedException.class);
             try {
-                ShardExtents.classify(before, after, replicas);
-            } catch (ShardExtents.Refused refusal) {
-                assertThat(refusal.cause()).as("cause").isEqualTo(condition.text("cause"));
+                coordinator.lineage(from, to);
+            } catch (PlanRefusedException refusal) {
+                assertThat(refusal.reason().spelling()).as("cause")
+                        .isEqualTo(condition.text("cause"));
                 assertThat(code.causes()).as("cause is in the closed set")
                         .contains(condition.text("cause"));
             }
             return;
         }
-        List<ShardExtents.Entry> entries = ShardExtents.classify(before, after, replicas);
+        List<ShardLineage.Entry> entries = coordinator.lineage(from, to).entries();
         List<JsonValue> expected = expect.array("lineage").elements();
         assertThat(entries).as("lineage").hasSize(expected.size());
         for (int index = 0; index < expected.size(); index++) {
             JsonObject entry = expected.get(index).asObject();
-            ShardExtents.Entry actual = entries.get(index);
-            assertThat(actual.shard()).as("lineage[%d].shard", index)
+            ShardLineage.Entry actual = entries.get(index);
+            assertThat(actual.shard().asText()).as("lineage[%d].shard", index)
                     .isEqualTo(entry.text("shard"));
-            assertThat(actual.lineage().name().toLowerCase(java.util.Locale.ROOT))
-                    .as("lineage[%d].class", index).isEqualTo(entry.text("class"));
-            assertThat(actual.parents()).as("lineage[%d].parents", index)
-                    .isEqualTo(entry.array("parents").texts());
+            assertThat(actual.lineage().spelling()).as("lineage[%d].class", index)
+                    .isEqualTo(entry.text("class"));
+            assertThat(actual.parents().stream().map(ShardId::asText).toList())
+                    .as("lineage[%d].parents", index).isEqualTo(entry.array("parents").texts());
         }
+    }
+
+    /** The exported snapshot type over a document a vector named, for a coordinator call. */
+    private TopologySnapshot snapshotOf(JsonObject testCase, String member) {
+        JsonObject document = source.readObject(testCase.text(member));
+        return new com.codeheadsystems.sharder.core.internal.snapshot.DocumentSnapshot(
+                new PlacementEngine(com.codeheadsystems.sharder.core.internal.document
+                        .TopologyDocument.parse(document)),
+                Digests.of(JcsWriter.canonicalise(document)), java.util.OptionalLong.empty());
     }
 
     /** {@code planConstruction}: how a plan derives a handoff from a lineage, {@code LIN-041}. */

@@ -1,7 +1,7 @@
 {
   "suite": "sharder conformance suite",
   "revision": {
-    "id": "e7b47c5f5ee68e66304d7b7524ac620f0b362a889208613f7cf4b001b87bcc49",
+    "id": "62fee56e23bddee56e5b186d465b8b4e6f936d851785af47ba0e30f8ce178db5",
     "basis": "sha256 of the RFC 8785 canonical form of the file digests, the level table, and the strategy surfaces",
     "fileCount": 205,
     "trees": [
@@ -21,7 +21,7 @@
     "scenarios": 25,
     "scenarioSteps": 313,
     "properties": 28,
-    "requirementsNamed": 473
+    "requirementsNamed": 474
   },
   "requirementsNamed": [
     "CFG-014",
@@ -199,6 +199,7 @@
     "LIN-016",
     "LIN-021",
     "LIN-022",
+    "LIN-031",
     "LIN-033",
     "LIN-041",
     "LIN-042",
@@ -591,7 +592,7 @@
       "vectorCases": 26,
       "scenarios": 15,
       "properties": 3,
-      "requirementsNamed": 102
+      "requirementsNamed": 103
     }
   ],
   "strategySurfaces": [
@@ -2080,12 +2081,13 @@
         "LIN-016",
         "LIN-021",
         "LIN-022",
+        "LIN-031",
         "LIN-033",
         "MOVE-241",
         "PLACE-065",
         "TOPO-231"
       ],
-      "sha256": "1e13da445183131e15811f7b28046afd0094a7bc21692f6ecf2aff6e0007e9b2"
+      "sha256": "9a705c589dc85a46f81d0d3c9eee12883b170fe29ec8edb3088849a3ad273138"
     },
     {
       "file": "vectors/migration/plan-construction.json",

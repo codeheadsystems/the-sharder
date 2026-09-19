@@ -763,9 +763,12 @@ forbids reading health, a clock, or a handoff state, and the second forbids the 
 changing a class. An implementation that departs from either produces a different classification
 wherever the departure reaches one, and fails a lineage case there.
 
-`LIN-031` and `LIN-032` are the shape of an operation and a rule about where it is not called,
-which is the case `Surface exposure` and `Concurrency and visibility` describe. `LIN-034` bounds
-what a lineage costs, which is the case `Placement cost` describes.
+`LIN-032` is a rule about where an operation is not called, which is the case
+`Concurrency and visibility` describes, and `LIN-034` bounds what a lineage costs, which is the case
+`Placement cost` describes. `LIN-031` is not among them: it requires the lineage to be an operation
+the integrator calls, so `vectors/migration/lineage.json` reaches it through the surface a port
+exports rather than through the class behind it. A port that computed a lineage it could not expose
+would satisfy the classification and fail the requirement that names it.
 
 `LIN-015` binds a registered strategy outside the core set. The suite carries core-set documents, so
 no data file can present one, and the same is true of every requirement about a registered strategy.
