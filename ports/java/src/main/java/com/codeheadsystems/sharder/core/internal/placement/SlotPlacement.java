@@ -30,7 +30,12 @@ final class SlotPlacement implements PreparedPlacement {
     }
 
     @Override
-    public List<NodeId> candidates(byte[] routingKey, EligibleSet eligible) {
+    public java.util.Iterator<NodeId> cursor(byte[] routingKey, EligibleSet eligible) {
+        return authoredCandidates(routingKey, eligible).iterator();
+    }
+
+    /** The authored ordering, which is a list the document spells rather than a walk. */
+    private List<NodeId> authoredCandidates(byte[] routingKey, EligibleSet eligible) {
         return covering(slotIndex(routingKey))
                 .map(entry -> authored(entry.nodes(), eligible))
                 .orElseGet(List::of);
@@ -53,7 +58,11 @@ final class SlotPlacement implements PreparedPlacement {
     }
 
     @Override
-    public List<NodeId> candidatesForShard(String shard, EligibleSet eligible) {
+    public java.util.Iterator<NodeId> cursorForShard(String shard, EligibleSet eligible) {
+        return shardCandidates(shard, eligible).iterator();
+    }
+
+    private List<NodeId> shardCandidates(String shard, EligibleSet eligible) {
         return covering(Long.parseLong(shard))
                 .map(entry -> authored(entry.nodes(), eligible))
                 .orElseGet(List::of);

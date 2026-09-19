@@ -7,7 +7,7 @@ what every port carries whatever the language, and
 
 | Port | Directory | Status |
 |---|---|---|
-| Java | [`java/`](java/) | under way; one module, reaching the `hash`, `place`, and `core` conformance levels, designed in [`../docs/design/40-java-binding.md`](../docs/design/40-java-binding.md) |
+| Java | [`java/`](java/) | one module, declaring `hash`, `place`, `core`, and `scale` with all four strategy surfaces, designed in [`../docs/design/40-java-binding.md`](../docs/design/40-java-binding.md) |
 
 A directory appears here when work on a port starts.
 [`../docs/design/99-roadmap.md`](../docs/design/99-roadmap.md#later-releases) names the ports the

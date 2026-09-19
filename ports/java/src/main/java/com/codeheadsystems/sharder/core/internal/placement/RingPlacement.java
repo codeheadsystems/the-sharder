@@ -90,7 +90,7 @@ public final class RingPlacement implements PreparedPlacement {
     }
 
     @Override
-    public List<NodeId> candidates(byte[] routingKey, EligibleSet eligible) {
+    public java.util.Iterator<NodeId> cursor(byte[] routingKey, EligibleSet eligible) {
         return walk(positionAtOrAbove(hash.keyHash(routingKey)), eligible);
     }
 
@@ -114,7 +114,33 @@ public final class RingPlacement implements PreparedPlacement {
     }
 
     @Override
-    public List<NodeId> candidatesForShard(String shard, EligibleSet eligible) {
+    public java.util.Iterator<String> shardCursor() {
+        // The ring is ordered by token, so two entries carrying one token value are adjacent and
+        // a distinct enumeration is the walk with a repeat skipped. RING-031 names them once.
+        return new java.util.Iterator<>() {
+            private int index = 0;
+
+            @Override
+            public boolean hasNext() {
+                return index < ring.size();
+            }
+
+            @Override
+            public String next() {
+                if (!hasNext()) {
+                    throw new java.util.NoSuchElementException();
+                }
+                long token = ring.get(index).token();
+                while (index < ring.size() && ring.get(index).token() == token) {
+                    index++;
+                }
+                return U64.toHex(token);
+            }
+        };
+    }
+
+    @Override
+    public java.util.Iterator<NodeId> cursorForShard(String shard, EligibleSet eligible) {
         // RING-032: a shard whose token is absent from the eligible ring starts the walk at the
         // next entry at or above it, wrapping, rather than answering empty.
         return walk(positionAtOrAbove(U64.parseHex(shard)), eligible);
@@ -147,19 +173,41 @@ public final class RingPlacement implements PreparedPlacement {
 
     /**
      * {@code RING-021}: the owners encountered walking ascending from the owning entry, wrapping
-     * once, visiting every entry exactly once, appending each owner the first time it is met.
+     * once, visiting every entry exactly once, emitting each owner the first time it is met.
+     *
+     * <p>The walk is a cursor rather than a list. A caller consuming a prefix of {@code p} owners
+     * walks about {@code p * T / N} entries where tokens are spread evenly, which is what
+     * {@code PLACE-070} charges a routing call, and a caller consuming the whole ordering walks
+     * {@code T} entries, which is what {@code RING-022} requires of the whole of it.
      */
-    private List<NodeId> walk(int start, EligibleSet eligible) {
-        if (ring.isEmpty()) {
-            return List.of();
-        }
-        Set<NodeId> seen = new LinkedHashSet<>();
-        for (int step = 0; step < ring.size(); step++) {
-            NodeId owner = ring.get((start + step) % ring.size()).owner();
-            if (eligible.contains(owner)) {
-                seen.add(owner);
+    private java.util.Iterator<NodeId> walk(int start, EligibleSet eligible) {
+        return new java.util.Iterator<>() {
+            private final Set<NodeId> emitted = new LinkedHashSet<>();
+            private int step = 0;
+            private NodeId pending;
+
+            @Override
+            public boolean hasNext() {
+                while (pending == null && step < ring.size()) {
+                    NodeId owner = ring.get((start + step) % ring.size()).owner();
+                    step++;
+                    if (eligible.contains(owner) && !emitted.contains(owner)) {
+                        pending = owner;
+                    }
+                }
+                return pending != null;
             }
-        }
-        return List.copyOf(seen);
+
+            @Override
+            public NodeId next() {
+                if (!hasNext()) {
+                    throw new java.util.NoSuchElementException();
+                }
+                NodeId owner = pending;
+                pending = null;
+                emitted.add(owner);
+                return owner;
+            }
+        };
     }
 }

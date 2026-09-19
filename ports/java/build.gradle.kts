@@ -49,6 +49,13 @@ tasks.test {
         providers.systemProperty("sharder.conformance.dir")
             .getOrElse(rootDir.resolve("../../conformance").canonicalPath),
     )
+    // The run report a declaration publishes. An ordinary run writes it into the build directory;
+    // a maintainer declaring conformance names the path the declaration carries.
+    systemProperty(
+        "sharder.conformance.report",
+        providers.systemProperty("sharder.conformance.report")
+            .getOrElse(layout.buildDirectory.file("conformance-report.txt").get().asFile.path),
+    )
     testLogging {
         events("failed")
         showStandardStreams = false

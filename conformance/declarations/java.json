@@ -1,0 +1,55 @@
+{
+  "port": "java",
+  "version": "unreleased",
+  "revision": "adbe49553dbd893976ce24249b8114c528aee786c1053dd7fe9df3219f8ee4a5",
+  "strategySurfaces": [
+    "directory",
+    "rendezvous",
+    "ring",
+    "slot"
+  ],
+  "levels": {
+    "hash": {
+      "state": "reached"
+    },
+    "place": {
+      "state": "reached"
+    },
+    "core": {
+      "state": "reached"
+    },
+    "scale": {
+      "state": "reached"
+    },
+    "failover": {
+      "state": "excluded",
+      "surface": "failover"
+    },
+    "readAffinity": {
+      "state": "excluded",
+      "surface": "readAffinity"
+    },
+    "fencing": {
+      "state": "excluded",
+      "surface": "fencing"
+    },
+    "migration": {
+      "state": "excluded",
+      "surface": "migration"
+    }
+  },
+  "run": {
+    "command": "cd ports/java && ./gradlew test",
+    "report": "ports/java/conformance/report.txt",
+    "vectorFiles": 57,
+    "vectorCases": 458,
+    "failures": 0
+  },
+  "scale": {
+    "wallTimeMs": 909,
+    "peakResidentBytes": 550453248,
+    "machine": "AMD Ryzen 7 7840U w/ Radeon  780M Graphics, Linux 6.8.0-138-generic",
+    "runtime": "OpenJDK 64-Bit Server VM 25.0.4, compiled against the Java 21 API"
+  },
+  "deviations": []
+}
