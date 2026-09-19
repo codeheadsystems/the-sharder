@@ -149,8 +149,13 @@
             "name": "redirectExhausted",
             "retryable": "no",
             "condition": "a redirect walk reached its bound or revisited a node",
-            "callerResponse": "surface the failure; do not fall back to an arbitrary node",
-            "causes": []
+            "callerResponse": "surface the failure; a retryBudget cause means the cluster is shedding",
+            "causes": [
+              "boundReached",
+              "revisitedNode",
+              "unknownNode",
+              "retryBudget"
+            ]
           },
           {
             "code": 401,
@@ -163,7 +168,8 @@
               "epochNotAdvancing",
               "strategyUnsupported",
               "destinationOutsidePlacementSet",
-              "policyInvalid"
+              "policyInvalid",
+              "topologyMismatch"
             ]
           },
           {
@@ -179,7 +185,7 @@
             "name": "handoffFailed",
             "retryable": "no",
             "condition": "a handoff reached failed",
-            "callerResponse": "operator action, directed by the failure kind in cause",
+            "callerResponse": "operator action, directed by the failure kind in cause; undetermined takes a re-observation",
             "causes": [
               "unverified",
               "residue",

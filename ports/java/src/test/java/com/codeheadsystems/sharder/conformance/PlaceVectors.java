@@ -475,6 +475,9 @@ final class PlaceVectors {
                 long count = Math.min(product, inputs.get("cap").asInt());
                 assertThat(count).isEqualTo(testCase.get("expect").asLong());
             }
+            case "shardIsHot", "keySkew" -> assertThat(
+                    CoreVectors.skewFormula(testCase.text("formula"), inputs))
+                    .isEqualTo(testCase.get("expect").asBoolean());
             default -> throw new AssertionError(
                     "the driver implements no formula " + testCase.text("formula"));
         }

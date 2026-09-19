@@ -56,6 +56,31 @@ public final class U64 {
     }
 
     /**
+     * The comparison of {@code a * b * c} against {@code d * e} over the exact products, under
+     * {@code CORE-005}, which the hot-shard comparison of {@code OBS-031} needs.
+     *
+     * <p>The left side reaches 91 bits within the ranges {@code OBS-036} and {@code SLOT-001}
+     * declare, so the comparison is made over 128-bit products rather than in a {@code long}.
+     */
+    public static int compareWideProducts(long a, long b, long c, long d, long e) {
+        long[] left = multiply(multiply(a, b), c);
+        long[] right = multiply(d, e);
+        int high = Long.compareUnsigned(left[0], right[0]);
+        return high != 0 ? high : Long.compareUnsigned(left[1], right[1]);
+    }
+
+    /** The 128-bit product of two unsigned values, as a high half and a low half. */
+    private static long[] multiply(long left, long right) {
+        return new long[] {Math.unsignedMultiplyHigh(left, right), left * right};
+    }
+
+    /** The 128-bit product of a 128-bit value and an unsigned 64-bit one, within 128 bits. */
+    private static long[] multiply(long[] value, long multiplier) {
+        long high = Math.unsignedMultiplyHigh(value[1], multiplier) + value[0] * multiplier;
+        return new long[] {high, value[1] * multiplier};
+    }
+
+    /**
      * The comparison of {@code a * b} against {@code c * d + e} over the exact values, under
      * {@code CORE-005}, which the right side of {@code FAIL-031} needs.
      */

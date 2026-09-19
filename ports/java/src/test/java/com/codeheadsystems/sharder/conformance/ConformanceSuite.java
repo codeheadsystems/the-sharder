@@ -34,7 +34,7 @@ import org.junit.jupiter.api.TestFactory;
 class ConformanceSuite {
 
     /** The levels this port runs, each carrying the levels it requires. */
-    private static final Set<String> DECLARED = Set.of("place");
+    private static final Set<String> DECLARED = Set.of("core");
 
     private static final HexFormat HEX = HexFormat.of();
 
@@ -50,9 +50,13 @@ class ConformanceSuite {
                 .filter(level -> running.contains(level.name()))
                 .map(level -> dynamicContainer(
                         "level " + level.name(),
-                        Stream.concat(
-                                Stream.of(levelCounts(level.name())),
-                                manifest.filesAt(level.name()).stream().map(this::vectorFile))));
+                        Stream.of(
+                                        Stream.of(levelCounts(level.name())),
+                                        manifest.filesAt(level.name()).stream()
+                                                .map(this::vectorFile),
+                                        manifest.scenariosAt(level.name()).stream()
+                                                .map(this::scenario))
+                                .flatMap(nodes -> nodes)));
     }
 
     private DynamicNode levelCounts(String level) {
@@ -64,9 +68,19 @@ class ConformanceSuite {
         });
     }
 
+    private DynamicNode scenario(VectorManifest.ScenarioEntry entry) {
+        return dynamicTest("scenario " + entry.scenario(), () -> {
+            int skipped = new ScenarioRunner(source).run(entry.file());
+            // A scenario covering several surfaces reports the steps a port does not implement,
+            // rather than failing on them as an unknown vector kind does.
+            assertThat(skipped).as("steps this driver does not implement").isZero();
+        });
+    }
+
     private DynamicNode vectorFile(FileEntry entry) {
         JsonObject file = source.readObject(entry.file());
         PlaceVectors place = new PlaceVectors(file);
+        CoreVectors core = new CoreVectors(source);
         List<JsonValue> cases = file.array("cases").elements();
         Stream<DynamicNode> integrity = Stream.of(
                 dynamicTest("the file matches the digest the manifest holds",
@@ -77,12 +91,13 @@ class ConformanceSuite {
                 .map(JsonValue::asObject)
                 .map(testCase -> dynamicTest(
                         testCase.text("name") + " " + testCase.array("requirements").texts(),
-                        () -> runCase(entry.kind(), testCase, place)));
+                        () -> runCase(entry.kind(), testCase, place, core)));
         return dynamicContainer(entry.vectorSet() + " (" + entry.file() + ")",
                 Stream.concat(integrity, vectors));
     }
 
-    private void runCase(String kind, JsonObject testCase, PlaceVectors place) {
+    private void runCase(String kind, JsonObject testCase, PlaceVectors place,
+                         CoreVectors core) {
         switch (kind) {
             case "siphash" -> sipHashCase(testCase);
             case "hash" -> hashConstructionCase(testCase);
@@ -97,6 +112,13 @@ class ConformanceSuite {
             case "defaults" -> place.defaults(testCase);
             case "pinShard" -> place.pinShard(testCase);
             case "formula" -> PlaceVectors.formula(testCase);
+            case "digest" -> core.digest(testCase);
+            case "validation" -> core.validation(testCase);
+            case "errorTaxonomy" -> core.errorTaxonomy(testCase);
+            case "observabilityInventory" -> core.observabilityInventory(testCase);
+            case "publicationEvents" -> core.publicationEvents(testCase);
+            case "ownershipDelta" -> core.ownershipDelta(testCase);
+            case "propertyWitness" -> core.propertyWitness(testCase);
             default -> throw new AssertionError(
                     "the driver implements no vector kind " + kind);
         }

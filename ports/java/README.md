@@ -4,21 +4,24 @@ Java is the first implementation of the sharder library, and it is one Gradle mo
 artifact, `sharder`, under
 [`adr/0081`](../../docs/design/adr/0081-single-java-module.md).
 
-Status: under way. The port reaches the `hash` and `place` conformance levels and no other, so it
-declares no conformance yet: a declaration waits for `core` and `scale` as well, which `CORE-110`
-makes mandatory alongside the two it has.
+Status: under way. The port reaches the `hash`, `place`, and `core` conformance levels and no
+other, so it declares no conformance yet: a declaration waits for `scale`, which `CORE-110` makes
+mandatory alongside the three it has.
 
 | Written | Not written |
 |---|---|
-| the Gradle build, `module-info.java`, and the wrapper | the topology document pipeline and the snapshot lifecycle |
-| `NodeId`, `ShardId`, `RoutingKey`, and `Digest` | the public `Router` and `RoutingDecision` |
-| SipHash-2-4, the framing, and the three domain-tagged functions | the canonical form, the digest, and document validation |
-| the three key transforms and the matcher precedence | the health view, the attempt walk, and the retry budget |
-| `ring`, `rendezvous`, `slot`, and `directory` | the recipient check and the redirect walk |
-| the override layer: pins, constraints, and per-entry factor | the handoff coordinator and rate control |
-| the preference list builder and the spread relaxation ladder | the metrics, the events, and the explain record |
-| `ErrorCode` and the no-candidate condition of `ERR-021` | the thirteen conditions no surface here raises |
-| the conformance harness, driven from `manifest.json` | the levels above `place` |
+| the Gradle build, `module-info.java`, and the wrapper | the public `Router`, `RoutingDecision`, and the configuration surface |
+| `NodeId`, `ShardId`, `RoutingKey`, and `Digest` | the topology provider contract and the poll schedule |
+| SipHash-2-4, the framing, and the three domain-tagged functions | the health view, the attempt walk, and the retry budget |
+| the three key transforms and the matcher precedence | the recipient check and the redirect walk |
+| `ring`, `rendezvous`, `slot`, and `directory` | the handoff coordinator and rate control |
+| the override layer: pins, constraints, and per-entry factor | the explain record and the metrics registry |
+| the preference list builder and the spread relaxation ladder | the exception leaves no surface here raises |
+| the RFC 8785 canonical form, the digest, and document validation | the levels above `core` |
+| the snapshot lifecycle and the acceptance table of `TOPO-061` | |
+| the ownership delta, skew detection, and the observability inventory | |
+| `ErrorCode`, the closed condition set of `ERR-010` | |
+| the conformance harness and the scenario runner | |
 
 [`../../docs/design/40-java-binding.md`](../../docs/design/40-java-binding.md) is the design this
 directory renders. It fixes the package layout, the public type set, the JDK floor, the dependency
