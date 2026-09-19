@@ -28,12 +28,15 @@ public final class SkewDetection {
         if (shardCount == 0) {
             return false;
         }
-        return U64.compareWideProducts(shardRequests, shardCount, 100,
+        // The left side names three operands, and the two small ones fold into one before the
+        // comparison: `shardCount` is bounded by `slotCount` under SLOT-001, so `shardCount * 100`
+        // is exact in a `long` and the comparison stays a product against a product.
+        return U64.compareProducts(shardRequests, shardCount * 100L,
                 totalRequests, hotShardFactorPercent) >= 0;
     }
 
     /** {@code OBS-032}: whether {@code hottestKeyRequests * 100 >= requests * keySkewPercent}. */
     public static boolean keySkew(long hottestKeyRequests, long requests, long keySkewPercent) {
-        return U64.compareWideProducts(hottestKeyRequests, 100, 1, requests, keySkewPercent) >= 0;
+        return U64.compareProducts(hottestKeyRequests, 100L, requests, keySkewPercent) >= 0;
     }
 }

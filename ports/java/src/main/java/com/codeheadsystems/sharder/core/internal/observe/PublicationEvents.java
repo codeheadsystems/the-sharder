@@ -184,10 +184,8 @@ public final class PublicationEvents {
 
     /** {@code SEC-011}: a zero seed meeting the evidence of multi-tenancy. */
     private static void seed(TopologyDocument document, List<Emitted> events) {
-        for (byte octet : document.hashSeed()) {
-            if (octet != 0) {
-                return;
-            }
+        if (!document.seedIsDefault()) {
+            return;
         }
         List<String> evidence = new ArrayList<>();
         if (!document.overrides().isEmpty()) {

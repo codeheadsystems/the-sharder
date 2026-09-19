@@ -40,6 +40,14 @@ through the types
 | the conformance harness, the scenario runner, and the run report | |
 | the build gates and the allocation gate | |
 
+One mechanism differs from the one
+[`../../docs/design/40-java-binding.md`](../../docs/design/40-java-binding.md#concurrent-use)
+describes. The retry budget's window there is an array of `LongAdder` counters, so that accounting a
+first attempt costs no contended write. This port holds the instant of each attempt under one lock
+instead, because `FAIL-031` counts over the window to the millisecond and a bucketed counter answers
+differently at a bucket boundary. The behaviour is the behaviour the requirement states either way,
+and the lock is taken once per attempt rather than on the placement path.
+
 The candidate ordering is a cursor rather than a list, under `PLACE-015`: a routing call consumes
 the prefix `CORE-046` bounds it at, and the whole ordering and the whole preference list are
 answered on demand under `CORE-047`. A thousand-node ring therefore costs a routing call a walk of

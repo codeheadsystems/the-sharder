@@ -1,7 +1,6 @@
 package com.codeheadsystems.sharder.core.internal.placement;
 
 import com.codeheadsystems.sharder.core.internal.document.TopologyDocument.Matcher;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -20,12 +19,10 @@ public final class Matchers {
 
     /** Whether the matcher matches the routing key, under {@code PLACE-061} onwards. */
     public static boolean matches(Matcher matcher, byte[] routingKey) {
-        byte[] value = matcher.value();
         return switch (matcher.kind()) {
-            case "exact" -> Arrays.equals(value, routingKey);
+            case "exact" -> matcher.valueEquals(routingKey);
             // An empty prefix matches every routing key, under PLACE-063.
-            case "prefix" -> value.length <= routingKey.length
-                    && Arrays.equals(value, 0, value.length, routingKey, 0, value.length);
+            case "prefix" -> matcher.valuePrefixes(routingKey);
             default -> throw new IllegalArgumentException(
                     "no matcher kind named " + matcher.kind());
         };
@@ -65,6 +62,6 @@ public final class Matchers {
         }
         // Equal kinds: a longer prefix wins, and an earlier index keeps its place, which is what
         // refusing to replace on a tie amounts to.
-        return candidate.value().length > incumbent.value().length;
+        return candidate.valueLength() > incumbent.valueLength();
     }
 }

@@ -11,9 +11,10 @@ import com.codeheadsystems.sharder.health.HealthView;
 import com.codeheadsystems.sharder.topology.TopologySnapshot;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -31,13 +32,20 @@ import java.util.Set;
  */
 public final class SlidingWindowHealthView implements HealthView {
 
-    /** One node's health entry, which survives an epoch change under {@code HEALTH-006}. */
+    /**
+     * One node's health entry, which survives an epoch change under {@code HEALTH-006}.
+     *
+     * <p>Every field but two is written under the view's lock. {@code state} is volatile because
+     * {@code stateOf} reads it without that lock, so a routing call never blocks on the health
+     * view even though {@code CORE-064} would permit it to. {@code probeCounter} is atomic because
+     * {@code admitProbe} increments it without the lock, under {@code HEALTH-051}.
+     */
     private static final class Entry {
         private final SlidingWindow window;
-        private HealthState state = HealthState.UNKNOWN;
+        private volatile HealthState state = HealthState.UNKNOWN;
         private int consecutiveFailures;
         private int ejectionCount;
-        private int probeCounter;
+        private final AtomicInteger probeCounter = new AtomicInteger();
         private long newestSignal = Long.MIN_VALUE;
         private long unavailableSince;
         private long probationSince;
@@ -53,7 +61,7 @@ public final class SlidingWindowHealthView implements HealthView {
     }
 
     private final HealthSettings settings;
-    private final Map<NodeId, Entry> entries = new LinkedHashMap<>();
+    private final Map<NodeId, Entry> entries = new ConcurrentHashMap<>();
     private final List<Transition> transitions = new ArrayList<>();
     private Set<NodeId> placementSet = Set.of();
     private boolean placementSetKnown;
@@ -69,7 +77,7 @@ public final class SlidingWindowHealthView implements HealthView {
     }
 
     @Override
-    public void report(HealthSignal signal) {
+    public synchronized void report(HealthSignal signal) {
         report(signal.node(), signal.outcome().spelling(), signal.observed());
     }
 
@@ -81,7 +89,7 @@ public final class SlidingWindowHealthView implements HealthView {
      * of a view that ignores the call.
      */
     @Override
-    public void onSnapshotInstalled(TopologySnapshot snapshot) {
+    public synchronized void onSnapshotInstalled(TopologySnapshot snapshot) {
         if (snapshot instanceof DocumentSnapshot document) {
             onSnapshotInstalled(document.document());
         }
@@ -100,7 +108,7 @@ public final class SlidingWindowHealthView implements HealthView {
     }
 
     /** The transitions emitted since the last call, which an event sink would have carried. */
-    public List<Transition> drainTransitions() {
+    public synchronized List<Transition> drainTransitions() {
         List<Transition> drained = List.copyOf(transitions);
         transitions.clear();
         return drained;
@@ -113,7 +121,7 @@ public final class SlidingWindowHealthView implements HealthView {
      * <p>A view that is never given one runs no outlier ejection and refuses no transition, which
      * is why the call is the only way it learns either.
      */
-    public void onSnapshotInstalled(TopologyDocument document) {
+    public synchronized void onSnapshotInstalled(TopologyDocument document) {
         Set<NodeId> installed = new LinkedHashSet<>();
         for (Node node : document.placementSet()) {
             installed.add(node.id());
@@ -138,7 +146,7 @@ public final class SlidingWindowHealthView implements HealthView {
      * and a signal older than the newest already ingested for that node is ignored under
      * {@code HEALTH-012}. Timers are evaluated first, under {@code HEALTH-047}.
      */
-    public void report(NodeId node, String outcome, long observed) {
+    public synchronized void report(NodeId node, String outcome, long observed) {
         Entry entry = entries.computeIfAbsent(node, ignored -> new Entry(settings));
         if (observed < entry.newestSignal) {
             return;
@@ -162,7 +170,7 @@ public final class SlidingWindowHealthView implements HealthView {
 
     /** {@code HEALTH-015}: timers evaluated for every node, in ascending node identity. */
     @Override
-    public void advance(long now) {
+    public synchronized void advance(long now) {
         List<NodeId> nodes = new ArrayList<>(entries.keySet());
         nodes.sort(NodeId::compareTo);
         for (NodeId node : nodes) {
@@ -173,6 +181,10 @@ public final class SlidingWindowHealthView implements HealthView {
     /**
      * {@code HEALTH-051}: the probe counter, incremented by each call, admitting the probe exactly
      * where the incremented value modulo the divisor is 1.
+     *
+     * <p>The increment takes no lock, under the concurrent use table of the Java binding: the
+     * attempt walk calls this under {@code HEALTH-017}, and a walk that blocked on the view would
+     * put the health lock on the path of every attempt.
      */
     @Override
     public boolean admitProbe(NodeId node) {
@@ -180,12 +192,11 @@ public final class SlidingWindowHealthView implements HealthView {
         if (entry == null || entry.state != HealthState.PROBATION) {
             return true;
         }
-        entry.probeCounter++;
-        return entry.probeCounter % settings.probationDivisor() == 1;
+        return entry.probeCounter.incrementAndGet() % settings.probationDivisor() == 1;
     }
 
     /** The comparison set of {@code HEALTH-030}, in ascending node identity. */
-    public List<NodeId> comparisonSet(long now) {
+    public synchronized List<NodeId> comparisonSet(long now) {
         List<NodeId> set = new ArrayList<>();
         for (Map.Entry<NodeId, Entry> held : entries.entrySet()) {
             // A health entry the placement set does not hold neither enters the set nor moves the
@@ -200,7 +211,7 @@ public final class SlidingWindowHealthView implements HealthView {
     }
 
     /** The peer median of {@code HEALTH-031}, the lower of two central values where even. */
-    public Optional<Integer> peerMedian(long now) {
+    public synchronized Optional<Integer> peerMedian(long now) {
         List<Integer> percents = new ArrayList<>();
         for (NodeId node : comparisonSet(now)) {
             percents.add(entries.get(node).window.failurePercent(now));
@@ -213,18 +224,18 @@ public final class SlidingWindowHealthView implements HealthView {
     }
 
     /** The failure percentage of one node over the window as it stands. */
-    public int failurePercent(NodeId node, long now) {
+    public synchronized int failurePercent(NodeId node, long now) {
         Entry entry = entries.get(node);
         return entry == null ? 0 : entry.window.failurePercent(now);
     }
 
     /** The size of the placement set the view was last given. */
-    public int placementSetSize() {
+    public synchronized int placementSetSize() {
         return placementSet.size();
     }
 
     /** The count of nodes of the placement set the view holds {@code unavailable}. */
-    public int ejectedCount() {
+    public synchronized int ejectedCount() {
         int ejected = 0;
         for (Map.Entry<NodeId, Entry> held : entries.entrySet()) {
             if (placementSet.contains(held.getKey())
@@ -241,7 +252,7 @@ public final class SlidingWindowHealthView implements HealthView {
      * <p>The comparison is exact over both products, and it is strict, so exactly half the set may
      * be held unavailable at the default of fifty per cent.
      */
-    public boolean ejectionRefused() {
+    public synchronized boolean ejectionRefused() {
         // HEALTH-016: a view that is given no placement set runs no outlier ejection and refuses
         // no transition, so the ceiling is inert rather than total until a snapshot arrives.
         return placementSetKnown
@@ -258,7 +269,7 @@ public final class SlidingWindowHealthView implements HealthView {
                 && now - entry.unavailableSince >= settings.ejectionMillis(entry.ejectionCount)) {
             // HEALTH-044: only the elapse of the interval reaches probation, so a stale success
             // cannot cancel an ejection.
-            entry.probeCounter = 0;
+            entry.probeCounter.set(0);
             entry.probationSince = now;
             transition(node, entry, HealthState.PROBATION, "ejectionInterval");
             return;
