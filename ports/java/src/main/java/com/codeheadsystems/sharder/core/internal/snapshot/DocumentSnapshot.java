@@ -108,12 +108,7 @@ public final class DocumentSnapshot implements TopologySnapshot {
 
     @Override
     public boolean seedIsDefault() {
-        for (byte octet : document().hashSeed()) {
-            if (octet != 0) {
-                return false;
-            }
-        }
-        return true;
+        return document().seedIsDefault();
     }
 
     @Override

@@ -33,6 +33,40 @@ public record TopologyDocument(
         List<Node> nodes,
         List<OverrideEntry> overrides) {
 
+    /**
+     * The seed is copied on the way in, and every accessor of it copies on the way out.
+     *
+     * <p>{@code HASH-012} makes the seed constant for the lifetime of a snapshot. A record over a
+     * bare {@code byte[]} hands a caller the array the document holds, and a caller that wrote to
+     * it would change the hash key every later placement is prepared under, with no exception and
+     * no signal: every decision taken after the write would disagree with every decision taken
+     * before it. The copy is what makes that impossible rather than merely discouraged.
+     */
+    public TopologyDocument {
+        hashSeed = hashSeed.clone();
+    }
+
+    /** The seed of {@code HASH-010}, copied on the way out. */
+    @Override
+    public byte[] hashSeed() {
+        return hashSeed.clone();
+    }
+
+    /** Whether the seed is the sixteen zero octets of {@code HASH-011}, under {@code SEC-011}. */
+    public boolean seedIsDefault() {
+        for (byte octet : hashSeed) {
+            if (octet != 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /** Whether two documents carry one seed, which {@code TOPO-231} reads. */
+    public boolean seedEquals(TopologyDocument other) {
+        return java.util.Arrays.equals(hashSeed, other.hashSeed);
+    }
+
     /** The administrative state of a node, of which two are in the placement set. */
     public enum State {
         /** Placeable and serving. */
@@ -111,8 +145,59 @@ public record TopologyDocument(
     public record DirectoryEntry(Matcher match, List<NodeId> nodes) {
     }
 
-    /** A matcher of {@code PLACE-060}, with its value already decoded to octets. */
+    /**
+     * A matcher of {@code PLACE-060}, with its value already decoded to octets.
+     *
+     * <p>The octets are copied in and copied out, and two matchers are equal on their content
+     * rather than on the identity of an array, because a record over a bare {@code byte[]} compares
+     * and hashes by reference and hands a caller the array the document is holding. The three
+     * accessors below answer the questions {@code PLACE-061} and {@code PLACE-065} ask without
+     * copying, because both are asked once per entry on the routing path.
+     */
     public record Matcher(String kind, byte[] value) {
+
+        /** The octets are copied on the way in. */
+        public Matcher {
+            value = value.clone();
+        }
+
+        /** The octets, copied on the way out. */
+        @Override
+        public byte[] value() {
+            return value.clone();
+        }
+
+        /** The octet count, which is what the longest-prefix rule of {@code PLACE-065} reads. */
+        public int valueLength() {
+            return value.length;
+        }
+
+        /** Whether the value equals these octets, under {@code PLACE-062}. */
+        public boolean valueEquals(byte[] octets) {
+            return java.util.Arrays.equals(value, octets);
+        }
+
+        /** Whether the value is a prefix of these octets, under {@code PLACE-063}. */
+        public boolean valuePrefixes(byte[] octets) {
+            return value.length <= octets.length
+                    && java.util.Arrays.equals(value, 0, value.length, octets, 0, value.length);
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            return other instanceof Matcher matcher && kind.equals(matcher.kind)
+                    && java.util.Arrays.equals(value, matcher.value);
+        }
+
+        @Override
+        public int hashCode() {
+            return kind.hashCode() * 31 + java.util.Arrays.hashCode(value);
+        }
+
+        @Override
+        public String toString() {
+            return kind + ":" + java.util.HexFormat.of().formatHex(value);
+        }
     }
 
     /** One entry of the {@code overrides} array. */

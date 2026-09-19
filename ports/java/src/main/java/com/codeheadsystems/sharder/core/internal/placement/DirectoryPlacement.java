@@ -3,7 +3,6 @@ package com.codeheadsystems.sharder.core.internal.placement;
 import com.codeheadsystems.sharder.NodeId;
 import com.codeheadsystems.sharder.core.internal.document.TopologyDocument;
 import com.codeheadsystems.sharder.core.internal.document.TopologyDocument.DirectoryEntry;
-import java.util.HexFormat;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
@@ -77,7 +76,7 @@ final class DirectoryPlacement implements PreparedPlacement {
     }
 
     private static String render(DirectoryEntry entry) {
-        return entry.match().kind() + ":" + HexFormat.of().formatHex(entry.match().value());
+        return entry.match().toString();
     }
 
     private static List<NodeId> authored(List<NodeId> nodes, EligibleSet eligible) {

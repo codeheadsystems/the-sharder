@@ -40,7 +40,7 @@ public final class OwnershipDelta {
         if (!before.keyTransform().equals(after.keyTransform())) {
             return Optional.of("keyTransform");
         }
-        if (!java.util.Arrays.equals(before.hashSeed(), after.hashSeed())) {
+        if (!before.seedEquals(after)) {
             return Optional.of("hash.seed");
         }
         if ("slot".equals(before.strategy().kind())

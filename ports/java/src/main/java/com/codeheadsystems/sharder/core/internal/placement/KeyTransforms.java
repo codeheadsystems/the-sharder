@@ -15,10 +15,17 @@ public final class KeyTransforms {
     private KeyTransforms() {
     }
 
-    /** The routing key {@code spec} derives from {@code key}. */
+    /**
+     * The routing key {@code spec} derives from {@code key}.
+     *
+     * <p>The answer is never the caller's array, under {@code CORE-070}: a decision holds its
+     * routing key for as long as the caller holds the decision, and a caller that reused its own
+     * buffer for the next key would change what a decision it already took reports. The
+     * {@code none} transform therefore copies rather than answering the key it was given.
+     */
     public static byte[] apply(KeyTransformSpec spec, byte[] key) {
         return switch (spec.kind()) {
-            case "none" -> key;
+            case "none" -> key.clone();
             case "braceTag" -> braceTag(key, spec.open(), spec.close());
             case "prefixFields" -> prefixFields(key, spec.separator(), spec.count());
             default -> throw new IllegalArgumentException(

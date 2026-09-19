@@ -10,6 +10,13 @@ import java.util.Deque;
  * routes, under {@code FAIL-033}: a per-key budget would permit a storm assembled from many keys.
  * A first attempt is always permitted under {@code FAIL-032}, so the budget cannot make a key
  * unroutable.
+ *
+ * <p>One budget serves every unit of execution a router is called from, under {@code CORE-055}, so
+ * the window is held under this object's lock. The Java binding describes the window as an array of
+ * {@code LongAdder} counters, which costs an uncontended write per first attempt; this window holds
+ * the instant of each attempt instead, because {@code FAIL-031} counts over the window to the
+ * millisecond and a bucketed counter answers differently at a bucket boundary. The lock is what
+ * that exactness costs, and it is taken once per attempt rather than on the placement path.
  */
 public final class RetryBudget {
 
@@ -39,7 +46,7 @@ public final class RetryBudget {
      * <p>{@code retries * 100 <= retryBudgetPercent * firstAttempts + 100 * retryBudgetMinimum},
      * evaluated exactly under {@code CORE-005} whatever the window totals reach.
      */
-    public boolean permitted(long now) {
+    public synchronized boolean permitted(long now) {
         return permitted(count(now, true), count(now, false), percent, minimum);
     }
 
@@ -49,7 +56,7 @@ public final class RetryBudget {
     }
 
     /** Accounts one attempt, which is a first attempt or a retry. */
-    public void account(long at, boolean retry) {
+    public synchronized void account(long at, boolean retry) {
         window.addLast(new Accounted(at, retry));
         evict(at);
     }
