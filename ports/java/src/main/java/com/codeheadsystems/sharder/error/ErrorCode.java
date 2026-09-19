@@ -168,9 +168,9 @@ public enum ErrorCode {
                     "retryBudget");
             case PLAN_REFUSED -> List.of("incomparableShards", "epochNotAdvancing",
                     "strategyUnsupported", "destinationOutsidePlacementSet", "policyInvalid",
-                    "topologyMismatch");
+                    "topologyMismatch", "unalignedLineage", "lineageUnsupported");
             case HANDOFF_FAILED -> List.of("unverified", "residue", "undetermined",
-                    "rollbackFailed");
+                    "rollbackFailed", "undivided");
             default -> List.of();
         };
     }

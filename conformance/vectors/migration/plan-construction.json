@@ -1,0 +1,163 @@
+{
+  "vectorSet": "migration-plan-construction",
+  "kind": "planConstruction",
+  "level": "migration",
+  "description": "How a plan derives a handoff from a lineage: the source of a divided shard, the destination of a fold that the ownership delta does not report, the local steps beside them and their order, and the plan under the identity lineage.",
+  "requirements": [
+    "LIN-041",
+    "LIN-042",
+    "LIN-044",
+    "LIN-045",
+    "LIN-051",
+    "LIN-052",
+    "LIN-057"
+  ],
+  "cases": [
+    {
+      "name": "divided-source-from-the-parent",
+      "requirements": [
+        "LIN-041",
+        "LIN-042",
+        "LIN-045",
+        "LIN-051",
+        "LIN-052",
+        "LIN-057"
+      ],
+      "before": "topologies/delta-ring-before.topology.json",
+      "after": "topologies/delta-ring-added.topology.json",
+      "note": "`LIN-041`: the contents of the divided shard `0000000000002000` are held by the replicas of its parent `0000000000003000`, so the handoff names one of them as its source. A plan built over the ownership delta alone has no entry for the parent, whose replica set did not change, and names a source equal to the destination.",
+      "expect": {
+        "handoffs": [
+          {
+            "shard": "0000000000001000",
+            "sourceShard": "0000000000001000",
+            "kind": "handoff",
+            "source": "b",
+            "destination": "c",
+            "id": "h-0000000000001000"
+          },
+          {
+            "shard": "0000000000002000",
+            "sourceShard": "0000000000003000",
+            "kind": "divide",
+            "source": "b",
+            "destination": "b",
+            "id": "l-0000000000002000"
+          },
+          {
+            "shard": "0000000000002000",
+            "sourceShard": "0000000000003000",
+            "kind": "handoff",
+            "source": "a",
+            "destination": "c",
+            "id": "h-0000000000002000-1"
+          },
+          {
+            "shard": "0000000000003000",
+            "sourceShard": "0000000000003000",
+            "kind": "divide",
+            "source": "b",
+            "destination": "b",
+            "id": "l-0000000000003000"
+          },
+          {
+            "shard": "0000000000003000",
+            "sourceShard": "0000000000003000",
+            "kind": "divide",
+            "source": "a",
+            "destination": "a",
+            "id": "l-0000000000003000-1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "folded-destination-outside-the-delta",
+      "requirements": [
+        "LIN-041",
+        "LIN-044",
+        "LIN-045",
+        "LIN-051",
+        "LIN-052",
+        "LIN-057"
+      ],
+      "before": "topologies/delta-ring-added.topology.json",
+      "after": "topologies/delta-ring-removed.topology.json",
+      "note": "`LIN-044`: the shard that absorbs the folded extent keeps its replica set, so the ownership delta reports no entry for it, and a plan built over the delta alone moves nothing to the replica that does not hold the folded parent.",
+      "expect": {
+        "handoffs": [
+          {
+            "shard": "0000000000001000",
+            "sourceShard": "0000000000001000",
+            "kind": "handoff",
+            "source": "c",
+            "destination": "b",
+            "id": "h-0000000000001000"
+          },
+          {
+            "shard": "0000000000003000",
+            "sourceShard": "0000000000002000",
+            "kind": "handoff",
+            "source": "c",
+            "destination": "a",
+            "id": "h-0000000000003000"
+          },
+          {
+            "shard": "0000000000003000",
+            "sourceShard": "0000000000003000",
+            "kind": "combine",
+            "source": "b",
+            "destination": "b",
+            "id": "l-0000000000003000-1"
+          },
+          {
+            "shard": "0000000000003000",
+            "sourceShard": "0000000000003000",
+            "kind": "combine",
+            "source": "a",
+            "destination": "a",
+            "id": "l-0000000000003000-2"
+          }
+        ]
+      }
+    },
+    {
+      "name": "slot-plan-over-the-identity-lineage",
+      "requirements": [
+        "LIN-041",
+        "LIN-045"
+      ],
+      "before": "topologies/delta-before.topology.json",
+      "after": "topologies/delta-moved.topology.json",
+      "note": "`LIN-007`: under the identity lineage every shard is its own parent, so the plan is the one the ownership delta already produced and this case is the regression guard for it.",
+      "expect": {
+        "handoffs": [
+          {
+            "shard": "3",
+            "sourceShard": "3",
+            "kind": "handoff",
+            "source": "b",
+            "destination": "d",
+            "id": "h-3"
+          },
+          {
+            "shard": "4",
+            "sourceShard": "4",
+            "kind": "handoff",
+            "source": "b",
+            "destination": "d",
+            "id": "h-4"
+          },
+          {
+            "shard": "5",
+            "sourceShard": "5",
+            "kind": "handoff",
+            "source": "b",
+            "destination": "d",
+            "id": "h-5"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,133 @@
+{
+  "scenario": "topology-acceptance-floor",
+  "level": "core",
+  "description": "A process configured with an identifier and an epoch floor, with nothing in force. The floor refuses a document below it, the configured identifier refuses a foreign one before the floor is reached, and the first document at or above the floor installs.",
+  "requirements": [
+    "ERR-031",
+    "ERR-032",
+    "TOPO-061",
+    "TOPO-071"
+  ],
+  "deterministic": true,
+  "setup": {
+    "loader": {
+      "expectedTopologyId": "migration",
+      "minEpoch": 3
+    }
+  },
+  "steps": [
+    {
+      "action": "installTopology",
+      "topology": "topologies/migration-epoch-2.topology.json",
+      "expect": {
+        "outcome": "rejected",
+        "condition": {
+          "code": 203,
+          "name": "staleDocument",
+          "detail": "an epoch below minEpoch"
+        },
+        "digest": "88174beca86efc281ac17c76a28b20728055b2a526d2cd9a216a3ca5f2307bb8"
+      },
+      "note": "`TOPO-071`: the floor is below the first document, and nothing is in force, so the row that installs a first document is never reached"
+    },
+    {
+      "action": "installTopology",
+      "document": {
+        "formatVersion": "1.0",
+        "topologyId": "some-other-cluster",
+        "epoch": 1,
+        "domainLevels": [
+          "zone"
+        ],
+        "replication": {
+          "factor": 2
+        },
+        "strategy": {
+          "kind": "slot",
+          "slotCount": 3,
+          "assignment": "explicit",
+          "assignments": [
+            {
+              "slots": [
+                "0"
+              ],
+              "nodes": [
+                "n1",
+                "n2"
+              ]
+            },
+            {
+              "slots": [
+                "1"
+              ],
+              "nodes": [
+                "n2",
+                "n3"
+              ]
+            },
+            {
+              "slots": [
+                "2"
+              ],
+              "nodes": [
+                "n3",
+                "n1"
+              ]
+            }
+          ]
+        },
+        "nodes": [
+          {
+            "id": "n1",
+            "domains": {
+              "zone": "za"
+            },
+            "address": "10.0.0.1:7000"
+          },
+          {
+            "id": "n2",
+            "domains": {
+              "zone": "zb"
+            },
+            "address": "10.0.0.2:7000"
+          },
+          {
+            "id": "n3",
+            "domains": {
+              "zone": "zc"
+            },
+            "address": "10.0.0.3:7000"
+          },
+          {
+            "id": "n4",
+            "state": "joining",
+            "domains": {
+              "zone": "zd"
+            },
+            "address": "10.0.0.4:7000"
+          }
+        ]
+      },
+      "note": "`TOPO-061`: the identifier row precedes the floor row, so a foreign document below `minEpoch` is a conflict and not stale",
+      "expect": {
+        "outcome": "rejected",
+        "condition": {
+          "code": 202,
+          "name": "topologyConflict",
+          "detail": "a differing topologyId"
+        },
+        "digest": "5dc597d8f3c39ade58e5f7fcb16804f6ce3351d8da5859c295491b439f40343f"
+      }
+    },
+    {
+      "action": "installTopology",
+      "topology": "topologies/migration-epoch-3.topology.json",
+      "expect": {
+        "outcome": "installed",
+        "condition": null,
+        "digest": "135af637f87fa8f69f32fe0be4f150501c505d8ce4c49db464c4c15856baa99c",
+        "epochInForce": 3
+      }
+    }
+  ]
+}

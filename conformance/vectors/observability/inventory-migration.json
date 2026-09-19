@@ -81,10 +81,11 @@
       "note": "`OBS-020` names each event, the severity it carries, and the payload members it carries beyond the common members of `OBS-021`.  A port may carry further members and may not rename one of these.  A `deduplication` member appears on the four events `OBS-024` names and on no other.",
       "expect": {
         "surface": "migration",
-        "eventCount": 9,
+        "eventCount": 10,
         "names": [
           "sharder.migration.cutover_committed",
           "sharder.migration.failed",
+          "sharder.migration.lineage",
           "sharder.migration.planned",
           "sharder.migration.quiesce_expired",
           "sharder.migration.rebase_pending",
@@ -94,6 +95,20 @@
           "sharder.migration.superseded"
         ],
         "events": [
+          {
+            "name": "sharder.migration.lineage",
+            "severity": "info",
+            "payload": [
+              "unchanged",
+              "moved",
+              "divided",
+              "merged",
+              "fresh",
+              "split",
+              "folded",
+              "vacated"
+            ]
+          },
           {
             "name": "sharder.migration.planned",
             "severity": "info",

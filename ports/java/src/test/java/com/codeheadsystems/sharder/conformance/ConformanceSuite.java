@@ -143,6 +143,8 @@ class ConformanceSuite {
             case "observabilityInventory" -> core.observabilityInventory(testCase);
             case "publicationEvents" -> core.publicationEvents(testCase);
             case "ownershipDelta" -> core.ownershipDelta(testCase);
+            case "lineage" -> core.lineage(testCase);
+            case "planConstruction" -> core.planConstruction(testCase);
             case "propertyWitness" -> core.propertyWitness(testCase);
             case "scale" -> core.scale(testCase);
             case "readAffinity" -> core.readAffinity(testCase);

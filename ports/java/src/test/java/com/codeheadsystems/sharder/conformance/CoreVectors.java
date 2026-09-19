@@ -1,6 +1,7 @@
 package com.codeheadsystems.sharder.conformance;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.codeheadsystems.sharder.Digest;
 import com.codeheadsystems.sharder.NodeId;
@@ -13,9 +14,18 @@ import com.codeheadsystems.sharder.core.internal.json.JsonValue.JsonObject;
 import com.codeheadsystems.sharder.core.internal.observe.Observability;
 import com.codeheadsystems.sharder.core.internal.observe.PublicationEvents;
 import com.codeheadsystems.sharder.core.internal.observe.SkewDetection;
+import com.codeheadsystems.sharder.core.internal.migrate.Handoff;
+import com.codeheadsystems.sharder.core.internal.migrate.MigrationPlan;
+import com.codeheadsystems.sharder.core.internal.placement.ShardExtents;
 import com.codeheadsystems.sharder.core.internal.route.OwnershipDelta;
 import com.codeheadsystems.sharder.core.internal.route.PlacementEngine;
+import com.codeheadsystems.sharder.ShardId;
+import com.codeheadsystems.sharder.core.Sharder;
 import com.codeheadsystems.sharder.error.ErrorCode;
+import com.codeheadsystems.sharder.error.PlanRefusedException;
+import com.codeheadsystems.sharder.migrate.HandoffCoordinator;
+import com.codeheadsystems.sharder.migrate.ShardLineage;
+import com.codeheadsystems.sharder.topology.TopologySnapshot;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HexFormat;
@@ -286,6 +296,88 @@ final class CoreVectors {
                     .isEqualTo(entry.array("gained").texts());
             assertThat(names(change.lost())).as("delta[%d].lost", index)
                     .isEqualTo(entry.array("lost").texts());
+        }
+    }
+
+    /** {@code lineage}: the classification of two snapshots' extents, under {@code LIN-021}. */
+    void lineage(JsonObject testCase) {
+        // LIN-031 requires the lineage to be an operation the integrator calls, so the harness
+        // reaches it through the exported surface rather than through the class behind it. A port
+        // that computed a lineage it could not expose would pass the one and fail the other.
+        HandoffCoordinator coordinator = Sharder.coordinator();
+        TopologySnapshot from = snapshotOf(testCase, "before");
+        TopologySnapshot to = snapshotOf(testCase, "after");
+        JsonObject expect = testCase.object("expect");
+        if (expect.find("lineageComputed").isPresent()) {
+            JsonObject condition = expect.object("condition");
+            ErrorCode code = ErrorCode.ofName(condition.text("name"));
+            assertThat(code.code()).as("condition code").isEqualTo(condition.get("code").asInt());
+            assertThatThrownBy(() -> coordinator.lineage(from, to))
+                    .as("refusal").isInstanceOf(PlanRefusedException.class);
+            try {
+                coordinator.lineage(from, to);
+            } catch (PlanRefusedException refusal) {
+                assertThat(refusal.reason().spelling()).as("cause")
+                        .isEqualTo(condition.text("cause"));
+                assertThat(code.causes()).as("cause is in the closed set")
+                        .contains(condition.text("cause"));
+            }
+            return;
+        }
+        List<ShardLineage.Entry> entries = coordinator.lineage(from, to).entries();
+        List<JsonValue> expected = expect.array("lineage").elements();
+        assertThat(entries).as("lineage").hasSize(expected.size());
+        for (int index = 0; index < expected.size(); index++) {
+            JsonObject entry = expected.get(index).asObject();
+            ShardLineage.Entry actual = entries.get(index);
+            assertThat(actual.shard().asText()).as("lineage[%d].shard", index)
+                    .isEqualTo(entry.text("shard"));
+            assertThat(actual.lineage().spelling()).as("lineage[%d].class", index)
+                    .isEqualTo(entry.text("class"));
+            assertThat(actual.parents().stream().map(ShardId::asText).toList())
+                    .as("lineage[%d].parents", index).isEqualTo(entry.array("parents").texts());
+        }
+    }
+
+    /** The exported snapshot type over a document a vector named, for a coordinator call. */
+    private TopologySnapshot snapshotOf(JsonObject testCase, String member) {
+        JsonObject document = source.readObject(testCase.text(member));
+        return new com.codeheadsystems.sharder.core.internal.snapshot.DocumentSnapshot(
+                new PlacementEngine(com.codeheadsystems.sharder.core.internal.document
+                        .TopologyDocument.parse(document)),
+                Digests.of(JcsWriter.canonicalise(document)), java.util.OptionalLong.empty());
+    }
+
+    /** {@code planConstruction}: how a plan derives a handoff from a lineage, {@code LIN-041}. */
+    void planConstruction(JsonObject testCase) {
+        PlacementEngine before = engine(testCase, "before");
+        PlacementEngine after = engine(testCase, "after");
+        MigrationPlan plan = MigrationPlan.of(before, after, 0L);
+        List<JsonValue> expected = testCase.object("expect").array("handoffs").elements();
+        assertThat(plan.handoffs()).as("handoff count").hasSize(expected.size());
+        for (int index = 0; index < expected.size(); index++) {
+            JsonObject entry = expected.get(index).asObject();
+            Handoff handoff = plan.handoff(entry.text("id"));
+            assertThat(handoff).as("handoffs[%d] named %s", index, entry.text("id")).isNotNull();
+            assertThat(handoff.shard()).as("handoffs[%d].shard", index)
+                    .isEqualTo(entry.text("shard"));
+            assertThat(handoff.kind().spelling()).as("handoffs[%d].kind", index)
+                    .isEqualTo(entry.text("kind"));
+            assertThat(handoff.sourceShard()).as("handoffs[%d].sourceShard", index)
+                    .isEqualTo(entry.text("sourceShard"));
+            assertThat(handoff.source().asText()).as("handoffs[%d].source", index)
+                    .isEqualTo(entry.text("source"));
+            assertThat(handoff.destination().asText()).as("handoffs[%d].destination", index)
+                    .isEqualTo(entry.text("destination"));
+            if (handoff.kind().local()) {
+                // LIN-051: a local step moves nothing between nodes, so it names one node twice.
+                assertThat(handoff.source()).as("handoffs[%d] is local", index)
+                        .isEqualTo(handoff.destination());
+            } else {
+                // LIN-042: a node cannot both hold the contents and be the node they move to.
+                assertThat(handoff.source()).as("handoffs[%d] source is not the destination", index)
+                        .isNotEqualTo(handoff.destination());
+            }
         }
     }
 

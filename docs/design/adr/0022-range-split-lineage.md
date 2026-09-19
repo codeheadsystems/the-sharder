@@ -7,6 +7,15 @@ The whole `SPLIT` prefix is withdrawn with the `range` strategy, which was the o
 the decomposition into local steps, and the `splitLocal` and `mergeLocal` hooks leave the design
 with it. The reasoning below is what a later minor version reads before adding the kind back.
 
+Amended on 2026-09-19 by [`0086`](0086-shard-lineage-derived-from-extent.md). The lineage returns in
+a different shape, under the `LIN` prefix and fresh identifiers, derived from each strategy's own
+keyspace geometry rather than from authored range bounds. The `SPLIT` prefix stays withdrawn and
+admits no further identifier. What this record got right and `0086` keeps: a lineage relates extents
+rather than identifiers, a change in flight is two epochs and nothing else, an unaligned boundary
+move is refused and republished as a division epoch followed by a fold epoch, and explicit lineage
+members do not belong in the document. What `0086` does not take: the `range` strategy, the authored
+bounds, and the rule that a division which has already succeeded cannot be undone.
+
 ## Context
 
 The `range` strategy names shards by `shardId` and bounds them by a half-open interval. A split

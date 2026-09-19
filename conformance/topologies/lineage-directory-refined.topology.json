@@ -1,0 +1,57 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "lineage-directory",
+  "epoch": 2,
+  "replication": {
+    "factor": 1
+  },
+  "strategy": {
+    "kind": "directory",
+    "entries": [
+      {
+        "match": {
+          "kind": "prefix",
+          "value": "ab0"
+        },
+        "nodes": [
+          "d1"
+        ]
+      },
+      {
+        "match": {
+          "kind": "prefix",
+          "value": "ab1"
+        },
+        "nodes": [
+          "d2"
+        ]
+      },
+      {
+        "match": {
+          "kind": "prefix",
+          "value": "ab"
+        },
+        "nodes": [
+          "d1"
+        ]
+      },
+      {
+        "match": {
+          "kind": "prefix",
+          "value": "cd"
+        },
+        "nodes": [
+          "d2"
+        ]
+      }
+    ]
+  },
+  "nodes": [
+    {
+      "id": "d1"
+    },
+    {
+      "id": "d2"
+    }
+  ]
+}

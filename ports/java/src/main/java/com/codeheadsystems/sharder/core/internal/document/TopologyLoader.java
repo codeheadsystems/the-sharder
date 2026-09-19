@@ -55,6 +55,8 @@ public final class TopologyLoader {
 
     private final Map<String, PlacementStrategy> strategies;
     private final Map<Long, PlacementEngine> retained = new LinkedHashMap<>();
+    private final Optional<String> configuredTopologyId;
+    private final OptionalLong minEpoch;
     private String topologyId;
     private TopologyDocument inForce;
     private Digest digestInForce;
@@ -68,7 +70,23 @@ public final class TopologyLoader {
 
     /** A pipeline under the strategies a configuration registered, under {@code CORE-010}. */
     public TopologyLoader(Map<String, PlacementStrategy> strategies) {
+        this(strategies, Optional.empty(), OptionalLong.empty());
+    }
+
+    /**
+     * The same, under the identifier and the epoch floor the integrator configured.
+     *
+     * <p>{@code TOPO-061} checks a configured identifier before there is a snapshot in force, so a
+     * first document under a foreign identifier is a conflict rather than an installation, and
+     * {@code TOPO-071} applies {@code minEpoch} to every document including the first after a
+     * restart. Both are refused before the row that installs a first document, which is why they
+     * belong to the pipeline rather than to a caller checking afterwards.
+     */
+    public TopologyLoader(Map<String, PlacementStrategy> strategies,
+                          Optional<String> configuredTopologyId, OptionalLong minEpoch) {
         this.strategies = Map.copyOf(strategies);
+        this.configuredTopologyId = configuredTopologyId;
+        this.minEpoch = minEpoch;
     }
 
     /** The snapshot in force, where one is. */
@@ -86,9 +104,16 @@ public final class TopologyLoader {
         return epochInForce;
     }
 
-    /** The identifier every later document is checked against, adopted from the first accepted. */
+    /**
+     * The identifier every document is checked against.
+     *
+     * <p>It is the one the integrator configured where there is one, and otherwise the one adopted
+     * from the first accepted document under {@code TOPO-091}.
+     */
     public Optional<String> expectedTopologyId() {
-        return Optional.ofNullable(topologyId);
+        return configuredTopologyId.isPresent()
+                ? configuredTopologyId
+                : Optional.ofNullable(topologyId);
     }
 
     /** The document's arrival, which installs it, treats it as a no-op, or refuses it. */
@@ -101,9 +126,17 @@ public final class TopologyLoader {
         }
         TopologyDocument parsed = TopologyDocument.parse(document);
 
-        // TOPO-061, in the order the table writes the rows.
-        if (topologyId != null && !topologyId.equals(parsed.topologyId())) {
+        // TOPO-061, in the order the table writes the rows. The first two precede the row that
+        // installs a first document, so a first document under a foreign identifier is a conflict
+        // and a first document below minEpoch is stale, rather than an installation.
+        Optional<String> expected = expectedTopologyId();
+        if (expected.isPresent() && !expected.get().equals(parsed.topologyId())) {
             return refused(ErrorCode.TOPOLOGY_CONFLICT, "a differing topologyId", digest);
+        }
+        if (minEpoch.isPresent() && parsed.epoch() < minEpoch.getAsLong()) {
+            // TOPO-071: the floor holds across a restart, so it is checked whether or not a
+            // snapshot is in force.
+            return refused(ErrorCode.STALE_DOCUMENT, "an epoch below minEpoch", digest);
         }
         if (inForce == null) {
             return install(parsed, digest);

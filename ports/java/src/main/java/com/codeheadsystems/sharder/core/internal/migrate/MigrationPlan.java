@@ -1,6 +1,7 @@
 package com.codeheadsystems.sharder.core.internal.migrate;
 
 import com.codeheadsystems.sharder.NodeId;
+import com.codeheadsystems.sharder.core.internal.placement.ShardExtents;
 import com.codeheadsystems.sharder.core.internal.route.OwnershipDelta;
 import com.codeheadsystems.sharder.core.internal.route.PlacementEngine;
 import com.codeheadsystems.sharder.migrate.HandoffState;
@@ -93,9 +94,27 @@ public final class MigrationPlan {
         return new Handoff(id, shard, source, destination, fromEpoch, toEpoch);
     }
 
+    /** The same, carrying the parent and the kind a lineage gives it under {@code LIN-041}. */
+    public static Handoff handoffOf(String id, String shard, String sourceShard, Handoff.Kind kind,
+                                    NodeId source, NodeId destination, long fromEpoch,
+                                    long toEpoch) {
+        return new Handoff(id, shard, sourceShard, kind, source, destination, fromEpoch, toEpoch);
+    }
+
     /**
-     * The plan between two snapshots: one handoff per shard that gained a node, under the
-     * ownership delta of {@code TOPO-211}.
+     * The plan between two snapshots, derived from the lineage under {@code LIN-041}.
+     *
+     * <p>One handoff is admitted for each shard of the later snapshot, each shard its extent draws
+     * from, and each destination that does not already hold that parent's contents. Where the two
+     * snapshots enumerate the same shards the lineage is the identity of {@code LIN-007} and every
+     * shard is its own parent, which is the ownership delta's answer and the case every topology
+     * the suite carried before the lineage falls into.
+     *
+     * <p>Building the plan over the delta alone is what {@code LIN-044} forbids. A shard that
+     * absorbed a folded extent keeps its replica set, so the delta reports no entry for it, and a
+     * destination that holds one parent but not the other would receive nothing. A shard divided
+     * out of a parent has no entry in the earlier snapshot at all, so the source would fall back to
+     * the destination and the plan would tell a node to copy from itself.
      *
      * <p>Plan construction is a pure function of the two snapshots and the policy, which is what
      * lets a restarted coordinator rebuild the same plan under {@code MOVE-221}.
@@ -103,25 +122,70 @@ public final class MigrationPlan {
     public static MigrationPlan of(PlacementEngine from, PlacementEngine to,
                                    long quiesceLeaseMarginMillis) {
         MigrationPlan plan = new MigrationPlan(quiesceLeaseMarginMillis, to.document().epoch());
-        for (OwnershipDelta.ShardChange change : OwnershipDelta.between(from, to)) {
-            // A shard that gained a node and lost one is a move from that source to that
-            // destination; the pairing is by position, which the delta reports in identity order.
-            for (int entry = 0; entry < change.gained().size(); entry++) {
-                NodeId destination = change.gained().get(entry);
-                NodeId source = entry < change.lost().size()
-                        ? change.lost().get(entry)
-                        : change.before().isEmpty() ? destination : change.before().get(0);
-                // A handoff is named after the shard it moves, so a rebuilt plan names the same
-                // handoffs, which MOVE-221 rests on.
-                String id = "h-" + change.shard();
-                while (plan.handoffs.containsKey(id)) {
-                    id = id + "-" + entry;
+        Map<String, List<String>> parents = ShardExtents.parents(from, to);
+        Map<String, ShardExtents.Lineage> classes = new LinkedHashMap<>();
+        for (ShardExtents.Entry entry : ShardExtents.classify(from, to, OwnershipDelta::replicas)) {
+            classes.put(entry.shard(), entry.lineage());
+        }
+        for (String shard : to.placement().shards()) {
+            List<NodeId> destinations = OwnershipDelta.replicas(to, shard);
+            List<String> drawn = parents.getOrDefault(shard, List.of(shard));
+            ShardExtents.Lineage lineage = classes.get(shard);
+
+            // LIN-057: a division is sequenced before every handoff that draws from the divided
+            // parent, and a fold after every handoff that draws into the folded shard.
+            if (lineage == ShardExtents.Lineage.DIVIDED) {
+                String parent = drawn.get(0);
+                for (NodeId node : destinations) {
+                    if (OwnershipDelta.replicas(from, parent).contains(node)) {
+                        admit(plan, shard, parent, Handoff.Kind.DIVIDE, node, node, from, to);
+                    }
                 }
-                plan.handoffs.put(id, new Handoff(id, change.shard(), source, destination,
-                        from.document().epoch(), to.document().epoch()));
+            }
+            for (String parent : drawn) {
+                List<NodeId> held = OwnershipDelta.replicas(from, parent);
+                if (held.isEmpty()) {
+                    // LIN-043: a shard with no parent has no contents to move.
+                    continue;
+                }
+                List<NodeId> needing = new ArrayList<>(destinations);
+                needing.removeAll(held);
+                List<NodeId> departing = new ArrayList<>(held);
+                departing.removeAll(destinations);
+                for (int entry = 0; entry < needing.size(); entry++) {
+                    // LIN-045: a replica giving the shard up is drained in preference to one
+                    // keeping it, so a plan rebuilt from the same snapshots names the same source.
+                    NodeId source = entry < departing.size() ? departing.get(entry) : held.get(0);
+                    admit(plan, shard, parent, Handoff.Kind.HANDOFF, source, needing.get(entry),
+                            from, to);
+                }
+            }
+            if (lineage == ShardExtents.Lineage.MERGED) {
+                for (NodeId node : destinations) {
+                    boolean holdsAParent = drawn.stream()
+                            .anyMatch(parent -> OwnershipDelta.replicas(from, parent).contains(node));
+                    if (holdsAParent) {
+                        admit(plan, shard, shard, Handoff.Kind.COMBINE, node, node, from, to);
+                    }
+                }
             }
         }
         return plan;
+    }
+
+    /** One entry of a plan, named so that a rebuilt plan names it identically under MOVE-221. */
+    private static void admit(MigrationPlan plan, String shard, String sourceShard,
+                              Handoff.Kind kind, NodeId source, NodeId destination,
+                              PlacementEngine from, PlacementEngine to) {
+        String prefix = kind.local() ? "l-" : "h-";
+        // The suffix counts the entries already admitted for this shard whatever their kind, so a
+        // local step and the handoff beside it never collide and the numbering is positional.
+        long already = plan.handoffs.values().stream()
+                .filter(existing -> existing.shard().equals(shard))
+                .count();
+        String id = already == 0 ? prefix + shard : prefix + shard + "-" + already;
+        plan.handoffs.put(id, new Handoff(id, shard, sourceShard, kind, source, destination,
+                from.document().epoch(), to.document().epoch()));
     }
 
     /** The handoffs of the plan, in the order it admitted them. */
@@ -247,7 +311,14 @@ public final class MigrationPlan {
         }
         HandoffState to = switch (trigger) {
             case "admittedByRatePolicy" -> require(from, HandoffState.PLANNED,
-                    HandoffState.PREPARING);
+                    handoff(id).kind().local() ? HandoffState.DIVIDING : HandoffState.PREPARING);
+            // LIN-051: the same admission, named for the state it reaches, which a scenario
+            // drives by trigger rather than by reading the handoff's kind.
+            case "admittedByRatePolicyLocal" -> require(from, HandoffState.PLANNED,
+                    HandoffState.DIVIDING);
+            // LIN-051: a local step moves nothing between nodes, so it runs the short sequence.
+            case "divideSuccess", "combineSuccess" -> require(from, HandoffState.DIVIDING,
+                    HandoffState.COMPLETE);
             case "prepareSuccess" -> require(from, HandoffState.PREPARING,
                     HandoffState.TRANSFERRING);
             case "noBulkRemaining" -> require(from, HandoffState.TRANSFERRING,
@@ -267,7 +338,9 @@ public final class MigrationPlan {
                     ? HandoffState.ABORTED : HandoffState.ABORTING;
             // MOVE-021: attempts exhausted short of the cutover is an abort rather than a failure.
             case "attemptsExhausted" -> switch (from) {
-                case PREPARING, TRANSFERRING, CATCHING_UP -> HandoffState.ABORTING;
+                // MOVE-421: a local step is undone by the inverse hook, so it aborts like the
+                // three states that already do, under LIN-056.
+                case PREPARING, TRANSFERRING, CATCHING_UP, DIVIDING -> HandoffState.ABORTING;
                 default -> null;
             };
             case "quiesceExpired" -> require(from, HandoffState.CUTOVER, HandoffState.ABORTING);
@@ -291,6 +364,8 @@ public final class MigrationPlan {
         String kind = switch (trigger) {
             case "verifyMismatch" -> "unverified";
             case "commitUndetermined" -> "undetermined";
+            // MOVE-011: a copy that matches neither the parent's extent nor the child's.
+            case "dividePermanent" -> "undivided";
             // MOVE-011: the kind names which copy the failure leaves at risk, so an exhausted
             // attempt budget means one thing in verifying, another in cleanup, and another while
             // compensation runs.

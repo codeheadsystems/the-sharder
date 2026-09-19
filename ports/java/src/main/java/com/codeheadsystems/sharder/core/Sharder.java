@@ -2,6 +2,7 @@ package com.codeheadsystems.sharder.core;
 
 import com.codeheadsystems.sharder.Router;
 import com.codeheadsystems.sharder.config.RouterConfig;
+import com.codeheadsystems.sharder.core.internal.observe.MetricsHolder;
 import com.codeheadsystems.sharder.core.internal.route.DefaultRouter;
 import com.codeheadsystems.sharder.migrate.HandoffCoordinator;
 import com.codeheadsystems.sharder.migrate.internal.DefaultCoordinator;
@@ -32,6 +33,21 @@ public final class Sharder {
      */
     public static HandoffCoordinator coordinator() {
         return new DefaultCoordinator();
+    }
+
+    /**
+     * The same, reporting through the registry and the sink a configuration carries.
+     *
+     * <p>A coordinator reads the two observability members of the configuration and nothing else
+     * from it: no provider, no snapshot, and no health view. Where either is unset it reports as
+     * the sinkless coordinator does, which is to count by name and discard. The events are the
+     * {@code migration.} rows of {@code OBS-020}, and
+     * {@code adr/0092} records why the sink arrives this way.
+     */
+    public static HandoffCoordinator coordinator(RouterConfig config) {
+        return new DefaultCoordinator(new MetricsHolder(
+                config.observability().metricsRegistry(), config.observability().eventSink()),
+                config.clock());
     }
 
     /**

@@ -447,14 +447,14 @@ PROPERTIES = [
         "requirements": ["MOVE-011", "MOVE-021", "MOVE-031", "MOVE-441", "MOVE-491"],
         "level": "migration",
         "statement": "complete, aborted, and failed admit no transition out.  A handoff in "
-                     "failed carries exactly one of the four failure kinds.  An abort is "
+                     "failed carries exactly one of the failure kinds.  An abort is "
                      "idempotent and is not admitted at or beyond verifying.",
         "quantifier": "for every terminal state and every trigger",
         "sample": {"generator": "scenario", "count": "every trigger from every terminal state"},
         "check": {"form": "invariant",
                   "statement": "a transition out of a terminal state is refused, and a handoff "
                                "in failed carries one kind from { unverified, residue, "
-                               "undetermined, rollbackFailed }"},
+                               "undetermined, rollbackFailed, undivided }"},
         "witness": "scenarios/handoff-failure-kinds.json",
     },
     {

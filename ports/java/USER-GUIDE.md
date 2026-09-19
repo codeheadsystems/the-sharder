@@ -1,9 +1,9 @@
 # Java port user guide
 
-A task-oriented walk through the Java port of the sharder library: a first routed key, the node set
-it routes over, replication, failover, read affinity, fencing, resharding, and orchestrated
-migration. Each section assumes the ones above it, and each ends at the reference that carries the
-full detail.
+A task-oriented walk through the Java port of the sharder library: how a control plane and a caller
+divide the work, a first routed key, the node set it routes over, replication, failover, read
+affinity, fencing, resharding, and orchestrated migration. Each section assumes the ones above it,
+and each ends at the reference that carries the full detail.
 
 ## Scope of the library
 
@@ -28,6 +28,117 @@ function of the snapshot in force, the routing key, and the signals reported.
 
 A caller is the application embedding the library. It is not the client that talks to a node; that
 one belongs to the integrator's world.
+
+## The control plane and the caller
+
+### Division of labour
+
+A topology authority decides what the cluster looks like and publishes a topology document for each
+epoch. The authority sits outside the library: a control plane, a key-value store, a file under
+configuration management, or an operator with an editor. The library assigns no epoch, elects no
+authority, and writes no document.
+
+Each process that routes embeds the library and holds a `Router` over the document the authority
+published. A router is long-lived. It is constructed once, it holds the snapshot in force, and it is
+closed at shutdown; one constructed per request would repeat the preparation a snapshot pays for
+once.
+
+| Lifetime | What is held |
+|---|---|
+| the process | one `Router`, and the `TopologyProvider` it reads documents from |
+| an epoch | the immutable `TopologySnapshot` the router installed |
+| one request | the `RoutingDecision`, the `AttemptSequence` over it, and its `FencingToken` |
+
+The authority publishes and the caller routes, and at run time neither asks anything of the other.
+Two callers holding the same topology identifier and epoch compute the same preference list for the
+same key, so no caller is told which node to use and none asks.
+[`00-overview.md`](../../docs/design/00-overview.md#component-model) draws the components and the
+three extension points an integrator implements.
+
+### A document reaching a running router
+
+A topology document is JSON, and where it comes from is the integrator's: a file on disk, a
+key-value store, or octets a control plane already holds. It reaches a router through a
+`TopologyProvider`, which delivers those octets and never constructs a snapshot. Validation, the
+canonical form, the digest, the epoch comparison, and the preparation are the library's.
+[Topology providers](#topology-providers) gives the interface, and the two providers the library
+carries are the sections below it.
+
+An epoch is published and never inferred. The library assigns none and increments none. It compares
+a candidate document against the snapshot in force by integer comparison of `epoch` and octet
+comparison of `topologyId`, reading no clock, no provider revision, and no document timestamp. A
+document below the epoch in force is refused as stale, one at that epoch carrying the same digest is
+a no-op that refreshes freshness, one at that epoch carrying a different digest is refused as a
+conflict, and one above it is installed.
+Two settings are checked before any of that, and both hold when nothing is in force, which is the
+state a process is in after a restart. `expectedTopologyId` names the cluster this process routes
+for, so a document under any other identifier is refused as a conflict rather than adopted, which is
+what an unconfigured router does with the first document it accepts. `minEpoch` is a floor, and a
+document below it is refused as stale even where it is the first to arrive, which is how an operator
+stops a process coming back up on a document older than the one it was serving.
+
+```java
+RouterConfig config = RouterConfig.builder()
+        .provider(provider)
+        .expectedTopologyId("orders")
+        .minEpoch(41)
+        .build();
+```
+
+[`10-specification.md`](../../docs/design/10-specification.md#monotonicity-and-acceptance) carries
+the whole acceptance table, including the order the rows are evaluated in: the identifier is checked
+before the floor, so a foreign document below the floor is a conflict and not stale.
+
+Installation replaces the snapshot in force whole, as a single atomic replacement of the reference a
+routing call reads. A routing call already under way read that reference at entry and computes its
+whole result from the snapshot it read, so an installation changes no call in flight and invalidates
+no decision already answered. The router retains a bounded number of earlier snapshots for
+[the recipient check](#the-recipient-check), and routes against none of them.
+
+### The nodes for one key
+
+The everyday call takes a key and answers the nodes that hold it, in the order to ask them.
+
+```java
+RoutingDecision decision = router.route("tenant-42", RouteOptions.DEFAULTS);
+NodeId owner = decision.primary().node();
+List<PreferenceEntry> candidates = decision.entries();
+FencingToken token = decision.token();
+```
+
+`primary()` is the head of the list and the node to ask first. `entries()` holds that head and the
+nodes behind it, each entry carrying its position, its `REPLICA` or `FALLBACK` role, its health
+state, and whether the health filter left it attemptable. `shard()` names the shard the key belongs
+to under the strategies that enumerate shards, and `token()` is what a request carries so the
+recipient can check it. [The routing decision](#the-routing-decision) gives every member.
+
+Trying the nodes in turn is `router.attempts(decision)` rather than a loop over `entries()`, because
+the walk applies the health filter, the attempt limit, and the retry budget.
+[Walking an attempt sequence](#walking-an-attempt-sequence) gives it.
+
+The cost is bounded, and where it is paid matters more than what it is.
+
+- A routing call is a pure function of the snapshot in force, the routing key, and the health
+  signals the caller reported. It reads the snapshot reference once at entry and takes no lock.
+- The work that grows with the node set is preparation, and preparation is performed once per
+  snapshot at installation rather than once per call.
+  [`10-specification.md`](../../docs/design/10-specification.md#placement-cost-model) bounds
+  preparation, one routing call, and the resident size of a prepared placement.
+- A call consumes a bounded prefix of the candidate ordering rather than the whole ordering: the
+  greater of the achieved replica count and the resolved attempt limit, raised by the entries the
+  health filter skips. `CORE-046` fixes the prefix and `PLACE-071` bounds it, and
+  [`adr/0034`](../../docs/design/adr/0034-lazy-candidate-traversal-surface.md) records the cursor
+  that leaves the ordering beyond the prefix uncomputed.
+- `rendezvous` is the exception. It determines its first candidate from the scores of the whole
+  eligible node set, so no prefix of its ordering costs less than the whole; `ring`, `slot`, and
+  `directory` pay for the prefix alone.
+- `preferenceList()` and an explain record each consume the whole ordering, so both belong off the
+  routing path.
+
+The Java build holds an allocation gate over one routing call, in
+`src/test/java/com/codeheadsystems/sharder/api/AllocationGateTest.java`. A ring of a hundred nodes
+and a ring of a thousand take one ceiling between them, and a rendezvous topology takes a ceiling of
+its own.
 
 ## A first router
 
@@ -533,27 +644,84 @@ topology before retrying, and never a reason to install that epoch.
 [`10-specification.md`](../../docs/design/10-specification.md#caller-behaviour-when-fenced) states
 the walk.
 
-## Resharding
+## Resharding and shard lineage
 
-The library has no split operation and no merge operation.
-[`adr/0054`](../../docs/design/adr/0054-range-strategy-withdrawal.md) withdrew the `range` strategy
-and the split prefix whole. Resharding takes a different shape: an authority publishes a topology at
-a higher epoch with a different node set or a different replication factor, ownership of the
-existing shards moves, and the delta between the two topologies names exactly what moved.
+An authority changes a topology by publishing a whole document at a higher epoch. What that change
+does to the shards is the thing worth being deliberate about, and there are two shapes.
+
+A **reshard** keeps the shards and moves their ownership. The node set or the replication factor
+changes, every shard keeps its identifier and the keys it holds, and the ownership delta names the
+shards whose replica set differs.
+
+A **split** or a **merge** changes which shards exist. Adding a ring token divides the extent of one
+shard into two; removing one folds two extents into one. The shard identifiers are not the same on
+both sides, so the ownership delta, which joins on the identifier, has no answer for the ones that
+appeared or vanished. The lineage is the second join, over the keys a shard holds, and it is what
+tells a plan where a new shard's contents come from.
+
+The library derives the lineage from the topology document. Nothing in the document records it, and
+no member has to be authored to get a split.
+
+### Which shape to reach for
+
+Prefer a split or a merge where the change is about capacity for part of the keyspace.
+
+| | Split or merge | Reshard |
+|---|---|---|
+| What changes | which shards exist, and the keys each holds | who owns the existing shards |
+| What moves | the contents of the extents that divided or folded | the contents of every shard whose replica set changed |
+| Typical cause | one shard outgrew a node, or two are small enough to combine | a node joined or left, or the replication factor changed |
+| Cost | proportional to the extent that moved | proportional to what the strategy reassigns |
+| Reversible | yes, by folding back or dividing again | yes, by publishing the earlier shape |
+
+A split moves less because it disturbs less: the keys outside the divided extent do not change
+shard, so nothing about them moves. A reshard that redistributes the whole keyspace to add capacity
+moves data that was already where it belonged. Where both would serve, the split is the cheaper
+change, and it is the one to publish.
+
+A reshard is the right shape when what changed is the cluster rather than the keyspace. Adding a
+node to a `ring` topology under derived tokens is a reshard and a split at once, because the node's
+tokens divide the extents they land in, and the library plans it as one change.
+
+Under `slot` the shard count is fixed by `slotCount`, which `TOPO-231` holds equal across a
+comparable pair, so every change is a reshard. Choose `slotCount` generously at the outset: it is
+the one decision here that a later epoch cannot revisit.
+
+The library does not enforce the preference. It refuses a change whose boundaries neither divide nor
+fold an extent whole, because that has no lineage to name, and it reports the classification through
+the `migration.lineage` event so an operator can see which shape an epoch took. It refuses nothing
+else, and it never declines a reshard on the ground that a split would have been cheaper, because it
+cannot tell a deliberate rebalance from a lazy one.
+[`adr/0091`](../../docs/design/adr/0091-lineage-classification-as-a-signal.md) argues that.
+
+### The unaligned change
+
+A change that moves a boundary without either dividing or folding an extent whole is refused with
+`PlanRefusedException` and the cause `unalignedLineage`. Removing a ring token and adding a
+different one inside the same extent in one epoch is the common way to reach it.
+
+Publish it as two epochs instead: the first divides every extent the change crosses, the second
+folds the pieces into their destinations. Each is plannable on its own, and each leaves a topology
+that routes correctly if the second is delayed.
+
+Under `directory` an extent is a matcher narrowed by the entries that outrank it, so refining
+`prefix:ab` into `ab0` and `ab1` is a division and dropping the two back to `ab` is a fold. An entry
+that wins keys the earlier table matched to nothing names a shard with no parent, which moves no
+contents and needs no handoff.
 
 ### A new epoch
 
-An epoch is published, never inferred. The library assigns no epoch, increments none, and accepts no
-document whose epoch is at or below the one in force under the same identifier. A change is a whole
-document at the next epoch.
+A change is a whole document at the next epoch, published the way every other document reaches a
+router.
 
 ```java
 provider.publish(documentAtEpochTwo);
 ```
 
-The snapshot in force is replaced whole at installation. A routing call under way reads the snapshot
-it started against from first candidate to last, so an installation changes no decision already
-taken.
+The epoch belongs to the authority, and what the library does with an arriving document is under
+[A document reaching a running router](#a-document-reaching-a-running-router). A document below the
+epoch in force is refused, so an epoch that carried a split is not undone by republishing the epoch
+before it; the way back is a further epoch that folds the pieces again.
 
 ### The ownership delta
 
@@ -577,16 +745,85 @@ A `ShardChange` carries the shard, the replica set before, the replica set after
 differences. The sets are the entries whose role is `REPLICA`, which is the achieved replica prefix
 rather than the whole preference list, so a node a shard merely falls back to has gained nothing.
 
-The delta is computed on demand rather than at installation, and a shard the later snapshot does not
-enumerate is absent from it. Two snapshots whose shard identity is not comparable refuse the
-computation with `InvalidArgumentException` rather than reporting every shard as wholly changed.
+The delta is computed on demand rather than at installation. Its entries come in two groups: first
+the shards the later snapshot enumerates, in that snapshot's order, then the shards only the earlier
+one enumerates, so a shard that vanished reports the nodes that lost it rather than going
+unreported. Two snapshots whose shard identity is not comparable refuse the computation with
+`InvalidArgumentException` rather than reporting every shard as wholly changed. The same pair given
+to `plan` is refused with `PlanRefusedException` and the cause `incomparableShards`, so one
+condition reaches a caller as whichever condition the surface it called raises.
 Under `rendezvous` the delta is empty, because the strategy enumerates no shards.
 
 Reading the delta is enough where the integrator's store moves data by itself. Where each move has
-to be sequenced so that no request is served by both the old owner and the new one, the coordinator
-is the next section.
+to be sequenced so that no request is served by both the old owner and the new one,
+[Orchestrated migration](#orchestrated-migration) gives the coordinator.
 
 [`10-specification.md`](../../docs/design/10-specification.md#ownership-delta) states the delta.
+
+### The lineage operation
+
+`coordinator.lineage(from, to)` answers where each shard's contents come from across two snapshots.
+It installs nothing and plans nothing, so an integrator sizes a change before deciding to run it,
+which is the reason [the ownership delta](#the-ownership-delta) is a call rather than a product of
+installation and the reason this is one too.
+
+The two answer different questions, and an epoch that changes which shards exist needs both.
+
+| | Ownership delta | Lineage |
+|---|---|---|
+| Joins on | the shard identifier | the keys a shard holds |
+| Answers | which shards changed owner | where a shard's contents are |
+| A shard that appeared | reports it gaining every replica | names the parents its extent draws from |
+| A shard whose extent grew and kept its replicas | no entry | `MERGED`, with its parents |
+| Under `rendezvous` | empty | refused |
+
+```java
+ShardLineage lineage = coordinator.lineage(before, after);
+for (ShardLineage.Entry entry : lineage.entries()) {
+    ShardId shard = entry.shard();
+    LineageClass became = entry.lineage();
+    List<ShardId> parents = entry.parents();
+}
+```
+
+`LineageClass` holds eight values. `UNCHANGED` and `MOVED` are the two whose extent is the one the
+parent held, which `extentUnchanged()` reports, and which every shard falls into where an epoch
+moved ownership alone.
+
+| Class | What became of the shard |
+|---|---|
+| `UNCHANGED` | one parent of equal extent, and the replica set is equal |
+| `MOVED` | one parent of equal extent, and the replica set differs |
+| `DIVIDED` | one parent whose extent strictly contains this one |
+| `MERGED` | two or more parents whose extents this one contains |
+| `FRESH` | no parent, this extent meeting no extent of the earlier snapshot |
+| `SPLIT` | only the earlier snapshot enumerates it, and its extent divides into two or more |
+| `FOLDED` | only the earlier snapshot enumerates it, and one child's extent contains it |
+| `VACATED` | only the earlier snapshot enumerates it, and its extent meets no later extent |
+
+`parents()` names the shards of the earlier snapshot for an entry the later snapshot enumerates, and
+the shards of the later one for an entry only the earlier snapshot enumerates. It is empty under
+`FRESH` and `VACATED`. The entries come in the two groups the ownership delta comes in: first the
+shards the later snapshot enumerates, in that snapshot's order, then the shards only the earlier one
+enumerates.
+
+`lineage.entry(shard)` answers one entry. `lineage.counts()` answers how many shards fall in each
+class, which is what the `migration.lineage` event reports. `lineage.identity()` answers whether
+every shard kept the extent it held, which is every pair under `slot` and every pair under any kind
+whose shard set did not move.
+
+The call refuses with `PlanRefusedException`, whose `reason()` carries one of three causes. Two
+snapshots carrying different topology identifiers, and two whose shard identity is not comparable,
+both give `incomparableShards`, because a pair under two identifiers joins on nothing and `plan`
+answers the same cause for the same input. A strategy that enumerates no shard, which is
+`rendezvous`, gives `strategyUnsupported`. A boundary that moved without either dividing or folding
+an extent whole gives `unalignedLineage`, which is [the unaligned change](#the-unaligned-change).
+
+A snapshot this library did not produce is an `InvalidArgumentException` rather than a refusal, as
+it is for `plan`.
+
+[`10-specification.md`](../../docs/design/10-specification.md#lineage-classification) states the
+classes.
 
 ## Orchestrated migration
 
@@ -608,13 +845,36 @@ HandoffCoordinator coordinator = Sharder.coordinator();
 MigrationPlan plan = coordinator.plan(before, after, hooks, MigrationPolicy.defaults());
 ```
 
+`Sharder.coordinator(config)` answers a coordinator that reports the `migration.` events of
+`OBS-020` through the registry and the sink the configuration carries. It reads those two members
+and nothing else from it: no provider, no snapshot, and no health view.
+`Sharder.coordinator()` reports nothing, which is the right call where observability is unset.
+
 The coordinator holds nothing between calls and installs nothing. A plan is a pure function of the
 two snapshots and the policy, which is what lets a restarted coordinator rebuild the same plan. A
 plan is never created as a side effect of installing a snapshot.
 
 `plan` refuses with `PlanRefusedException` where the two snapshots do not join on shard identity,
-where the target epoch does not advance, where the strategy supports no orchestrated migration, or
-where a destination sits outside the target placement set.
+where the target epoch does not advance, where the strategy supports no orchestrated migration,
+where a destination sits outside the target placement set, where the change is unaligned, or where
+the change needs a local step the hooks declare no support for. `PlanRefusedException.Cause` names
+each of them.
+
+The handoffs come from the lineage rather than from the ownership delta. One handoff is admitted for
+each destination of each shard of the later snapshot that does not already hold the contents of a
+parent that shard's extent draws from, so a shard whose extent grew carries a handoff even where its
+replica set is unchanged and the delta reports nothing for it. A shard with no parent has no
+contents to move and carries none, and no handoff names one node as both its source and its
+destination.
+[`10-specification.md`](../../docs/design/10-specification.md#plan-construction-over-a-lineage)
+states the derivation.
+
+A split or a merge also needs work on a node that holds the parent under the earlier snapshot and
+the child under the later one, and that work moves nothing between nodes: the node divides or folds
+its own copy so that what it holds matches the extent it owns. A plan carries it as a local step,
+whose source and destination are the same node, sequenced before every handoff that draws from a
+divided parent and after every handoff that draws into a folded shard. A local step counts against
+the policy's concurrency as a handoff does.
 
 A plan is passive. It advances when `step` is called and never on a timer, a thread, or an
 installation. One `step` advances at most one handoff by at most one hook call. Concurrent calls to
@@ -663,27 +923,44 @@ public interface MovementHooks {
     VerifyResult verify(HandoffContext context);
     HookResult cleanup(HandoffContext context);
     HookResult rollback(HandoffContext context);
+    HookResult divide(HandoffContext context);
+    HookResult combine(HandoffContext context);
     ObserveResult observe(HandoffContext context);
 }
 ```
 
+`divide` and `combine` are the hooks a local step calls, and each carries a default that refuses
+permanently. A storage that has not implemented them declares `supportsLineage` of false, and the
+plan that would call one is refused before any call is made.
+
 Every hook is called from whichever unit of execution called `step`, at most one per call. A hook
 that raises rather than answering has its condition surfaced unchanged.
 
-`HandoffContext` tells a hook the shard, the topology identifier, the source epoch and the target
-epoch, the source node, the destination node, the attempt number, and the deadline in milliseconds.
-The target epoch is the handoff's own rather than the plan's, so the two differ after a rebase.
+`HandoffContext` tells a hook the shard, the shard its contents come from, the topology identifier,
+the source epoch and the target epoch, the source node, the destination node, the attempt number,
+and the deadline in milliseconds. `sourceShardId` differs from `shardId` only where a lineage
+divided or folded an extent, and a hook that read `shardId` alone would search the source for a
+shard the source does not hold; the convenience constructor defaults it to `shardId`. The target
+epoch is the handoff's own rather than the plan's, so the two differ after a rebase.
 
-`declare()` is read once per plan.
+`declare()` is read once per plan. A `HookDeclaration` carries four components: the budget unit, and
+whether the hooks support rollback, verification, and lineage.
 
 ```java
 HookDeclaration declaration = HookDeclaration.of("rows");
-HookDeclaration withoutVerification = new HookDeclaration("rows", true, false);
+HookDeclaration dividing = HookDeclaration.withLineage("rows");
+HookDeclaration withoutVerification = new HookDeclaration("rows", true, false, false);
 ```
 
 `budgetUnit` is opaque to the library: it is reported and never interpreted, and the unit counts a
 transfer and a catch-up answer are summed and compared and nothing else. `supportsVerify` of false
 is what lets `cleanup` follow a committed cutover directly, with no `verify` call.
+
+`supportsLineage` states whether the integrator's storage can divide a copy in place and fold two
+adjacent copies back together, which is a property of that storage rather than of the strategy. `of`
+answers false for it and `withLineage` answers true. A plan that needs a local step over hooks that
+declare false is refused with the cause `lineageUnsupported`, rather than reaching `DIVIDING` with
+no hook to call and no way back.
 
 `HookResult` is sealed over `Success`, `Deferred`, `Retryable`, and `Permanent`. `Retryable` is
 retried up to `maxAttemptsPerStep` with the policy's backoff, `Permanent` is never retried, and
@@ -699,12 +976,13 @@ and `Permanent` are the two failures.
 
 ### The handoff states
 
-`HandoffState` holds eleven values. `COMPLETE`, `ABORTED`, and `FAILED` are terminal, and nothing
+`HandoffState` holds twelve values. `COMPLETE`, `ABORTED`, and `FAILED` are terminal, and nothing
 leaves a terminal state except a re-observation the integrator calls for one named handoff.
 
 | State | What is happening |
 |---|---|
 | `PLANNED` | admitted to the plan, no hook called |
+| `DIVIDING` | a node holding both the parent and the child is dividing or folding its own copy |
 | `PREPARING` | the destination is being made ready to receive |
 | `TRANSFERRING` | the bulk contents are being copied |
 | `CATCHING_UP` | the residue accumulated during the copy is being closed |
@@ -728,7 +1006,11 @@ that horizon. Mutual exclusion across a cutover therefore rests on the single-wi
 assumption about the integrator's two clocks that the library states and cannot verify.
 
 `cleanup` never runs before the copy is established, and `rollback` never runs after a cutover
-record belonging to the handoff exists.
+record belonging to the handoff exists. A local step aborted in `DIVIDING` is undone by the inverse
+hook, a division by `combine` and a fold by `divide`. Where the inverse fails and its attempts are
+spent, the handoff reaches `FAILED` with the failure kind `undivided`, which names a copy on one
+node matching neither the parent's extent nor the child's; each of the other four kinds names a
+condition of a copy that moved between nodes.
 
 ### Rate control
 

@@ -1,11 +1,33 @@
 {
   "specification": "docs/design/10-specification.md",
-  "statedRequirements": 656,
-  "coveredRequirements": 454,
-  "uncoveredRequirements": 202,
-  "coveragePercent": 69,
+  "statedRequirements": 689,
+  "coveredRequirements": 474,
+  "uncoveredRequirements": 215,
+  "coveragePercent": 68,
   "identifiersNamedButNotStated": [],
   "byPrefix": [
+    {
+      "prefix": "LIN",
+      "section": "",
+      "stated": 33,
+      "covered": 20,
+      "uncovered": [
+        "LIN-001",
+        "LIN-002",
+        "LIN-003",
+        "LIN-005",
+        "LIN-015",
+        "LIN-023",
+        "LIN-032",
+        "LIN-034",
+        "LIN-043",
+        "LIN-053",
+        "LIN-054",
+        "LIN-055",
+        "LIN-058"
+      ],
+      "percent": 60
+    },
     {
       "prefix": "CFG",
       "section": "Configuration surface",
@@ -735,6 +757,7 @@
         "REPL-021",
         "REPL-025",
         "RING-013",
+        "RING-031",
         "RV-013",
         "SEC-011",
         "SEC-013",
@@ -769,7 +792,7 @@
         "TOPO-231",
         "TOPO-241"
       ],
-      "requirementsAtLevel": 125,
+      "requirementsAtLevel": 126,
       "requirementsWhenDeclared": 284
     },
     {
@@ -957,6 +980,8 @@
         "CFG-050",
         "CFG-052",
         "CFG-055",
+        "DIR-002",
+        "DIR-010",
         "ERR-050",
         "ERR-052",
         "ERR-053",
@@ -964,6 +989,26 @@
         "HEALTH-041",
         "HEALTH-043",
         "HEALTH-048",
+        "LIN-004",
+        "LIN-006",
+        "LIN-007",
+        "LIN-011",
+        "LIN-012",
+        "LIN-013",
+        "LIN-014",
+        "LIN-016",
+        "LIN-021",
+        "LIN-022",
+        "LIN-031",
+        "LIN-033",
+        "LIN-041",
+        "LIN-042",
+        "LIN-044",
+        "LIN-045",
+        "LIN-051",
+        "LIN-052",
+        "LIN-056",
+        "LIN-057",
         "MOVE-001",
         "MOVE-011",
         "MOVE-021",
@@ -1020,6 +1065,7 @@
         "OBS-010",
         "OBS-020",
         "OBS-021",
+        "PLACE-065",
         "RATE-001",
         "RATE-011",
         "RATE-021",
@@ -1035,8 +1081,8 @@
         "TOPO-221",
         "TOPO-231"
       ],
-      "requirementsAtLevel": 80,
-      "requirementsWhenDeclared": 404
+      "requirementsAtLevel": 103,
+      "requirementsWhenDeclared": 424
     }
   ],
   "coveredBy": {
@@ -1247,7 +1293,8 @@
     "RING-031": [
       "vectors/determinism/tie-breaks.json",
       "vectors/placement/shard-enumeration.json",
-      "vectors/scale/ring-1000.json"
+      "vectors/scale/ring-1000.json",
+      "vectors/topology/ownership-delta.json"
     ],
     "RV-003": [
       "vectors/determinism/tie-breaks.json",
@@ -1270,6 +1317,7 @@
     ],
     "TOPO-061": [
       "properties/properties.json",
+      "scenarios/topology-acceptance-floor.json",
       "scenarios/topology-rollback.json",
       "vectors/digest/canonical-form.json"
     ],
@@ -1277,7 +1325,8 @@
       "vectors/directory/matcher-precedence.json"
     ],
     "DIR-002": [
-      "vectors/directory/matcher-precedence.json"
+      "vectors/directory/matcher-precedence.json",
+      "vectors/migration/lineage.json"
     ],
     "DIR-003": [
       "vectors/directory/matcher-precedence.json",
@@ -1315,11 +1364,13 @@
     ],
     "PLACE-065": [
       "vectors/directory/matcher-precedence.json",
+      "vectors/migration/lineage.json",
       "vectors/overrides/precedence-and-composition.json",
       "vectors/rendezvous/tenant-router.json"
     ],
     "DIR-010": [
-      "vectors/directory/no-match.json"
+      "vectors/directory/no-match.json",
+      "vectors/migration/lineage.json"
     ],
     "DIR-011": [
       "vectors/directory/no-match.json"
@@ -1482,7 +1533,8 @@
     ],
     "ERR-050": [
       "scenarios/rebase-drops-a-handoff.json",
-      "vectors/formulas/migration-rate.json"
+      "vectors/formulas/migration-rate.json",
+      "vectors/migration/lineage.json"
     ],
     "MOVE-171": [
       "properties/properties.json",
@@ -1630,6 +1682,80 @@
     ],
     "KEY-044": [
       "vectors/keytransform/prefix-fields-2.json"
+    ],
+    "LIN-004": [
+      "vectors/migration/lineage.json"
+    ],
+    "LIN-006": [
+      "vectors/migration/lineage.json"
+    ],
+    "LIN-007": [
+      "vectors/migration/lineage.json"
+    ],
+    "LIN-011": [
+      "vectors/migration/lineage.json"
+    ],
+    "LIN-012": [
+      "vectors/migration/lineage.json"
+    ],
+    "LIN-013": [
+      "vectors/migration/lineage.json"
+    ],
+    "LIN-014": [
+      "vectors/migration/lineage.json"
+    ],
+    "LIN-016": [
+      "vectors/migration/lineage.json"
+    ],
+    "LIN-021": [
+      "vectors/migration/lineage.json"
+    ],
+    "LIN-022": [
+      "vectors/migration/lineage.json"
+    ],
+    "LIN-031": [
+      "vectors/migration/lineage.json"
+    ],
+    "LIN-033": [
+      "vectors/migration/lineage.json"
+    ],
+    "MOVE-241": [
+      "scenarios/handoff-happy-path.json",
+      "vectors/migration/lineage.json",
+      "vectors/topology/ownership-delta-unsupported.json"
+    ],
+    "TOPO-231": [
+      "scenarios/plan-superseded-by-new-epoch.json",
+      "scenarios/rebase-drops-a-handoff.json",
+      "vectors/migration/lineage.json",
+      "vectors/topology/ownership-delta.json"
+    ],
+    "LIN-041": [
+      "vectors/migration/plan-construction.json"
+    ],
+    "LIN-042": [
+      "vectors/migration/plan-construction.json"
+    ],
+    "LIN-044": [
+      "vectors/migration/plan-construction.json"
+    ],
+    "LIN-045": [
+      "vectors/migration/plan-construction.json"
+    ],
+    "LIN-051": [
+      "scenarios/handoff-local-division.json",
+      "scenarios/handoff-local-fold.json",
+      "vectors/migration/plan-construction.json"
+    ],
+    "LIN-052": [
+      "scenarios/handoff-local-division.json",
+      "scenarios/handoff-local-fold.json",
+      "vectors/migration/plan-construction.json"
+    ],
+    "LIN-057": [
+      "scenarios/handoff-local-division.json",
+      "scenarios/handoff-local-fold.json",
+      "vectors/migration/plan-construction.json"
     ],
     "PROP-010": [
       "properties/properties.json",
@@ -2229,10 +2355,6 @@
       "vectors/spread/degradation-ladder.json",
       "vectors/spread/relaxation-stages.json"
     ],
-    "MOVE-241": [
-      "scenarios/handoff-happy-path.json",
-      "vectors/topology/ownership-delta-unsupported.json"
-    ],
     "MOVE-251": [
       "vectors/topology/ownership-delta-unsupported.json"
     ],
@@ -2253,11 +2375,6 @@
     ],
     "TOPO-221": [
       "scenarios/handoff-happy-path.json",
-      "vectors/topology/ownership-delta.json"
-    ],
-    "TOPO-231": [
-      "scenarios/plan-superseded-by-new-epoch.json",
-      "scenarios/rebase-drops-a-handoff.json",
       "vectors/topology/ownership-delta.json"
     ],
     "TOPO-241": [
@@ -2364,7 +2481,8 @@
       "scenarios/topology-rollback.json"
     ],
     "TOPO-071": [
-      "properties/properties.json"
+      "properties/properties.json",
+      "scenarios/topology-acceptance-floor.json"
     ],
     "TOPO-081": [
       "properties/properties.json",
@@ -2376,6 +2494,7 @@
     ],
     "ERR-031": [
       "properties/properties.json",
+      "scenarios/topology-acceptance-floor.json",
       "scenarios/topology-rollback.json"
     ],
     "ERR-034": [
@@ -2417,6 +2536,9 @@
       "scenarios/abort-during-catching-up.json",
       "scenarios/handoff-failure-kinds.json",
       "scenarios/handoff-happy-path.json",
+      "scenarios/handoff-local-division.json",
+      "scenarios/handoff-local-fold.json",
+      "scenarios/handoff-local-step-aborted.json",
       "scenarios/node-dies-mid-migration.json",
       "scenarios/quiesce-lease-expiry.json",
       "scenarios/undetermined-resolves-both-ways.json"
@@ -2425,6 +2547,8 @@
       "properties/properties.json",
       "scenarios/handoff-failure-kinds.json",
       "scenarios/handoff-happy-path.json",
+      "scenarios/handoff-local-division.json",
+      "scenarios/handoff-local-fold.json",
       "scenarios/undetermined-resolves-both-ways.json"
     ],
     "MOVE-441": [
@@ -2477,6 +2601,7 @@
       "properties/properties.json"
     ],
     "ERR-032": [
+      "scenarios/topology-acceptance-floor.json",
       "scenarios/topology-rollback.json"
     ],
     "ERR-040": [
@@ -2570,7 +2695,9 @@
       "scenarios/redirect-walk-depth-limit.json"
     ],
     "MOVE-001": [
-      "scenarios/handoff-happy-path.json"
+      "scenarios/handoff-happy-path.json",
+      "scenarios/handoff-local-division.json",
+      "scenarios/handoff-local-fold.json"
     ],
     "MOVE-041": [
       "scenarios/handoff-happy-path.json"
@@ -2605,6 +2732,15 @@
       "scenarios/handoff-happy-path.json",
       "scenarios/quiesce-lease-expiry.json"
     ],
+    "LIN-056": [
+      "scenarios/handoff-local-step-aborted.json"
+    ],
+    "MOVE-421": [
+      "scenarios/abort-during-catching-up.json",
+      "scenarios/handoff-local-step-aborted.json",
+      "scenarios/node-dies-mid-migration.json",
+      "scenarios/rebase-drops-a-handoff.json"
+    ],
     "CFG-055": [
       "scenarios/quiesce-lease-expiry.json"
     ],
@@ -2633,11 +2769,6 @@
     ],
     "HEALTH-048": [
       "scenarios/node-dies-mid-migration.json"
-    ],
-    "MOVE-421": [
-      "scenarios/abort-during-catching-up.json",
-      "scenarios/node-dies-mid-migration.json",
-      "scenarios/rebase-drops-a-handoff.json"
     ],
     "MOVE-481": [
       "scenarios/node-dies-mid-migration.json",

@@ -11,9 +11,15 @@ import java.util.Optional;
  * The shards whose replica sets differ between two snapshots, under {@code TOPO-211}.
  *
  * <p>The delta is computed on demand rather than at installation, and it reads the replica prefix
- * of each shard rather than the whole preference list. A shard the later snapshot does not
- * enumerate is absent from the delta, and a shard the earlier one did not enumerate has an empty
- * before set.
+ * of each shard rather than the whole preference list. Its entries come in the two groups
+ * {@code TOPO-213} fixes: first the shards the later snapshot enumerates, in that snapshot's
+ * order, then the shards only the earlier one enumerates. A shard the earlier snapshot did not
+ * enumerate has an empty before set, and one the later snapshot does not enumerate has an empty
+ * after set.
+ *
+ * <p>A delta joins the two snapshots on the shard identifier, so it answers which shards changed
+ * owner and not where a new shard's contents are. Where an epoch changes which shards exist, that
+ * second question is answered by {@code HandoffCoordinator.lineage}.
  */
 public record OwnershipDelta(List<ShardChange> changes) {
 

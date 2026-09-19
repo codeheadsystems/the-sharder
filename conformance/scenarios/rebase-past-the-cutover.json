@@ -29,12 +29,16 @@
         {
           "id": "h-0",
           "shard": "0",
+          "sourceShard": "0",
+          "kind": "handoff",
           "source": "n1",
           "destination": "n5"
         },
         {
           "id": "h-1",
           "shard": "1",
+          "sourceShard": "1",
+          "kind": "handoff",
           "source": "n3",
           "destination": "n6"
         }

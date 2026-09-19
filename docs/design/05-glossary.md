@@ -25,6 +25,22 @@ the design states, and the Java port renders each one.
   lowercase hexadecimal, so the strategy enumerates no shard extents.
 - **shard identifier**. The stable name of a shard within a topology, unique across the topology
   document.
+- **extent**. The set of routing keys a snapshot maps to one shard. An extent is determined by the
+  topology document alone, never by sampling keys, and the extents of one snapshot are pairwise
+  disjoint. Under `ring` an extent is a token range, under `slot` it is the keys whose remainder is
+  one slot index, and under `directory` it is a matcher narrowed by the precedence of the entries
+  that outrank it.
+- **lineage**. The correspondence between the extents of two snapshots of one topology, which
+  answers where a shard's contents come from when an epoch changes which shards exist. A lineage is
+  derived from the two documents rather than recorded in either, and it is the identity wherever
+  the two snapshots enumerate the same shards.
+- **split**. A change in which one shard's extent becomes the extents of two or more shards of the
+  next epoch. The authority publishes the change; the library classifies it and plans it.
+- **merge**. A change in which the extents of two or more shards become the extent of one shard of
+  the next epoch. A merge is the reverse of a split.
+- **local step**. The part of a split or a merge that happens on one node, where that node holds
+  the parent under the earlier snapshot and the child under the later one. Nothing moves between
+  nodes; the node divides or folds its own copy so that what it holds matches the extent it owns.
 - **partition**. A synonym for shard in external literature. The corpus uses shard.
 - **slot**. A shard produced by dividing the keyspace into a fixed count of numbered parts by
   modular arithmetic over the key hash.

@@ -37,6 +37,7 @@ SCENARIO_TOPOLOGIES = {}
 # absent from this table.
 LEVEL_OF_SCENARIO = {
     "topology-rollback": "core",
+    "topology-acceptance-floor": "core",
     "caller-three-epochs-stale": "fencing",
     "split-topology-view": "fencing",
     "redirect-walk-depth-limit": "fencing",
@@ -57,6 +58,9 @@ LEVEL_OF_SCENARIO = {
     "ejection-ceiling": "failover",
     "probation-ramp": "failover",
     "outlier-comparison-set": "failover",
+    "handoff-local-division": "migration",
+    "handoff-local-fold": "migration",
+    "handoff-local-step-aborted": "migration",
     "health-reset-on-reentry": "failover",
 }
 
@@ -276,6 +280,56 @@ def build_rollback_scenario():
              "the revert arrives as a higher epoch carrying the former assignment.  The "
              "scenario also covers the equal-epoch digest conflict and the foreign identifier.",
              ["TOPO-051", "TOPO-061", "TOPO-081", "TOPO-091", "ERR-031", "ERR-032"], steps)
+
+
+def build_acceptance_floor_scenario():
+    """`TOPO-071` and the first row of `TOPO-061`: the floor and the configured identifier.
+
+    Both are checked before the row that installs a first document, so both hold with nothing in
+    force, which is the state a process is in after a restart.  The rest of the acceptance table
+    is covered by `topology-rollback`, which runs with neither configured.
+    """
+    from sharder_ref.topology import accept as accept_document
+
+    setup = {"loader": {"expectedTopologyId": "migration", "minEpoch": 3}}
+    steps = []
+    for name, document, note in [
+        ("migration-epoch-2", EPOCH2,
+         "`TOPO-071`: the floor is below the first document, and nothing is in force, so the "
+         "row that installs a first document is never reached"),
+        ("migration-epoch-3", EPOCH3, None),
+    ]:
+        outcome, condition = accept_document(Snapshot(document), None, min_epoch=3,
+                                             expected_topology_id="migration")
+        step = {"action": "installTopology",
+                "topology": "topologies/%s.topology.json" % name,
+                "expect": {"outcome": outcome, "condition": condition,
+                           "digest": jcs_digest(document)}}
+        if note:
+            step["note"] = note
+        if outcome == "installed":
+            step["expect"]["epochInForce"] = document["epoch"]
+        steps.insert(len(steps) if name != "migration-epoch-3" else len(steps), step)
+
+    # The identifier row precedes the floor row, so a foreign document below the floor is a
+    # conflict rather than stale.  Ordering is the whole point of this step.
+    foreign = copy.deepcopy(EPOCH1)
+    foreign["topologyId"] = "some-other-cluster"
+    outcome, condition = accept_document(Snapshot(foreign), None, min_epoch=3,
+                                         expected_topology_id="migration")
+    steps.insert(1, {
+        "action": "installTopology", "document": foreign,
+        "note": "`TOPO-061`: the identifier row precedes the floor row, so a foreign document "
+                "below `minEpoch` is a conflict and not stale",
+        "expect": {"outcome": outcome, "condition": condition, "digest": jcs_digest(foreign)},
+    })
+
+    register("topology-acceptance-floor",
+             "A process configured with an identifier and an epoch floor, with nothing in force. "
+             "The floor refuses a document below it, the configured identifier refuses a foreign "
+             "one before the floor is reached, and the first document at or above the floor "
+             "installs.",
+             ["TOPO-061", "TOPO-071", "ERR-031", "ERR-032"], steps, setup=setup)
 
 
 def build_stale_caller_scenario():
@@ -538,7 +592,8 @@ def plan_setup(plan):
             "toEpoch": plan.initial_target_epoch,
             "policy": dict(plan.policy),
             "handoffs": [
-                {"id": handoff.id, "shard": handoff.shard,
+                {"id": handoff.id, "shard": handoff.shard, "sourceShard": handoff.source_shard,
+                 "kind": handoff.kind,
                  "source": handoff.source, "destination": handoff.destination}
                 for handoff in plan.handoffs.values()
             ],
@@ -611,6 +666,49 @@ def build_happy_path_scenario():
              ["TOPO-211", "TOPO-221", "MOVE-001", "MOVE-021", "MOVE-031", "MOVE-041",
               "MOVE-051", "MOVE-071", "MOVE-121", "MOVE-131", "MOVE-181", "MOVE-241",
               "MOVE-331", "MOVE-332", "MOVE-333"], steps)
+
+
+def build_local_step_scenarios():
+    """`LIN-051` through `LIN-058`: a division and a fold that happen on one node."""
+    for name, kind, trigger, description in [
+        ("handoff-local-division", "divide", "divideSuccess",
+         "A node that holds the parent under the earlier snapshot and the child under the later "
+         "one divides its own copy. Nothing crosses the network, so the handoff runs `planned` to "
+         "`dividing` to `complete` rather than the sequence of `MOVE-021`."),
+        ("handoff-local-fold", "combine", "combineSuccess",
+         "The inverse: a node folds the copies it holds into one that matches the extent it now "
+         "owns, which is the step a merge ends with under `LIN-057`."),
+    ]:
+        plan = Plan(1, 2, "migration", [Handoff("l-1", "1", "n2", "n2", kind=kind,
+                                                source_shard="2")])
+        steps = []
+        for index, step_trigger in enumerate(["admittedByRatePolicyLocal", trigger]):
+            at = 1000 + index * 1000
+            outcome = plan.step("l-1", step_trigger, at=at)
+            steps.append({"action": "handoffStep", "handoff": "l-1", "trigger": step_trigger,
+                          "at": at,
+                          "expect": {"outcome": outcome, "state": plan.state("l-1")}})
+        steps.append({"action": "expectSummary", "expect": plan.summary()})
+        register(name, description,
+                 ["LIN-051", "LIN-052", "LIN-057", "MOVE-001", "MOVE-021", "MOVE-031"], steps,
+                 setup=plan_setup(plan))
+
+    # `LIN-056`: an aborted local step is undone by the inverse hook, so `dividing` reaches
+    # `aborting` like every other state that does and `MOVE-233` keeps its unconditional form.
+    plan = Plan(1, 2, "migration", [Handoff("l-1", "1", "n2", "n2", kind="divide",
+                                            source_shard="2")])
+    steps = []
+    for index, step_trigger in enumerate(["admittedByRatePolicyLocal", "abort",
+                                          "rollbackSuccess"]):
+        at = 1000 + index * 1000
+        outcome = plan.step("l-1", step_trigger, at=at)
+        steps.append({"action": "handoffStep", "handoff": "l-1", "trigger": step_trigger,
+                      "at": at, "expect": {"outcome": outcome, "state": plan.state("l-1")}})
+    steps.append({"action": "expectSummary", "expect": plan.summary()})
+    register("handoff-local-step-aborted",
+             "`LIN-056`: a division that is aborted is undone by the inverse hook, so the local "
+             "step is reversible and leaves the node holding the extent it held before.",
+             ["LIN-056", "MOVE-021", "MOVE-421"], steps, setup=plan_setup(plan))
 
 
 def build_quiesce_lease_scenario():
@@ -1777,6 +1875,8 @@ def main():
     build_split_view_scenario()
     build_redirect_scenario()
     build_happy_path_scenario()
+    build_local_step_scenarios()
+    build_acceptance_floor_scenario()
     build_quiesce_lease_scenario()
     build_node_dies_scenario()
     build_abort_during_catchup_scenario()

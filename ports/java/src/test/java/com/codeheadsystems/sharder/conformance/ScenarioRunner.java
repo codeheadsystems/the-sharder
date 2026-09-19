@@ -42,7 +42,17 @@ final class ScenarioRunner {
     /** One scenario's steps, replayed in order, answering the count this driver skipped. */
     int run(String path) {
         JsonObject scenario = source.readObject(path);
-        TopologyLoader loader = new TopologyLoader();
+        // TOPO-061 and TOPO-071: a scenario states the identifier and the epoch floor its process
+        // was configured with, both of which the pipeline checks before it installs anything.
+        JsonObject loaderSetup = scenario.object("setup").find("loader")
+                .map(JsonValue::asObject).orElse(null);
+        TopologyLoader loader = loaderSetup == null
+                ? new TopologyLoader()
+                : new TopologyLoader(java.util.Map.of(),
+                        loaderSetup.find("expectedTopologyId").map(JsonValue::asText),
+                        loaderSetup.find("minEpoch")
+                                .map(value -> java.util.OptionalLong.of(value.asLong()))
+                                .orElseGet(java.util.OptionalLong::empty));
         SlidingWindowHealthView[] health = {new SlidingWindowHealthView(HealthSettings.defaults())};
         RetryBudget budget = RetryBudget.defaults();
         int skipped = 0;
@@ -62,7 +72,19 @@ final class ScenarioRunner {
                         new java.util.ArrayList<>();
                 for (JsonValue row : spec.array("handoffs").elements()) {
                     JsonObject entry = row.asObject();
-                    named.add(MigrationPlan.handoffOf(entry.text("id"), entry.text("shard"),
+                    String shard = entry.text("shard");
+                    String sourceShard = entry.find("sourceShard")
+                            .map(JsonValue::asText).orElse(shard);
+                    com.codeheadsystems.sharder.core.internal.migrate.Handoff.Kind kind =
+                            switch (entry.find("kind").map(JsonValue::asText).orElse("handoff")) {
+                                case "divide" -> com.codeheadsystems.sharder.core.internal.migrate
+                                        .Handoff.Kind.DIVIDE;
+                                case "combine" -> com.codeheadsystems.sharder.core.internal.migrate
+                                        .Handoff.Kind.COMBINE;
+                                default -> com.codeheadsystems.sharder.core.internal.migrate
+                                        .Handoff.Kind.HANDOFF;
+                            };
+                    named.add(MigrationPlan.handoffOf(entry.text("id"), shard, sourceShard, kind,
                             NodeId.of(entry.text("source")), NodeId.of(entry.text("destination")),
                             spec.get("fromEpoch").asLong(), spec.get("toEpoch").asLong()));
                 }

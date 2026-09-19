@@ -493,10 +493,16 @@ assertion that a port warning about an ordinary topology fails.
 A port compares the inventory against its own registry and its own sink. A driver holds neither, so
 [`../../conformance/driver/python/run_suite.py`](../../conformance/driver/python/run_suite.py)
 checks the inventory's internal consistency and its surface assignment, as it does for the closed
-condition set of `errorTaxonomy`. The events a running library emits are asserted where the suite
-already drives one: the health scenarios carry `sharder.health.ejection_refused` in their
-expectations. [`adr/0078`](adr/0078-observability-contract-as-data.md) records what is asserted and
-what is not.
+condition set of `errorTaxonomy`. [`adr/0078`](adr/0078-observability-contract-as-data.md) records
+what is asserted and what is not.
+
+What the suite does not assert is emission. No driver checks that a running library emitted a named
+event at the moment a requirement says it does, for any surface. A scenario carries the shape of
+such an expectation in one place, the `ejectionsRefused` member the health scenarios hold, and no
+driver reads that member either, so it is data rather than coverage. A port that declares an
+inventory it never emits from passes every level, which is the state the Java port was in for the
+whole `migration` surface. Until a driver asserts emission, a port's own tests are where emission is
+checked, and the inventory is the contract the suite holds it to.
 
 ## Properties
 
@@ -750,6 +756,39 @@ the integrator's storage rather than of the library. The suite covers the sequen
 them, `MOVE-151` through `MOVE-238`, because a state sequence is an output. `MOVE-091` through
 `MOVE-103` are the same case: a rebase is a classification of each handoff against a snapshot, and
 both the classification and the state it leaves are outputs.
+
+### Shard lineage
+
+`LIN-021` through `LIN-045` are classifications and plans, which are outputs, so
+`vectors/migration/lineage.json` and `vectors/migration/plan-construction.json` carry them. Four of
+the `LIN` requirements have no executable test, for reasons this section's other entries already
+give.
+
+`LIN-005` and `LIN-023` constrain how a lineage is produced rather than what it is: the first
+forbids reading health, a clock, or a handoff state, and the second forbids the enumeration order
+changing a class. An implementation that departs from either produces a different classification
+wherever the departure reaches one, and fails a lineage case there.
+
+`LIN-032` is a rule about where an operation is not called, which is the case
+`Concurrency and visibility` describes, and `LIN-034` bounds what a lineage costs, which is the case
+`Placement cost` describes. `LIN-031` is not among them: it requires the lineage to be an operation
+the integrator calls, so `vectors/migration/lineage.json` reaches it through the surface a port
+exports rather than through the class behind it. A port that computed a lineage it could not expose
+would satisfy the classification and fail the requirement that names it.
+
+`LIN-015` binds a registered strategy outside the core set. The suite carries core-set documents, so
+no data file can present one, and the same is true of every requirement about a registered strategy.
+
+`LIN-053`, `LIN-054`, and `LIN-058` each read something outside the two snapshots: a hook
+declaration, an attempt count, and the concurrency a policy admits. The first is the case
+`Movement hooks` describes, and the other two are the case `Rate control and measurement`
+describes. The state sequence a local step runs is an output, so
+`scenarios/handoff-local-division.json`, `scenarios/handoff-local-fold.json`, and
+`scenarios/handoff-local-step-aborted.json` carry `LIN-051`, `LIN-052`, `LIN-056`, and `LIN-057`.
+
+`LIN-043` states that a plan emits no handoff for a shard with no parent. A fresh extent arises
+where a later snapshot admits routing keys that the earlier one matched to no shard, which is the
+`directory` no-match of `DIR-010`, and `vectors/migration/lineage.json` carries that case.
 
 ### Configuration and security
 

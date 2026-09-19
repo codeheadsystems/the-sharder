@@ -1,9 +1,9 @@
 {
   "suite": "sharder conformance suite",
   "revision": {
-    "id": "e91417161ae0de0002cf3748a9ecd969e82c6233f0d8ab97fd3e908492b24204",
+    "id": "c29e6a8f3facafa56414e46851ada1610db5e64c016714a8dba915e08875d57c",
     "basis": "sha256 of the RFC 8785 canonical form of the file digests, the level table, and the strategy surfaces",
-    "fileCount": 193,
+    "fileCount": 206,
     "trees": [
       "vectors",
       "topologies",
@@ -15,13 +15,13 @@
   "design": "docs/design/30-conformance.md",
   "generator": "conformance/generator",
   "counts": {
-    "vectorFiles": 67,
-    "vectorCases": 596,
-    "topologyDocuments": 102,
-    "scenarios": 22,
-    "scenarioSteps": 303,
+    "vectorFiles": 69,
+    "vectorCases": 609,
+    "topologyDocuments": 109,
+    "scenarios": 26,
+    "scenarioSteps": 316,
     "properties": 28,
-    "requirementsNamed": 454
+    "requirementsNamed": 474
   },
   "requirementsNamed": [
     "CFG-014",
@@ -189,6 +189,26 @@
     "KEY-042",
     "KEY-043",
     "KEY-044",
+    "LIN-004",
+    "LIN-006",
+    "LIN-007",
+    "LIN-011",
+    "LIN-012",
+    "LIN-013",
+    "LIN-014",
+    "LIN-016",
+    "LIN-021",
+    "LIN-022",
+    "LIN-031",
+    "LIN-033",
+    "LIN-041",
+    "LIN-042",
+    "LIN-044",
+    "LIN-045",
+    "LIN-051",
+    "LIN-052",
+    "LIN-056",
+    "LIN-057",
     "MOVE-001",
     "MOVE-011",
     "MOVE-021",
@@ -509,10 +529,10 @@
       ],
       "surface": "the document pipeline, the snapshot lifecycle, and what is reported",
       "vectorFiles": 8,
-      "vectorCases": 133,
-      "scenarios": 1,
+      "vectorCases": 135,
+      "scenarios": 2,
       "properties": 22,
-      "requirementsNamed": 125
+      "requirementsNamed": 126
     },
     {
       "level": "scale",
@@ -568,11 +588,11 @@
         "failover"
       ],
       "surface": "the handoff coordinator and rate control",
-      "vectorFiles": 3,
-      "vectorCases": 15,
-      "scenarios": 12,
+      "vectorFiles": 5,
+      "vectorCases": 26,
+      "scenarios": 15,
       "properties": 3,
-      "requirementsNamed": 80
+      "requirementsNamed": 103
     }
   ],
   "strategySurfaces": [
@@ -661,6 +681,38 @@
       "strategy": "slot",
       "nodeCount": 4,
       "digest": "ffdb65dd9fb5976bf5dcb760056c229d37619bd2788c6f3d490ef37bd4e8d5eb",
+      "valid": true
+    },
+    "topologies/delta-ring-added.topology.json": {
+      "topologyId": "delta-ring",
+      "epoch": 2,
+      "strategy": "ring",
+      "nodeCount": 3,
+      "digest": "2042c8625badd5ccb5019d181246a66b1b017074612f589c7a3f2c8dfe2aa142",
+      "valid": true
+    },
+    "topologies/delta-ring-before.topology.json": {
+      "topologyId": "delta-ring",
+      "epoch": 1,
+      "strategy": "ring",
+      "nodeCount": 2,
+      "digest": "425a7afcc4eb05c3403cbde0da416622e2785d02c55a590a63be99a71c90dd46",
+      "valid": true
+    },
+    "topologies/delta-ring-removed.topology.json": {
+      "topologyId": "delta-ring",
+      "epoch": 3,
+      "strategy": "ring",
+      "nodeCount": 2,
+      "digest": "106ba6977b64947076612f7cfa874adfb2b68c2fccedcd64bfce2eab612371ab",
+      "valid": true
+    },
+    "topologies/delta-ring-unaligned.topology.json": {
+      "topologyId": "delta-ring",
+      "epoch": 4,
+      "strategy": "ring",
+      "nodeCount": 3,
+      "digest": "9856ceda5c5b9ca5bdd4240396b79dffc1fdb51d8c0d542017fe0a70088df6f2",
       "valid": true
     },
     "topologies/delta-short-after.topology.json": {
@@ -1005,6 +1057,30 @@
       "strategy": "rendezvous",
       "nodeCount": 1,
       "digest": "7797a43770f84df98db19f9d11329d55243c779d050fd21cce026f985e0394bb",
+      "valid": true
+    },
+    "topologies/lineage-directory-before.topology.json": {
+      "topologyId": "lineage-directory",
+      "epoch": 1,
+      "strategy": "directory",
+      "nodeCount": 2,
+      "digest": "202c08ccc95f89693fff2411d987ea83bf6e54536b0ff0434d7b77027cf2588d",
+      "valid": true
+    },
+    "topologies/lineage-directory-fresh.topology.json": {
+      "topologyId": "lineage-directory",
+      "epoch": 3,
+      "strategy": "directory",
+      "nodeCount": 2,
+      "digest": "3ef0ed21f04db339d03aac9c12d7d6693578cb72df336c453716e77030559697",
+      "valid": true
+    },
+    "topologies/lineage-directory-refined.topology.json": {
+      "topologyId": "lineage-directory",
+      "epoch": 2,
+      "strategy": "directory",
+      "nodeCount": 2,
+      "digest": "88b5a9b7766b11d4cee599ccff278e02f6321850547b5012273d59c1a8f2899b",
       "valid": true
     },
     "topologies/migration-epoch-1.topology.json": {
@@ -1682,7 +1758,7 @@
         "ERR-021",
         "REPL-025"
       ],
-      "sha256": "0c944ea2e167f309384f731a76f7d3ff8407094bb6d7fdab7f1401276ae2cd8a"
+      "sha256": "8e923beb7e6e5d839a6df17d214722e7ce37f960b70fb0f21e0e9591b9a5dcec"
     },
     {
       "file": "vectors/formulas/attempt-limit.json",
@@ -1977,6 +2053,67 @@
       "sha256": "ae9cde46271a4ee1650e11cab0e94da757ea92c83b5eb5e447a50fff6e7679fe"
     },
     {
+      "file": "vectors/migration/lineage.json",
+      "vectorSet": "migration-lineage",
+      "kind": "lineage",
+      "level": "migration",
+      "strategies": [],
+      "caseStrategies": [
+        "directory",
+        "rendezvous",
+        "ring",
+        "slot"
+      ],
+      "description": "The lineage classification over pairs of documents: a ring extent divided, a ring extent folded, the identity lineage under `slot`, the unaligned boundary that is refused, the `directory` prefix refined and the fresh extent beside it, the incomparable pair, and the kind that enumerates no shard.",
+      "topology": null,
+      "caseCount": 8,
+      "requirements": [
+        "DIR-002",
+        "DIR-010",
+        "ERR-050",
+        "LIN-004",
+        "LIN-006",
+        "LIN-007",
+        "LIN-011",
+        "LIN-012",
+        "LIN-013",
+        "LIN-014",
+        "LIN-016",
+        "LIN-021",
+        "LIN-022",
+        "LIN-031",
+        "LIN-033",
+        "MOVE-241",
+        "PLACE-065",
+        "TOPO-231"
+      ],
+      "sha256": "9a705c589dc85a46f81d0d3c9eee12883b170fe29ec8edb3088849a3ad273138"
+    },
+    {
+      "file": "vectors/migration/plan-construction.json",
+      "vectorSet": "migration-plan-construction",
+      "kind": "planConstruction",
+      "level": "migration",
+      "strategies": [],
+      "caseStrategies": [
+        "ring",
+        "slot"
+      ],
+      "description": "How a plan derives a handoff from a lineage: the source of a divided shard, the destination of a fold that the ownership delta does not report, the local steps beside them and their order, and the plan under the identity lineage.",
+      "topology": null,
+      "caseCount": 3,
+      "requirements": [
+        "LIN-041",
+        "LIN-042",
+        "LIN-044",
+        "LIN-045",
+        "LIN-051",
+        "LIN-052",
+        "LIN-057"
+      ],
+      "sha256": "97e1e1999b409306aa3ec272c8aad95aaeef61164012416a2e82f8eec034afbf"
+    },
+    {
       "file": "vectors/movement/add-one-node.json",
       "vectorSet": "movement-add-one-node",
       "kind": "movement",
@@ -2054,7 +2191,7 @@
         "OBS-020",
         "OBS-021"
       ],
-      "sha256": "548ce6104a96251eea8bdd586c79069f5d0bdbb9968b16426a5f170187cce189"
+      "sha256": "cea1227356a1ea21fd617f8a149d503ffd226757e8f7eeb34b4a904d7e1bea70"
     },
     {
       "file": "vectors/observability/inventory-routing.json",
@@ -2981,16 +3118,18 @@
       "level": "core",
       "strategies": [],
       "caseStrategies": [
+        "ring",
         "slot"
       ],
-      "description": "The ownership delta between two snapshots, the reorder-only case that gains and loses nothing, the entry order over sixteen slots, the replica set under a shortfall, and the changes that make shard identity incomparable.",
+      "description": "The ownership delta between two snapshots, the reorder-only case that gains and loses nothing, the entry order over sixteen slots, the replica set under a shortfall, the `ring` pair whose two snapshots enumerate different shard sets, and the changes that make shard identity incomparable.",
       "topology": null,
-      "caseCount": 6,
+      "caseCount": 8,
       "requirements": [
         "ERR-010",
         "PLACE-031",
         "REPL-017",
         "REPL-020",
+        "RING-031",
         "SEC-013",
         "SLOT-031",
         "SPREAD-014",
@@ -3000,7 +3139,7 @@
         "TOPO-231",
         "TOPO-241"
       ],
-      "sha256": "df96523b00ab2b90758bb38693770b4e54155dd040bf7e1b366e206c2ede68aa"
+      "sha256": "1d5d287fe69b73ca6954c3640081356ba38c67e768d82eff3cd1ff54b4a7f618"
     },
     {
       "file": "vectors/validation/documents.json",
@@ -3138,6 +3277,61 @@
         "MOVE-333",
         "TOPO-211",
         "TOPO-221"
+      ]
+    },
+    {
+      "file": "scenarios/handoff-local-division.json",
+      "scenario": "handoff-local-division",
+      "level": "migration",
+      "description": "A node that holds the parent under the earlier snapshot and the child under the later one divides its own copy. Nothing crosses the network, so the handoff runs `planned` to `dividing` to `complete` rather than the sequence of `MOVE-021`.",
+      "stepCount": 3,
+      "requirements": [
+        "LIN-051",
+        "LIN-052",
+        "LIN-057",
+        "MOVE-001",
+        "MOVE-021",
+        "MOVE-031"
+      ]
+    },
+    {
+      "file": "scenarios/handoff-local-fold.json",
+      "scenario": "handoff-local-fold",
+      "level": "migration",
+      "description": "The inverse: a node folds the copies it holds into one that matches the extent it now owns, which is the step a merge ends with under `LIN-057`.",
+      "stepCount": 3,
+      "requirements": [
+        "LIN-051",
+        "LIN-052",
+        "LIN-057",
+        "MOVE-001",
+        "MOVE-021",
+        "MOVE-031"
+      ]
+    },
+    {
+      "file": "scenarios/handoff-local-step-aborted.json",
+      "scenario": "handoff-local-step-aborted",
+      "level": "migration",
+      "description": "`LIN-056`: a division that is aborted is undone by the inverse hook, so the local step is reversible and leaves the node holding the extent it held before.",
+      "stepCount": 4,
+      "requirements": [
+        "LIN-056",
+        "MOVE-021",
+        "MOVE-421"
+      ]
+    },
+    {
+      "file": "scenarios/topology-acceptance-floor.json",
+      "scenario": "topology-acceptance-floor",
+      "level": "core",
+      "description": "A process configured with an identifier and an epoch floor, with nothing in force. The floor refuses a document below it, the configured identifier refuses a foreign one before the floor is reached, and the first document at or above the floor installs.",
+      "stepCount": 3,
+      "requirements": [
+        "ERR-031",
+        "ERR-032",
+        "TOPO-061",
+        "TOPO-071"
       ]
     },
     {
