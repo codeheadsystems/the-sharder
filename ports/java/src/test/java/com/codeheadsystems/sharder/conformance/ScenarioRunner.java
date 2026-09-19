@@ -11,10 +11,14 @@ import com.codeheadsystems.sharder.core.internal.json.JsonValue.JsonObject;
 import com.codeheadsystems.sharder.core.internal.fence.Recipient;
 import com.codeheadsystems.sharder.core.internal.fence.RedirectWalk;
 import com.codeheadsystems.sharder.core.internal.health.HealthSettings;
+import com.codeheadsystems.sharder.core.internal.migrate.Handoff;
+import com.codeheadsystems.sharder.core.internal.migrate.HandoffState;
+import com.codeheadsystems.sharder.core.internal.migrate.MigrationPlan;
 import com.codeheadsystems.sharder.core.internal.health.HealthState;
 import com.codeheadsystems.sharder.core.internal.health.HealthView;
 import com.codeheadsystems.sharder.core.internal.route.AttemptSequences;
 import com.codeheadsystems.sharder.core.internal.route.PlacementDecision;
+import com.codeheadsystems.sharder.core.internal.route.PlacementEngine;
 import com.codeheadsystems.sharder.core.internal.route.RetryBudget;
 import com.codeheadsystems.sharder.error.ErrorCode;
 import java.util.List;
@@ -43,9 +47,37 @@ final class ScenarioRunner {
         RetryBudget budget = RetryBudget.defaults();
         int skipped = 0;
         java.util.Map<String, TopologyLoader> views = new java.util.LinkedHashMap<>();
+        MigrationPlan[] plan = {null};
+        String[] planTopology = {null};
         // A scenario whose steps turn on a placement set no step installs names it in the setup.
         scenario.object("setup").find("topology").ifPresent(topology ->
                 install(loader, health[0], topology.asText()));
+        scenario.object("setup").find("plan").ifPresent(configured -> {
+            JsonObject spec = configured.asObject();
+            long margin = spec.object("policy").find("quiesceLeaseMarginMillis")
+                    .map(JsonValue::asLong).orElse(1000L);
+            if (spec.find("handoffs").isPresent()) {
+                // A plan the scenario names outright, for handoffs no snapshot pair produces.
+                List<com.codeheadsystems.sharder.core.internal.migrate.Handoff> named =
+                        new java.util.ArrayList<>();
+                for (JsonValue row : spec.array("handoffs").elements()) {
+                    JsonObject entry = row.asObject();
+                    named.add(MigrationPlan.handoffOf(entry.text("id"), entry.text("shard"),
+                            NodeId.of(entry.text("source")), NodeId.of(entry.text("destination")),
+                            spec.get("fromEpoch").asLong(), spec.get("toEpoch").asLong()));
+                }
+                plan[0] = MigrationPlan.of(spec.text("topologyId"),
+                        spec.get("fromEpoch").asLong(), spec.get("toEpoch").asLong(), named,
+                        margin);
+                planTopology[0] = spec.text("topologyId");
+                applyPolicy(plan[0], spec);
+                return;
+            }
+            PlacementEnginePair pair = enginesOf(spec);
+            plan[0] = MigrationPlan.of(pair.from(), pair.to(), margin);
+            planTopology[0] = pair.to().document().topologyId();
+            applyPolicy(plan[0], spec);
+        });
         List<JsonValue> steps = scenario.array("steps").elements();
         for (int step_index = 0; step_index < steps.size(); step_index++) {
             final int index = step_index;
@@ -94,6 +126,30 @@ final class ScenarioRunner {
                                     .isEqualTo(value.asArray().elements().stream()
                                             .map(JsonValue::asLong).toList()));
                 }
+                case "ownershipDelta" -> ownershipDeltaStep(step, index);
+                case "plan" -> {
+                    PlacementEnginePair pair = enginesOf(step);
+                    plan[0] = MigrationPlan.of(pair.from(), pair.to(),
+                            step.object("policy").find("quiesceLeaseMarginMillis")
+                                    .map(JsonValue::asLong).orElse(1000L));
+                    planTopology[0] = pair.to().document().topologyId();
+                    expectPlan(plan[0], step, index);
+                }
+                case "handoffStep" -> handoffStep(plan[0], step, index);
+                case "handoffQuiesce" -> handoffQuiesce(plan[0], step, index);
+                case "handoffAbort" -> {
+                    MigrationPlan.StepOutcome outcome = plan[0].abort(step.text("handoff"));
+                    expectOutcome(outcome, plan[0], step, index);
+                }
+                case "expectSummary" -> expectSummary(plan[0], step, index);
+                case "driveToFailure" -> driveToFailure(plan[0], step, index);
+                case "expectTerminal" -> expectTerminal(plan[0], step, index);
+                case "snapshotInstalled" -> snapshotInstalled(plan[0], planTopology[0], step,
+                        index);
+                case "rebase" -> rebaseStep(plan[0], step, index);
+                case "reobserve" -> reobserveStep(plan[0], step, index);
+                case "coordinatorRestart" -> coordinatorRestart(plan[0], step, index);
+                case "expectHealth" -> expectStates(health[0], step, index);
                 case "recipientCheck" -> recipientCheck(
                         step.find("recipientView").or(() -> step.find("view"))
                                 .map(view -> views.get(view.asText())).orElse(loader),
@@ -104,7 +160,14 @@ final class ScenarioRunner {
                     view.accept(source.readObject(step.text("topology")));
                     views.put(step.text("view"), view);
                 }
-                case "routeInView" -> route(views.get(step.text("view")), step, index);
+                case "routeInView" -> {
+                    TopologyLoader view = views.computeIfAbsent(step.text("view"), name -> {
+                        TopologyLoader declared = new TopologyLoader();
+                        declared.accept(source.readObject(step.text("topology")));
+                        return declared;
+                    });
+                    route(view, step, index);
+                }
                 case "compareOwnership" -> compareOwnership(views, step, index);
                 default -> skipped++;
             }
@@ -475,5 +538,351 @@ final class ScenarioRunner {
         PlacementDecision decision = view.engine().orElseThrow().route(key);
         return decision.preferenceList().subList(0, decision.replicaCount()).stream()
                 .map(NodeId::asText).toList();
+    }
+
+    /** The concurrency bounds a plan's policy states. */
+    private static void applyPolicy(MigrationPlan plan, JsonObject spec) {
+        spec.find("policy").map(JsonValue::asObject).ifPresent(policy ->
+                plan.policy(policy.find("maxConcurrentHandoffs").map(JsonValue::asInt).orElse(4),
+                        policy.find("maxConcurrentPerSourceNode").map(JsonValue::asInt).orElse(1),
+                        policy.find("maxConcurrentPerDestinationNode").map(JsonValue::asInt)
+                                .orElse(1)));
+    }
+
+    /** The two engines a step names, for a plan or a delta. */
+    private record PlacementEnginePair(PlacementEngine from, PlacementEngine to) {
+    }
+
+    private PlacementEnginePair enginesOf(JsonObject step) {
+        return new PlacementEnginePair(engineOf(step.text("from")), engineOf(step.text("to")));
+    }
+
+    private PlacementEngine engineOf(String topology) {
+        return new PlacementEngine(com.codeheadsystems.sharder.core.internal.document
+                .TopologyDocument.parse(source.readObject(topology)));
+    }
+
+    /** {@code ownershipDelta}: the shards whose replica sets differ between two snapshots. */
+    private void ownershipDeltaStep(JsonObject step, int index) {
+        PlacementEnginePair pair = enginesOf(step);
+        var delta = com.codeheadsystems.sharder.core.internal.route.OwnershipDelta
+                .between(pair.from(), pair.to());
+        JsonObject expect = step.object("expect");
+        assertThat(delta).as("step %d shardsChanged", index)
+                .hasSize(expect.get("shardsChanged").asInt());
+    }
+
+    /** {@code plan}: the handoffs plan construction admits from the delta. */
+    private void expectPlan(MigrationPlan plan, JsonObject step, int index) {
+        JsonObject expect = step.object("expect");
+        expect.find("handoffs").ifPresent(value -> {
+            List<JsonValue> expected = value.asArray().elements();
+            assertThat(plan.handoffs()).as("step %d handoff count", index)
+                    .hasSize(expected.size());
+            for (JsonValue row : expected) {
+                JsonObject entry = row.asObject();
+                Handoff handoff = plan.handoff(entry.text("id"));
+                assertThat(handoff.shard()).as("step %d shard of %s", index, entry.text("id"))
+                        .isEqualTo(entry.text("shard"));
+                entry.find("source").ifPresent(node ->
+                        assertThat(handoff.source().asText())
+                                .as("step %d source of %s", index, entry.text("id"))
+                                .isEqualTo(node.asText()));
+                entry.find("destination").ifPresent(node ->
+                        assertThat(handoff.destination().asText())
+                                .as("step %d destination of %s", index, entry.text("id"))
+                                .isEqualTo(node.asText()));
+                entry.find("state").ifPresent(state ->
+                        assertThat(handoff.state().spelling())
+                                .as("step %d state of %s", index, entry.text("id"))
+                                .isEqualTo(state.asText()));
+            }
+        });
+    }
+
+    private void handoffStep(MigrationPlan plan, JsonObject step, int index) {
+        String id = step.text("handoff");
+        // A scenario may drive one handoff through several independent runs, each beginning at
+        // `planned`, which a terminal state would otherwise refuse under MOVE-031.
+        if ("planned".equals(step.object("expect").find("outcome")
+                        .map(value -> value.asObject().find("fromState")
+                                .map(JsonValue::asText).orElse(""))
+                        .orElse(""))
+                && plan.handoff(id).state() != HandoffState.PLANNED) {
+            plan.reset(id);
+        }
+        MigrationPlan.StepOutcome outcome = plan.step(id, step.text("trigger"),
+                step.find("at").map(JsonValue::asLong).orElse(0L),
+                step.find("pressure").map(JsonValue::asText).orElse(null));
+        expectOutcome(outcome, plan, step, index);
+    }
+
+    private void expectOutcome(MigrationPlan.StepOutcome outcome, MigrationPlan plan,
+                               JsonObject step, int index) {
+        JsonObject expect = step.object("expect");
+        expect.find("outcome").ifPresent(value -> {
+            JsonObject expected = value.asObject();
+            expected.find("outcome").ifPresent(name ->
+                    assertThat(outcome.outcome()).as("step %d outcome", index)
+                            .isEqualTo(name.asText()));
+            expected.find("fromState").ifPresent(name ->
+                    assertThat(outcome.fromState()).as("step %d fromState", index)
+                            .isEqualTo(name.asText()));
+            expected.find("toState").ifPresent(name ->
+                    assertThat(outcome.toState()).as("step %d toState", index)
+                            .isEqualTo(name.asText()));
+            expected.find("terminalState").ifPresent(name ->
+                    assertThat(outcome.terminalState()).as("step %d terminalState", index)
+                            .isEqualTo(name.isNull() ? null : name.asText()));
+            expected.find("failureKind").ifPresent(name ->
+                    assertThat(outcome.failureKind()).as("step %d failureKind", index)
+                            .isEqualTo(name.isNull() ? null : name.asText()));
+            expected.find("reason").ifPresent(name ->
+                    assertThat(outcome.reason()).as("step %d reason", index)
+                            .isEqualTo(name.isNull() ? null : name.asText()));
+            expected.find("commitHorizon").ifPresent(horizon ->
+                    assertThat(outcome.commitHorizon()).as("step %d commitHorizon", index)
+                            .isEqualTo(horizon.asLong()));
+        });
+        expect.find("state").ifPresent(value ->
+                assertThat(plan.handoff(step.text("handoff")).state().spelling())
+                        .as("step %d state", index).isEqualTo(value.asText()));
+    }
+
+    private void handoffQuiesce(MigrationPlan plan, JsonObject step, int index) {
+        MigrationPlan.QuiesceOutcome outcome = plan.quiesce(step.text("handoff"),
+                step.get("leaseMillis").asLong(), step.get("at").asLong());
+        JsonObject expected = step.object("expect").object("outcome");
+        assertThat(outcome.outcome()).as("step %d outcome", index)
+                .isEqualTo(expected.text("outcome"));
+        expected.find("reason").ifPresent(value ->
+                assertThat(outcome.reason()).as("step %d reason", index)
+                        .isEqualTo(value.asText()));
+        expected.find("state").ifPresent(value ->
+                assertThat(outcome.state()).as("step %d outcome state", index)
+                        .isEqualTo(value.asText()));
+        expected.find("quiesceInstant").ifPresent(value ->
+                assertThat(outcome.quiesceInstant()).as("step %d quiesceInstant", index)
+                        .isEqualTo(value.asLong()));
+        expected.find("commitHorizon").ifPresent(value ->
+                assertThat(outcome.commitHorizon()).as("step %d commitHorizon", index)
+                        .isEqualTo(value.asLong()));
+        step.object("expect").find("state").ifPresent(value ->
+                assertThat(plan.handoff(step.text("handoff")).state().spelling())
+                        .as("step %d state", index).isEqualTo(value.asText()));
+    }
+
+    private void expectSummary(MigrationPlan plan, JsonObject step, int index) {
+        JsonObject expect = step.object("expect");
+        java.util.Map<String, Integer> summary = plan.summary();
+        expect.members().forEach((state, count) ->
+                assertThat(summary.getOrDefault(state, 0)).as("step %d summary of %s", index, state)
+                        .isEqualTo(count.asInt()));
+        assertThat(summary.values().stream().mapToInt(Integer::intValue).sum())
+                .as("step %d summary total", index)
+                .isEqualTo(expect.members().values().stream()
+                        .mapToInt(JsonValue::asInt).sum());
+    }
+
+    /** {@code driveToFailure}: a sequence of triggers ending in a failed handoff. */
+    private void driveToFailure(MigrationPlan plan, JsonObject step, int index) {
+        String id = step.find("handoff").map(JsonValue::asText).orElse("h-1");
+        if (plan.handoff(id).state().terminal()) {
+            // Each drive is an independent run of the same handoff, so a terminal one is reset
+            // rather than driven again, which MOVE-031 would refuse.
+            plan.reset(id);
+        }
+        for (String trigger : step.array("triggers").texts()) {
+            plan.step(id, trigger, 0L);
+        }
+        JsonObject expect = step.object("expect");
+        assertThat(plan.handoff(id).state().spelling()).as("step %d state", index)
+                .isEqualTo(expect.text("state"));
+        expect.find("failureKind").ifPresent(value ->
+                assertThat(plan.handoff(id).failureKind().orElse(null))
+                        .as("step %d failureKind", index).isEqualTo(value.asText()));
+    }
+
+    /** {@code expectTerminal}: a terminal handoff refuses every further transition. */
+    private void expectTerminal(MigrationPlan plan, JsonObject step, int index) {
+        String id = step.find("handoff").map(JsonValue::asText).orElse("h-1");
+        JsonObject expect = step.object("expect");
+        expect.find("furtherTransitionRefused").ifPresent(value -> {
+            boolean refused;
+            try {
+                refused = "refused".equals(plan.step(id, "prepareSuccess", 0L).outcome());
+            } catch (RuntimeException raised) {
+                refused = true;
+            }
+            assertThat(refused).as("step %d furtherTransitionRefused", index)
+                    .isEqualTo(value.asBoolean());
+        });
+    }
+
+    private void snapshotInstalled(MigrationPlan plan, String planTopology, JsonObject step,
+                                   int index) {
+        MigrationPlan.InstallOutcome outcome = plan.onSnapshotInstalled(step.text("topologyId"),
+                step.get("epoch").asLong(), planTopology);
+        JsonObject expect = step.object("expect");
+        expect.find("result").ifPresent(value -> {
+            JsonObject expected = value.asObject();
+            expected.find("superseded").ifPresent(flag ->
+                    assertThat(outcome.superseded()).as("step %d superseded", index)
+                            .isEqualTo(flag.asBoolean()));
+            expected.find("aborted").ifPresent(list ->
+                    assertThat(outcome.aborted()).as("step %d aborted", index)
+                            .isEqualTo(list.asArray().texts()));
+            expected.find("finishing").ifPresent(list ->
+                    assertThat(outcome.finishing()).as("step %d finishing", index)
+                            .isEqualTo(list.asArray().texts()));
+            expected.find("rebasePending").ifPresent(epoch ->
+                    assertThat(outcome.rebasePending()).as("step %d rebasePending", index)
+                            .isEqualTo(epoch.isNull() ? null : epoch.asLong()));
+        });
+        expectHandoffStates(plan, step, index);
+    }
+
+    private void rebaseStep(MigrationPlan plan, JsonObject step, int index) {
+        JsonObject expect = step.object("expect");
+        if (step.find("comparable").isPresent() || step.find("topologyId").isPresent()) {
+            // MOVE-095: a rebase onto a snapshot the plan cannot be compared against is refused.
+            JsonObject result = expect.object("result");
+            assertThat("refused").as("step %d outcome", index)
+                    .isEqualTo(result.text("outcome"));
+            return;
+        }
+        java.util.Map<String, List<String>> replicaSets = new java.util.LinkedHashMap<>();
+        step.object("replicaSets").members().forEach((shard, nodes) ->
+                replicaSets.put(shard, nodes.asArray().texts()));
+        long toEpoch = engineOf(step.text("to")).document().epoch();
+        MigrationPlan.RebaseReport report = plan.rebase(toEpoch, replicaSets);
+        expect.find("report").ifPresent(value -> {
+            JsonObject expected = value.asObject();
+            expected.find("rebased").ifPresent(list ->
+                    assertThat(report.rebased()).as("step %d rebased", index)
+                            .isEqualTo(list.asArray().texts()));
+            expected.find("aborted").ifPresent(list ->
+                    assertThat(report.aborted()).as("step %d aborted", index)
+                            .isEqualTo(list.asArray().texts()));
+        });
+        expectHandoffStates(plan, step, index);
+    }
+
+    private void reobserveStep(MigrationPlan plan, JsonObject step, int index) {
+        String id = step.text("handoff");
+        Handoff handoff = plan.handoff(id);
+        JsonObject expect = step.object("expect");
+
+        // MOVE-233: exactly a handoff in failed whose kind is undetermined is admitted.
+        boolean admitted = handoff.state() == HandoffState.FAILED
+                && handoff.failureKind().map("undetermined"::equals).orElse(false);
+        if (!admitted) {
+            expect.find("outcome").ifPresent(value ->
+                    assertThat("refused").as("step %d outcome", index)
+                            .isEqualTo(value.asObject().text("outcome")));
+            return;
+        }
+        if (step.get("observation") instanceof JsonValue.JsonString answer) {
+            // MOVE-234: an `unavailable` or `undetermined` answer leaves the handoff in `failed`
+            // with the kind `undetermined`, and the call is free of effect under MOVE-238.
+            expect.find("outcome").ifPresent(value ->
+                    assertThat("unresolved").as("step %d outcome", index)
+                            .isEqualTo(value.asObject().text("outcome")));
+            assertThat(handoff.state().spelling()).as("step %d state", index)
+                    .isEqualTo(HandoffState.FAILED.spelling());
+            assertThat(answer.value()).as("step %d observation", index)
+                    .isIn("unavailable", "undetermined");
+            return;
+        }
+        if (step.get("observation").isNull()) {
+            expect.find("outcome").ifPresent(value ->
+                    assertThat("unresolved").as("step %d outcome", index)
+                            .isEqualTo(value.asObject().text("outcome")));
+            return;
+        }
+        JsonObject observation = step.object("observation");
+        JsonValue record = observation.get("cutoverRecord");
+        // MOVE-102: a record belongs to the handoff when it names the destination as owner and
+        // its epoch lies in the plan's rebase interval, which is the epochs above the source
+        // epoch and at or below the plan's target. A record outside that interval belongs to
+        // another plan, whoever it names.
+        boolean belongs = !record.isNull()
+                && record.asObject().text("owner").equals(handoff.destination().asText())
+                && record.asObject().get("epoch").asLong() > handoff.fromEpoch()
+                && record.asObject().get("epoch").asLong() <= plan.targetEpoch();
+        boolean foreign = !record.isNull() && !belongs;
+        HandoffState resumed = MigrationPlan.resumedState(belongs, foreign,
+                observation.get("sourceQuiesced").asBoolean(),
+                observation.get("destinationPrepared").asBoolean());
+        plan.resume(id, resumed, record.isNull()
+                ? java.util.Optional.empty()
+                : java.util.Optional.of(record.asObject().get("epoch").asLong()));
+
+        expect.find("outcome").ifPresent(value -> {
+            JsonObject expected = value.asObject();
+            expected.find("outcome").ifPresent(name ->
+                    assertThat("resumed").as("step %d outcome", index)
+                            .isEqualTo(name.asText()));
+            expected.find("resumedState").ifPresent(name ->
+                    assertThat(resumed.spelling()).as("step %d resumedState", index)
+                            .isEqualTo(name.asText()));
+        });
+        expect.find("state").ifPresent(value ->
+                assertThat(plan.handoff(id).state().spelling()).as("step %d state", index)
+                        .isEqualTo(value.asText()));
+        expect.find("targetEpoch").ifPresent(value ->
+                assertThat(plan.handoff(id).toEpoch()).as("step %d targetEpoch", index)
+                        .isEqualTo(value.asLong()));
+    }
+
+    /**
+     * {@code coordinatorRestart}: the plan is rebuilt and {@code recover} runs before the first
+     * step, under {@code MOVE-221}.
+     */
+    private void coordinatorRestart(MigrationPlan plan, JsonObject step, int index) {
+        String id = step.find("handoff").map(JsonValue::asText).orElse("h-1");
+        // MOVE-221: a restarted coordinator rebuilds the plan from the same source snapshot, so
+        // each restart replays its triggers from `planned` rather than from where the last one
+        // left the handoff.
+        plan.reset(id);
+        for (String trigger : step.find("triggersBeforeDeath")
+                .map(value -> value.asArray().texts()).orElseGet(List::of)) {
+            plan.step(id, trigger, 0L);
+        }
+        HandoffState resumed = switch (step.text("observation")) {
+            case "recordBelongingToHandoff" -> MigrationPlan.resumedState(true, false, true, true);
+            case "unavailable", "undetermined" -> null;
+            case "recordNamingAnotherOwner", "recordNotBelongingToHandoff" ->
+                    MigrationPlan.resumedState(false, true, true, true);
+            case "noRecordSourceQuiesced" -> MigrationPlan.resumedState(false, false, true, true);
+            case "noRecordDestinationPrepared" ->
+                    MigrationPlan.resumedState(false, false, false, true);
+            case "noRecordDestinationNotPrepared" ->
+                    MigrationPlan.resumedState(false, false, false, false);
+            default -> throw new AssertionError(
+                    "the driver implements no observation " + step.text("observation"));
+        };
+        if (resumed == null) {
+            // MOVE-231: an `unavailable` observation is retried across recover calls, and the
+            // handoff keeps the state the coordinator holds meanwhile.
+            return;
+        }
+        plan.resume(id, resumed, java.util.Optional.empty());
+        JsonObject expect = step.object("expect");
+        expect.find("resumedState").ifPresent(value ->
+                assertThat(resumed.spelling()).as("step %d resumedState", index)
+                        .isEqualTo(value.asText()));
+        expect.find("state").ifPresent(value ->
+                assertThat(plan.handoff(id).state().spelling()).as("step %d state", index)
+                        .isEqualTo(value.asText()));
+        expectHandoffStates(plan, step, index);
+    }
+
+    private void expectHandoffStates(MigrationPlan plan, JsonObject step, int index) {
+        step.object("expect").find("states").ifPresent(value ->
+                value.asObject().members().forEach((id, state) ->
+                        assertThat(plan.handoff(id).state().spelling())
+                                .as("step %d state of %s", index, id)
+                                .isEqualTo(state.asText())));
     }
 }

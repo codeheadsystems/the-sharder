@@ -35,6 +35,7 @@ public final class Observability {
         return switch (surface) {
             case "failover" -> FAILOVER_METRICS;
             case "fencing" -> FENCING_METRICS;
+            case "migration" -> MIGRATION_METRICS;
             default -> METRICS;
         };
     }
@@ -44,9 +45,34 @@ public final class Observability {
         return switch (surface) {
             case "failover" -> FAILOVER_EVENTS;
             case "fencing" -> FENCING_EVENTS;
+            case "migration" -> MIGRATION_EVENTS;
             default -> EVENTS;
         };
     }
+
+    /** The metrics of the {@code migration} surface, named {@code migration.}. */
+    public static final List<Metric> MIGRATION_METRICS = List.of(
+            counter("migration.units_moved", "topology_id"),
+            gauge("migration.handoffs", "topology_id", "state"),
+            gauge("migration.pressure", "scope", "level"),
+            histogram("migration.cutover_window_millis", "topology_id"),
+            histogram("migration.hook_duration_millis", "hook", "outcome"));
+
+    /** The events of the {@code migration} surface. */
+    public static final List<Event> MIGRATION_EVENTS = List.of(
+            event("migration.planned", "info", "handoffCount", "policy"),
+            event("migration.state_changed", "info", "handoff", "shard", "from", "to", "trigger"),
+            event("migration.cutover_committed", "info", "shard", "source", "destination",
+                    "windowMillis"),
+            event("migration.quiesce_expired", "error", "handoff", "shard", "leaseMillis",
+                    "marginMillis"),
+            event("migration.failed", "error", "shard", "kind", "source", "destination"),
+            event("migration.superseded", "warning", "installedEpoch", "abortedCount",
+                    "finishingCount"),
+            event("migration.rebase_pending", "warning", "installedEpoch", "targetEpoch"),
+            event("migration.rebased", "info", "fromEpoch", "toEpoch", "rebased", "aborted",
+                    "unchanged"),
+            event("migration.reobserved", "info", "handoff", "shard", "answer", "resumedState"));
 
     /** The metrics of the {@code fencing} surface, which are the ones named {@code fencing.}. */
     public static final List<Metric> FENCING_METRICS = List.of(

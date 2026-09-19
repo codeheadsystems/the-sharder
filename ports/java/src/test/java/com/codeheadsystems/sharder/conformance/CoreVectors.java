@@ -260,6 +260,16 @@ final class CoreVectors {
             return;
         }
         List<OwnershipDelta.ShardChange> delta = OwnershipDelta.between(before, after);
+        expect.find("plannable").ifPresent(value -> {
+            // MOVE-271: a strategy that enumerates no shard drives no handoff, so a plan over it
+            // is refused rather than empty.
+            assertThat(before.placement().shards().isEmpty() ? false : true).as("plannable")
+                    .isEqualTo(value.asBoolean());
+            JsonObject condition = expect.object("condition");
+            ErrorCode code = ErrorCode.ofName(condition.text("name"));
+            assertThat(code.code()).as("condition code").isEqualTo(condition.get("code").asInt());
+            assertThat(code.causes()).as("cause").contains(condition.text("cause"));
+        });
 
         assertThat(delta).as("shardsChanged").hasSize(expect.get("shardsChanged").asInt());
         List<JsonValue> expected = expect.array("delta").elements();

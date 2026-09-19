@@ -13,7 +13,29 @@
     "MOVE-461"
   ],
   "deterministic": true,
-  "setup": {},
+  "setup": {
+    "plan": {
+      "topologyId": "migration",
+      "fromEpoch": 1,
+      "toEpoch": 2,
+      "policy": {
+        "maxConcurrentHandoffs": 4,
+        "maxConcurrentPerSourceNode": 1,
+        "maxConcurrentPerDestinationNode": 1,
+        "initialStepBudget": 1,
+        "commitDeadlineMillis": 30000,
+        "quiesceLeaseMarginMillis": 1000
+      },
+      "handoffs": [
+        {
+          "id": "h-1",
+          "shard": "1",
+          "source": "n2",
+          "destination": "n4"
+        }
+      ]
+    }
+  },
   "steps": [
     {
       "action": "driveToFailure",

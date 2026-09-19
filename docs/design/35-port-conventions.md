@@ -10,9 +10,9 @@ port.
 The reader is a contributor starting a port, and a reviewer checking that a port has not quietly
 changed a contract the suite does not reach.
 
-Status: one port exists. `ports/java/` reaches every conformance level but `migration`, exposes the
-four placement strategy surfaces, and declares them. No other port has been started, so much of what
-follows still states what a port does rather than what one has done.
+Status: one port exists. `ports/java/` reaches every conformance level the suite carries, exposes
+the four placement strategy surfaces, and declares all of it. No other port has been started, so
+much of what follows still states what a port does rather than what one has done.
 
 ## Port identifier
 

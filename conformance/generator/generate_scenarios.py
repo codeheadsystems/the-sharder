@@ -523,6 +523,28 @@ def delta_steps():
     }], rows
 
 
+def plan_setup(plan):
+    """The handoffs a scenario drives, for a plan no step of it builds.
+
+    `MOVE-221` makes plan construction a pure function of the two snapshots and the policy, and a
+    scenario that drives a plan without building one states the plan it drives.  Without it the
+    handoffs come from nowhere and a driver replaying the steps cannot reach the expectations.
+    """
+    return {
+        "plan": {
+            "topologyId": plan.topology_id,
+            "fromEpoch": plan.source_epoch,
+            "toEpoch": plan.initial_target_epoch,
+            "policy": dict(plan.policy),
+            "handoffs": [
+                {"id": handoff.id, "shard": handoff.shard,
+                 "source": handoff.source, "destination": handoff.destination}
+                for handoff in plan.handoffs.values()
+            ],
+        },
+    }
+
+
 def one_handoff():
     return Plan(1, 2, "migration", [Handoff("h-1", "1", "n2", "n4")])
 
@@ -638,7 +660,8 @@ def build_quiesce_lease_scenario():
              "commit is refused and a fresh quiesce restores the window.  A lease too short to "
              "carry the commit deadline and the margin is a failed quiesce.",
              ["MOVE-021", "MOVE-311", "MOVE-331", "MOVE-332", "MOVE-333", "MOVE-336",
-              "CFG-050", "CFG-055"], steps)
+              "CFG-050", "CFG-055"], steps,
+             setup=plan_setup(plan))
 
 
 def build_node_dies_scenario():
@@ -672,7 +695,8 @@ def build_node_dies_scenario():
              "the step attempts exhaust, the handoff compensates, and the source keeps ownership "
              "because no cutover record was committed.",
              ["HEALTH-005", "HEALTH-041", "HEALTH-043", "HEALTH-048", "MOVE-021", "MOVE-171",
-              "MOVE-421", "MOVE-481", "MOVE-491"], steps)
+              "MOVE-421", "MOVE-481", "MOVE-491"], steps,
+             setup=plan_setup(plan))
 
 
 def build_abort_during_catchup_scenario():
@@ -690,7 +714,8 @@ def build_abort_during_catchup_scenario():
     register("abort-during-catching-up",
              "An abort requested in `catchingUp` moves the handoff to `aborting` and runs "
              "compensation.  A second abort has no further effect.",
-             ["MOVE-021", "MOVE-421", "MOVE-491"], steps)
+             ["MOVE-021", "MOVE-421", "MOVE-491"], steps,
+             setup=plan_setup(plan))
 
 
 def build_coordinator_death_scenarios():
@@ -794,7 +819,8 @@ def build_coordinator_death_scenarios():
              "coordinator's own record.  An observation that could not be taken is retried "
              "rather than treated as an answer.",
              ["MOVE-201", "MOVE-211", "MOVE-212", "MOVE-221", "MOVE-231", "MOVE-232",
-              "MOVE-112", "MOVE-151", "MOVE-161", "RATE-051"], steps)
+              "MOVE-112", "MOVE-151", "MOVE-161", "RATE-051"], steps,
+             setup=plan_setup(plan))
 
 
 def build_failure_kind_scenarios():
@@ -844,7 +870,8 @@ def build_failure_kind_scenarios():
              "reaches it and the condition it raises.  A terminal state admits no further "
              "transition.",
              ["MOVE-011", "MOVE-021", "MOVE-031", "MOVE-231", "MOVE-451", "MOVE-461",
-              "ERR-052", "ERR-053"], steps)
+              "ERR-052", "ERR-053"], steps,
+             setup=plan_setup(plan))
 
 
 def build_supersession_scenario():
@@ -896,7 +923,8 @@ def build_supersession_scenario():
              "marks the plan rebase pending and aborts nothing; an incomparable one supersedes "
              "it, pre-cutover handoffs abort, and the handoff past cutover runs on.",
              ["MOVE-091", "MOVE-092", "MOVE-093", "MOVE-101", "MOVE-481", "TOPO-111",
-              "TOPO-131", "TOPO-231"], steps)
+              "TOPO-131", "TOPO-231"], steps,
+             setup=plan_setup(plan))
 
 
 def build_concurrency_scenario():
@@ -935,7 +963,8 @@ def build_concurrency_scenario():
              "level moves a handoff out of `planned`, and `hard` withholds only the two bulk "
              "hooks.",
              ["RATE-001", "RATE-011", "RATE-071", "RATE-081", "RATE-091", "RATE-111",
-              "MOVE-071"], steps)
+              "MOVE-071"], steps,
+             setup=plan_setup(plan))
 
 
 # ------------------------------------------------------------------------ failover
@@ -1282,7 +1311,8 @@ def build_rebase_drops_handoff_scenario():
              "shard, source, and destination no longer hold is aborted and compensated; the "
              "other rebases and completes.  Three refusals cover the rebase preconditions.",
              ["MOVE-094", "MOVE-095", "MOVE-096", "MOVE-097", "MOVE-098", "MOVE-099",
-              "MOVE-102", "MOVE-421", "MOVE-481", "TOPO-231", "ERR-050"], steps)
+              "MOVE-102", "MOVE-421", "MOVE-481", "TOPO-231", "ERR-050"], steps,
+             setup=plan_setup(plan))
 
 
 # ------------------------------------------------- re-observation after an undetermined cutover
@@ -1422,7 +1452,8 @@ def build_undetermined_recovery_scenario():
              "kinds that need an operator are refused.",
              ["MOVE-011", "MOVE-021", "MOVE-031", "MOVE-102", "MOVE-112", "MOVE-181",
               "MOVE-211", "MOVE-212", "MOVE-233", "MOVE-234", "MOVE-236",
-              "MOVE-237", "MOVE-238", "MOVE-331", "ERR-052"], steps)
+              "MOVE-237", "MOVE-238", "MOVE-331", "ERR-052"], steps,
+             setup=plan_setup(plan))
 
 
 # ------------------------------------------------------- probation, peers, and re-entry

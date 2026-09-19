@@ -3,7 +3,7 @@
 The sharder library is designed and is being implemented. Three kinds of change are possible today:
 a change to a document, a change to the conformance suite through its generator, and a change to a
 port. The Java port under [`ports/java/`](ports/java/) is the one that exists, and it reaches the
-every conformance level but `migration`, and declares them.
+every conformance level the suite carries, and declares them all.
 [`docs/design/99-roadmap.md`](docs/design/99-roadmap.md) gives the staging.
 
 [`docs/maintain/style.md`](docs/maintain/style.md) is binding on every Markdown file in this

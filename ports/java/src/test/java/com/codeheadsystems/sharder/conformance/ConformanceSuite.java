@@ -43,7 +43,7 @@ class ConformanceSuite {
 
     /** The levels this port runs, each carrying the levels it requires. */
     private static final Set<String> DECLARED =
-            Set.of("scale", "failover", "readAffinity", "fencing");
+            Set.of("scale", "failover", "readAffinity", "fencing", "migration");
 
     private static final HexFormat HEX = HexFormat.of();
 
