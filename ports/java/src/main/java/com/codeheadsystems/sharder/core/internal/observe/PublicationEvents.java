@@ -34,6 +34,39 @@ public final class PublicationEvents {
     private PublicationEvents() {
     }
 
+    /**
+     * The total {@code PLACE-073} measures over the placement set, for the configurations it
+     * tables, and zero for the two it does not.
+     */
+    public static long total(TopologyDocument document) {
+        long total = 0;
+        switch (document.strategy().kind()) {
+            case "ring" -> {
+                for (Node node : document.placementSet()) {
+                    total += tokenCount(document, node);
+                }
+            }
+            case "rendezvous" -> {
+                for (Node node : document.placementSet()) {
+                    total += virtualNodeCount(document, node);
+                }
+            }
+            case "directory" -> total = document.strategy().entries().size();
+            default -> total = document.strategy().slotCount();
+        }
+        return total;
+    }
+
+    /** The setting the total is compared against, under {@code CFG-010}. */
+    public static String totalSetting(TopologyDocument document) {
+        return switch (document.strategy().kind()) {
+            case "ring" -> "ringWarnTokens";
+            case "rendezvous" -> "rendezvousWarnVirtualNodes";
+            case "directory" -> "directoryWarnEntries";
+            default -> "slotCount";
+        };
+    }
+
     /** Every event the publication of this document emits, in the order it emits them. */
     public static List<Emitted> of(TopologyDocument document) {
         List<Emitted> events = new ArrayList<>();

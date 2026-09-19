@@ -62,7 +62,18 @@ public final class RendezvousPlacement implements PreparedPlacement {
     }
 
     @Override
-    public List<NodeId> candidates(byte[] routingKey, EligibleSet eligible) {
+    public java.util.Iterator<NodeId> cursor(byte[] routingKey, EligibleSet eligible) {
+        return scored(routingKey, eligible).iterator();
+    }
+
+    /**
+     * The scored ordering of {@code RV-010}.
+     *
+     * <p>A rendezvous ordering is eager by nature: {@code PLACE-070} charges one routing call
+     * {@code V} hash evaluations, because a node's score is not known until it is computed, so
+     * there is no prefix of the ordering that costs less than scoring the set.
+     */
+    private List<NodeId> scored(byte[] routingKey, EligibleSet eligible) {
         List<Scored> scored = new ArrayList<>();
         for (int index = 0; index < placementSet.size(); index++) {
             Node node = placementSet.get(index);
@@ -98,8 +109,8 @@ public final class RendezvousPlacement implements PreparedPlacement {
     }
 
     @Override
-    public List<NodeId> candidatesForShard(String shard, EligibleSet eligible) {
-        return candidates(HexFormat.of().parseHex(shard), eligible);
+    public java.util.Iterator<NodeId> cursorForShard(String shard, EligibleSet eligible) {
+        return cursor(HexFormat.of().parseHex(shard), eligible);
     }
 
     @Override

@@ -4,9 +4,11 @@ Java is the first implementation of the sharder library, and it is one Gradle mo
 artifact, `sharder`, under
 [`adr/0081`](../../docs/design/adr/0081-single-java-module.md).
 
-Status: under way. The port reaches the `hash`, `place`, and `core` conformance levels and no
-other, so it declares no conformance yet: a declaration waits for `scale`, which `CORE-110` makes
-mandatory alongside the three it has.
+Status: the port reaches `hash`, `place`, `core`, and `scale`, which `CORE-110` makes mandatory of
+every port, and exposes all four placement strategy surfaces. It declares them in
+[`../../conformance/declarations/java.json`](../../conformance/declarations/java.json), against the
+suite revision that declaration names, with no deviations. It exposes none of the four optional
+surfaces, so it declares none of their levels.
 
 | Written | Not written |
 |---|---|
@@ -21,7 +23,12 @@ mandatory alongside the three it has.
 | the snapshot lifecycle and the acceptance table of `TOPO-061` | |
 | the ownership delta, skew detection, and the observability inventory | |
 | `ErrorCode`, the closed condition set of `ERR-010` | |
-| the conformance harness and the scenario runner | |
+| the conformance harness, the scenario runner, and the run report | |
+
+The candidate ordering is a cursor rather than a list, under `PLACE-015`: a routing call consumes
+the prefix `CORE-046` bounds it at, and the whole ordering and the whole preference list are
+answered on demand under `CORE-047`. A thousand-node ring therefore costs a routing call a walk of
+about `T / N` entries per candidate rather than a walk of every token.
 
 [`../../docs/design/40-java-binding.md`](../../docs/design/40-java-binding.md) is the design this
 directory renders. It fixes the package layout, the public type set, the JDK floor, the dependency
@@ -60,3 +67,17 @@ of [`../../docs/design/30-conformance.md`](../../docs/design/30-conformance.md#d
 `SipHash24Test` runs the sixty-four vectors published with the algorithm and cross-checks them
 against a second implementation, which `HASH-003` requires of a port before it evaluates any
 conformance vector.
+
+## Declaring conformance
+
+The run writes a report, which an ordinary run puts under `build/` and a declaration names:
+
+```sh
+./gradlew test --rerun-tasks -Dsharder.conformance.report="$PWD/conformance/report.txt"
+```
+
+[`conformance/report.txt`](conformance/report.txt) is that output, and
+[`../../conformance/declarations/java.json`](../../conformance/declarations/java.json) is the
+declaration it belongs to. The wall time and the peak resident size it carries are reported rather
+than asserted: the suite bounds neither, and both are comparable against this port on another
+machine and against nothing else.

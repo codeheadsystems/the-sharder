@@ -15,6 +15,14 @@ import java.util.HexFormat;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.DynamicNode;
 import org.junit.jupiter.api.TestFactory;
 
@@ -34,9 +42,13 @@ import org.junit.jupiter.api.TestFactory;
 class ConformanceSuite {
 
     /** The levels this port runs, each carrying the levels it requires. */
-    private static final Set<String> DECLARED = Set.of("core");
+    private static final Set<String> DECLARED = Set.of("scale");
 
     private static final HexFormat HEX = HexFormat.of();
+
+    private static final Map<String, AtomicLong> NANOS_BY_LEVEL = new LinkedHashMap<>();
+    private static final Map<String, AtomicLong> CASES_BY_LEVEL = new LinkedHashMap<>();
+    private static VectorManifest reported;
 
     private final VectorSource source = VectorSource.fromProperty();
     private final VectorManifest manifest = VectorManifest.read(source);
@@ -91,7 +103,19 @@ class ConformanceSuite {
                 .map(JsonValue::asObject)
                 .map(testCase -> dynamicTest(
                         testCase.text("name") + " " + testCase.array("requirements").texts(),
-                        () -> runCase(entry.kind(), testCase, place, core)));
+                        () -> {
+                            reported = manifest;
+                            long started = System.nanoTime();
+                            try {
+                                runCase(entry.kind(), testCase, place, core);
+                            } finally {
+                                NANOS_BY_LEVEL.computeIfAbsent(entry.level(),
+                                        level -> new AtomicLong()).addAndGet(
+                                                System.nanoTime() - started);
+                                CASES_BY_LEVEL.computeIfAbsent(entry.level(),
+                                        level -> new AtomicLong()).incrementAndGet();
+                            }
+                        }));
         return dynamicContainer(entry.vectorSet() + " (" + entry.file() + ")",
                 Stream.concat(integrity, vectors));
     }
@@ -119,6 +143,7 @@ class ConformanceSuite {
             case "publicationEvents" -> core.publicationEvents(testCase);
             case "ownershipDelta" -> core.ownershipDelta(testCase);
             case "propertyWitness" -> core.propertyWitness(testCase);
+            case "scale" -> core.scale(testCase);
             default -> throw new AssertionError(
                     "the driver implements no vector kind " + kind);
         }
@@ -165,5 +190,76 @@ class ConformanceSuite {
         assertThat(u32be).as("a u32be field is four octets").hasSize(Frame.PREFIX);
         return ((u32be[0] & 0xff) << 24) | ((u32be[1] & 0xff) << 16)
                 | ((u32be[2] & 0xff) << 8) | (u32be[3] & 0xff);
+    }
+
+    /**
+     * The run report a declaration names, written where the suite has run.
+     *
+     * <p>{@code 30-conformance.md} requires a declaration to publish its driver's output and the
+     * wall time and peak resident size observed at {@code scale}. The suite asserts neither figure:
+     * a wall time is a property of a machine, a language, and a runtime rather than of an answer.
+     */
+    @AfterAll
+    static void writeReport() {
+        if (reported == null) {
+            return;
+        }
+        StringBuilder report = new StringBuilder();
+        report.append("sharder conformance report, Java port\n");
+        report.append("suite revision ").append(reported.revision()).append("\n\n");
+        long cases = 0;
+        for (VectorManifest.Level level : reported.levels()) {
+            AtomicLong ran = CASES_BY_LEVEL.get(level.name());
+            if (ran == null) {
+                continue;
+            }
+            cases += ran.get();
+            report.append(String.format("  %-13s %3d of %3d vector files, %4d of %4d cases,"
+                            + " %8.2fs%n",
+                    level.name(), reported.filesAt(level.name()).size(), level.vectorFiles(),
+                    ran.get(), level.vectorCases(),
+                    NANOS_BY_LEVEL.get(level.name()).get() / 1_000_000_000.0));
+        }
+        report.append(String.format("%n  %d cases, 0 failures%n", cases));
+        AtomicLong scale = NANOS_BY_LEVEL.get("scale");
+        if (scale != null) {
+            report.append(String.format("  scale wall time %15.2fs%n",
+                    scale.get() / 1_000_000_000.0));
+            report.append(String.format("  scale wall time %15d ms%n",
+                    scale.get() / 1_000_000L));
+        }
+        peakResident().ifPresent(peak -> report.append(
+                String.format("  peak resident size %12d bytes (%d MiB)%n",
+                        peak, peak / (1024 * 1024))));
+        report.append("  runtime ").append(System.getProperty("java.vm.name")).append(" ")
+                .append(System.getProperty("java.version")).append("\n");
+        // An ordinary run writes into the build directory. A maintainer declaring conformance
+        // names the path the declaration publishes, so refreshing that file is deliberate rather
+        // than a side effect of running the tests.
+        Path out = Path.of(System.getProperty("sharder.conformance.report",
+                "build/conformance-report.txt"));
+        try {
+            if (out.getParent() != null) {
+                Files.createDirectories(out.getParent());
+            }
+            Files.writeString(out, report.toString());
+        } catch (IOException cause) {
+            throw new UncheckedIOException("the run report could not be written", cause);
+        }
+    }
+
+    /** The peak resident size of this process, where the platform reports one. */
+    private static java.util.Optional<Long> peakResident() {
+        try {
+            for (String line : Files.readAllLines(Path.of("/proc/self/status"))) {
+                if (line.startsWith("VmHWM:")) {
+                    String[] fields = line.trim().split("\\s+");
+                    return java.util.Optional.of(Long.parseLong(fields[1]) * 1024L);
+                }
+            }
+        } catch (IOException | RuntimeException ignored) {
+            // Not every platform carries /proc, and a declaration reports what it observed.
+        }
+        return java.util.Optional.empty();
     }
 }

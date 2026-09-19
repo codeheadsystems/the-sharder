@@ -12,11 +12,13 @@ import com.codeheadsystems.sharder.core.internal.placement.Matchers;
 import com.codeheadsystems.sharder.core.internal.placement.PreparedPlacement;
 import com.codeheadsystems.sharder.error.NoCandidateException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * One routing call over a prepared placement: key transform, override, eligible set, candidate
@@ -64,6 +66,23 @@ public final class PlacementEngine {
         return document.replication().factor();
     }
 
+    /** The candidate ordering for a routing key already transformed, as a cursor over it. */
+    public Iterator<NodeId> cursor(byte[] routingKey) {
+        return placement.cursor(routingKey, placementEligible());
+    }
+
+    /** The total {@code PLACE-073} measures over the placement set for this configuration. */
+    public long placementTotal() {
+        return com.codeheadsystems.sharder.core.internal.observe.PublicationEvents
+                .total(document);
+    }
+
+    /** The setting that total is compared against, under {@code CFG-010}. */
+    public String placementTotalSetting() {
+        return com.codeheadsystems.sharder.core.internal.observe.PublicationEvents
+                .totalSetting(document);
+    }
+
     /** The spread ladder, for the vectors that assert every stage. */
     public SpreadLadder ladder() {
         return ladder;
@@ -91,38 +110,44 @@ public final class PlacementEngine {
             eligible = EligibleSet.of(constrained(constraint));
         }
 
-        List<NodeId> candidates;
         List<NodeId> pin = override.map(OverrideEntry::pin).orElse(null);
-        if (pin != null) {
-            // OVR-010 to OVR-013: the pin is the candidate ordering, filtered and deduplicated,
-            // never reordered and never extended by the strategy.
-            candidates = pinned(pin, eligible);
-        } else {
-            candidates = placement.candidates(routingKey, eligible);
-        }
+        EligibleSet admitted = eligible;
+        // OVR-010 to OVR-013: a pin is the candidate ordering, filtered and deduplicated, never
+        // reordered and never extended by the strategy.
+        Supplier<Iterator<NodeId>> cursors = pin != null
+                ? () -> pinned(pin, admitted).iterator()
+                : () -> placement.cursor(routingKey, admitted);
 
         int factor = override.map(OverrideEntry::factor).orElseGet(OptionalInt::empty)
                 .orElseGet(() -> document.replication().factor());
 
-        if (candidates.isEmpty()) {
-            throw new NoCandidateException(cause(constraint, pin, eligible, routingKey));
+        SpreadLadder.Stage stage = ladder.chosen(cursors, factor);
+        List<NodeId> replicas = stage.selected();
+
+        int attemptLimit = factor + 2;
+        int limit = Math.max(replicas.size(), attemptLimit);
+        // CORE-046: the materialised prefix is the replica prefix and the attempts the resolved
+        // limit permits, whichever is longer, and no routing call computes an entry beyond it.
+        List<NodeId> materialised = new ArrayList<>(replicas);
+        Iterator<NodeId> cursor = cursors.get();
+        while (materialised.size() < limit && cursor.hasNext()) {
+            NodeId candidate = cursor.next();
+            if (!replicas.contains(candidate)) {
+                materialised.add(candidate);
+            }
         }
 
-        SpreadLadder.Stage stage = ladder.chosen(candidates, factor);
-        List<NodeId> replicas = stage.selected();
-        List<NodeId> preference = new ArrayList<>(replicas);
-        // REPL-013: the tail is the ordering with the prefix removed, in ordering order, so an
-        // entry skipped for spread sits at its original relative position.
-        candidates.stream().filter(id -> !replicas.contains(id)).forEach(preference::add);
+        if (materialised.isEmpty()) {
+            throw new NoCandidateException(cause(constraint, pin, admitted, routingKey));
+        }
 
         String shortfall = "none";
         if (replicas.size() < factor) {
-            // REPL-021: classified over the candidate ordering rather than the eligible set.
-            shortfall = candidates.size() < factor ? "nodes" : "domains";
+            // REPL-021: classified over the candidate ordering rather than the eligible set. The
+            // materialised prefix runs past the factor wherever the ordering does, so its length
+            // separates an ordering too short from a spread that admitted too few.
+            shortfall = materialised.size() < factor ? "nodes" : "domains";
         }
-
-        int attemptLimit = factor + 2;
-        int materialised = Math.min(preference.size(), Math.max(replicas.size(), attemptLimit));
 
         return new PlacementDecision(
                 routingKey,
@@ -130,16 +155,15 @@ public final class PlacementEngine {
                 document.topologyId(),
                 document.epoch(),
                 factor,
-                replicas.size(),
-                candidates,
-                List.copyOf(preference),
-                materialised,
+                replicas,
+                List.copyOf(materialised),
                 stage.relaxes(),
                 stage.index(),
                 shortfall,
                 override.map(entry -> new PlacementDecision.MatchedOverride(
                         entry.index(), mode(entry))),
-                attemptLimit);
+                attemptLimit,
+                () -> PreparedPlacement.drain(cursors.get()));
     }
 
     /** The pinned ordering: filtered to the placement set and to the constraint, deduplicated. */

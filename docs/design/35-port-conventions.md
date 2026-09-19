@@ -10,9 +10,10 @@ port.
 The reader is a contributor starting a port, and a reviewer checking that a port has not quietly
 changed a contract the suite does not reach.
 
-Status: one port exists. `ports/java/` reaches the `hash`, `place`, and `core` conformance levels
-and declares no conformance yet, and no other port has been started, so most of what follows states
-what a port does rather than what one has done.
+Status: one port exists. `ports/java/` reaches `hash`, `place`, `core`, and `scale`, exposes the
+four placement strategy surfaces, and declares them; it exposes none of the optional surfaces. No
+other port has been started, so much of what follows still states what a port does rather than what
+one has done.
 
 ## Port identifier
 

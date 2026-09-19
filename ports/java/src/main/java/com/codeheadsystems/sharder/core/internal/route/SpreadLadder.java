@@ -4,9 +4,11 @@ import com.codeheadsystems.sharder.NodeId;
 import com.codeheadsystems.sharder.core.internal.document.TopologyDocument;
 import com.codeheadsystems.sharder.core.internal.document.TopologyDocument.Node;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * The replica prefix, the spread requirement, and the relaxation ladder of {@code REPL-012},
@@ -60,7 +62,7 @@ public final class SpreadLadder {
         List<Stage> stages = new ArrayList<>();
         for (int index = 0; index <= spread.size(); index++) {
             List<String> enforced = spread.subList(index, spread.size());
-            List<NodeId> selected = select(candidates, factor, enforced);
+            List<NodeId> selected = select(candidates.iterator(), factor, enforced);
             stages.add(new Stage(index, List.copyOf(enforced),
                     List.copyOf(spread.subList(0, index)), selected, selected.size() == factor));
         }
@@ -73,16 +75,29 @@ public final class SpreadLadder {
      * {@code SPREAD-013}.
      */
     public Stage chosen(List<NodeId> candidates, int factor) {
-        List<Stage> stages = stages(candidates, factor);
-        if (strict) {
-            return stages.get(0);
-        }
-        for (Stage stage : stages) {
-            if (stage.reachesFactor()) {
-                return stage;
+        return chosen(candidates::iterator, factor);
+    }
+
+    /**
+     * The stage the policy chooses, each stage selecting over a cursor of its own.
+     *
+     * <p>A stage halts as soon as the replica prefix holds the factor, so a stage that fills costs
+     * a prefix of the candidate ordering rather than the whole of it. {@code SPREAD-017} bounds a
+     * routing call at {@code m + 1} stages, and {@code PLACE-076} states that each stage walks the
+     * ordering it selects over.
+     */
+    public Stage chosen(Supplier<Iterator<NodeId>> cursors, int factor) {
+        Stage last = null;
+        for (int index = 0; index <= spread.size(); index++) {
+            List<String> enforced = spread.subList(index, spread.size());
+            List<NodeId> selected = select(cursors.get(), factor, enforced);
+            last = new Stage(index, List.copyOf(enforced),
+                    List.copyOf(spread.subList(0, index)), selected, selected.size() == factor);
+            if (strict || last.reachesFactor()) {
+                return last;
             }
         }
-        return stages.get(stages.size() - 1);
+        return last;
     }
 
     /**
@@ -92,9 +107,10 @@ public final class SpreadLadder {
      * <p>The cap is 1 at every level under {@code SPREAD-007}, so an entry is refused exactly where
      * the prefix already holds one sharing a failure domain with it at an enforced level.
      */
-    private List<NodeId> select(List<NodeId> candidates, int factor, List<String> levels) {
+    private List<NodeId> select(Iterator<NodeId> candidates, int factor, List<String> levels) {
         List<NodeId> prefix = new ArrayList<>(factor);
-        for (NodeId candidate : candidates) {
+        while (candidates.hasNext()) {
+            NodeId candidate = candidates.next();
             if (prefix.contains(candidate) || exceedsCap(candidate, prefix, levels)) {
                 continue;
             }

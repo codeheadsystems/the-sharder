@@ -382,4 +382,79 @@ final class CoreVectors {
         }
         return String.valueOf(value);
     }
+
+    /** {@code scale}: the same placement function over a topology of a thousand nodes. */
+    void scale(JsonObject testCase) {
+        PlacementEngine engine = engine(testCase, "topology");
+        JsonObject expect = testCase.object("expect");
+
+        assertThat(engine.document().nodes()).as("nodeCount")
+                .hasSize(expect.get("nodeCount").asInt());
+        assertThat(engine.document().placementSet()).as("placementSetCount")
+                .hasSize(expect.get("placementSetCount").asInt());
+
+        // PLACE-073: the total is measured over the placement set before preparation, and named
+        // with the setting it is compared against.
+        assertThat(engine.placementTotal()).as("total").isEqualTo(expect.get("total").asLong());
+        assertThat(engine.placementTotalSetting()).as("totalSetting")
+                .isEqualTo(expect.text("totalSetting"));
+
+        int shards = 0;
+        List<String> prefix = new ArrayList<>();
+        java.util.Iterator<String> cursor = engine.placement().shardCursor();
+        while (cursor.hasNext()) {
+            String shard = cursor.next();
+            if (prefix.size() < expect.array("shardPrefix").size()) {
+                prefix.add(shard);
+            }
+            shards++;
+        }
+        assertThat(shards).as("shardCount").isEqualTo(expect.get("shardCount").asInt());
+        assertThat(prefix).as("shardPrefix").isEqualTo(expect.array("shardPrefix").texts());
+
+        List<String> forFirstShard = expect.array("candidatesForFirstShard").texts();
+        if (!forFirstShard.isEmpty()) {
+            assertThat(names(com.codeheadsystems.sharder.core.internal.placement.PreparedPlacement
+                    .take(engine.placement().cursorForShard(prefix.get(0),
+                            engine.placementEligible()), forFirstShard.size())))
+                    .as("candidatesForFirstShard").isEqualTo(forFirstShard);
+        }
+
+        for (JsonValue row : expect.array("rows").elements()) {
+            JsonObject entry = row.asObject();
+            var decision = engine.route(PlaceVectors.octets(entry.object("key")));
+            assertThat(HexFormat.of().formatHex(decision.routingKey())).as("routingKey")
+                    .isEqualTo(entry.text("routingKey"));
+            JsonValue shard = entry.get("shard");
+            assertThat(decision.shard()).as("shard").isEqualTo(shard.isNull()
+                    ? java.util.Optional.<String>empty() : java.util.Optional.of(shard.asText()));
+            assertThat(decision.factor()).as("factor").isEqualTo(entry.get("factor").asInt());
+            assertThat(decision.replicaCount()).as("replicaCount")
+                    .isEqualTo(entry.get("replicaCount").asInt());
+            assertThat(decision.materialisedEntries()).as("materialisedEntries")
+                    .isEqualTo(entry.get("materialisedEntries").asInt());
+            assertThat(decision.relaxedLevels()).as("relaxedLevels")
+                    .isEqualTo(entry.array("relaxedLevels").texts());
+            assertThat(decision.spreadStage()).as("spreadStage")
+                    .isEqualTo(entry.get("spreadStage").asInt());
+            assertThat(decision.shortfall()).as("shortfall").isEqualTo(entry.text("shortfall"));
+
+            List<String> candidatePrefix = entry.array("candidatePrefix").texts();
+            assertThat(names(com.codeheadsystems.sharder.core.internal.placement.PreparedPlacement
+                    .take(engine.cursor(decision.routingKey()), candidatePrefix.size())))
+                    .as("candidatePrefix").isEqualTo(candidatePrefix);
+
+            List<JsonValue> preference = entry.array("preferenceListPrefix").elements();
+            List<com.codeheadsystems.sharder.NodeId> list = decision.preferenceList();
+            for (int index = 0; index < preference.size(); index++) {
+                JsonObject expected = preference.get(index).asObject();
+                assertThat(list.get(index).asText()).as("preferenceListPrefix[%d].node", index)
+                        .isEqualTo(expected.text("node"));
+                assertThat(index).as("preferenceListPrefix[%d].position", index)
+                        .isEqualTo(expected.get("position").asInt());
+                assertThat(decision.roleAt(index)).as("preferenceListPrefix[%d].role", index)
+                        .isEqualTo(expected.text("role"));
+            }
+        }
+    }
 }
