@@ -218,6 +218,7 @@ the rule the Withdrawn identifiers section gives.
 | `READ` | read routing and read affinity | Replication and failover | `readAffinity` |
 | `TOPO` | load pipeline, snapshots, ownership delta | Topology change and rebalancing | `routing` |
 | `FENCE` | fencing tokens and recipient verdicts | Topology change and rebalancing | `fencing` |
+| `LIN` | shard extents, the lineage relation, and its classification | Topology change and rebalancing | `migration` |
 | `MOVE` | handoff states, hooks, coordination | Topology change and rebalancing | `migration` |
 | `RATE` | migration concurrency and backpressure | Topology change and rebalancing | `migration` |
 | `ERR` | the closed set of failure conditions | Error taxonomy | stated above |
@@ -2912,6 +2913,172 @@ redirect is never a first attempt, so `FAIL-032` does not exempt one. Where the 
 redirect, an implementation MUST count the refusal in `sharder.attempts.retries_refused` and MUST
 NOT count the redirect in `sharder.fencing.redirects`.
 
+### Shard lineage
+
+An ownership delta joins two snapshots on the shard identifier. Where a shard carries the same
+identifier under both, that join answers which nodes gained and lost it. Where an epoch changes
+which shards exist, the join has no answer for the shards whose identifiers appeared or vanished,
+and the contents of those shards still have to come from somewhere.
+
+A lineage is the second join, over the keys a shard holds rather than over its name. It is derived
+from the topology document, it is consulted only where the two snapshots enumerate different shard
+sets, and it belongs to the `migration` surface: an implementation that exposes no handoff
+coordinator computes none.
+
+#### Shard extent
+
+`LIN-001`. The **extent** of a shard under a snapshot MUST be the set of routing keys that
+`shardOf` maps to that shard under that snapshot. An extent MUST be determined from the topology
+document alone. An implementation MUST NOT compute an extent by sampling routing keys, evaluating
+`shardOf` over a generated set, or reading any value outside the document.
+
+`LIN-002`. Two extents are equal when they admit the same routing keys, are disjoint when they
+admit no routing key in common, and the first contains the second when every routing key the second
+admits is one the first admits. An implementation MUST decide each of the three from the
+document rather than by enumerating keys, and `LIN-011` through `LIN-014` state how under each
+strategy kind.
+
+`LIN-003`. The extents of the shards one snapshot enumerates MUST be pairwise disjoint. A routing
+key that `shardOf` maps to no shard, which under `directory` is the no-match of `DIR-010`, belongs
+to no extent, and an implementation MUST NOT treat it as belonging to one.
+
+#### Lineage of two snapshots
+
+`LIN-004`. The **lineage** of an earlier snapshot and a later snapshot MUST be the correspondence
+their extents induce: for each shard of the later snapshot, the shards of the earlier one whose
+extents meet its extent, and for each shard of the earlier snapshot, the shards of the later one
+whose extents meet its extent. A lineage relates extents and MUST NOT be read from, or recorded in,
+any member of a topology document.
+
+`LIN-005`. Computing a lineage MUST be a pure function of the two snapshots. It MUST NOT read
+health, a clock, a handoff state, or any ownership delta.
+
+`LIN-006`. An implementation MUST refuse to compute a lineage between two snapshots whose shard
+identity is not comparable under `TOPO-231`, and MUST report the refusal as `TOPO-231` states.
+Comparability is the same condition for both joins, because a change that renames every shard
+leaves neither one an answer.
+
+`LIN-007`. Where the two snapshots enumerate the same set of shard identifiers, the lineage MUST be
+the identity: each shard's parent and child are that shard alone, and no shard is classified
+`divided`, `merged`, `fresh`, `split`, `folded`, or `vacated` under `LIN-021`. Under every strategy kind the shard
+identifier of `PLACE-031` renders the geometry that fixes the extent, so an equal shard set is an
+equal extent set: under `ring` the identifier is the owning token, under `slot` it is the slot index
+at a `slotCount` that `TOPO-231` holds equal, and under `directory` it is the matcher itself, whose
+effective extent is fixed by the entry set that the shard set enumerates.
+
+#### Extents under each strategy
+
+`LIN-011`. Under `ring`, the extent of the shard whose identifier decodes to the token `t` MUST be
+the half-open interval of routing key hash values from the greatest token below `t` to `t`,
+ascending as unsigned 64-bit values and wrapping at zero, which is the interval `RING-020` gives the
+owning ring entry. Containment and equality MUST be decided by comparing interval bounds as unsigned
+64-bit values.
+
+`LIN-012`. Under `slot`, `TOPO-231` refuses a pair whose `slotCount` differs, so the two snapshots
+enumerate the same slots and every extent is equal to its counterpart. The lineage under `slot` MUST
+therefore be the identity of `LIN-007`.
+
+`LIN-013`. Under `directory`, an implementation MUST refuse to compute a lineage where the two
+snapshots enumerate different shard sets, and MUST report the refusal under `ERR-050` with the cause
+`unalignedLineage`. A directory extent is a matcher narrowed by the precedence of `DIR-002`, so it
+is decidable, and this requirement states the refusal that stands until it is defined.
+
+`LIN-014`. Under `rendezvous`, `PLACE-032` makes `shards` empty and `MOVE-241` excludes the kind
+from orchestrated migration, so there is no extent and no lineage. An implementation MUST refuse a
+plan under `MOVE-251` before it reaches a lineage.
+
+`LIN-015`. A registered strategy outside the core set MUST supply its own lineage. An implementation
+MUST NOT derive a registered strategy's extents by sampling routing keys and MUST NOT infer a
+lineage from the strategy's name. Where the two snapshots enumerate different shard sets and the
+strategy supplies no lineage, an implementation MUST refuse the plan under `ERR-050` with the cause
+`lineageUnsupported`.
+
+#### Lineage classification
+
+`LIN-021`. An implementation MUST classify each shard of each snapshot against the other as exactly
+one of these.
+
+A shard the later snapshot enumerates is classified against the earlier one, and a shard only the
+earlier snapshot enumerates is classified against the later one, so every shard of the lineage
+carries exactly one class.
+
+| Class | Snapshot | Condition |
+|---|---|---|
+| `unchanged` | later | one parent, whose extent is equal, and the replica set is equal |
+| `moved` | later | one parent, whose extent is equal, and the replica set differs |
+| `divided` | later | one parent, whose extent strictly contains this one |
+| `merged` | later | two or more parents, whose extents this one contains |
+| `fresh` | later | no parent, this extent meeting no extent of the earlier snapshot |
+| `split` | earlier only | two or more children, whose extents this one contains |
+| `folded` | earlier only | one child, whose extent strictly contains this one |
+| `vacated` | earlier only | no child, this extent meeting no extent of the later snapshot |
+| `unaligned` | either | an extent of the other snapshot that this one neither contains nor is contained by |
+
+`LIN-022`. An implementation MUST refuse a plan over a lineage that classifies any shard
+`unaligned`, and MUST report the refusal under `ERR-050` with the cause `unalignedLineage` naming
+the shard. A boundary that moves without either dividing or folding an extent whole has no
+correspondence an implementation can name, and an authority publishes such a change as two epochs
+instead, the first dividing every extent the change crosses and the second folding the pieces into
+their destinations. Each of the two is plannable on its own.
+
+`LIN-023`. A classification MUST be a pure function of the two snapshots under `LIN-005`, and an
+implementation MUST NOT let the order in which it enumerates shards change any shard's class.
+
+#### The lineage operation
+
+`LIN-031`. An implementation that exposes the `migration` surface MUST expose the lineage between
+two snapshots of the same `topologyId` as an operation the integrator calls, answering each shard's
+class under `LIN-021` and, for a shard the later snapshot enumerates, the shards of the earlier one
+its extent draws from. An integrator sizes a migration before deciding to run it, which is the
+reason `TOPO-212` makes the ownership delta a call rather than a product of installation.
+
+`LIN-032`. An implementation MUST NOT compute a lineage as a step of `TOPO-001`, as part of
+installing a snapshot, or as a precondition of a routing call reading an installed snapshot.
+
+`LIN-033`. The entries of a lineage MUST be ordered as `TOPO-213` orders an ownership delta: first
+the entries for shards the later snapshot enumerates, in the order `shards` gives for that snapshot
+under `PLACE-031`, then the entries for shards only the earlier snapshot enumerates, in the order
+`shards` gives for it.
+
+`LIN-034`. Computing a lineage MUST cost no more than one walk of each snapshot's shard enumeration
+and MUST NOT evaluate a candidate ordering. Under `ring` the two enumerations are ascending token
+orders under `RING-031`, so the correspondence is a merge of two ordered sequences, and an
+implementation MUST NOT materialise either enumeration where its shard count is the figure
+`PLACE-075` bounds a delta over.
+
+#### Plan construction over a lineage
+
+`LIN-041`. `plan` MUST derive its handoffs from the lineage rather than from the ownership delta
+alone, one parent at a time. For each shard `s` the later snapshot enumerates, for each shard `p`
+whose extent `s` draws from under `LIN-004`, and for each node `d` of the replica set of `s` under
+the later snapshot that is not an entry of the replica set of `p` under the earlier snapshot, a plan
+MUST carry one handoff moving `p`'s contents for `s` to `d`. A destination already holding a
+parent's contents needs no handoff for that parent, and a destination holding one parent's contents
+still needs a handoff for every other parent it does not hold.
+
+`LIN-042`. An implementation MUST NOT emit a handoff whose source and destination are the same node.
+A handoff names the node that holds the contents and the node that is to hold them, and a node
+cannot be both.
+
+`LIN-043`. A shard classified `fresh` has no parent and no contents to move, so a plan MUST NOT emit
+a handoff for it. Ownership of a fresh shard is established by the epoch change alone.
+
+`LIN-044`. A plan MUST include a handoff for a shard whose extent grew even where its replica set is
+unchanged and the ownership delta therefore reports no entry for it. `TOPO-211` answers which shards
+changed owner, which is a different question from which shards must receive contents, and a plan
+built over the delta alone omits the destination of every fold whose replica set happens not to
+change.
+
+`LIN-045`. The source of the handoff `LIN-041` admits MUST be chosen as follows. Let the departing
+replicas of `p` be the entries of `p`'s replica set under the earlier snapshot that are not entries
+of `s`'s replica set under the later snapshot, in the order the earlier snapshot gives, and let `i`
+be the position of `d` among the destinations that parent admits, in the order the later snapshot
+gives. The source MUST be the departing replica at position `i` where there is one, and otherwise
+the first entry of `p`'s replica set under the earlier snapshot. A replica that is giving the shard
+up is drained in preference to one that is keeping it, and a plan is a pure function of the two
+snapshots and the policy under `MOVE-221`, so the choice MUST be stated rather than left to an
+implementation.
+
 ### Shard ownership handoff
 
 A handoff moves ownership of one shard from a source node to a destination node. The library
@@ -3729,10 +3896,13 @@ routing conditions and does not govern these.
 
 ### Migration conditions
 
-`ERR-050`. `planRefused` MUST be raised by `plan` under `MOVE-081`, `MOVE-251`, and `RATE-021`, and
-by `rebase` under `MOVE-095`. It MUST carry a `cause` from the closed set `incomparableShards`,
-`epochNotAdvancing`, `strategyUnsupported`, `destinationOutsidePlacementSet`, `policyInvalid`, and
-`topologyMismatch`.
+`ERR-050`. `planRefused` MUST be raised by `plan` under `MOVE-081`, `MOVE-251`, `RATE-021`,
+`LIN-013`, `LIN-015`, and `LIN-022`, and by `rebase` under `MOVE-095`. It MUST carry a `cause` from
+the closed set `incomparableShards`, `epochNotAdvancing`, `strategyUnsupported`,
+`destinationOutsidePlacementSet`, `policyInvalid`, `topologyMismatch`, `unalignedLineage`, and
+`lineageUnsupported`. The set is closed against a binding under `ERR-062`, which forbids a leaf of
+`ERR-010` that this document does not state; a cause is not a leaf, and the two this batch adds are
+raised by `plan` alone.
 
 `ERR-051`. `quiesced` MUST be raised for a write to a shard between the success of `quiesce` and the
 return of `commitCutover`, under `MOVE-311`. It MUST be reported as retryable at both the source and
@@ -3915,6 +4085,7 @@ implementation MAY carry further members beyond those named.
 | `health.transition` | a health state changes | `info` | `node`, `from`, `to`, `trigger` |
 | `health.ejection_refused` | the ceiling refuses a transition | `warning` | `node`, `ejected`, `setSize` |
 | `fencing.refused` | a recipient refuses a request | `warning` | `relation`, `ownership`, `currentOwner`, `token` |
+| `migration.lineage` | `LIN-031` is called | `info` | `unchanged`, `moved`, `divided`, `merged`, `fresh`, `split`, `folded`, `vacated` |
 | `migration.planned` | `plan` returns a plan | `info` | `handoffCount`, `policy` |
 | `migration.state_changed` | a handoff changes state | `info` | `handoff`, `shard`, `from`, `to`, `trigger` |
 | `migration.cutover_committed` | a record is committed | `info` | `shard`, `source`, `destination`, `windowMillis` |

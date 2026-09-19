@@ -169,7 +169,9 @@
               "strategyUnsupported",
               "destinationOutsidePlacementSet",
               "policyInvalid",
-              "topologyMismatch"
+              "topologyMismatch",
+              "unalignedLineage",
+              "lineageUnsupported"
             ]
           },
           {

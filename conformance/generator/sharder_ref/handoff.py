@@ -479,6 +479,20 @@ class Plan:
                 "rebaseInterval": self.rebase_interval()}
 
 
+def replica_set(snapshot, shard, factor_of):
+    """`TOPO-211`: the entries of a shard's preference list whose role is `replica`.
+
+    The replica count is the achieved count `r` of `REPL-020` rather than the configured factor, so
+    a shortfall shortens the prefix and the entries beyond it are the fallback tail of `REPL-013`.
+    Both the ownership delta and the lineage read a replica set through this one definition.
+    """
+    from . import placement, routing as route_module
+
+    ordering = placement.candidates_for_shard(snapshot, shard, snapshot.placement_set)
+    entries, r, _, _ = route_module.build_preference_list(snapshot, ordering, factor_of(snapshot))
+    return [e["node"] for e in entries[:r]]
+
+
 def ownership_delta(before, after, factor_of):
     """`TOPO-211`: the shards whose ordered replica set differs, with nodes gained and lost.
 
@@ -498,16 +512,8 @@ def ownership_delta(before, after, factor_of):
     ordered = order_after + [s for s in order_before if s not in shards_after]
     rows = []
     for shard in ordered:
-        def replicas(snapshot, present):
-            if not present:
-                return []
-            ordering = placement.candidates_for_shard(snapshot, shard, snapshot.placement_set)
-            entries, r, _, _ = route_module.build_preference_list(
-                snapshot, ordering, factor_of(snapshot))
-            return [e["node"] for e in entries[:r]]
-
-        was = replicas(before, shard in shards_before)
-        now = replicas(after, shard in shards_after)
+        was = replica_set(before, shard, factor_of) if shard in shards_before else []
+        now = replica_set(after, shard, factor_of) if shard in shards_after else []
         if was != now:
             rows.append({
                 "shard": shard,

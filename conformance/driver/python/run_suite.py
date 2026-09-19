@@ -389,6 +389,36 @@ def run_ownership_delta(root, payload):
         compare(case["name"] + ".delta", rows, case["expect"]["delta"])
 
 
+def run_lineage(root, payload):
+    from sharder_ref import lineage
+    from sharder_ref.handoff import replica_set
+    for case in payload["cases"]:
+        before = load_topology(root, payload, case["before"])
+        after = load_topology(root, payload, case["after"])
+        replicas = lambda s, shard: replica_set(s, shard, lambda x: x.factor)
+        if case["expect"].get("lineageComputed") is False:
+            try:
+                lineage.classify(before, after, replicas)
+            except lineage.Refused as refusal:
+                compare(case["name"] + ".cause", refusal.cause,
+                        case["expect"]["condition"]["cause"])
+                continue
+            raise AssertionError("%s: a lineage was computed where one is refused" % case["name"])
+        rows = lineage.classify(before, after, replicas)
+        compare(case["name"] + ".lineage", rows, case["expect"]["lineage"])
+
+
+def run_plan_construction(root, payload):
+    from sharder_ref import lineage
+    from sharder_ref.handoff import replica_set
+    for case in payload["cases"]:
+        before = load_topology(root, payload, case["before"])
+        after = load_topology(root, payload, case["after"])
+        replicas = lambda s, shard: replica_set(s, shard, lambda x: x.factor)
+        handoffs = lineage.plan_handoffs(before, after, replicas)
+        compare(case["name"] + ".handoffs", handoffs, case["expect"]["handoffs"])
+
+
 def run_pin_shard(root, payload):
     for case in payload["cases"]:
         snapshot = load_topology(root, payload, payload["topology"])
@@ -544,6 +574,8 @@ HANDLERS = {
     "errorTaxonomy": run_error_taxonomy,
     "defaults": run_defaults,
     "ownershipDelta": run_ownership_delta,
+    "lineage": run_lineage,
+    "planConstruction": run_plan_construction,
     "pinShard": run_pin_shard,
     "readAffinity": run_read_affinity,
     "propertyWitness": run_property_witness,

@@ -1,6 +1,7 @@
 package com.codeheadsystems.sharder.core.internal.migrate;
 
 import com.codeheadsystems.sharder.NodeId;
+import com.codeheadsystems.sharder.core.internal.placement.ShardExtents;
 import com.codeheadsystems.sharder.core.internal.route.OwnershipDelta;
 import com.codeheadsystems.sharder.core.internal.route.PlacementEngine;
 import com.codeheadsystems.sharder.migrate.HandoffState;
@@ -94,8 +95,19 @@ public final class MigrationPlan {
     }
 
     /**
-     * The plan between two snapshots: one handoff per shard that gained a node, under the
-     * ownership delta of {@code TOPO-211}.
+     * The plan between two snapshots, derived from the lineage under {@code LIN-041}.
+     *
+     * <p>One handoff is admitted for each shard of the later snapshot, each shard its extent draws
+     * from, and each destination that does not already hold that parent's contents. Where the two
+     * snapshots enumerate the same shards the lineage is the identity of {@code LIN-007} and every
+     * shard is its own parent, which is the ownership delta's answer and the case every topology
+     * the suite carried before the lineage falls into.
+     *
+     * <p>Building the plan over the delta alone is what {@code LIN-044} forbids. A shard that
+     * absorbed a folded extent keeps its replica set, so the delta reports no entry for it, and a
+     * destination that holds one parent but not the other would receive nothing. A shard divided
+     * out of a parent has no entry in the earlier snapshot at all, so the source would fall back to
+     * the destination and the plan would tell a node to copy from itself.
      *
      * <p>Plan construction is a pure function of the two snapshots and the policy, which is what
      * lets a restarted coordinator rebuild the same plan under {@code MOVE-221}.
@@ -103,22 +115,36 @@ public final class MigrationPlan {
     public static MigrationPlan of(PlacementEngine from, PlacementEngine to,
                                    long quiesceLeaseMarginMillis) {
         MigrationPlan plan = new MigrationPlan(quiesceLeaseMarginMillis, to.document().epoch());
-        for (OwnershipDelta.ShardChange change : OwnershipDelta.between(from, to)) {
-            // A shard that gained a node and lost one is a move from that source to that
-            // destination; the pairing is by position, which the delta reports in identity order.
-            for (int entry = 0; entry < change.gained().size(); entry++) {
-                NodeId destination = change.gained().get(entry);
-                NodeId source = entry < change.lost().size()
-                        ? change.lost().get(entry)
-                        : change.before().isEmpty() ? destination : change.before().get(0);
-                // A handoff is named after the shard it moves, so a rebuilt plan names the same
-                // handoffs, which MOVE-221 rests on.
-                String id = "h-" + change.shard();
-                while (plan.handoffs.containsKey(id)) {
-                    id = id + "-" + entry;
+        Map<String, List<String>> parents = ShardExtents.parents(from, to);
+        for (String shard : to.placement().shards()) {
+            List<NodeId> destinations = OwnershipDelta.replicas(to, shard);
+            for (String parent : parents.getOrDefault(shard, List.of(shard))) {
+                List<NodeId> held = OwnershipDelta.replicas(from, parent);
+                if (held.isEmpty()) {
+                    // LIN-043: a shard with no parent has no contents to move.
+                    continue;
                 }
-                plan.handoffs.put(id, new Handoff(id, change.shard(), source, destination,
-                        from.document().epoch(), to.document().epoch()));
+                List<NodeId> needing = new ArrayList<>(destinations);
+                needing.removeAll(held);
+                List<NodeId> departing = new ArrayList<>(held);
+                departing.removeAll(destinations);
+                for (int entry = 0; entry < needing.size(); entry++) {
+                    // LIN-045: a replica giving the shard up is drained in preference to one
+                    // keeping it, so a plan rebuilt from the same pair of snapshots names the same
+                    // source for the same destination.
+                    NodeId source = entry < departing.size()
+                            ? departing.get(entry)
+                            : held.get(0);
+                    NodeId destination = needing.get(entry);
+                    String id = "h-" + shard;
+                    int suffix = 1;
+                    while (plan.handoffs.containsKey(id)) {
+                        id = "h-" + shard + "-" + suffix;
+                        suffix++;
+                    }
+                    plan.handoffs.put(id, new Handoff(id, shard, parent, source, destination,
+                            from.document().epoch(), to.document().epoch()));
+                }
             }
         }
         return plan;

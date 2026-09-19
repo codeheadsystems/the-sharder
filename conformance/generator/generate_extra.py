@@ -10,6 +10,7 @@ every placement vector.
 
 import argparse
 import copy
+import json
 import sys
 from pathlib import Path
 
@@ -18,7 +19,7 @@ sys.path.insert(0, str(HERE))
 
 import topologies as T                                          # noqa: E402
 from generate import key_spec, write_json                       # noqa: E402
-from sharder_ref import handoff, placement, routing             # noqa: E402
+from sharder_ref import handoff, lineage, placement, routing    # noqa: E402
 from sharder_ref.topology import Snapshot                       # noqa: E402
 
 ENTRIES = []
@@ -75,7 +76,8 @@ CONDITIONS = [
     (401, "planRefused", "no", "a plan cannot be built from the two snapshots and the policy",
      "correct the snapshots or the policy member named in cause",
      ["incomparableShards", "epochNotAdvancing", "strategyUnsupported",
-      "destinationOutsidePlacementSet", "policyInvalid", "topologyMismatch"]),
+      "destinationOutsidePlacementSet", "policyInvalid", "topologyMismatch", "unalignedLineage",
+      "lineageUnsupported"]),
     (402, "quiesced", "yes", "the shard is inside the cutover window",
      "retry after the window, which commitDeadlineMillis bounds", []),
     (403, "handoffFailed", "no", "a handoff reached failed",
@@ -402,6 +404,152 @@ DELTA_RING_REMOVED = copy.deepcopy(DELTA_RING_BEFORE)
 DELTA_RING_REMOVED["epoch"] = 3
 
 
+# `LIN-022`: removing the token `0000000000003000` and adding `0000000000002000` in the same epoch
+# moves a boundary without dividing or folding an extent whole.  The extent `(2000, 5000]` of the
+# later snapshot overlaps `(1000, 3000]` of the earlier one and neither contains the other, so the
+# lineage is unaligned and the plan is refused.
+DELTA_RING_UNALIGNED = copy.deepcopy(DELTA_RING_BEFORE)
+DELTA_RING_UNALIGNED["epoch"] = 4
+DELTA_RING_UNALIGNED["nodes"] = [{"id": "a", "tokens": ["0000000000001000", "0000000000005000"]},
+                                 {"id": "b", "tokens": ["0000000000007000"]},
+                                 {"id": "c", "tokens": ["0000000000002000"]}]
+
+# `LIN-013`: a `directory` pair whose entry sets differ.  A directory extent is a matcher narrowed
+# by the precedence of `DIR-002`, which is decidable and not yet defined, so the pair is refused.
+LINEAGE_DIR_BEFORE = {
+    "formatVersion": "1.0", "topologyId": "lineage-directory", "epoch": 1,
+    "replication": {"factor": 1},
+    "strategy": {"kind": "directory",
+                 "entries": [{"match": {"kind": "prefix", "value": "ab"}, "nodes": ["d1"]},
+                             {"match": {"kind": "prefix", "value": "cd"}, "nodes": ["d2"]}]},
+    "nodes": [{"id": "d1"}, {"id": "d2"}],
+}
+
+LINEAGE_DIR_REFINED = copy.deepcopy(LINEAGE_DIR_BEFORE)
+LINEAGE_DIR_REFINED["epoch"] = 2
+LINEAGE_DIR_REFINED["strategy"]["entries"] = [
+    {"match": {"kind": "prefix", "value": "ab0"}, "nodes": ["d1"]},
+    {"match": {"kind": "prefix", "value": "ab1"}, "nodes": ["d2"]},
+    {"match": {"kind": "prefix", "value": "ab"}, "nodes": ["d1"]},
+    {"match": {"kind": "prefix", "value": "cd"}, "nodes": ["d2"]},
+]
+
+
+def build_lineage(root):
+    """`LIN-*`: the classification over pairs of documents, and the plan built over it."""
+    documents = {"lineage-directory-before": LINEAGE_DIR_BEFORE,
+                 "lineage-directory-refined": LINEAGE_DIR_REFINED,
+                 "delta-ring-unaligned": DELTA_RING_UNALIGNED}
+    for name, document in documents.items():
+        write_json(root / ("topologies/%s.topology.json" % name), document)
+
+    snap = {name: Snapshot(d) for name, d in documents.items()}
+    snap.update({name: Snapshot(d) for name, d in
+                 {"delta-ring-before": DELTA_RING_BEFORE, "delta-ring-added": DELTA_RING_ADDED,
+                  "delta-ring-removed": DELTA_RING_REMOVED, "delta-before": DELTA_BEFORE,
+                  "delta-moved": DELTA_MOVED,
+                  "delta-other-seed": DELTA_OTHER_SEED}.items()})
+    snap["rendezvous-plain"] = Snapshot(
+        json.loads((root / "topologies/rendezvous-plain.topology.json").read_text()))
+
+    def replicas(snapshot, shard):
+        return handoff.replica_set(snapshot, shard, lambda s: s.factor)
+
+    def path(name):
+        return "topologies/%s.topology.json" % name
+
+    cases = []
+    for label, before, after, requirements, note in [
+        ("ring-extent-divided", "delta-ring-before", "delta-ring-added",
+         ["LIN-004", "LIN-011", "LIN-021", "LIN-033"],
+         "`LIN-011`: the added token divides `(1000, 3000]` into `(1000, 2000]` and "
+         "`(2000, 3000]`, so both shards of the later snapshot are `divided` from one parent and "
+         "the shard whose extent did not move is `moved` because its replica set did."),
+        ("ring-extent-folded", "delta-ring-added", "delta-ring-removed",
+         ["LIN-004", "LIN-011", "LIN-021", "LIN-033"],
+         "`LIN-021`: removing the token folds `(1000, 2000]` into the extent that follows it, so "
+         "the later shard is `merged` from two parents and the shard only the earlier snapshot "
+         "enumerates is `folded` and follows every later entry under `LIN-033`."),
+        ("slot-identity", "delta-before", "delta-moved",
+         ["LIN-007", "LIN-012", "LIN-021"],
+         "`LIN-012`: `TOPO-231` holds `slotCount` equal, so the two snapshots enumerate the same "
+         "shards, the lineage is the identity of `LIN-007`, and a shard is `moved` or `unchanged` "
+         "and never divided, merged, fresh, or vacated."),
+    ]:
+        cases.append({
+            "name": label, "requirements": requirements,
+            "before": path(before), "after": path(after), "note": note,
+            "expect": {"lineage": lineage.classify(snap[before], snap[after], replicas)},
+        })
+
+    for label, before, after, requirements, cause, note in [
+        ("ring-unaligned-boundary", "delta-ring-before", "delta-ring-unaligned",
+         ["LIN-021", "LIN-022", "ERR-050"], "unalignedLineage",
+         "`LIN-022`: a boundary that moves without dividing or folding an extent whole has no "
+         "correspondence to name, so the plan is refused and the authority publishes the change "
+         "as a division epoch followed by a fold epoch."),
+        ("directory-differing-shard-sets", "lineage-directory-before", "lineage-directory-refined",
+         ["LIN-013", "ERR-050"], "unalignedLineage",
+         "`LIN-013`: a `directory` extent is a matcher narrowed by the precedence of `DIR-002`. "
+         "It is decidable and not yet defined, so a pair whose shard sets differ is refused."),
+        ("incomparable-shard-identity", "delta-before", "delta-other-seed",
+         ["LIN-006", "TOPO-231", "ERR-050"], "incomparableShards",
+         "`LIN-006`: a lineage joins two snapshots on their extents and an ownership delta joins "
+         "them on their identifiers, and a change that renames every shard leaves neither one an "
+         "answer, so both refuse on the condition `TOPO-231` states."),
+        ("rendezvous-has-no-extent", "rendezvous-plain", "rendezvous-plain",
+         ["LIN-014", "MOVE-241", "ERR-050"], "strategyUnsupported",
+         "`LIN-014`: `PLACE-032` makes `shards` empty under `rendezvous`, so the kind has no "
+         "extent and no lineage, and `MOVE-251` refuses the plan before one is reached."),
+    ]:
+        cases.append({
+            "name": label, "requirements": requirements,
+            "before": path(before), "after": path(after), "note": note,
+            "expect": {"lineageComputed": False,
+                       "condition": {"code": 401, "name": "planRefused", "cause": cause}},
+        })
+
+    emit(root, "vectors/migration/lineage.json", "migration-lineage", "lineage",
+         "The lineage classification over pairs of documents: a ring extent divided, a ring extent "
+         "folded, the identity lineage under `slot`, the unaligned boundary that is refused, the "
+         "`directory` pair whose shard sets differ, the incomparable pair, and the kind that "
+         "enumerates no shard.",
+         ["LIN-004", "LIN-006", "LIN-007", "LIN-011", "LIN-012", "LIN-013", "LIN-014", "LIN-021",
+          "LIN-022", "LIN-033", "TOPO-231", "MOVE-241", "ERR-050"], cases, level="migration")
+
+    plans = []
+    for label, before, after, requirements, note in [
+        ("divided-source-from-the-parent", "delta-ring-before", "delta-ring-added",
+         ["LIN-041", "LIN-042", "LIN-045"],
+         "`LIN-041`: the contents of the divided shard `0000000000002000` are held by the "
+         "replicas of its parent `0000000000003000`, so the handoff names one of them as its "
+         "source. A plan built over the ownership delta alone has no entry for the parent, whose "
+         "replica set did not change, and names a source equal to the destination."),
+        ("folded-destination-outside-the-delta", "delta-ring-added", "delta-ring-removed",
+         ["LIN-041", "LIN-044", "LIN-045"],
+         "`LIN-044`: the shard that absorbs the folded extent keeps its replica set, so the "
+         "ownership delta reports no entry for it, and a plan built over the delta alone moves "
+         "nothing to the replica that does not hold the folded parent."),
+        ("slot-plan-over-the-identity-lineage", "delta-before", "delta-moved",
+         ["LIN-041", "LIN-045"],
+         "`LIN-007`: under the identity lineage every shard is its own parent, so the plan is the "
+         "one the ownership delta already produced and this case is the regression guard for it."),
+    ]:
+        plans.append({
+            "name": label, "requirements": requirements,
+            "before": path(before), "after": path(after), "note": note,
+            "expect": {"handoffs": lineage.plan_handoffs(snap[before], snap[after], replicas)},
+        })
+
+    emit(root, "vectors/migration/plan-construction.json", "migration-plan-construction",
+         "planConstruction",
+         "How a plan derives a handoff from a lineage: the source of a divided shard, the "
+         "destination of a fold that the ownership delta does not report, and the plan under the "
+         "identity lineage.",
+         ["LIN-041", "LIN-042", "LIN-044", "LIN-045"], plans, level="migration")
+
+
+
 def build_ownership_delta(root):
     documents = {"delta-before": DELTA_BEFORE, "delta-moved": DELTA_MOVED,
                  "delta-reordered": DELTA_REORDERED, "delta-other-slot-count": DELTA_OTHER_COUNT,
@@ -614,6 +762,7 @@ def main():
     build_defaults(root)
     build_identity_comparison(root)
     build_ownership_delta(root)
+    build_lineage(root)
     build_ring_and_pin_cases(root)
 
     print("wrote %d further vector files" % len(ENTRIES))

@@ -533,13 +533,69 @@ topology before retrying, and never a reason to install that epoch.
 [`10-specification.md`](../../docs/design/10-specification.md#caller-behaviour-when-fenced) states
 the walk.
 
-## Resharding
+## Resharding and shard lineage
 
-The library has no split operation and no merge operation.
-[`adr/0054`](../../docs/design/adr/0054-range-strategy-withdrawal.md) withdrew the `range` strategy
-and the split prefix whole. Resharding takes a different shape: an authority publishes a topology at
-a higher epoch with a different node set or a different replication factor, ownership of the
-existing shards moves, and the delta between the two topologies names exactly what moved.
+An authority changes a topology by publishing a whole document at a higher epoch. What that change
+does to the shards is the thing worth being deliberate about, and there are two shapes.
+
+A **reshard** keeps the shards and moves their ownership. The node set or the replication factor
+changes, every shard keeps its identifier and the keys it holds, and the ownership delta names the
+shards whose replica set differs.
+
+A **split** or a **merge** changes which shards exist. Adding a ring token divides the extent of one
+shard into two; removing one folds two extents into one. The shard identifiers are not the same on
+both sides, so the ownership delta, which joins on the identifier, has no answer for the ones that
+appeared or vanished. The lineage is the second join, over the keys a shard holds, and it is what
+tells a plan where a new shard's contents come from.
+
+The library derives the lineage from the topology document. Nothing in the document records it, and
+no member has to be authored to get a split.
+
+### Which shape to reach for
+
+Prefer a split or a merge where the change is about capacity for part of the keyspace.
+
+| | Split or merge | Reshard |
+|---|---|---|
+| What changes | which shards exist, and the keys each holds | who owns the existing shards |
+| What moves | the contents of the extents that divided or folded | the contents of every shard whose replica set changed |
+| Typical cause | one shard outgrew a node, or two are small enough to combine | a node joined or left, or the replication factor changed |
+| Cost | proportional to the extent that moved | proportional to what the strategy reassigns |
+| Reversible | yes, by folding back or dividing again | yes, by publishing the earlier shape |
+
+A split moves less because it disturbs less: the keys outside the divided extent do not change
+shard, so nothing about them moves. A reshard that redistributes the whole keyspace to add capacity
+moves data that was already where it belonged. Where both would serve, the split is the cheaper
+change, and it is the one to publish.
+
+A reshard is the right shape when what changed is the cluster rather than the keyspace. Adding a
+node to a `ring` topology under derived tokens is a reshard and a split at once, because the node's
+tokens divide the extents they land in, and the library plans it as one change.
+
+Under `slot` the shard count is fixed by `slotCount`, which `TOPO-231` holds equal across a
+comparable pair, so every change is a reshard. Choose `slotCount` generously at the outset: it is
+the one decision here that a later epoch cannot revisit.
+
+The library does not enforce the preference. It refuses a change whose boundaries neither divide nor
+fold an extent whole, because that has no lineage to name, and it reports the classification through
+the `migration.lineage` event so an operator can see which shape an epoch took. It refuses nothing
+else, and it never declines a reshard on the ground that a split would have been cheaper, because it
+cannot tell a deliberate rebalance from a lazy one.
+[`adr/0091`](../../docs/design/adr/0091-lineage-classification-as-a-signal.md) argues that.
+
+### The unaligned change
+
+A change that moves a boundary without either dividing or folding an extent whole is refused with
+`PlanRefusedException` and the cause `unalignedLineage`. Removing a ring token and adding a
+different one inside the same extent in one epoch is the common way to reach it.
+
+Publish it as two epochs instead: the first divides every extent the change crosses, the second
+folds the pieces into their destinations. Each is plannable on its own, and each leaves a topology
+that routes correctly if the second is delayed.
+
+Under `directory` a pair whose entry sets differ is refused for now with the same cause, until
+directory extents are defined. A directory topology whose entries are unchanged plans as it always
+did.
 
 ### A new epoch
 
@@ -577,9 +633,11 @@ A `ShardChange` carries the shard, the replica set before, the replica set after
 differences. The sets are the entries whose role is `REPLICA`, which is the achieved replica prefix
 rather than the whole preference list, so a node a shard merely falls back to has gained nothing.
 
-The delta is computed on demand rather than at installation, and a shard the later snapshot does not
-enumerate is absent from it. Two snapshots whose shard identity is not comparable refuse the
-computation with `InvalidArgumentException` rather than reporting every shard as wholly changed.
+The delta is computed on demand rather than at installation. Its entries come in two groups: first
+the shards the later snapshot enumerates, in that snapshot's order, then the shards only the earlier
+one enumerates, so a shard that vanished reports the nodes that lost it rather than going
+unreported. Two snapshots whose shard identity is not comparable refuse the computation with
+`InvalidArgumentException` rather than reporting every shard as wholly changed.
 Under `rendezvous` the delta is empty, because the strategy enumerates no shards.
 
 Reading the delta is enough where the integrator's store moves data by itself. Where each move has

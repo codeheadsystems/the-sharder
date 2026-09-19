@@ -16,6 +16,7 @@ public final class Handoff {
 
     private final String id;
     private final String shard;
+    private final String sourceShard;
     private final NodeId source;
     private final NodeId destination;
     private final long fromEpoch;
@@ -27,8 +28,14 @@ public final class Handoff {
 
     Handoff(String id, String shard, NodeId source, NodeId destination, long fromEpoch,
             long toEpoch) {
+        this(id, shard, shard, source, destination, fromEpoch, toEpoch);
+    }
+
+    Handoff(String id, String shard, String sourceShard, NodeId source, NodeId destination,
+            long fromEpoch, long toEpoch) {
         this.id = id;
         this.shard = shard;
+        this.sourceShard = sourceShard;
         this.source = source;
         this.destination = destination;
         this.fromEpoch = fromEpoch;
@@ -43,6 +50,18 @@ public final class Handoff {
     /** The shard whose ownership moves. */
     public String shard() {
         return shard;
+    }
+
+    /**
+     * The shard whose contents this handoff moves, which {@code LIN-041} draws from the lineage.
+     *
+     * <p>It is the shard itself wherever the two snapshots enumerate the same shards. Where the
+     * later snapshot divided or folded an extent, the contents live under the parent's identifier
+     * at the source, so a hook that looked only at {@link #shard()} would search the source for a
+     * shard it does not hold.
+     */
+    public String sourceShard() {
+        return sourceShard;
     }
 
     /** The node that owns the shard before the cutover. */

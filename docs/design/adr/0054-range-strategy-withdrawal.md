@@ -2,6 +2,14 @@
 
 Status: accepted. Date: 2026-09-17.
 
+Amended on 2026-09-19 by [`0086`](0086-shard-lineage-derived-from-extent.md). One sentence of the
+Consequences below no longer holds: that a token addition under `ring` divides a token range as a
+consequence of placement, which `SPLIT-001` already distinguished from a split. The distinction is
+real about who decides and false about what the coordinator has to do, and its absence left `ring`
+with no way to name the parent of a shard that appeared. `0086` carries that behaviour now, under
+the `LIN` prefix. The withdrawal of the `range` strategy, of the `RANGE` and `SPLIT` prefixes, and
+of `PROP-023`, `PROP-026`, and `CFG-063` is untouched, and `range` does not return.
+
 ## Context
 
 [`0002`](0002-placement-strategy-set.md) shipped five strategy kinds, and justified `range` as the

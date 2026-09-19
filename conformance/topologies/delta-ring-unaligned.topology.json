@@ -1,0 +1,33 @@
+{
+  "formatVersion": "1.0",
+  "topologyId": "delta-ring",
+  "epoch": 4,
+  "replication": {
+    "factor": 2
+  },
+  "strategy": {
+    "kind": "ring",
+    "tokenAssignment": "explicit"
+  },
+  "nodes": [
+    {
+      "id": "a",
+      "tokens": [
+        "0000000000001000",
+        "0000000000005000"
+      ]
+    },
+    {
+      "id": "b",
+      "tokens": [
+        "0000000000007000"
+      ]
+    },
+    {
+      "id": "c",
+      "tokens": [
+        "0000000000002000"
+      ]
+    }
+  ]
+}

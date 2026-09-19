@@ -60,6 +60,10 @@ public final class Observability {
 
     /** The events of the {@code migration} surface. */
     public static final List<Event> MIGRATION_EVENTS = List.of(
+            // LIN-031: the count per class, which is where an operator reads whether an
+            // epoch was a refinement or a redistribution. Under 0091 nothing acts on it.
+            event("migration.lineage", "info", "unchanged", "moved", "divided", "merged",
+                    "fresh", "split", "folded", "vacated"),
             event("migration.planned", "info", "handoffCount", "policy"),
             event("migration.state_changed", "info", "handoff", "shard", "from", "to", "trigger"),
             event("migration.cutover_committed", "info", "shard", "source", "destination",

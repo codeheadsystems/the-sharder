@@ -1,7 +1,7 @@
 {
   "port": "java",
   "version": "unreleased",
-  "revision": "6203a8effcf62cfe7bd9416b38656d8c6c7bbae4e1885f065ffe8b7e83a688a9",
+  "revision": "3f56d0a573f1aaf7f364802e43a2bb0d7682eb08a8e7632eb89b86728c682070",
   "strategySurfaces": [
     "directory",
     "rendezvous",
@@ -37,13 +37,13 @@
   "run": {
     "command": "cd ports/java && ./gradlew test",
     "report": "ports/java/conformance/report.txt",
-    "vectorFiles": 67,
-    "vectorCases": 598,
+    "vectorFiles": 69,
+    "vectorCases": 608,
     "failures": 0
   },
   "scale": {
-    "wallTimeMs": 1006,
-    "peakResidentBytes": 616009728,
+    "wallTimeMs": 899,
+    "peakResidentBytes": 591892480,
     "machine": "AMD Ryzen 7 7840U w/ Radeon  780M Graphics, Linux 6.8.0-138-generic",
     "runtime": "OpenJDK 64-Bit Server VM 25.0.4, compiled against the Java 21 API"
   },

@@ -1,6 +1,7 @@
 package com.codeheadsystems.sharder.conformance;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.codeheadsystems.sharder.Digest;
 import com.codeheadsystems.sharder.NodeId;
@@ -13,6 +14,9 @@ import com.codeheadsystems.sharder.core.internal.json.JsonValue.JsonObject;
 import com.codeheadsystems.sharder.core.internal.observe.Observability;
 import com.codeheadsystems.sharder.core.internal.observe.PublicationEvents;
 import com.codeheadsystems.sharder.core.internal.observe.SkewDetection;
+import com.codeheadsystems.sharder.core.internal.migrate.Handoff;
+import com.codeheadsystems.sharder.core.internal.migrate.MigrationPlan;
+import com.codeheadsystems.sharder.core.internal.placement.ShardExtents;
 import com.codeheadsystems.sharder.core.internal.route.OwnershipDelta;
 import com.codeheadsystems.sharder.core.internal.route.PlacementEngine;
 import com.codeheadsystems.sharder.error.ErrorCode;
@@ -286,6 +290,67 @@ final class CoreVectors {
                     .isEqualTo(entry.array("gained").texts());
             assertThat(names(change.lost())).as("delta[%d].lost", index)
                     .isEqualTo(entry.array("lost").texts());
+        }
+    }
+
+    /** {@code lineage}: the classification of two snapshots' extents, under {@code LIN-021}. */
+    void lineage(JsonObject testCase) {
+        PlacementEngine before = engine(testCase, "before");
+        PlacementEngine after = engine(testCase, "after");
+        JsonObject expect = testCase.object("expect");
+        ShardExtents.ReplicaSet replicas = OwnershipDelta::replicas;
+        if (expect.find("lineageComputed").isPresent()) {
+            JsonObject condition = expect.object("condition");
+            ErrorCode code = ErrorCode.ofName(condition.text("name"));
+            assertThat(code.code()).as("condition code").isEqualTo(condition.get("code").asInt());
+            assertThatThrownBy(() -> ShardExtents.classify(before, after, replicas))
+                    .as("refusal").isInstanceOf(ShardExtents.Refused.class);
+            try {
+                ShardExtents.classify(before, after, replicas);
+            } catch (ShardExtents.Refused refusal) {
+                assertThat(refusal.cause()).as("cause").isEqualTo(condition.text("cause"));
+                assertThat(code.causes()).as("cause is in the closed set")
+                        .contains(condition.text("cause"));
+            }
+            return;
+        }
+        List<ShardExtents.Entry> entries = ShardExtents.classify(before, after, replicas);
+        List<JsonValue> expected = expect.array("lineage").elements();
+        assertThat(entries).as("lineage").hasSize(expected.size());
+        for (int index = 0; index < expected.size(); index++) {
+            JsonObject entry = expected.get(index).asObject();
+            ShardExtents.Entry actual = entries.get(index);
+            assertThat(actual.shard()).as("lineage[%d].shard", index)
+                    .isEqualTo(entry.text("shard"));
+            assertThat(actual.lineage().name().toLowerCase(java.util.Locale.ROOT))
+                    .as("lineage[%d].class", index).isEqualTo(entry.text("class"));
+            assertThat(actual.parents()).as("lineage[%d].parents", index)
+                    .isEqualTo(entry.array("parents").texts());
+        }
+    }
+
+    /** {@code planConstruction}: how a plan derives a handoff from a lineage, {@code LIN-041}. */
+    void planConstruction(JsonObject testCase) {
+        PlacementEngine before = engine(testCase, "before");
+        PlacementEngine after = engine(testCase, "after");
+        MigrationPlan plan = MigrationPlan.of(before, after, 0L);
+        List<JsonValue> expected = testCase.object("expect").array("handoffs").elements();
+        assertThat(plan.handoffs()).as("handoff count").hasSize(expected.size());
+        for (int index = 0; index < expected.size(); index++) {
+            JsonObject entry = expected.get(index).asObject();
+            Handoff handoff = plan.handoff(entry.text("id"));
+            assertThat(handoff).as("handoffs[%d] named %s", index, entry.text("id")).isNotNull();
+            assertThat(handoff.shard()).as("handoffs[%d].shard", index)
+                    .isEqualTo(entry.text("shard"));
+            assertThat(handoff.sourceShard()).as("handoffs[%d].sourceShard", index)
+                    .isEqualTo(entry.text("sourceShard"));
+            assertThat(handoff.source().asText()).as("handoffs[%d].source", index)
+                    .isEqualTo(entry.text("source"));
+            assertThat(handoff.destination().asText()).as("handoffs[%d].destination", index)
+                    .isEqualTo(entry.text("destination"));
+            // LIN-042: a node cannot both hold the contents and be the node they move to.
+            assertThat(handoff.source()).as("handoffs[%d] source is not the destination", index)
+                    .isNotEqualTo(handoff.destination());
         }
     }
 

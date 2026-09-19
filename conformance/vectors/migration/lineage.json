@@ -1,0 +1,258 @@
+{
+  "vectorSet": "migration-lineage",
+  "kind": "lineage",
+  "level": "migration",
+  "description": "The lineage classification over pairs of documents: a ring extent divided, a ring extent folded, the identity lineage under `slot`, the unaligned boundary that is refused, the `directory` pair whose shard sets differ, the incomparable pair, and the kind that enumerates no shard.",
+  "requirements": [
+    "ERR-050",
+    "LIN-004",
+    "LIN-006",
+    "LIN-007",
+    "LIN-011",
+    "LIN-012",
+    "LIN-013",
+    "LIN-014",
+    "LIN-021",
+    "LIN-022",
+    "LIN-033",
+    "MOVE-241",
+    "TOPO-231"
+  ],
+  "cases": [
+    {
+      "name": "ring-extent-divided",
+      "requirements": [
+        "LIN-004",
+        "LIN-011",
+        "LIN-021",
+        "LIN-033"
+      ],
+      "before": "topologies/delta-ring-before.topology.json",
+      "after": "topologies/delta-ring-added.topology.json",
+      "note": "`LIN-011`: the added token divides `(1000, 3000]` into `(1000, 2000]` and `(2000, 3000]`, so both shards of the later snapshot are `divided` from one parent and the shard whose extent did not move is `moved` because its replica set did.",
+      "expect": {
+        "lineage": [
+          {
+            "shard": "0000000000001000",
+            "class": "moved",
+            "parents": [
+              "0000000000001000"
+            ]
+          },
+          {
+            "shard": "0000000000002000",
+            "class": "divided",
+            "parents": [
+              "0000000000003000"
+            ]
+          },
+          {
+            "shard": "0000000000003000",
+            "class": "divided",
+            "parents": [
+              "0000000000003000"
+            ]
+          },
+          {
+            "shard": "0000000000005000",
+            "class": "unchanged",
+            "parents": [
+              "0000000000005000"
+            ]
+          },
+          {
+            "shard": "0000000000007000",
+            "class": "unchanged",
+            "parents": [
+              "0000000000007000"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "ring-extent-folded",
+      "requirements": [
+        "LIN-004",
+        "LIN-011",
+        "LIN-021",
+        "LIN-033"
+      ],
+      "before": "topologies/delta-ring-added.topology.json",
+      "after": "topologies/delta-ring-removed.topology.json",
+      "note": "`LIN-021`: removing the token folds `(1000, 2000]` into the extent that follows it, so the later shard is `merged` from two parents and the shard only the earlier snapshot enumerates is `folded` and follows every later entry under `LIN-033`.",
+      "expect": {
+        "lineage": [
+          {
+            "shard": "0000000000001000",
+            "class": "moved",
+            "parents": [
+              "0000000000001000"
+            ]
+          },
+          {
+            "shard": "0000000000003000",
+            "class": "merged",
+            "parents": [
+              "0000000000002000",
+              "0000000000003000"
+            ]
+          },
+          {
+            "shard": "0000000000005000",
+            "class": "unchanged",
+            "parents": [
+              "0000000000005000"
+            ]
+          },
+          {
+            "shard": "0000000000007000",
+            "class": "unchanged",
+            "parents": [
+              "0000000000007000"
+            ]
+          },
+          {
+            "shard": "0000000000002000",
+            "class": "folded",
+            "parents": [
+              "0000000000003000"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "slot-identity",
+      "requirements": [
+        "LIN-007",
+        "LIN-012",
+        "LIN-021"
+      ],
+      "before": "topologies/delta-before.topology.json",
+      "after": "topologies/delta-moved.topology.json",
+      "note": "`LIN-012`: `TOPO-231` holds `slotCount` equal, so the two snapshots enumerate the same shards, the lineage is the identity of `LIN-007`, and a shard is `moved` or `unchanged` and never divided, merged, fresh, or vacated.",
+      "expect": {
+        "lineage": [
+          {
+            "shard": "0",
+            "class": "unchanged",
+            "parents": [
+              "0"
+            ]
+          },
+          {
+            "shard": "1",
+            "class": "unchanged",
+            "parents": [
+              "1"
+            ]
+          },
+          {
+            "shard": "2",
+            "class": "unchanged",
+            "parents": [
+              "2"
+            ]
+          },
+          {
+            "shard": "3",
+            "class": "moved",
+            "parents": [
+              "3"
+            ]
+          },
+          {
+            "shard": "4",
+            "class": "moved",
+            "parents": [
+              "4"
+            ]
+          },
+          {
+            "shard": "5",
+            "class": "moved",
+            "parents": [
+              "5"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "ring-unaligned-boundary",
+      "requirements": [
+        "LIN-021",
+        "LIN-022",
+        "ERR-050"
+      ],
+      "before": "topologies/delta-ring-before.topology.json",
+      "after": "topologies/delta-ring-unaligned.topology.json",
+      "note": "`LIN-022`: a boundary that moves without dividing or folding an extent whole has no correspondence to name, so the plan is refused and the authority publishes the change as a division epoch followed by a fold epoch.",
+      "expect": {
+        "lineageComputed": false,
+        "condition": {
+          "code": 401,
+          "name": "planRefused",
+          "cause": "unalignedLineage"
+        }
+      }
+    },
+    {
+      "name": "directory-differing-shard-sets",
+      "requirements": [
+        "LIN-013",
+        "ERR-050"
+      ],
+      "before": "topologies/lineage-directory-before.topology.json",
+      "after": "topologies/lineage-directory-refined.topology.json",
+      "note": "`LIN-013`: a `directory` extent is a matcher narrowed by the precedence of `DIR-002`. It is decidable and not yet defined, so a pair whose shard sets differ is refused.",
+      "expect": {
+        "lineageComputed": false,
+        "condition": {
+          "code": 401,
+          "name": "planRefused",
+          "cause": "unalignedLineage"
+        }
+      }
+    },
+    {
+      "name": "incomparable-shard-identity",
+      "requirements": [
+        "LIN-006",
+        "TOPO-231",
+        "ERR-050"
+      ],
+      "before": "topologies/delta-before.topology.json",
+      "after": "topologies/delta-other-seed.topology.json",
+      "note": "`LIN-006`: a lineage joins two snapshots on their extents and an ownership delta joins them on their identifiers, and a change that renames every shard leaves neither one an answer, so both refuse on the condition `TOPO-231` states.",
+      "expect": {
+        "lineageComputed": false,
+        "condition": {
+          "code": 401,
+          "name": "planRefused",
+          "cause": "incomparableShards"
+        }
+      }
+    },
+    {
+      "name": "rendezvous-has-no-extent",
+      "requirements": [
+        "LIN-014",
+        "MOVE-241",
+        "ERR-050"
+      ],
+      "before": "topologies/rendezvous-plain.topology.json",
+      "after": "topologies/rendezvous-plain.topology.json",
+      "note": "`LIN-014`: `PLACE-032` makes `shards` empty under `rendezvous`, so the kind has no extent and no lineage, and `MOVE-251` refuses the plan before one is reached.",
+      "expect": {
+        "lineageComputed": false,
+        "condition": {
+          "code": 401,
+          "name": "planRefused",
+          "cause": "strategyUnsupported"
+        }
+      }
+    }
+  ]
+}

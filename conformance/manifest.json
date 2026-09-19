@@ -1,9 +1,9 @@
 {
   "suite": "sharder conformance suite",
   "revision": {
-    "id": "6203a8effcf62cfe7bd9416b38656d8c6c7bbae4e1885f065ffe8b7e83a688a9",
+    "id": "3f56d0a573f1aaf7f364802e43a2bb0d7682eb08a8e7632eb89b86728c682070",
     "basis": "sha256 of the RFC 8785 canonical form of the file digests, the level table, and the strategy surfaces",
-    "fileCount": 196,
+    "fileCount": 201,
     "trees": [
       "vectors",
       "topologies",
@@ -15,13 +15,13 @@
   "design": "docs/design/30-conformance.md",
   "generator": "conformance/generator",
   "counts": {
-    "vectorFiles": 67,
-    "vectorCases": 598,
-    "topologyDocuments": 105,
+    "vectorFiles": 69,
+    "vectorCases": 608,
+    "topologyDocuments": 108,
     "scenarios": 22,
     "scenarioSteps": 303,
     "properties": 28,
-    "requirementsNamed": 454
+    "requirementsNamed": 468
   },
   "requirementsNamed": [
     "CFG-014",
@@ -189,6 +189,20 @@
     "KEY-042",
     "KEY-043",
     "KEY-044",
+    "LIN-004",
+    "LIN-006",
+    "LIN-007",
+    "LIN-011",
+    "LIN-012",
+    "LIN-013",
+    "LIN-014",
+    "LIN-021",
+    "LIN-022",
+    "LIN-033",
+    "LIN-041",
+    "LIN-042",
+    "LIN-044",
+    "LIN-045",
     "MOVE-001",
     "MOVE-011",
     "MOVE-021",
@@ -568,11 +582,11 @@
         "failover"
       ],
       "surface": "the handoff coordinator and rate control",
-      "vectorFiles": 3,
-      "vectorCases": 15,
+      "vectorFiles": 5,
+      "vectorCases": 25,
       "scenarios": 12,
       "properties": 3,
-      "requirementsNamed": 80
+      "requirementsNamed": 94
     }
   ],
   "strategySurfaces": [
@@ -685,6 +699,14 @@
       "strategy": "ring",
       "nodeCount": 2,
       "digest": "106ba6977b64947076612f7cfa874adfb2b68c2fccedcd64bfce2eab612371ab",
+      "valid": true
+    },
+    "topologies/delta-ring-unaligned.topology.json": {
+      "topologyId": "delta-ring",
+      "epoch": 4,
+      "strategy": "ring",
+      "nodeCount": 3,
+      "digest": "9856ceda5c5b9ca5bdd4240396b79dffc1fdb51d8c0d542017fe0a70088df6f2",
       "valid": true
     },
     "topologies/delta-short-after.topology.json": {
@@ -1029,6 +1051,22 @@
       "strategy": "rendezvous",
       "nodeCount": 1,
       "digest": "7797a43770f84df98db19f9d11329d55243c779d050fd21cce026f985e0394bb",
+      "valid": true
+    },
+    "topologies/lineage-directory-before.topology.json": {
+      "topologyId": "lineage-directory",
+      "epoch": 1,
+      "strategy": "directory",
+      "nodeCount": 2,
+      "digest": "202c08ccc95f89693fff2411d987ea83bf6e54536b0ff0434d7b77027cf2588d",
+      "valid": true
+    },
+    "topologies/lineage-directory-refined.topology.json": {
+      "topologyId": "lineage-directory",
+      "epoch": 2,
+      "strategy": "directory",
+      "nodeCount": 2,
+      "digest": "88b5a9b7766b11d4cee599ccff278e02f6321850547b5012273d59c1a8f2899b",
       "valid": true
     },
     "topologies/migration-epoch-1.topology.json": {
@@ -1706,7 +1744,7 @@
         "ERR-021",
         "REPL-025"
       ],
-      "sha256": "0c944ea2e167f309384f731a76f7d3ff8407094bb6d7fdab7f1401276ae2cd8a"
+      "sha256": "16468a36a940a2a1fe2028e57b2da665f2800a403f2cee3552832d8822ae2373"
     },
     {
       "file": "vectors/formulas/attempt-limit.json",
@@ -2001,6 +2039,59 @@
       "sha256": "ae9cde46271a4ee1650e11cab0e94da757ea92c83b5eb5e447a50fff6e7679fe"
     },
     {
+      "file": "vectors/migration/lineage.json",
+      "vectorSet": "migration-lineage",
+      "kind": "lineage",
+      "level": "migration",
+      "strategies": [],
+      "caseStrategies": [
+        "directory",
+        "rendezvous",
+        "ring",
+        "slot"
+      ],
+      "description": "The lineage classification over pairs of documents: a ring extent divided, a ring extent folded, the identity lineage under `slot`, the unaligned boundary that is refused, the `directory` pair whose shard sets differ, the incomparable pair, and the kind that enumerates no shard.",
+      "topology": null,
+      "caseCount": 7,
+      "requirements": [
+        "ERR-050",
+        "LIN-004",
+        "LIN-006",
+        "LIN-007",
+        "LIN-011",
+        "LIN-012",
+        "LIN-013",
+        "LIN-014",
+        "LIN-021",
+        "LIN-022",
+        "LIN-033",
+        "MOVE-241",
+        "TOPO-231"
+      ],
+      "sha256": "39281cb0f3216695062075b0935328864baf6aede3a19b3df5033c36e10a1182"
+    },
+    {
+      "file": "vectors/migration/plan-construction.json",
+      "vectorSet": "migration-plan-construction",
+      "kind": "planConstruction",
+      "level": "migration",
+      "strategies": [],
+      "caseStrategies": [
+        "ring",
+        "slot"
+      ],
+      "description": "How a plan derives a handoff from a lineage: the source of a divided shard, the destination of a fold that the ownership delta does not report, and the plan under the identity lineage.",
+      "topology": null,
+      "caseCount": 3,
+      "requirements": [
+        "LIN-041",
+        "LIN-042",
+        "LIN-044",
+        "LIN-045"
+      ],
+      "sha256": "c19f77e44d8c9a6c686e0c6b508c666c3718fb2266f7755c63cee21d55aae2de"
+    },
+    {
       "file": "vectors/movement/add-one-node.json",
       "vectorSet": "movement-add-one-node",
       "kind": "movement",
@@ -2078,7 +2169,7 @@
         "OBS-020",
         "OBS-021"
       ],
-      "sha256": "548ce6104a96251eea8bdd586c79069f5d0bdbb9968b16426a5f170187cce189"
+      "sha256": "cea1227356a1ea21fd617f8a149d503ffd226757e8f7eeb34b4a904d7e1bea70"
     },
     {
       "file": "vectors/observability/inventory-routing.json",

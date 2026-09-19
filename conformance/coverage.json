@@ -1,11 +1,30 @@
 {
   "specification": "docs/design/10-specification.md",
-  "statedRequirements": 656,
-  "coveredRequirements": 454,
-  "uncoveredRequirements": 202,
-  "coveragePercent": 69,
+  "statedRequirements": 680,
+  "coveredRequirements": 468,
+  "uncoveredRequirements": 212,
+  "coveragePercent": 68,
   "identifiersNamedButNotStated": [],
   "byPrefix": [
+    {
+      "prefix": "LIN",
+      "section": "",
+      "stated": 24,
+      "covered": 14,
+      "uncovered": [
+        "LIN-001",
+        "LIN-002",
+        "LIN-003",
+        "LIN-005",
+        "LIN-015",
+        "LIN-023",
+        "LIN-031",
+        "LIN-032",
+        "LIN-034",
+        "LIN-043"
+      ],
+      "percent": 58
+    },
     {
       "prefix": "CFG",
       "section": "Configuration surface",
@@ -965,6 +984,20 @@
         "HEALTH-041",
         "HEALTH-043",
         "HEALTH-048",
+        "LIN-004",
+        "LIN-006",
+        "LIN-007",
+        "LIN-011",
+        "LIN-012",
+        "LIN-013",
+        "LIN-014",
+        "LIN-021",
+        "LIN-022",
+        "LIN-033",
+        "LIN-041",
+        "LIN-042",
+        "LIN-044",
+        "LIN-045",
         "MOVE-001",
         "MOVE-011",
         "MOVE-021",
@@ -1036,8 +1069,8 @@
         "TOPO-221",
         "TOPO-231"
       ],
-      "requirementsAtLevel": 80,
-      "requirementsWhenDeclared": 404
+      "requirementsAtLevel": 94,
+      "requirementsWhenDeclared": 418
     }
   ],
   "coveredBy": {
@@ -1484,7 +1517,8 @@
     ],
     "ERR-050": [
       "scenarios/rebase-drops-a-handoff.json",
-      "vectors/formulas/migration-rate.json"
+      "vectors/formulas/migration-rate.json",
+      "vectors/migration/lineage.json"
     ],
     "MOVE-171": [
       "properties/properties.json",
@@ -1632,6 +1666,59 @@
     ],
     "KEY-044": [
       "vectors/keytransform/prefix-fields-2.json"
+    ],
+    "LIN-004": [
+      "vectors/migration/lineage.json"
+    ],
+    "LIN-006": [
+      "vectors/migration/lineage.json"
+    ],
+    "LIN-007": [
+      "vectors/migration/lineage.json"
+    ],
+    "LIN-011": [
+      "vectors/migration/lineage.json"
+    ],
+    "LIN-012": [
+      "vectors/migration/lineage.json"
+    ],
+    "LIN-013": [
+      "vectors/migration/lineage.json"
+    ],
+    "LIN-014": [
+      "vectors/migration/lineage.json"
+    ],
+    "LIN-021": [
+      "vectors/migration/lineage.json"
+    ],
+    "LIN-022": [
+      "vectors/migration/lineage.json"
+    ],
+    "LIN-033": [
+      "vectors/migration/lineage.json"
+    ],
+    "MOVE-241": [
+      "scenarios/handoff-happy-path.json",
+      "vectors/migration/lineage.json",
+      "vectors/topology/ownership-delta-unsupported.json"
+    ],
+    "TOPO-231": [
+      "scenarios/plan-superseded-by-new-epoch.json",
+      "scenarios/rebase-drops-a-handoff.json",
+      "vectors/migration/lineage.json",
+      "vectors/topology/ownership-delta.json"
+    ],
+    "LIN-041": [
+      "vectors/migration/plan-construction.json"
+    ],
+    "LIN-042": [
+      "vectors/migration/plan-construction.json"
+    ],
+    "LIN-044": [
+      "vectors/migration/plan-construction.json"
+    ],
+    "LIN-045": [
+      "vectors/migration/plan-construction.json"
     ],
     "PROP-010": [
       "properties/properties.json",
@@ -2231,10 +2318,6 @@
       "vectors/spread/degradation-ladder.json",
       "vectors/spread/relaxation-stages.json"
     ],
-    "MOVE-241": [
-      "scenarios/handoff-happy-path.json",
-      "vectors/topology/ownership-delta-unsupported.json"
-    ],
     "MOVE-251": [
       "vectors/topology/ownership-delta-unsupported.json"
     ],
@@ -2255,11 +2338,6 @@
     ],
     "TOPO-221": [
       "scenarios/handoff-happy-path.json",
-      "vectors/topology/ownership-delta.json"
-    ],
-    "TOPO-231": [
-      "scenarios/plan-superseded-by-new-epoch.json",
-      "scenarios/rebase-drops-a-handoff.json",
       "vectors/topology/ownership-delta.json"
     ],
     "TOPO-241": [

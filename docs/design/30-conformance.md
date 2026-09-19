@@ -751,6 +751,30 @@ them, `MOVE-151` through `MOVE-238`, because a state sequence is an output. `MOV
 `MOVE-103` are the same case: a rebase is a classification of each handoff against a snapshot, and
 both the classification and the state it leaves are outputs.
 
+### Shard lineage
+
+`LIN-021` through `LIN-045` are classifications and plans, which are outputs, so
+`vectors/migration/lineage.json` and `vectors/migration/plan-construction.json` carry them. Four of
+the `LIN` requirements have no executable test, for reasons this section's other entries already
+give.
+
+`LIN-005` and `LIN-023` constrain how a lineage is produced rather than what it is: the first
+forbids reading health, a clock, or a handoff state, and the second forbids the enumeration order
+changing a class. An implementation that departs from either produces a different classification
+wherever the departure reaches one, and fails a lineage case there.
+
+`LIN-031` and `LIN-032` are the shape of an operation and a rule about where it is not called,
+which is the case `Surface exposure` and `Concurrency and visibility` describe. `LIN-034` bounds
+what a lineage costs, which is the case `Placement cost` describes.
+
+`LIN-015` binds a registered strategy outside the core set. The suite carries core-set documents, so
+no data file can present one, and the same is true of every requirement about a registered strategy.
+
+`LIN-043` states that a plan emits no handoff for a shard with no parent. A fresh extent arises only
+where a later snapshot admits routing keys that the earlier one matched to no shard, which is the
+`directory` no-match of `DIR-010`, and `LIN-013` refuses a `directory` pair whose shard sets differ
+until directory extents are defined. The case arrives with them.
+
 ### Configuration and security
 
 `CFG-001` through `CFG-007`, `CFG-060` through `CFG-062`, and `CFG-064` govern how settings are
