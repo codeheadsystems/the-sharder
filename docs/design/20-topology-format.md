@@ -8,9 +8,10 @@ payload a topology provider delivers. The machine-readable schema is
 The serialisation is JSON. A provider may accept another surface syntax, such as YAML, and converts
 it to JSON before the sharder library validates or digests it.
 
-Status: no implementation of the sharder library exists. The format, the schema, and the rules below
-are stated for an implementation to satisfy, and the only code that reads them today is the
-conformance generator under [`../../conformance/generator/`](../../conformance/generator/). The
+Status: one implementation of the sharder library exists, `ports/java/`. The format, the schema,
+and the rules below are stated for an implementation to satisfy, and the code that reads them today
+is the conformance generator under [`../../conformance/generator/`](../../conformance/generator/)
+and that port's document pipeline. The
 tenant routing and cache cluster examples below are reproduced as suite topologies, which
 `verify_schema.py` validates against the published schema; the storage cluster example is not.
 

@@ -9,8 +9,8 @@ The library is embedded in an application. It consumes a topology published by a
 authority, exposes a routing call over that topology, and exposes a coordination surface for the
 period during which ownership of a shard moves from one node to another.
 
-Status: the library is designed and not implemented. The components and flows below describe the
-shape of that design, not the behaviour of any running code.
+Status: the library is designed, and `ports/java/` implements it. The components and flows below
+describe the shape of that design, which the Java port renders and no other port has.
 
 The vocabulary every document here uses is defined in [`05-glossary.md`](05-glossary.md), and a term
 below carries the meaning that document gives it.

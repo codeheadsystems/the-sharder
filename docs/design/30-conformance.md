@@ -11,10 +11,11 @@ maintainer asking what tests `SPREAD-013` reads the answer out of
 [`../../conformance/manifest.json`](../../conformance/manifest.json) rather than out of a test
 runner.
 
-Status: the suite, the reference generator, and the reference driver exist and run. No
-implementation of the sharder library exists, so no port has yet run the suite, and every level,
-kind, and driver rule below states what a port is required to do rather than what one has done. The
-only implementation the suite has run against is the reference that computed its expectations.
+Status: the suite, the reference generator, and the reference driver exist and run. One port has
+run the suite, `ports/java/`, which declares every level in
+[`../../conformance/declarations/java.json`](../../conformance/declarations/java.json). Every
+level, kind, and driver rule below states what a port is required to do rather than what one has
+done, because a second port has yet to read them.
 
 ## Suite layout
 

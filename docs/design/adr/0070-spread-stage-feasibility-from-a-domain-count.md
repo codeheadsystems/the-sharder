@@ -100,10 +100,10 @@ Computing the domain count over the eligible node set inside the routing call, w
 for the residual case too. Rejected because it is a pass over the eligible node set per call, which
 costs what the walk costs and is paid whether or not any stage is short.
 
-Making the skip a MUST rather than a MAY. Rejected because the skip changes no output, so a port
-that evaluates every stage is conforming and slow rather than wrong, and because a MUST would put
-`d(L)` into the prepared placement, which `PLACE-012` makes part of the structure a port must
-reproduce.
+Requiring the skip rather than permitting it. Rejected because the skip changes no output, so a
+port that evaluates every stage is conforming and slow rather than wrong, and because requiring it
+would put `d(L)` into the prepared placement, which `PLACE-012` makes part of the structure a port
+must reproduce.
 
 Refusing a document whose coarsest named level cannot reach the factor. Rejected for the reason
 [`0015`](0015-spread-degradation-algorithm.md) gives for not failing the routing call: `relaxed` is

@@ -78,8 +78,8 @@ files a new driver runs are named in
 [`../../conformance/README.md`](../../conformance/README.md#running-the-suite).
 
 `hash`, `place`, `core`, and `scale` are not optional, so a port carries no declaration until it
-reaches all four. Until then `ports/<port>/README.md` states which levels pass, and the absence of a
-declaration is what says the port is unfinished.
+reaches all four. Before that, `ports/<port>/README.md` states which levels pass, and the absence
+of a declaration is what says the port is unfinished.
 
 ## Conformance declaration
 

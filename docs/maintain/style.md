@@ -52,7 +52,7 @@ is cumulative: where a fifth of the text is emphasised, emphasis carries no info
   methods, environment variables, and other things that are genuinely spelled that way.
 - The RFC 2119 keywords are spelled that way. `MUST`, `MUST NOT`, `SHOULD`, `SHOULD NOT`, and `MAY`
   are capitalised in the normative specification, where they carry their RFC 2119 meaning, and
-  nowhere else. A document that is not normative says "refuses" rather than "MUST refuse".
+  nowhere else. A document that is not normative says "refuses" rather than "`MUST` refuse".
 - No italics for stress. Italics mark a term quoted as a term, and little else.
 
 Where a fact is important, give it its own sentence, its own paragraph, or its own heading. Position
@@ -143,7 +143,7 @@ specification carries the specification's meaning in every other document.
 
 ## Enforcement
 
-Two checks run inside `check`, and they carry different authority.
+Two checks run inside the `check` task of the Java port, and they carry different authority.
 
 | Check | What it proves | On a finding |
 |---|---|---|
@@ -170,5 +170,6 @@ them rather than to counting asterisks.
 Neither check has a per-line suppression. The acronym vocabulary `verifyDocStyle` reads is a list in
 `buildSrc`, so teaching it a new one is a change somebody reviews.
 
-Neither check exists. Both land with the first Java implementation, and until then every rule in
-this guide is enforced at review alone.
+Both checks read every Markdown file in the repository rather than the ones under `ports/java/`,
+so a change to any document is checked by the Java build whatever part of the tree it touches. No
+other port carries them.

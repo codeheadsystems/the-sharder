@@ -5,8 +5,8 @@ that key, in what order, and what happens when those nodes are unavailable. It c
 decisions and sequences ownership changes. It moves no data, elects no leader, opens no connection,
 and speaks no wire protocol.
 
-The library is designed and not yet implemented. Every document here describes the design, and
-nothing here describes a running system.
+The library is designed, and `ports/java/` implements it. Every document here describes the
+design, which the Java port renders and no other port has rendered yet.
 
 ## Reading paths
 

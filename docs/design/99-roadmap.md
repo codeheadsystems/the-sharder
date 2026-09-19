@@ -11,7 +11,7 @@ Publication comes last, under [`adr/0083`](adr/0083-publication-as-the-last-stag
 published until every port passes the conformance suite at the levels its surfaces commit it to, in
 its own test harness, so every stage below is a milestone rather than a release.
 
-Status: nothing is published and no release has been made. The Java port is under way and reaches
+Status: nothing is published and no release has been made. The Java port is finished, reaches
 every stage, and declares every level; no other port has been started, and no date is attached to
 anything below.
 

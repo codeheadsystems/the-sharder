@@ -9,9 +9,9 @@ requirement that constrains it.
 The reader is an implementer writing the Java port, an integrator reading the types before adopting
 them, and a reviewer checking that the port has not quietly changed the contract.
 
-Status: the Java binding is under way and is not complete. The Gradle build, the opaque identifier
-types, the error taxonomy, the hash construction, the JSON reader, the canonical form and the
-digest, document validation, the snapshot lifecycle, the four placement strategies and the
+Status: the Java binding is rendered in full by `ports/java/`. The Gradle build, the opaque
+identifier types, the error taxonomy, the hash construction, the JSON reader, the canonical form
+and the digest, document validation, the snapshot lifecycle, the four placement strategies and the
 extension point that registers a fifth, the override layer, the preference list builder, the
 observability inventory, the conformance harness, the public router with its configuration and
 provider contracts, the migration surface, and the build gates are written, and the port reaches

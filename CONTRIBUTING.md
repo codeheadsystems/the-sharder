@@ -174,8 +174,9 @@ A change lands through a pull request, and the checks pass before it merges.
 
 ## Review and checks
 
-Two checks are specified to run inside the Gradle `check` task, and neither exists yet, because
-`check` arrives with the first Java implementation. Until then every rule is enforced at review.
+Two checks run inside the Gradle `check` task of the Java port, and they carry different
+authority. Both read every Markdown file in the repository, so a change to any document is checked
+by the Java build whatever part of the tree it touches.
 
 | Check | On a finding |
 |---|---|

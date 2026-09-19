@@ -10,17 +10,21 @@ language-neutral data files is what holds every port to it.
 
 ## Status
 
-Design complete. No implementation exists.
+Design complete. One implementation exists.
 
 The specification, the topology document format and its schema, the conformance suite with its
 reference generator, the Java binding design, and the decision records are written. Java is the
-first implementation and is under way: the hash construction, the four placement strategies, the
-document pipeline, the canonical form and the digest, and the conformance harness are written, and
-the port reaches every conformance level the suite carries, and declares them all in
-[`conformance/declarations/java.json`](conformance/declarations/java.json). Every implementation
-sits under [`ports/`](ports/), and
+first implementation, and its module is complete: the hash construction, the four placement
+strategies, the document pipeline, the canonical form and the digest, the routing and migration
+surfaces, the build gates, and the conformance harness are written, and the port reaches every
+conformance level the suite carries, and declares them all in
+[`conformance/declarations/java.json`](conformance/declarations/java.json). What remains for it is
+the JMH benchmarks, which
+[`docs/design/adr/0081`](docs/design/adr/0081-single-java-module.md) puts outside its module. Every
+implementation sits under [`ports/`](ports/), and
 [`docs/design/35-port-conventions.md`](docs/design/35-port-conventions.md) states what each one
 carries whatever its language.
+
 Nothing is published. The release comes after every port passes the conformance suite in its own
 test harness, under
 [`docs/design/adr/0083`](docs/design/adr/0083-publication-as-the-last-stage.md).
