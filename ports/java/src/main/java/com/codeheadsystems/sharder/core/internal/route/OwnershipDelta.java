@@ -51,14 +51,27 @@ public final class OwnershipDelta {
     }
 
     /**
-     * The shards whose replica sets differ, in the enumeration order of the later snapshot.
+     * The shards whose replica sets differ, in the order {@code TOPO-213} fixes: first the shards
+     * the later snapshot enumerates, in its own enumeration order, then the shards only the
+     * earlier snapshot enumerates, in that snapshot's enumeration order.
      *
-     * <p>A shard the later snapshot does not enumerate is absent from the delta, and a shard the
-     * earlier one did not enumerate has an empty before set.
+     * <p>A shard the earlier snapshot did not enumerate has an empty before set, and a shard the
+     * later one does not enumerate has an empty after set. Neither is empty on both sides, so a
+     * shard that vanished reports every node it lost. Where the two snapshots enumerate the same
+     * shards, which is every pair under {@code slot} at one {@code slotCount}, the second group is
+     * empty and the order is the later snapshot's alone.
      */
     public static List<ShardChange> between(PlacementEngine before, PlacementEngine after) {
         List<ShardChange> changes = new ArrayList<>();
-        for (String shard : after.placement().shards()) {
+        List<String> later = after.placement().shards();
+        Set<String> enumeratedLater = new LinkedHashSet<>(later);
+        List<String> ordered = new ArrayList<>(later);
+        for (String shard : before.placement().shards()) {
+            if (!enumeratedLater.contains(shard)) {
+                ordered.add(shard);
+            }
+        }
+        for (String shard : ordered) {
             List<NodeId> was = replicas(before, shard);
             List<NodeId> now = replicas(after, shard);
             if (was.equals(now)) {

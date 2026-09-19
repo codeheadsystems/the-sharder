@@ -1,9 +1,9 @@
 {
   "suite": "sharder conformance suite",
   "revision": {
-    "id": "e91417161ae0de0002cf3748a9ecd969e82c6233f0d8ab97fd3e908492b24204",
+    "id": "6203a8effcf62cfe7bd9416b38656d8c6c7bbae4e1885f065ffe8b7e83a688a9",
     "basis": "sha256 of the RFC 8785 canonical form of the file digests, the level table, and the strategy surfaces",
-    "fileCount": 193,
+    "fileCount": 196,
     "trees": [
       "vectors",
       "topologies",
@@ -16,8 +16,8 @@
   "generator": "conformance/generator",
   "counts": {
     "vectorFiles": 67,
-    "vectorCases": 596,
-    "topologyDocuments": 102,
+    "vectorCases": 598,
+    "topologyDocuments": 105,
     "scenarios": 22,
     "scenarioSteps": 303,
     "properties": 28,
@@ -509,10 +509,10 @@
       ],
       "surface": "the document pipeline, the snapshot lifecycle, and what is reported",
       "vectorFiles": 8,
-      "vectorCases": 133,
+      "vectorCases": 135,
       "scenarios": 1,
       "properties": 22,
-      "requirementsNamed": 125
+      "requirementsNamed": 126
     },
     {
       "level": "scale",
@@ -661,6 +661,30 @@
       "strategy": "slot",
       "nodeCount": 4,
       "digest": "ffdb65dd9fb5976bf5dcb760056c229d37619bd2788c6f3d490ef37bd4e8d5eb",
+      "valid": true
+    },
+    "topologies/delta-ring-added.topology.json": {
+      "topologyId": "delta-ring",
+      "epoch": 2,
+      "strategy": "ring",
+      "nodeCount": 3,
+      "digest": "2042c8625badd5ccb5019d181246a66b1b017074612f589c7a3f2c8dfe2aa142",
+      "valid": true
+    },
+    "topologies/delta-ring-before.topology.json": {
+      "topologyId": "delta-ring",
+      "epoch": 1,
+      "strategy": "ring",
+      "nodeCount": 2,
+      "digest": "425a7afcc4eb05c3403cbde0da416622e2785d02c55a590a63be99a71c90dd46",
+      "valid": true
+    },
+    "topologies/delta-ring-removed.topology.json": {
+      "topologyId": "delta-ring",
+      "epoch": 3,
+      "strategy": "ring",
+      "nodeCount": 2,
+      "digest": "106ba6977b64947076612f7cfa874adfb2b68c2fccedcd64bfce2eab612371ab",
       "valid": true
     },
     "topologies/delta-short-after.topology.json": {
@@ -2981,16 +3005,18 @@
       "level": "core",
       "strategies": [],
       "caseStrategies": [
+        "ring",
         "slot"
       ],
-      "description": "The ownership delta between two snapshots, the reorder-only case that gains and loses nothing, the entry order over sixteen slots, the replica set under a shortfall, and the changes that make shard identity incomparable.",
+      "description": "The ownership delta between two snapshots, the reorder-only case that gains and loses nothing, the entry order over sixteen slots, the replica set under a shortfall, the `ring` pair whose two snapshots enumerate different shard sets, and the changes that make shard identity incomparable.",
       "topology": null,
-      "caseCount": 6,
+      "caseCount": 8,
       "requirements": [
         "ERR-010",
         "PLACE-031",
         "REPL-017",
         "REPL-020",
+        "RING-031",
         "SEC-013",
         "SLOT-031",
         "SPREAD-014",
@@ -3000,7 +3026,7 @@
         "TOPO-231",
         "TOPO-241"
       ],
-      "sha256": "df96523b00ab2b90758bb38693770b4e54155dd040bf7e1b366e206c2ede68aa"
+      "sha256": "1d5d287fe69b73ca6954c3640081356ba38c67e768d82eff3cd1ff54b4a7f618"
     },
     {
       "file": "vectors/validation/documents.json",

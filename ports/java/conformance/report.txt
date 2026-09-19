@@ -1,17 +1,17 @@
 sharder conformance report, Java port
-suite revision e91417161ae0de0002cf3748a9ecd969e82c6233f0d8ab97fd3e908492b24204
+suite revision 6203a8effcf62cfe7bd9416b38656d8c6c7bbae4e1885f065ffe8b7e83a688a9
 
-  hash            2 of   2 vector files,   34 of   34 cases,     0.00s
-  place          45 of  45 vector files,  291 of  291 cases,     0.04s
-  core            8 of   8 vector files,  133 of  133 cases,     7.35s
-  scale           2 of   2 vector files,    2 of    2 cases,     0.83s
+  hash            2 of   2 vector files,   34 of   34 cases,     0.01s
+  place          45 of  45 vector files,  291 of  291 cases,     0.11s
+  core            8 of   8 vector files,  135 of  135 cases,     8.25s
+  scale           2 of   2 vector files,    2 of    2 cases,     1.01s
   failover        3 of   3 vector files,   67 of   67 cases,     0.00s
-  readAffinity    1 of   1 vector files,   46 of   46 cases,     0.00s
+  readAffinity    1 of   1 vector files,   46 of   46 cases,     0.01s
   fencing         3 of   3 vector files,    8 of    8 cases,     0.00s
   migration       3 of   3 vector files,   15 of   15 cases,     0.00s
 
-  596 cases, 0 failures
-  scale wall time            0.83s
-  scale wall time             833 ms
-  peak resident size    683659264 bytes (651 MiB)
+  598 cases, 0 failures
+  scale wall time            1.01s
+  scale wall time            1006 ms
+  peak resident size    616009728 bytes (587 MiB)
   runtime OpenJDK 64-Bit Server VM 25.0.4

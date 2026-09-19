@@ -735,6 +735,7 @@
         "REPL-021",
         "REPL-025",
         "RING-013",
+        "RING-031",
         "RV-013",
         "SEC-011",
         "SEC-013",
@@ -769,7 +770,7 @@
         "TOPO-231",
         "TOPO-241"
       ],
-      "requirementsAtLevel": 125,
+      "requirementsAtLevel": 126,
       "requirementsWhenDeclared": 284
     },
     {
@@ -1247,7 +1248,8 @@
     "RING-031": [
       "vectors/determinism/tie-breaks.json",
       "vectors/placement/shard-enumeration.json",
-      "vectors/scale/ring-1000.json"
+      "vectors/scale/ring-1000.json",
+      "vectors/topology/ownership-delta.json"
     ],
     "RV-003": [
       "vectors/determinism/tie-breaks.json",

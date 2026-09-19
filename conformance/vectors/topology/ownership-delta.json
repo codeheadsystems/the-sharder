@@ -2,12 +2,13 @@
   "vectorSet": "topology-ownership-delta",
   "kind": "ownershipDelta",
   "level": "core",
-  "description": "The ownership delta between two snapshots, the reorder-only case that gains and loses nothing, the entry order over sixteen slots, the replica set under a shortfall, and the changes that make shard identity incomparable.",
+  "description": "The ownership delta between two snapshots, the reorder-only case that gains and loses nothing, the entry order over sixteen slots, the replica set under a shortfall, the `ring` pair whose two snapshots enumerate different shard sets, and the changes that make shard identity incomparable.",
   "requirements": [
     "ERR-010",
     "PLACE-031",
     "REPL-017",
     "REPL-020",
+    "RING-031",
     "SEC-013",
     "SLOT-031",
     "SPREAD-014",
@@ -328,6 +329,100 @@
             ],
             "lost": [
               "a"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "ring-token-added",
+      "requirements": [
+        "TOPO-211",
+        "TOPO-213",
+        "PLACE-031",
+        "RING-031"
+      ],
+      "before": "topologies/delta-ring-before.topology.json",
+      "after": "topologies/delta-ring-added.topology.json",
+      "note": "`TOPO-213`: the added token divides the extent `0000000000003000` bounded, so the second snapshot enumerates `0000000000002000` and the first does not.  That shard's entry carries an empty before set and reports every node it gained.",
+      "expect": {
+        "shardsChanged": 2,
+        "delta": [
+          {
+            "shard": "0000000000001000",
+            "before": [
+              "a",
+              "b"
+            ],
+            "after": [
+              "a",
+              "c"
+            ],
+            "gained": [
+              "c"
+            ],
+            "lost": [
+              "b"
+            ]
+          },
+          {
+            "shard": "0000000000002000",
+            "before": [],
+            "after": [
+              "c",
+              "b"
+            ],
+            "gained": [
+              "b",
+              "c"
+            ],
+            "lost": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "ring-token-removed",
+      "requirements": [
+        "TOPO-211",
+        "TOPO-213",
+        "PLACE-031",
+        "RING-031"
+      ],
+      "before": "topologies/delta-ring-added.topology.json",
+      "after": "topologies/delta-ring-removed.topology.json",
+      "note": "`TOPO-213`: removing the token folds `0000000000002000` into the extent that follows it, so only the first snapshot enumerates that shard.  Its entry carries an empty after set and follows every entry for a shard the second snapshot enumerates.",
+      "expect": {
+        "shardsChanged": 2,
+        "delta": [
+          {
+            "shard": "0000000000001000",
+            "before": [
+              "a",
+              "c"
+            ],
+            "after": [
+              "a",
+              "b"
+            ],
+            "gained": [
+              "b"
+            ],
+            "lost": [
+              "c"
+            ]
+          },
+          {
+            "shard": "0000000000002000",
+            "before": [
+              "c",
+              "b"
+            ],
+            "after": [],
+            "gained": [],
+            "lost": [
+              "b",
+              "c"
             ]
           }
         ]
