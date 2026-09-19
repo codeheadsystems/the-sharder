@@ -845,6 +845,11 @@ HandoffCoordinator coordinator = Sharder.coordinator();
 MigrationPlan plan = coordinator.plan(before, after, hooks, MigrationPolicy.defaults());
 ```
 
+`Sharder.coordinator(config)` answers a coordinator that reports the `migration.` events of
+`OBS-020` through the registry and the sink the configuration carries. It reads those two members
+and nothing else from it: no provider, no snapshot, and no health view.
+`Sharder.coordinator()` reports nothing, which is the right call where observability is unset.
+
 The coordinator holds nothing between calls and installs nothing. A plan is a pure function of the
 two snapshots and the policy, which is what lets a restarted coordinator rebuild the same plan. A
 plan is never created as a side effect of installing a snapshot.

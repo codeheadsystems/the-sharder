@@ -4,6 +4,8 @@ import com.codeheadsystems.sharder.NodeId;
 import com.codeheadsystems.sharder.ShardId;
 import com.codeheadsystems.sharder.core.internal.placement.ShardExtents;
 import com.codeheadsystems.sharder.core.internal.route.OwnershipDelta;
+import com.codeheadsystems.sharder.MonotonicClock;
+import com.codeheadsystems.sharder.core.internal.observe.MetricsHolder;
 import com.codeheadsystems.sharder.core.internal.snapshot.DocumentSnapshot;
 import com.codeheadsystems.sharder.error.InvalidArgumentException;
 import com.codeheadsystems.sharder.error.PlanRefusedException;
@@ -11,11 +13,15 @@ import com.codeheadsystems.sharder.migrate.HandoffCoordinator;
 import com.codeheadsystems.sharder.migrate.MigrationPlan;
 import com.codeheadsystems.sharder.migrate.MigrationPolicy;
 import com.codeheadsystems.sharder.migrate.LineageClass;
+import com.codeheadsystems.sharder.observe.Event;
+import com.codeheadsystems.sharder.observe.Severity;
 import com.codeheadsystems.sharder.migrate.MovementHooks;
 import com.codeheadsystems.sharder.migrate.ShardLineage;
 import com.codeheadsystems.sharder.topology.TopologySnapshot;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Where a plan is built, under {@code MOVE-061}.
@@ -27,8 +33,23 @@ import java.util.List;
  */
 public final class DefaultCoordinator implements HandoffCoordinator {
 
-    /** The coordinator every plan is built through. */
+    private final MetricsHolder metrics;
+    private final MonotonicClock clock;
+
+    /** A coordinator that reports nothing, which is what {@code Sharder.coordinator()} answers. */
     public DefaultCoordinator() {
+        this(new MetricsHolder(Optional.empty(), Optional.empty()), MonotonicClock.systemNanoTime());
+    }
+
+    /**
+     * A coordinator reporting through one sink, under {@code adr/0092}.
+     *
+     * <p>The clock stamps the events of {@code OBS-021} and nothing else: a plan reads no clock,
+     * and {@code step} takes the one the integrator drives it with.
+     */
+    public DefaultCoordinator(MetricsHolder metrics, MonotonicClock clock) {
+        this.metrics = metrics;
+        this.clock = clock;
     }
 
     @Override
@@ -70,7 +91,11 @@ public final class DefaultCoordinator implements HandoffCoordinator {
         if (needsLocalStep && !hooks.declare().supportsLineage()) {
             throw new PlanRefusedException(PlanRefusedException.Cause.LINEAGE_UNSUPPORTED);
         }
-        return new DefaultMigrationPlan(machine, source, target, hooks, policy);
+        metrics.emit(new Event("sharder.migration.planned", clock.millis(), source.topologyId(),
+                target.epoch(), Severity.INFO,
+                Map.of("handoffCount", Integer.toString(machine.handoffs().size()),
+                        "policy", policy.toString())));
+        return new DefaultMigrationPlan(machine, source, target, hooks, policy, metrics, clock);
     }
 
     /** The plan, with a lineage refusal reported as the condition {@code ERR-050} names. */
@@ -100,7 +125,15 @@ public final class DefaultCoordinator implements HandoffCoordinator {
             entries.add(new ShardLineage.Entry(ShardId.of(entry.shard()),
                     LineageClass.valueOf(entry.lineage().name()), parents));
         }
-        return new ShardLineage(entries);
+        ShardLineage lineage = new ShardLineage(entries);
+        Map<String, String> payload = new java.util.LinkedHashMap<>();
+        for (LineageClass value : LineageClass.values()) {
+            payload.put(value.spelling(),
+                    Long.toString(lineage.counts().getOrDefault(value, 0L)));
+        }
+        metrics.emit(new Event("sharder.migration.lineage", clock.millis(), source.topologyId(),
+                target.epoch(), Severity.INFO, payload));
+        return lineage;
     }
 
     /** The classification, with a lineage refusal reported as the condition {@code ERR-050} names. */

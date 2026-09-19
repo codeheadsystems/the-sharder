@@ -15,7 +15,9 @@ import com.codeheadsystems.sharder.migrate.HandoffState;
 import com.codeheadsystems.sharder.migrate.HookDeclaration;
 import com.codeheadsystems.sharder.migrate.HookResult;
 import com.codeheadsystems.sharder.migrate.MigrationPlan;
+import com.codeheadsystems.sharder.migrate.HandoffCoordinator;
 import com.codeheadsystems.sharder.migrate.MigrationPolicy;
+import com.codeheadsystems.sharder.observe.Event;
 import com.codeheadsystems.sharder.NodeId;
 import com.codeheadsystems.sharder.ShardId;
 import com.codeheadsystems.sharder.error.InvalidArgumentException;
@@ -81,6 +83,60 @@ class MigrationTest {
         json.append("]},\"nodes\":[{\"id\":\"a\",\"weight\":1},{\"id\":\"b\",\"weight\":1},")
                 .append("{\"id\":\"c\",\"weight\":1}]}");
         return json.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8);
+    }
+
+    /**
+     * {@code OBS-020}: the `migration.` events a coordinator reports, under {@code adr/0092}.
+     *
+     * <p>The suite asserts no emitted event for any surface, so this is where the port's own
+     * emission is checked. It drives one handoff from `planned` to `complete` and asserts the
+     * events that run produces, their severities, and the common members of {@code OBS-021}.
+     */
+    @Test
+    void aCoordinatorReportsTheEventsOfItsSurface() {
+        Pair pair = snapshots(slots(1, "a", "b"), slots(2, "a", "c"));
+        List<Event> events = new java.util.concurrent.CopyOnWriteArrayList<>();
+        RouterConfig config = RouterConfig.builder()
+                .provider(new InMemoryTopologyProvider(slots(1, "a", "b")))
+                .clock(CLOCK)
+                .eventSink(events::add)
+                .build();
+        HandoffCoordinator coordinator = Sharder.coordinator(config);
+
+        coordinator.lineage(pair.from(), pair.to());
+        MigrationPlan plan = coordinator.plan(pair.from(), pair.to(), new RecordingHooks(),
+                MigrationPolicy.defaults());
+        for (int step = 0; step < 12; step++) {
+            if (plan.step(CLOCK) instanceof StepOutcome.Settled) {
+                break;
+            }
+        }
+
+        List<String> names = events.stream().map(Event::name).distinct().toList();
+        assertThat(names)
+                .contains("sharder.migration.lineage", "sharder.migration.planned",
+                        "sharder.migration.state_changed", "sharder.migration.cutover_committed");
+        // OBS-021: every event carries the topology and epoch in force and a severity.
+        assertThat(events).allSatisfy(event -> {
+            assertThat(event.topologyId()).isEqualTo("slots");
+            assertThat(event.epoch()).isEqualTo(2L);
+            assertThat(event.severity()).isNotNull();
+            assertThat(event.payload()).isNotEmpty();
+        });
+        // Every payload member the inventory names for an emitted event is carried.
+        Event planned = events.stream()
+                .filter(event -> event.name().equals("sharder.migration.planned"))
+                .findFirst().orElseThrow();
+        assertThat(planned.payload()).containsKeys("handoffCount", "policy");
+        Event lineage = events.stream()
+                .filter(event -> event.name().equals("sharder.migration.lineage"))
+                .findFirst().orElseThrow();
+        assertThat(lineage.payload()).containsKeys("unchanged", "moved", "divided", "merged",
+                "fresh", "split", "folded", "vacated");
+        Event changed = events.stream()
+                .filter(event -> event.name().equals("sharder.migration.state_changed"))
+                .findFirst().orElseThrow();
+        assertThat(changed.payload()).containsKeys("handoff", "shard", "from", "to", "trigger");
     }
 
     @Test

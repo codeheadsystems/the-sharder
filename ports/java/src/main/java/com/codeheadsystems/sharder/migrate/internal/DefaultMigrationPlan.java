@@ -5,6 +5,10 @@ import com.codeheadsystems.sharder.ShardId;
 import com.codeheadsystems.sharder.core.internal.migrate.Handoff;
 import com.codeheadsystems.sharder.core.internal.route.OwnershipDelta;
 import com.codeheadsystems.sharder.core.internal.route.PlacementEngine;
+import com.codeheadsystems.sharder.MonotonicClock;
+import com.codeheadsystems.sharder.core.internal.observe.MetricsHolder;
+import com.codeheadsystems.sharder.observe.Event;
+import com.codeheadsystems.sharder.observe.Severity;
 import com.codeheadsystems.sharder.core.internal.snapshot.DocumentSnapshot;
 import com.codeheadsystems.sharder.error.InvalidArgumentException;
 import com.codeheadsystems.sharder.error.PlanRefusedException;
@@ -94,11 +98,17 @@ public final class DefaultMigrationPlan implements MigrationPlan {
 
     private volatile DocumentSnapshot target;
     private volatile com.codeheadsystems.sharder.topology.OwnershipDelta delta;
+    private final MetricsHolder metrics;
+    // OBS-021 stamps every event with an instant. It is not the clock `step` is driven with: a
+    // caller advances a plan on its own clock and an event records when it was reported.
+    private final MonotonicClock eventClock;
 
     /** The plan over one machine, its hooks, and the policy that bounds it. */
     DefaultMigrationPlan(com.codeheadsystems.sharder.core.internal.migrate.MigrationPlan machine,
                          DocumentSnapshot source, DocumentSnapshot target, MovementHooks hooks,
-                         MigrationPolicy policy) {
+                         MigrationPolicy policy, MetricsHolder metrics, MonotonicClock eventClock) {
+        this.metrics = metrics;
+        this.eventClock = eventClock;
         this.machine = machine;
         this.source = source;
         this.target = target;
@@ -108,6 +118,12 @@ public final class DefaultMigrationPlan implements MigrationPlan {
         this.gauge = policy.pressureGauge().orElseGet(PressureGauge::none);
         this.delta = com.codeheadsystems.sharder.topology.OwnershipDelta.between(source, target);
         machine.handoffs().forEach(id -> driving.put(id, new Driving()));
+    }
+
+    /** One {@code migration.} event of {@code OBS-020}, stamped as {@code OBS-021} requires. */
+    private void report(String name, Severity severity, Map<String, String> payload) {
+        metrics.emit(new Event("sharder.migration." + name, eventClock.millis(),
+                source.topologyId(), target.epoch(), severity, payload));
     }
 
     @Override
@@ -171,6 +187,34 @@ public final class DefaultMigrationPlan implements MigrationPlan {
     }
 
     /**
+     * {@code OBS-020}: the transition, and the failure where one is reached.
+     *
+     * <p>{@code migration.state_changed} fires on every transition the machine took, and a
+     * transition it dropped because the state had moved under a hook is not one, so nothing is
+     * reported for it. A handoff reaching {@code failed} carries its kind, which is what an
+     * operator acts on.
+     */
+    private void reportTransition(String id,
+            String trigger,
+            com.codeheadsystems.sharder.core.internal.migrate.MigrationPlan.StepOutcome outcome) {
+        if (!"advanced".equals(outcome.outcome()) && !"settled".equals(outcome.outcome())) {
+            return;
+        }
+        report("state_changed", Severity.INFO, Map.of("handoff", id,
+                "shard", machine.handoff(id).shard(),
+                "from", outcome.fromState(),
+                "to", outcome.toState(),
+                "trigger", trigger));
+        if (HandoffState.FAILED.spelling().equals(outcome.toState())) {
+            Handoff handoff = machine.handoff(id);
+            report("failed", Severity.ERROR, Map.of("shard", handoff.shard(),
+                    "kind", handoff.failureKind().orElse("unknown"),
+                    "source", handoff.source().asText(),
+                    "destination", handoff.destination().asText()));
+        }
+    }
+
+    /**
      * One transition of the machine, taken under its lock.
      *
      * <p>The hook that produced the trigger ran outside every lock, so the state may have moved
@@ -188,7 +232,9 @@ public final class DefaultMigrationPlan implements MigrationPlan {
         synchronized (machineLock) {
             HandoffState from = machine.handoff(id).state();
             try {
-                return machine.step(id, trigger, at, pressure);
+                var outcome = machine.step(id, trigger, at, pressure);
+                reportTransition(id, trigger, outcome);
+                return outcome;
             } catch (IllegalStateException moved) {
                 // The state named no transition for this trigger, which is what a concurrent
                 // abort or recovery leaves behind.
@@ -363,11 +409,27 @@ public final class DefaultMigrationPlan implements MigrationPlan {
         if ("idle".equals(outcome.outcome())) {
             // MOVE-333: the commit deadline ran past the horizon, so the lease is spent and
             // MOVE-331 takes a fresh quiesce on the next step.
+            // An idle outcome here is the spent lease where the machine says so, and a
+            // concurrent abort otherwise, which is not this event.
+            if ("quiesceExpired".equals(outcome.reason())) {
+                report("quiesce_expired", Severity.ERROR, Map.of("handoff", id,
+                        "shard", handoff.shard(),
+                        "leaseMillis", Long.toString(handoff.leaseMillis()),
+                        "marginMillis", Long.toString(policy.quiesceLeaseMarginMillis())));
+            }
             synchronized (machineLock) {
                 machine.clearQuiesce(id);
             }
             return new StepOutcome.Progressed(HandoffId.of(id), 0);
         }
+        // MOVE-311: the window is the interval the shard was quiesced for, from the reading
+        // `MOVE-332` took before the commit to the reading this step was driven with.
+        report("cutover_committed", Severity.INFO, Map.of("shard", handoff.shard(),
+                "source", handoff.source().asText(),
+                "destination", handoff.destination().asText(),
+                "windowMillis", Long.toString(
+                        handoff.quiesceInstant().isPresent()
+                                ? at - handoff.quiesceInstant().getAsLong() : 0L)));
         return advanced(id, handoff.state(), outcome);
     }
 
@@ -539,7 +601,7 @@ public final class DefaultMigrationPlan implements MigrationPlan {
                 // MOVE-233 re-observes a terminal handoff; a live one is advanced by `step`.
                 return new ReobserveOutcome.Refused("the handoff is not terminal");
             }
-            return switch (hooks.observe(context(handoff, state))) {
+            ReobserveOutcome outcome = switch (hooks.observe(context(handoff, state))) {
                 case ObserveResult.Observed observed -> {
                     resume(id.value(), handoff, observed.observation());
                     yield new ReobserveOutcome.Resumed(id,
@@ -548,6 +610,15 @@ public final class DefaultMigrationPlan implements MigrationPlan {
                 case ObserveResult.Unavailable unavailable -> new ReobserveOutcome.Unresolved();
                 case ObserveResult.Undetermined undetermined -> new ReobserveOutcome.Unresolved();
             };
+            // OBS-020: `answer` is what the hook established, and `resumedState` the state the
+            // handoff is in afterwards, which is unchanged where nothing was established.
+            report("reobserved", Severity.INFO, Map.of("handoff", id.value(),
+                    "shard", handoff.shard(),
+                    "answer", outcome instanceof ReobserveOutcome.Resumed ? "observed"
+                            : outcome instanceof ReobserveOutcome.Unresolved ? "unresolved"
+                            : "refused",
+                    "resumedState", machine.handoff(id.value()).state().spelling()));
+            return outcome;
         } finally {
             state.claimed.set(false);
         }
@@ -622,8 +693,15 @@ public final class DefaultMigrationPlan implements MigrationPlan {
                 var report = machine.rebase(newer.epoch(), replicaSets);
                 target = newer;
                 delta = com.codeheadsystems.sharder.topology.OwnershipDelta.between(source, newer);
-                return new RebaseReport(report.fromEpoch(), report.toEpoch(),
+                RebaseReport answer = new RebaseReport(report.fromEpoch(), report.toEpoch(),
                         ids(report.rebased()), ids(report.aborted()), ids(report.unchanged()));
+                report("rebased", Severity.INFO, Map.of(
+                        "fromEpoch", Long.toString(answer.fromEpoch()),
+                        "toEpoch", Long.toString(answer.toEpoch()),
+                        "rebased", Integer.toString(answer.rebased().size()),
+                        "aborted", Integer.toString(answer.aborted().size()),
+                        "unchanged", Integer.toString(answer.unchanged().size())));
+                return answer;
             }
         } finally {
             claims.forEach(claim -> claim.claimed.set(false));
@@ -697,11 +775,24 @@ public final class DefaultMigrationPlan implements MigrationPlan {
         if (!(snapshot instanceof DocumentSnapshot installed)) {
             throw new InvalidArgumentException("the snapshot was not produced by this library");
         }
+        com.codeheadsystems.sharder.core.internal.migrate.MigrationPlan.InstallOutcome outcome;
         synchronized (machineLock) {
             // MOVE-092: the mark records the installed snapshot and nothing else. No hook is
             // called, no preference list is evaluated, and no delta is computed.
-            machine.onSnapshotInstalled(installed.topologyId(), installed.epoch(),
+            outcome = machine.onSnapshotInstalled(installed.topologyId(), installed.epoch(),
                     source.topologyId());
+        }
+        if (outcome.superseded()) {
+            report("superseded", Severity.WARNING, Map.of(
+                    "installedEpoch", Long.toString(installed.epoch()),
+                    "abortedCount", Integer.toString(outcome.aborted().size()),
+                    "finishingCount", Integer.toString(outcome.finishing().size())));
+        }
+        if (outcome.rebasePending() != null) {
+            // MOVE-091: the plan is marked and the integrator decides whether to rebase it.
+            report("rebase_pending", Severity.WARNING, Map.of(
+                    "installedEpoch", Long.toString(installed.epoch()),
+                    "targetEpoch", Long.toString(outcome.rebasePending())));
         }
     }
 

@@ -493,10 +493,16 @@ assertion that a port warning about an ordinary topology fails.
 A port compares the inventory against its own registry and its own sink. A driver holds neither, so
 [`../../conformance/driver/python/run_suite.py`](../../conformance/driver/python/run_suite.py)
 checks the inventory's internal consistency and its surface assignment, as it does for the closed
-condition set of `errorTaxonomy`. The events a running library emits are asserted where the suite
-already drives one: the health scenarios carry `sharder.health.ejection_refused` in their
-expectations. [`adr/0078`](adr/0078-observability-contract-as-data.md) records what is asserted and
-what is not.
+condition set of `errorTaxonomy`. [`adr/0078`](adr/0078-observability-contract-as-data.md) records
+what is asserted and what is not.
+
+What the suite does not assert is emission. No driver checks that a running library emitted a named
+event at the moment a requirement says it does, for any surface. A scenario carries the shape of
+such an expectation in one place, the `ejectionsRefused` member the health scenarios hold, and no
+driver reads that member either, so it is data rather than coverage. A port that declares an
+inventory it never emits from passes every level, which is the state the Java port was in for the
+whole `migration` surface. Until a driver asserts emission, a port's own tests are where emission is
+checked, and the inventory is the contract the suite holds it to.
 
 ## Properties
 
