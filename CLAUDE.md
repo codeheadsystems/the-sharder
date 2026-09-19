@@ -21,8 +21,9 @@ and nothing is until every port passes the suite in its own harness, under
 
 ## Commands
 
-Regenerating the conformance suite is the only build in the repository. It needs `python3` and
-`openssl` on the path; `jsonschema` is optional and its absence is reported rather than fatal.
+The repository carries two builds: the conformance suite's generator, and the Java port.
+Regenerating the suite needs `python3` and `openssl` on the path; `jsonschema` is optional and its
+absence is reported rather than fatal.
 
 ```sh
 cd conformance/generator

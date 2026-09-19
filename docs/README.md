@@ -153,12 +153,13 @@ status line says what has and has not been written. The port's directory is
 [`design/35-port-conventions.md`](design/35-port-conventions.md) states what it carries that every
 other port carries too.
 
-1. [`design/40-java-binding.md`](design/40-java-binding.md#artifacts-and-modules). The Gradle
-   projects, what each carries, and what each split lets a consumer avoid.
+1. [`design/40-java-binding.md`](design/40-java-binding.md#artifacts-and-modules). The one
+   artifact and the one module, and the package boundaries that carry what an artifact split
+   would have carried.
 2. [`design/40-java-binding.md`](design/40-java-binding.md#public-interface-set). The public types,
    in the order the specification introduces them.
 3. [`design/40-java-binding.md`](design/40-java-binding.md#integer-widths). The unsigned discipline
-   and the build check that is to enforce it.
+   and the build check that enforces it.
 4. [`design/40-java-binding.md`](design/40-java-binding.md#conformance-harness). How the vectors
    reach JUnit.
 5. [`design/40-java-binding.md`](design/40-java-binding.md#build-and-quality-gates). The `check`

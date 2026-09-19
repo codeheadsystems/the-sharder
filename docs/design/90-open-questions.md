@@ -233,8 +233,11 @@ incremented once per attempt that reaches it rather than once per entry a routin
 [`adr/0067`](adr/0067-probe-admission-at-the-attempt.md) records that decision. The budget window
 was already accounted at the attempt, so the two counters contend under the same rate.
 
-Recommended default: no change to the specification. The Java binding uses an atomic increment for
-the probe counter and an array of adders for the budget window, and neither takes a lock.
+Recommended default: no change to the specification. The Java binding designs an atomic increment
+for the probe counter and an array of adders for the budget window, and `ports/java/` takes the
+atomic increment and holds the budget window under one lock instead, because `FAIL-031` counts
+over the window to the millisecond and a bucketed counter answers differently at a bucket
+boundary. [`../../ports/java/README.md`](../../ports/java/README.md) records that difference.
 
 Evidence that settles it: a benchmark in which attempt latency at high concurrency is dominated by
 one of the two counters. The same benchmark shows whether a requirement forbidding a lock on them

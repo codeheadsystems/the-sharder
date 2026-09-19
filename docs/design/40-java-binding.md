@@ -1100,8 +1100,8 @@ It is tuned rather than transcribed. Message words are loaded from the frame buf
 of `HASH-030`, that form costs 29 nanoseconds per evaluation against 49 for the octet-at-a-time
 form; [`adr/0040`](adr/0040-cryptographic-primitive-sourcing-policy.md) states the conditions the 29
 was taken under and compares it with a library implementation. The figures are from a prototype
-rather than from this binding, which has not been written. Neither form allocates, and the
-allocation gate under "Benchmarks" is what holds the tuned one to that.
+rather than from this binding. Neither form allocates, and the allocation gate under "Benchmarks"
+is what holds the tuned one to that.
 
 Bouncy Castle's `org.bouncycastle.crypto.macs.SipHash` is a third oracle for `HASH-003`, at test
 scope, under `adr/0040`. The reference table of the paper and
@@ -1371,7 +1371,8 @@ Both documentation checks live in `buildSrc` and attach to the root project. The
 the repository, two directories above the Gradle root, because the documents belong to no port.
 
 `verifyDocLinks` proves that every cross-reference resolves. It walks every Markdown file under
-`docs/` and under `ports/`, and the repository `README.md`, and for each reference it checks:
+`docs/` and under `ports/`, the repository `README.md`, and `CONTRIBUTING.md`, and for each
+reference it checks:
 
 - a relative link target exists on disk;
 - an anchor resolves against a heading of the target file, under GitHub's slug rules;

@@ -121,7 +121,7 @@ The shape of a declaration, with the digest abbreviated:
     "migration": { "state": "excluded", "surface": "migration" }
   },
   "run": {
-    "command": "./gradlew :sharder-conformance:test",
+    "command": "cd ports/java && ./gradlew test",
     "report": "ports/java/conformance/report.txt",
     "vectorFiles": 0,
     "vectorCases": 0,
